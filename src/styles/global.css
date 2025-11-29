@@ -53,14 +53,14 @@
   }
   
   a:focus-visible {
-    @apply outline-none ring-3 ring-brand-cyan ring-offset-2 rounded-md;
+    @apply outline-none ring-2 ring-brand-cyan ring-offset-2 rounded-md;
   }
   
   button:focus-visible,
   input:focus-visible,
   textarea:focus-visible,
   select:focus-visible {
-    @apply outline-none ring-3 ring-brand-cyan ring-offset-2;
+    @apply outline-none ring-2 ring-brand-cyan ring-offset-2;
   }
 }
 
@@ -68,7 +68,7 @@
   .btn {
     @apply inline-flex items-center justify-center font-primary font-medium rounded-lg transition-all duration-normal;
     @apply min-h-[48px] px-6;
-    @apply focus-visible:ring-3 focus-visible:ring-brand-cyan focus-visible:ring-offset-2;
+    @apply focus-visible:ring-2 focus-visible:ring-brand-cyan focus-visible:ring-offset-2;
   }
   
   .btn-primary {
@@ -90,7 +90,7 @@
   .input {
     @apply w-full min-h-[48px] px-4 py-3 border-2 border-neutral-200 rounded-lg;
     @apply font-body text-base text-neutral-700;
-    @apply focus:border-brand-cyan focus:ring-3 focus:ring-brand-cyan/20;
+    @apply focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/20;
     @apply transition-all duration-normal;
   }
   
