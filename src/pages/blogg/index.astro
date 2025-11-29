@@ -1,15 +1,12 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
 
-// This would typically come from a CMS or markdown files
-const posts = [
-  {
-    slug: 'velkommen-til-bloggen',
-    title: 'Velkommen til Fyrk-bloggen',
-    excerpt: 'Dette er vår blogg hvor vi deler innsikt om produktledelse, kvalitet og smidig utvikling.',
-    date: '2025-01-15',
-  },
-];
+const posts = (await getCollection('blog', ({ data }) => {
+  return !data.draft;
+})).sort((a, b) => {
+  return b.data.date.getTime() - a.data.date.getTime();
+});
 ---
 
 <BaseLayout 
@@ -33,23 +30,23 @@ const posts = [
                     href={`/blogg/${post.slug}`}
                     class="text-brand-navy hover:text-brand-cyan-darker transition-colors duration-fast"
                   >
-                    {post.title}
+                    {post.data.title}
                   </a>
                 </h2>
                 <p class="text-neutral-500 text-sm mb-4">
-                  {new Date(post.date).toLocaleDateString('no-NO', { 
+                  {post.data.date.toLocaleDateString('no-NO', { 
                     year: 'numeric', 
                     month: 'long', 
                     day: 'numeric' 
                   })}
                 </p>
                 <p class="text-neutral-700 leading-relaxed">
-                  {post.excerpt}
+                  {post.data.description}
                 </p>
                 <a 
                   href={`/blogg/${post.slug}`}
                   class="inline-block mt-4 text-brand-cyan-darker hover:text-brand-cyan font-medium"
-                  aria-label={`Les mer om ${post.title}`}
+                  aria-label={`Les mer om ${post.data.title}`}
                 >
                   Les mer <span aria-hidden="true">→</span>
                 </a>

@@ -26,8 +26,12 @@ test.describe('Homepage Smoke Tests', () => {
       { text: 'Kontakt', href: '/kontakt' },
     ];
 
+    // Get the main navigation element to scope the search
+    const mainNav = page.getByRole('navigation', { name: 'Hovednavigasjon' });
+
     for (const link of navLinks) {
-      const navLink = page.getByRole('link', { name: link.text });
+      // Use first() to handle cases where there might be multiple links with same text (e.g., logo link + nav link)
+      const navLink = mainNav.getByRole('link', { name: link.text }).first();
       await expect(navLink).toBeVisible();
       await expect(navLink).toHaveAttribute('href', link.href);
     }

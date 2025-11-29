@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Noe gikk galt" description="Beklager, det oppstod en feil.">
+  <section class="py-24 bg-white" aria-labelledby="error-heading">
+    <div class="container mx-auto px-4 text-center">
+      <div class="max-w-2xl mx-auto">
+        <p class="text-6xl font-bold text-brand-cyan mb-4" aria-hidden="true">500</p>
+        <h1 id="error-heading" class="text-h1 mb-4">Noe gikk galt</h1>
+        <p class="text-lg text-neutral-500 mb-8">
+          Beklager, det oppstod en teknisk feil. Prøv igjen senere.
+        </p>
+        <a href="/" class="btn btn-primary">
+          Tilbake til forsiden
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+

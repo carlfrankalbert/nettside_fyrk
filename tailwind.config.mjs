@@ -32,7 +32,7 @@ export default {
         },
       },
       fontFamily: {
-        primary: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        primary: ['Inter', 'InterVariable', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
         body: ['-apple-system', 'BlinkMacSystemFont', "'Segoe UI'", 'Roboto', "'Helvetica Neue'", 'Arial', 'sans-serif'],
         mono: ["'Courier New'", 'Courier', 'monospace'],
       },
