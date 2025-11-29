@@ -74,6 +74,12 @@ export default defineConfig({
       testMatch: /mobile\.ux\.ts/,
       use: { ...devices['iPhone 14'] },
     },
+    // Contrast tests - accessibility
+    {
+      name: 'contrast',
+      testMatch: /contrast\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
     // Add more configurations as needed based on analytics
   ],
 
