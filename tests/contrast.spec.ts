@@ -560,7 +560,7 @@ test.describe('Contrast Tests - Dark Mode', () => {
     }
   });
 
-  test('service cards have dark background in dark mode', async ({ page }) => {
+  test('service cards text has sufficient contrast in dark mode', async ({ page }) => {
     await page.goto('/');
     
     const serviceCard = page.locator('.card').first();
