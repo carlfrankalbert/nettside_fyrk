@@ -1,0 +1,38 @@
+---
+interface Props {
+  heading: string;
+  description: string;
+  buttonText: string;
+  buttonHref: string;
+  buttonAriaLabel?: string;
+  variant?: 'primary' | 'secondary';
+}
+
+const { 
+  heading,
+  description,
+  buttonText,
+  buttonHref,
+  buttonAriaLabel,
+  variant = 'secondary'
+} = Astro.props;
+
+const buttonClass = variant === 'primary' ? 'btn-primary' : 'btn-secondary';
+---
+
+<section class="py-24 md:py-32 bg-brand-navy text-white" aria-labelledby="cta-heading">
+  <div class="container mx-auto px-4 text-center">
+    <h2 id="cta-heading" class="text-h2 mb-8">{heading}</h2>
+    <p class="text-xl text-neutral-100 mb-10 max-w-[65ch] mx-auto">
+      {description}
+    </p>
+    <a 
+      href={buttonHref} 
+      class={`btn ${buttonClass} text-lg px-8`}
+      aria-label={buttonAriaLabel || buttonText}
+    >
+      {buttonText}
+    </a>
+  </div>
+</section>
+

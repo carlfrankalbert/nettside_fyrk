@@ -33,7 +33,7 @@ test.describe('Contact Page Smoke Tests', () => {
   });
 
   test('form submission button is visible', async ({ page }) => {
-    await page.goto('/konakt');
+    await page.goto('/kontakt');
     const submitButton = page.getByRole('button', { name: /Send melding/i });
     await expect(submitButton).toBeVisible();
   });

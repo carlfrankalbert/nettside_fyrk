@@ -1,0 +1,24 @@
+---
+interface Props {
+  heading: string;
+  items: string[];
+  headingId?: string;
+}
+
+const { heading, items, headingId } = Astro.props;
+---
+
+<div class="max-w-4xl mx-auto">
+  <h2 id={headingId} class="text-h2 text-center mb-12">{heading}</h2>
+  <ul class="grid grid-cols-1 md:grid-cols-2 gap-6" role="list">
+    {items.map((item) => (
+      <li class="flex items-start gap-4">
+        <div class="flex-shrink-0 w-6 h-6 bg-brand-cyan rounded-full mt-1" aria-hidden="true"></div>
+        <p class="text-neutral-700 leading-relaxed">
+          {item}
+        </p>
+      </li>
+    ))}
+  </ul>
+</div>
+
