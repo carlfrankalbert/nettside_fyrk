@@ -13,11 +13,11 @@ const posts = (await getCollection('blog', ({ data }) => {
   title="Blogg"
   description="Les våre artikler om produktledelse, kvalitet, smidig utvikling og mer."
 >
-  <section class="py-24 bg-white" aria-labelledby="blog-heading">
+  <section class="py-24 bg-white dark:bg-neutral-900" aria-labelledby="blog-heading">
     <div class="container mx-auto px-4">
       <div class="max-w-4xl mx-auto">
         <h1 id="blog-heading" class="text-h1 mb-4">Blogg</h1>
-        <p class="text-lg text-neutral-500 mb-12">
+        <p class="text-lg text-neutral-700 dark:text-neutral-300 mb-12">
           Her deler vi innsikt, erfaringer og tanker om produktledelse, kvalitet og smidig utvikling.
         </p>
 
@@ -33,14 +33,14 @@ const posts = (await getCollection('blog', ({ data }) => {
                     {post.data.title}
                   </a>
                 </h2>
-                <p class="text-neutral-500 text-sm mb-4">
+                <p class="text-neutral-600 dark:text-neutral-400 text-sm mb-4">
                   {post.data.date.toLocaleDateString('no-NO', { 
                     year: 'numeric', 
                     month: 'long', 
                     day: 'numeric' 
                   })}
                 </p>
-                <p class="text-neutral-700 leading-relaxed">
+                <p class="text-neutral-700 dark:text-neutral-200 leading-relaxed">
                   {post.data.description}
                 </p>
                 <a 
@@ -55,7 +55,7 @@ const posts = (await getCollection('blog', ({ data }) => {
           </div>
         ) : (
           <div class="text-center py-12">
-            <p class="text-neutral-500 text-lg">
+            <p class="text-neutral-700 dark:text-neutral-300 text-lg">
               Ingen innlegg ennå. Sjekk tilbake snart!
             </p>
           </div>

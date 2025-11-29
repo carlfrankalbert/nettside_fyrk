@@ -6,11 +6,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   title="Kontakt"
   description="Ta kontakt med Fyrk for å høre hvordan vi kan hjelpe ditt selskap med produktledelse som leverer resultater."
 >
-  <section class="py-24 bg-white dark:bg-neutral-900" aria-labelledby="contact-heading">
+  <section class="py-24 bg-white" aria-labelledby="contact-heading">
     <div class="container mx-auto px-4">
       <div class="max-w-3xl mx-auto">
         <h1 id="contact-heading" class="text-h1 mb-4">Kontakt oss</h1>
-        <p class="text-lg text-neutral-500 dark:text-neutral-400 mb-12">
+        <p class="text-lg text-neutral-700 dark:text-neutral-300 mb-12">
           Har du spørsmål eller vil du høre mer om hvordan vi kan hjelpe ditt selskap? Send oss en melding, så tar vi kontakt.
         </p>
 
@@ -35,7 +35,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <div role="status" id="form-success" class="hidden bg-feedback-success/10 border-2 border-feedback-success text-feedback-success p-4 rounded-lg mb-4" aria-live="polite"></div>
           
           <div>
-            <label for="name" class="block font-primary font-medium text-brand-navy dark:text-white mb-2">
+            <label for="name" class="block font-primary font-medium text-brand-navy mb-2">
               Navn <span class="text-feedback-error" aria-label="påkrevd">*</span>
             </label>
             <input
@@ -54,7 +54,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
 
           <div>
-            <label for="email" class="block font-primary font-medium text-brand-navy dark:text-white mb-2">
+            <label for="email" class="block font-primary font-medium text-brand-navy mb-2">
               E-post <span class="text-feedback-error" aria-label="påkrevd">*</span>
             </label>
             <input
@@ -73,7 +73,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
 
           <div>
-            <label for="company" class="block font-primary font-medium text-brand-navy dark:text-white mb-2">
+            <label for="company" class="block font-primary font-medium text-brand-navy mb-2">
               Selskap
             </label>
             <input
@@ -88,7 +88,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
 
           <div>
-            <label for="message" class="block font-primary font-medium text-brand-navy dark:text-white mb-2">
+            <label for="message" class="block font-primary font-medium text-brand-navy mb-2">
               Melding <span class="text-feedback-error" aria-label="påkrevd">*</span>
             </label>
             <textarea
@@ -117,7 +117,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               aria-invalid="false"
             />
             <div class="flex-1">
-                <label for="consent" class="text-sm text-neutral-700 dark:text-neutral-200 leading-relaxed">
+              <label for="consent" class="text-sm text-neutral-700 leading-relaxed">
                 Jeg samtykker til at Fyrk kan lagre og behandle mine personopplysninger for å svare på henvendelsen. <span class="text-feedback-error" aria-label="påkrevd">*</span>
               </label>
               <span id="consent-error" class="text-feedback-error text-sm mt-1 hidden block" role="alert" aria-live="polite"></span>
@@ -134,7 +134,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <h2 id="other-contact-heading" class="text-h3 mb-6">Andre måter å nå oss på</h2>
           <div class="space-y-4">
             <div>
-                <h3 class="font-primary font-semibold text-brand-navy dark:text-white mb-2">LinkedIn</h3>
+              <h3 class="font-primary font-semibold text-brand-navy mb-2">LinkedIn</h3>
               <a 
                 href="https://www.linkedin.com/company/fyrk/" 
                 target="_blank" 
@@ -146,7 +146,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               </a>
             </div>
             <div>
-                <h3 class="font-primary font-semibold text-brand-navy dark:text-white mb-2">Nettsted</h3>
+              <h3 class="font-primary font-semibold text-brand-navy mb-2">Nettsted</h3>
               <a 
                 href="https://fyrk.no" 
                 class="text-brand-cyan-darker hover:text-brand-cyan transition-colors duration-fast"
@@ -156,8 +156,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               </a>
             </div>
             <div>
-                <h3 class="font-primary font-semibold text-brand-navy dark:text-white mb-2">Lokasjon</h3>
-                <p class="text-neutral-700 dark:text-neutral-200">Oslo, Norge</p>
+              <h3 class="font-primary font-semibold text-brand-navy mb-2">Lokasjon</h3>
+              <p class="text-neutral-700">Oslo, Norge</p>
             </div>
           </div>
         </div>
