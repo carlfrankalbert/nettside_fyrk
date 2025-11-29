@@ -1,0 +1,32 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = 'Fyrk leverer produktledelse der kvalitet møter forretningsverdi. Med erfaring fra fintech og smidige leveransemiljøer hjelper vi selskaper å bygge digitale produkter som faktisk holder mål.' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/fyrk-monogram-primary-navy.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title} | Fyrk</title>
+  </head>
+  <body>
+    <Header />
+    <main id="main-content">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
+

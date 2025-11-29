@@ -1,0 +1,142 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout 
+  title="Kontakt"
+  description="Ta kontakt med Fyrk for å høre hvordan vi kan hjelpe ditt selskap med produktledelse som leverer resultater."
+>
+  <section class="py-24 bg-white">
+    <div class="container mx-auto px-4">
+      <div class="max-w-3xl mx-auto">
+        <h1 class="text-h1 mb-4">Kontakt oss</h1>
+        <p class="text-lg text-neutral-500 mb-12">
+          Har du spørsmål eller vil du høre mer om hvordan vi kan hjelpe ditt selskap? Send oss en melding, så tar vi kontakt.
+        </p>
+
+        <form 
+          class="space-y-6" 
+          method="POST" 
+          name="contact"
+          netlify
+          netlify-honeypot="bot-field"
+        >
+          <input type="hidden" name="form-name" value="contact" />
+          <p class="hidden">
+            <label>
+              Don't fill this out if you're human: <input name="bot-field" />
+            </label>
+          </p>
+          <div>
+            <label for="name" class="block font-primary font-medium text-brand-navy mb-2">
+              Navn <span class="text-feedback-error">*</span>
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              class="input"
+              aria-required="true"
+              aria-describedby="name-error"
+            />
+            <span id="name-error" class="sr-only" role="alert"></span>
+          </div>
+
+          <div>
+            <label for="email" class="block font-primary font-medium text-brand-navy mb-2">
+              E-post <span class="text-feedback-error">*</span>
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              class="input"
+              aria-required="true"
+              aria-describedby="email-error"
+            />
+            <span id="email-error" class="sr-only" role="alert"></span>
+          </div>
+
+          <div>
+            <label for="company" class="block font-primary font-medium text-brand-navy mb-2">
+              Selskap
+            </label>
+            <input
+              type="text"
+              id="company"
+              name="company"
+              class="input"
+            />
+          </div>
+
+          <div>
+            <label for="message" class="block font-primary font-medium text-brand-navy mb-2">
+              Melding <span class="text-feedback-error">*</span>
+            </label>
+            <textarea
+              id="message"
+              name="message"
+              rows="6"
+              required
+              class="input resize-y"
+              aria-required="true"
+              aria-describedby="message-error"
+            ></textarea>
+            <span id="message-error" class="sr-only" role="alert"></span>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <input
+              type="checkbox"
+              id="consent"
+              name="consent"
+              required
+              class="mt-1 w-5 h-5 border-2 border-neutral-200 rounded text-brand-cyan focus:ring-brand-cyan focus:ring-offset-2"
+              aria-required="true"
+            />
+            <label for="consent" class="text-sm text-neutral-700 leading-relaxed">
+              Jeg samtykker til at Fyrk kan lagre og behandle mine personopplysninger for å svare på henvendelsen. <span class="text-feedback-error">*</span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-full sm:w-auto text-lg px-8">
+            Send melding
+          </button>
+        </form>
+
+        <div class="mt-16 pt-12 border-t border-neutral-200">
+          <h2 class="text-h3 mb-6">Andre måter å nå oss på</h2>
+          <div class="space-y-4">
+            <div>
+              <h3 class="font-primary font-semibold text-brand-navy mb-2">LinkedIn</h3>
+              <a 
+                href="https://www.linkedin.com/company/fyrk/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="text-brand-cyan-darker hover:text-brand-cyan transition-colors duration-fast"
+              >
+                linkedin.com/company/fyrk
+              </a>
+            </div>
+            <div>
+              <h3 class="font-primary font-semibold text-brand-navy mb-2">Nettsted</h3>
+              <a 
+                href="https://fyrk.no" 
+                class="text-brand-cyan-darker hover:text-brand-cyan transition-colors duration-fast"
+              >
+                fyrk.no
+              </a>
+            </div>
+            <div>
+              <h3 class="font-primary font-semibold text-brand-navy mb-2">Lokasjon</h3>
+              <p class="text-neutral-700">Oslo, Norge</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+

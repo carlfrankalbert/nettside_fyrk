@@ -1,0 +1,22 @@
+---
+interface Props {
+  variant?: 'navy' | 'cyan' | 'white';
+  class?: string;
+}
+
+const { variant = 'navy', class: className = '' } = Astro.props;
+const logoPath = variant === 'navy' 
+  ? '/fyrk-logo-primary-navy.svg'
+  : variant === 'cyan'
+  ? '/fyrk-logo-secondary-cyan.svg'
+  : '/fyrk-logo-white.svg';
+---
+
+<img 
+  src={logoPath} 
+  alt="Fyrk logo" 
+  class={className}
+  width="200"
+  height="56"
+/>
+

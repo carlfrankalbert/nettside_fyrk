@@ -1,0 +1,72 @@
+---
+import Logo from './Logo.astro';
+---
+
+<footer class="bg-brand-navy text-white mt-24">
+  <div class="container mx-auto px-4 py-16">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+      <div>
+        <Logo variant="white" class="h-8 mb-4" />
+        <p class="text-neutral-100 leading-relaxed">
+          Vi hjelper organisasjoner å få mennesker, prosesser og teknologi til å virke sammen for å skape produkter som virker.
+        </p>
+      </div>
+      
+      <div>
+        <h3 class="font-primary font-semibold text-lg mb-4">Navigasjon</h3>
+        <ul class="space-y-2" role="list">
+          <li>
+            <a href="/" class="text-neutral-100 hover:text-brand-cyan-light transition-colors duration-fast focus-visible:ring-3 focus-visible:ring-brand-cyan focus-visible:ring-offset-2 rounded-md px-1">
+              Hjem
+            </a>
+          </li>
+          <li>
+            <a href="/om" class="text-neutral-100 hover:text-brand-cyan-light transition-colors duration-fast focus-visible:ring-3 focus-visible:ring-brand-cyan focus-visible:ring-offset-2 rounded-md px-1">
+              Om oss
+            </a>
+          </li>
+          <li>
+            <a href="/blogg" class="text-neutral-100 hover:text-brand-cyan-light transition-colors duration-fast focus-visible:ring-3 focus-visible:ring-brand-cyan focus-visible:ring-offset-2 rounded-md px-1">
+              Blogg
+            </a>
+          </li>
+          <li>
+            <a href="/kontakt" class="text-neutral-100 hover:text-brand-cyan-light transition-colors duration-fast focus-visible:ring-3 focus-visible:ring-brand-cyan focus-visible:ring-offset-2 rounded-md px-1">
+              Kontakt
+            </a>
+          </li>
+        </ul>
+      </div>
+      
+      <div>
+        <h3 class="font-primary font-semibold text-lg mb-4">Kontakt</h3>
+        <address class="not-italic text-neutral-100 leading-relaxed">
+          <p>Oslo, Norge</p>
+          <p class="mt-2">
+            <a 
+              href="https://www.linkedin.com/company/fyrk/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              class="text-neutral-100 hover:text-brand-cyan-light transition-colors duration-fast focus-visible:ring-3 focus-visible:ring-brand-cyan focus-visible:ring-offset-2 rounded-md px-1"
+            >
+              LinkedIn
+            </a>
+          </p>
+          <p class="mt-2">
+            <a 
+              href="https://fyrk.no" 
+              class="text-neutral-100 hover:text-brand-cyan-light transition-colors duration-fast focus-visible:ring-3 focus-visible:ring-brand-cyan focus-visible:ring-offset-2 rounded-md px-1"
+            >
+              fyrk.no
+            </a>
+          </p>
+        </address>
+      </div>
+    </div>
+    
+    <div class="border-t border-neutral-500 mt-12 pt-8 text-center text-neutral-300 text-sm">
+      <p>&copy; {new Date().getFullYear()} Fyrk. Alle rettigheter reservert.</p>
+    </div>
+  </div>
+</footer>
+

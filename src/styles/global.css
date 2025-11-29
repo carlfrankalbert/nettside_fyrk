@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-neutral-200;
+  }
+  
+  html {
+    @apply scroll-smooth;
+  }
+  
+  body {
+    @apply font-body text-base text-neutral-700 bg-white leading-relaxed;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-primary font-semibold text-brand-navy;
+  }
+  
+  h1 {
+    @apply text-h1 leading-tight;
+  }
+  
+  h2 {
+    @apply text-h2 leading-tight;
+  }
+  
+  h3 {
+    @apply text-h3 leading-snug;
+  }
+  
+  h4 {
+    @apply text-h4 leading-snug;
+  }
+  
+  h5 {
+    @apply text-h5 leading-normal;
+  }
+  
+  h6 {
+    @apply text-h6 leading-normal;
+  }
+  
+  a {
+    @apply text-brand-navy underline-offset-4 transition-colors duration-fast;
+  }
+  
+  a:hover {
+    @apply text-brand-cyan-darker;
+  }
+  
+  a:focus-visible {
+    @apply outline-none ring-3 ring-brand-cyan ring-offset-2 rounded-md;
+  }
+  
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    @apply outline-none ring-3 ring-brand-cyan ring-offset-2;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center font-primary font-medium rounded-lg transition-all duration-normal;
+    @apply min-h-[48px] px-6;
+    @apply focus-visible:ring-3 focus-visible:ring-brand-cyan focus-visible:ring-offset-2;
+  }
+  
+  .btn-primary {
+    @apply bg-brand-navy text-white hover:bg-brand-navy/90 active:bg-brand-navy/95;
+  }
+  
+  .btn-secondary {
+    @apply bg-brand-cyan text-white hover:bg-brand-cyan-dark active:bg-brand-cyan-darker;
+  }
+  
+  .btn-outline {
+    @apply border-2 border-brand-navy text-brand-navy bg-transparent hover:bg-brand-navy hover:text-white;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-md p-6;
+  }
+  
+  .input {
+    @apply w-full min-h-[48px] px-4 py-3 border-2 border-neutral-200 rounded-lg;
+    @apply font-body text-base text-neutral-700;
+    @apply focus:border-brand-cyan focus:ring-3 focus:ring-brand-cyan/20;
+    @apply transition-all duration-normal;
+  }
+  
+  .input:invalid {
+    @apply border-feedback-error;
+  }
+}
+
+/* Accessibility: Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Skip link for keyboard navigation */
+.skip-link {
+  @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50;
+  @apply bg-brand-navy text-white px-6 py-3 rounded-lg font-medium;
+}
+
