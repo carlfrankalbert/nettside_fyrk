@@ -25,6 +25,8 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
       
+      # Visual regression tests verify appearance against approved baselines
+      # Any deviation must be reviewed and either fixed or approved as new baseline
       - name: Run visual regression tests
         env:
           PLAYWRIGHT_TEST_BASE_URL: https://fyrk.no

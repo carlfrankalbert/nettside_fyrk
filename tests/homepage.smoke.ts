@@ -1,3 +1,10 @@
+/**
+ * Smoke Tests - Homepage
+ * 
+ * These tests verify presence (element exists) and basic functionality.
+ * They check that critical elements are present, visible, and functional.
+ */
+
 import { test, expect } from '@playwright/test';
 
 test.describe('Homepage Smoke Tests', () => {

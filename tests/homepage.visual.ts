@@ -1,3 +1,11 @@
+/**
+ * Visual Regression Tests - Homepage
+ * 
+ * These tests verify appearance (element looks correct) against approved baselines.
+ * Baseline screenshots represent the approved design.
+ * Any visual deviation from baseline must be reviewed and either fixed or approved as new baseline.
+ */
+
 import { test, expect } from '@playwright/test';
 
 test.describe('Homepage Visual Regression', () => {
