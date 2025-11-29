@@ -46,7 +46,7 @@ test.describe('Mobile Visual Regression - UX Designer Perspective', () => {
   });
 
   test('contact page mobile', async ({ page }) => {
-    await page.goto('/kontakt');
+    await page.goto('/konakt');
     await page.waitForLoadState('networkidle');
     await expect(page).toHaveScreenshot('contact-mobile.png', {
       fullPage: true,
@@ -55,7 +55,7 @@ test.describe('Mobile Visual Regression - UX Designer Perspective', () => {
   });
 
   test('contact form mobile layout', async ({ page }) => {
-    await page.goto('/kontakt');
+    await page.goto('/konakt');
     await page.waitForLoadState('networkidle');
     const form = page.locator('form');
     await expect(form).toHaveScreenshot('contact-form-mobile.png', {

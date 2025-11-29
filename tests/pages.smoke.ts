@@ -4,7 +4,7 @@ test.describe('All Pages Smoke Tests', () => {
   const pages = [
     { path: '/', title: /Fyrk/ },
     { path: '/om', title: /Om oss/ },
-    { path: '/kontakt', title: /Kontakt/ },
+    { path: '/konakt', title: /Konakt/ },
     { path: '/blogg', title: /Blogg/ },
   ];
 
@@ -19,7 +19,7 @@ test.describe('All Pages Smoke Tests', () => {
   }
 
   test('all pages have accessible navigation', async ({ page }) => {
-    const pages = ['/', '/om', '/kontakt', '/blogg'];
+    const pages = ['/', '/om', '/konakt', '/blogg'];
     
     for (const path of pages) {
       await page.goto(path);

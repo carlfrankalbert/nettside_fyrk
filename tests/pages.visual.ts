@@ -12,7 +12,7 @@ test.describe('All Pages Visual Regression', () => {
   const pages = [
     { path: '/', name: 'homepage' },
     { path: '/om', name: 'about' },
-    { path: '/kontakt', name: 'contact' },
+    { path: '/konakt', name: 'contact' },
     { path: '/blogg', name: 'blog' },
   ];
 

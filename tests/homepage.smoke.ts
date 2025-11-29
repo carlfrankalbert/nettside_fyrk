@@ -23,7 +23,7 @@ test.describe('Homepage Smoke Tests', () => {
       { text: 'Hjem', href: '/' },
       { text: 'Om oss', href: '/om' },
       { text: 'Blogg', href: '/blogg' },
-      { text: 'Kontakt', href: '/kontakt' },
+      { text: 'Konakt', href: '/konakt' },
     ];
 
     // Get the main navigation element to scope the search
@@ -51,7 +51,7 @@ test.describe('Homepage Smoke Tests', () => {
 
   test('CTA buttons are visible and clickable', async ({ page }) => {
     await page.goto('/');
-    const contactButton = page.getByRole('link', { name: /Ta kontakt/i });
+    const contactButton = page.getByRole('link', { name: /Ta konakt/i });
     await expect(contactButton.first()).toBeVisible();
   });
 });
