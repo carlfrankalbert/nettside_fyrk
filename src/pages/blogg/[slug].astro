@@ -39,19 +39,21 @@ if (!post) {
 >
   <article class="py-24 bg-white">
     <div class="container mx-auto px-4">
-      <div class="max-w-3xl mx-auto">
+      <div class="max-w-3xl mx-auto" itemscope itemtype="https://schema.org/BlogPosting">
         <a 
           href="/blogg"
           class="inline-flex items-center gap-2 text-brand-cyan-darker hover:text-brand-cyan mb-8 font-medium transition-colors duration-fast"
+          aria-label="Tilbake til bloggoversikt"
         >
-          ← Tilbake til blogg
+          <span aria-hidden="true">←</span> Tilbake til blogg
         </a>
         
         <header class="mb-8">
-          <h1 class="text-h1 mb-4">{post.title}</h1>
+          <h1 class="text-h1 mb-4" itemprop="headline">{post.title}</h1>
           <time 
             datetime={post.date}
             class="text-neutral-500 text-sm"
+            itemprop="datePublished"
           >
             {new Date(post.date).toLocaleDateString('no-NO', { 
               year: 'numeric', 

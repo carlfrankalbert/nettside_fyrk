@@ -8,20 +8,20 @@ import Logo from '../components/Logo.astro';
   description="Fyrk leverer produktledelse der kvalitet møter forretningsverdi. Med erfaring fra fintech og smidige leveransemiljøer hjelper vi selskaper å bygge digitale produkter som faktisk holder mål."
 >
   <!-- Hero Section -->
-  <section class="bg-gradient-to-b from-neutral-50 to-white py-24">
+  <section class="bg-gradient-to-b from-neutral-50 to-white py-24" aria-labelledby="hero-heading">
     <div class="container mx-auto px-4">
       <div class="max-w-4xl mx-auto text-center">
-        <h1 class="text-display font-bold text-brand-navy mb-6 leading-tight">
+        <h1 id="hero-heading" class="text-display font-bold text-brand-navy mb-6 leading-tight">
           Produktledelse der kvalitet møter forretningsverdi
         </h1>
         <p class="text-xl text-neutral-700 mb-8 leading-relaxed max-w-2xl mx-auto">
           Vi hjelper organisasjoner å få mennesker, prosesser og teknologi til å virke sammen for å skape produkter som virker – raskt, trygt og med reell brukerverdi.
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href="/kontakt" class="btn btn-primary text-lg px-8">
+          <a href="/kontakt" class="btn btn-primary text-lg px-8" aria-label="Ta kontakt med Fyrk">
             Ta kontakt
           </a>
-          <a href="/om" class="btn btn-outline text-lg px-8">
+          <a href="/om" class="btn btn-outline text-lg px-8" aria-label="Les mer om Fyrk">
             Les mer om oss
           </a>
         </div>
@@ -30,10 +30,10 @@ import Logo from '../components/Logo.astro';
   </section>
 
   <!-- Services Section -->
-  <section class="py-24 bg-white">
+  <section class="py-24 bg-white" aria-labelledby="services-heading">
     <div class="container mx-auto px-4">
       <div class="text-center mb-16">
-        <h2 class="text-h2 mb-4">Hva vi tilbyr</h2>
+        <h2 id="services-heading" class="text-h2 mb-4">Hva vi tilbyr</h2>
         <p class="text-lg text-neutral-500 max-w-2xl mx-auto">
           Vi leverer produktledelse med kvalitetsfokus, teambygging og trygg leveranse for organisasjoner som trenger både hastighet og kvalitet.
         </p>
@@ -41,8 +41,8 @@ import Logo from '../components/Logo.astro';
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
         <!-- Service 1 -->
-        <div class="card">
-          <div class="w-12 h-12 bg-brand-cyan-lightest rounded-lg flex items-center justify-center mb-4">
+        <article class="card">
+          <div class="w-12 h-12 bg-brand-cyan-lightest rounded-lg flex items-center justify-center mb-4" aria-hidden="true">
             <svg class="w-6 h-6 text-brand-cyan-darker" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -58,8 +58,8 @@ import Logo from '../components/Logo.astro';
         </div>
 
         <!-- Service 2 -->
-        <div class="card">
-          <div class="w-12 h-12 bg-brand-cyan-lightest rounded-lg flex items-center justify-center mb-4">
+        <article class="card">
+          <div class="w-12 h-12 bg-brand-cyan-lightest rounded-lg flex items-center justify-center mb-4" aria-hidden="true">
             <svg class="w-6 h-6 text-brand-cyan-darker" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
@@ -75,8 +75,8 @@ import Logo from '../components/Logo.astro';
         </div>
 
         <!-- Service 3 -->
-        <div class="card">
-          <div class="w-12 h-12 bg-brand-cyan-lightest rounded-lg flex items-center justify-center mb-4">
+        <article class="card">
+          <div class="w-12 h-12 bg-brand-cyan-lightest rounded-lg flex items-center justify-center mb-4" aria-hidden="true">
             <svg class="w-6 h-6 text-brand-cyan-darker" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
@@ -95,48 +95,48 @@ import Logo from '../components/Logo.astro';
   </section>
 
   <!-- Who We Help Section -->
-  <section class="py-24 bg-neutral-50">
+  <section class="py-24 bg-neutral-50" aria-labelledby="who-we-help-heading">
     <div class="container mx-auto px-4">
       <div class="max-w-4xl mx-auto">
-        <h2 class="text-h2 text-center mb-8">Passer for selskaper som:</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-6 h-6 bg-brand-cyan rounded-full mt-1"></div>
+        <h2 id="who-we-help-heading" class="text-h2 text-center mb-8">Passer for selskaper som:</h2>
+        <ul class="grid grid-cols-1 md:grid-cols-2 gap-6" role="list">
+          <li class="flex items-start gap-4">
+            <div class="flex-shrink-0 w-6 h-6 bg-brand-cyan rounded-full mt-1" aria-hidden="true"></div>
             <p class="text-neutral-700 leading-relaxed">
               Trenger en produktleder som forstår både forretning og teknisk leveranse
             </p>
-          </div>
-          <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-6 h-6 bg-brand-cyan rounded-full mt-1"></div>
+          </li>
+          <li class="flex items-start gap-4">
+            <div class="flex-shrink-0 w-6 h-6 bg-brand-cyan rounded-full mt-1" aria-hidden="true"></div>
             <p class="text-neutral-700 leading-relaxed">
               Skal bygge kritiske systemer der kvalitet ikke er valgfritt
             </p>
-          </div>
-          <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-6 h-6 bg-brand-cyan rounded-full mt-1"></div>
+          </li>
+          <li class="flex items-start gap-4">
+            <div class="flex-shrink-0 w-6 h-6 bg-brand-cyan rounded-full mt-1" aria-hidden="true"></div>
             <p class="text-neutral-700 leading-relaxed">
               Vil etablere produktteam med innebygd kvalitetskultur
             </p>
-          </div>
-          <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-6 h-6 bg-brand-cyan rounded-full mt-1"></div>
+          </li>
+          <li class="flex items-start gap-4">
+            <div class="flex-shrink-0 w-6 h-6 bg-brand-cyan rounded-full mt-1" aria-hidden="true"></div>
             <p class="text-neutral-700 leading-relaxed">
               Må balansere høy leveransetakt med regulatoriske krav
             </p>
-          </div>
-        </div>
+          </li>
+        </ul>
       </div>
     </div>
   </section>
 
   <!-- CTA Section -->
-  <section class="py-24 bg-brand-navy text-white">
+  <section class="py-24 bg-brand-navy text-white" aria-labelledby="cta-heading">
     <div class="container mx-auto px-4 text-center">
-      <h2 class="text-h2 mb-6">Klar til å starte?</h2>
+      <h2 id="cta-heading" class="text-h2 mb-6">Klar til å starte?</h2>
       <p class="text-xl text-neutral-100 mb-8 max-w-2xl mx-auto">
         Ta kontakt for å høre hvordan vi kan hjelpe ditt selskap med produktledelse som faktisk leverer resultater.
       </p>
-      <a href="/kontakt" class="btn btn-secondary text-lg px-8">
+      <a href="/kontakt" class="btn btn-secondary text-lg px-8" aria-label="Kontakt Fyrk for å høre mer">
         Kontakt oss
       </a>
     </div>

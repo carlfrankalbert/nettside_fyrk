@@ -6,10 +6,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   title="Kontakt"
   description="Ta kontakt med Fyrk for å høre hvordan vi kan hjelpe ditt selskap med produktledelse som leverer resultater."
 >
-  <section class="py-24 bg-white">
+  <section class="py-24 bg-white" aria-labelledby="contact-heading">
     <div class="container mx-auto px-4">
       <div class="max-w-3xl mx-auto">
-        <h1 class="text-h1 mb-4">Kontakt oss</h1>
+        <h1 id="contact-heading" class="text-h1 mb-4">Kontakt oss</h1>
         <p class="text-lg text-neutral-500 mb-12">
           Har du spørsmål eller vil du høre mer om hvordan vi kan hjelpe ditt selskap? Send oss en melding, så tar vi kontakt.
         </p>
@@ -20,6 +20,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           name="contact"
           netlify
           netlify-honeypot="bot-field"
+          novalidate
+          aria-label="Kontaktformular"
+          id="contact-form"
         >
           <input type="hidden" name="form-name" value="contact" />
           <p class="hidden">
@@ -27,9 +30,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               Don't fill this out if you're human: <input name="bot-field" />
             </label>
           </p>
+          
+          <div role="alert" id="form-error" class="hidden bg-feedback-error/10 border-2 border-feedback-error text-feedback-error p-4 rounded-lg mb-4" aria-live="assertive"></div>
+          <div role="status" id="form-success" class="hidden bg-feedback-success/10 border-2 border-feedback-success text-feedback-success p-4 rounded-lg mb-4" aria-live="polite"></div>
+          
           <div>
             <label for="name" class="block font-primary font-medium text-brand-navy mb-2">
-              Navn <span class="text-feedback-error">*</span>
+              Navn <span class="text-feedback-error" aria-label="påkrevd">*</span>
             </label>
             <input
               type="text"
@@ -38,14 +45,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               required
               class="input"
               aria-required="true"
-              aria-describedby="name-error"
+              aria-describedby="name-error name-help"
+              aria-invalid="false"
+              autocomplete="name"
             />
-            <span id="name-error" class="sr-only" role="alert"></span>
+            <span id="name-help" class="sr-only">Skriv inn ditt fullstendige navn</span>
+            <span id="name-error" class="text-feedback-error text-sm mt-1 hidden block" role="alert" aria-live="polite"></span>
           </div>
 
           <div>
             <label for="email" class="block font-primary font-medium text-brand-navy mb-2">
-              E-post <span class="text-feedback-error">*</span>
+              E-post <span class="text-feedback-error" aria-label="påkrevd">*</span>
             </label>
             <input
               type="email"
@@ -54,9 +64,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               required
               class="input"
               aria-required="true"
-              aria-describedby="email-error"
+              aria-describedby="email-error email-help"
+              aria-invalid="false"
+              autocomplete="email"
             />
-            <span id="email-error" class="sr-only" role="alert"></span>
+            <span id="email-help" class="sr-only">Skriv inn din e-postadresse</span>
+            <span id="email-error" class="text-feedback-error text-sm mt-1 hidden block" role="alert" aria-live="polite"></span>
           </div>
 
           <div>
@@ -68,12 +81,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               id="company"
               name="company"
               class="input"
+              autocomplete="organization"
+              aria-describedby="company-help"
             />
+            <span id="company-help" class="sr-only">Skriv inn navnet på ditt selskap (valgfritt)</span>
           </div>
 
           <div>
             <label for="message" class="block font-primary font-medium text-brand-navy mb-2">
-              Melding <span class="text-feedback-error">*</span>
+              Melding <span class="text-feedback-error" aria-label="påkrevd">*</span>
             </label>
             <textarea
               id="message"
@@ -82,9 +98,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               required
               class="input resize-y"
               aria-required="true"
-              aria-describedby="message-error"
+              aria-describedby="message-error message-help"
+              aria-invalid="false"
             ></textarea>
-            <span id="message-error" class="sr-only" role="alert"></span>
+            <span id="message-help" class="sr-only">Beskriv din henvendelse eller spørsmål</span>
+            <span id="message-error" class="text-feedback-error text-sm mt-1 hidden block" role="alert" aria-live="polite"></span>
           </div>
 
           <div class="flex items-start gap-3">
@@ -93,21 +111,27 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               id="consent"
               name="consent"
               required
-              class="mt-1 w-5 h-5 border-2 border-neutral-200 rounded text-brand-cyan focus:ring-brand-cyan focus:ring-offset-2"
+              class="mt-1 w-5 h-5 border-2 border-neutral-200 rounded text-brand-cyan focus:ring-2 focus:ring-brand-cyan focus:ring-offset-2"
               aria-required="true"
+              aria-describedby="consent-error"
+              aria-invalid="false"
             />
-            <label for="consent" class="text-sm text-neutral-700 leading-relaxed">
-              Jeg samtykker til at Fyrk kan lagre og behandle mine personopplysninger for å svare på henvendelsen. <span class="text-feedback-error">*</span>
-            </label>
+            <div class="flex-1">
+              <label for="consent" class="text-sm text-neutral-700 leading-relaxed">
+                Jeg samtykker til at Fyrk kan lagre og behandle mine personopplysninger for å svare på henvendelsen. <span class="text-feedback-error" aria-label="påkrevd">*</span>
+              </label>
+              <span id="consent-error" class="text-feedback-error text-sm mt-1 hidden block" role="alert" aria-live="polite"></span>
+            </div>
           </div>
 
-          <button type="submit" class="btn btn-primary w-full sm:w-auto text-lg px-8">
+          <button type="submit" class="btn btn-primary w-full sm:w-auto text-lg px-8" aria-describedby="submit-help">
             Send melding
           </button>
+          <span id="submit-help" class="sr-only">Send inn kontaktformularen</span>
         </form>
 
-        <div class="mt-16 pt-12 border-t border-neutral-200">
-          <h2 class="text-h3 mb-6">Andre måter å nå oss på</h2>
+        <div class="mt-16 pt-12 border-t border-neutral-200" aria-labelledby="other-contact-heading">
+          <h2 id="other-contact-heading" class="text-h3 mb-6">Andre måter å nå oss på</h2>
           <div class="space-y-4">
             <div>
               <h3 class="font-primary font-semibold text-brand-navy mb-2">LinkedIn</h3>
@@ -116,6 +140,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 target="_blank" 
                 rel="noopener noreferrer"
                 class="text-brand-cyan-darker hover:text-brand-cyan transition-colors duration-fast"
+                aria-label="Besøk Fyrk på LinkedIn (åpnes i ny fane)"
               >
                 linkedin.com/company/fyrk
               </a>
@@ -125,6 +150,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <a 
                 href="https://fyrk.no" 
                 class="text-brand-cyan-darker hover:text-brand-cyan transition-colors duration-fast"
+                aria-label="Besøk Fyrk nettsted"
               >
                 fyrk.no
               </a>
@@ -140,3 +166,72 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   </section>
 </BaseLayout>
 
+<script>
+  // Form validation
+  const form = document.getElementById('contact-form');
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      // Clear previous errors
+      const errorElements = form.querySelectorAll('[id$="-error"]');
+      errorElements.forEach(el => {
+        el.classList.add('hidden');
+        el.textContent = '';
+      });
+      
+      const inputs = form.querySelectorAll('input[required], textarea[required]');
+      let isValid = true;
+      
+      inputs.forEach(input => {
+        const errorId = input.id + '-error';
+        const errorElement = document.getElementById(errorId);
+        
+        // Remove invalid state
+        input.setAttribute('aria-invalid', 'false');
+        input.classList.remove('border-feedback-error');
+        
+        if (!input.value.trim()) {
+          isValid = false;
+          if (errorElement) {
+            errorElement.textContent = 'Dette feltet er påkrevd';
+            errorElement.classList.remove('hidden');
+          }
+          input.setAttribute('aria-invalid', 'true');
+          input.classList.add('border-feedback-error');
+        } else if (input.type === 'email' && !input.validity.valid) {
+          isValid = false;
+          if (errorElement) {
+            errorElement.textContent = 'Vennligst skriv inn en gyldig e-postadresse';
+            errorElement.classList.remove('hidden');
+          }
+          input.setAttribute('aria-invalid', 'true');
+          input.classList.add('border-feedback-error');
+        }
+      });
+      
+      // Check consent checkbox
+      const consent = document.getElementById('consent');
+      const consentError = document.getElementById('consent-error');
+      if (consent && !consent.checked) {
+        isValid = false;
+        if (consentError) {
+          consentError.textContent = 'Du må samtykke for å sende inn skjemaet';
+          consentError.classList.remove('hidden');
+        }
+        consent.setAttribute('aria-invalid', 'true');
+      }
+      
+      if (isValid) {
+        // Form is valid, submit it
+        form.submit();
+      } else {
+        // Focus first invalid field
+        const firstInvalid = form.querySelector('[aria-invalid="true"]');
+        if (firstInvalid) {
+          firstInvalid.focus();
+        }
+      }
+    });
+  }
+</script>

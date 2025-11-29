@@ -16,10 +16,10 @@ const posts = [
   title="Blogg"
   description="Les våre artikler om produktledelse, kvalitet, smidig utvikling og mer."
 >
-  <section class="py-24 bg-white">
+  <section class="py-24 bg-white" aria-labelledby="blog-heading">
     <div class="container mx-auto px-4">
       <div class="max-w-4xl mx-auto">
-        <h1 class="text-h1 mb-4">Blogg</h1>
+        <h1 id="blog-heading" class="text-h1 mb-4">Blogg</h1>
         <p class="text-lg text-neutral-500 mb-12">
           Her deler vi innsikt, erfaringer og tanker om produktledelse, kvalitet og smidig utvikling.
         </p>
@@ -49,8 +49,9 @@ const posts = [
                 <a 
                   href={`/blogg/${post.slug}`}
                   class="inline-block mt-4 text-brand-cyan-darker hover:text-brand-cyan font-medium"
+                  aria-label={`Les mer om ${post.title}`}
                 >
-                  Les mer →
+                  Les mer <span aria-hidden="true">→</span>
                 </a>
               </article>
             ))}

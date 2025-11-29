@@ -94,7 +94,11 @@
     @apply transition-all duration-normal;
   }
   
-  .input:invalid {
+  .input:invalid:not(:focus):not(:placeholder-shown) {
+    @apply border-feedback-error;
+  }
+  
+  .input[aria-invalid="true"] {
     @apply border-feedback-error;
   }
 }

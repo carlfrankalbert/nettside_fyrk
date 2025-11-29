@@ -22,8 +22,9 @@ const { title, description = 'Fyrk leverer produktledelse der kvalitet møter fo
     <title>{title} | Fyrk</title>
   </head>
   <body>
+    <a href="#main-content" class="skip-link">Hopp til hovedinnhold</a>
     <Header />
-    <main id="main-content">
+    <main id="main-content" role="main">
       <slot />
     </main>
     <Footer />
