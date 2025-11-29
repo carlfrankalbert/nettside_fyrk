@@ -49,4 +49,3 @@ Kontaktformularen bruker Netlify Forms. For å aktivere:
 1. Deploy til Netlify
 2. Legg til `netlify` attributt på form-elementet (allerede gjort)
 3. Netlify vil automatisk håndtere form submissions
-
