@@ -393,17 +393,24 @@ test.describe('Contrast Tests - Dark Mode', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    // Ensure dark mode
+    // Wait for ThemeToggle script to initialize
+    await page.waitForTimeout(200);
+    // Ensure dark mode - set both localStorage and class to override ThemeToggle
     await page.evaluate(() => {
-      document.documentElement.classList.add('dark');
       localStorage.setItem('theme', 'dark');
+      document.documentElement.classList.add('dark');
     });
     // Wait for theme to apply and CSS to update
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(400);
     // Force a reflow to ensure styles are applied
     await page.evaluate(() => {
       document.body.offsetHeight; // Force reflow
+      // Double-check dark class is still there
+      if (!document.documentElement.classList.contains('dark')) {
+        document.documentElement.classList.add('dark');
+      }
     });
+    await page.waitForTimeout(100);
   });
 
   test('dark mode class is present in dark mode', async ({ page }) => {
@@ -758,18 +765,25 @@ test.describe('Contrast Tests - All Pages', () => {
     test(`${pageInfo.name} page has sufficient contrast in dark mode`, async ({ page }) => {
       await page.goto(pageInfo.path);
       await page.waitForLoadState('networkidle');
+      // Wait for ThemeToggle script to initialize
+      await page.waitForTimeout(200);
       
-      // Ensure dark mode
+      // Ensure dark mode - set both localStorage and class to override ThemeToggle
       await page.evaluate(() => {
-        document.documentElement.classList.add('dark');
         localStorage.setItem('theme', 'dark');
+        document.documentElement.classList.add('dark');
       });
       // Wait longer for theme to apply and CSS to update
-      await page.waitForTimeout(300);
+      await page.waitForTimeout(400);
       // Force a reflow to ensure styles are applied
       await page.evaluate(() => {
         document.body.offsetHeight; // Force reflow
+        // Double-check dark class is still there
+        if (!document.documentElement.classList.contains('dark')) {
+          document.documentElement.classList.add('dark');
+        }
       });
+      await page.waitForTimeout(100);
 
       // Check that body has dark background
       const bodyBg = await page.evaluate(() => {
