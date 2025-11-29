@@ -14,7 +14,7 @@ const { heading, items, headingId } = Astro.props;
     {items.map((item) => (
       <li class="flex items-start gap-4">
         <div class="flex-shrink-0 w-6 h-6 bg-brand-cyan rounded-full mt-1" aria-hidden="true"></div>
-        <p class="text-neutral-700 leading-relaxed">
+        <p class="text-neutral-700 dark:text-neutral-200 leading-relaxed">
           {item}
         </p>
       </li>

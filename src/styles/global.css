@@ -16,7 +16,8 @@
   }
   
   body {
-    @apply font-body text-base text-neutral-700 bg-white leading-relaxed;
+    @apply font-body text-base text-neutral-700 dark:text-neutral-200 bg-white dark:bg-neutral-900 leading-relaxed;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
   
   p {
@@ -24,7 +25,7 @@
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-primary font-semibold text-brand-navy;
+    @apply font-primary font-semibold text-brand-navy dark:text-white;
   }
   
   h1 {
@@ -52,11 +53,11 @@
   }
   
   a {
-    @apply text-brand-navy underline-offset-4 transition-colors duration-fast;
+    @apply text-brand-navy dark:text-brand-cyan-light underline-offset-4 transition-colors duration-fast;
   }
   
   a:hover {
-    @apply text-brand-cyan-darker;
+    @apply text-brand-cyan-darker dark:text-brand-cyan;
   }
   
   a:focus-visible {
@@ -87,17 +88,17 @@
   }
   
   .btn-outline {
-    @apply border-2 border-brand-navy text-brand-navy bg-transparent hover:bg-brand-navy hover:text-white;
+    @apply border-2 border-brand-navy dark:border-brand-cyan text-brand-navy dark:text-brand-cyan bg-transparent hover:bg-brand-navy dark:hover:bg-brand-cyan hover:text-white transition-colors duration-normal;
   }
   
   .card {
-    @apply bg-white rounded-lg shadow-md p-6;
+    @apply bg-white dark:bg-neutral-800 rounded-lg shadow-md dark:shadow-lg dark:shadow-neutral-900/50 p-6;
   }
   
   .input {
-    @apply w-full min-h-[48px] px-4 py-3 border-2 border-neutral-200 rounded-lg;
-    @apply font-body text-base text-neutral-700;
-    @apply focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/20;
+    @apply w-full min-h-[48px] px-4 py-3 border-2 border-neutral-200 dark:border-neutral-700 rounded-lg;
+    @apply font-body text-base text-neutral-700 dark:text-neutral-200 bg-white dark:bg-neutral-800;
+    @apply focus:border-brand-cyan dark:focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/20;
     @apply transition-all duration-normal;
   }
   
