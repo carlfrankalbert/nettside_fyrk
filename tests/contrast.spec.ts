@@ -188,51 +188,50 @@ test.describe('Contrast Tests - Light Mode', () => {
         }
         
         if (!bg || bg === 'rgba(0, 0, 0, 0)' || bg === 'transparent') {
-            const rgbToHex = (rgb: string) => {
-              const match = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-              if (match) {
-                const r = parseInt(match[1]).toString(16).padStart(2, '0');
-                const g = parseInt(match[2]).toString(16).padStart(2, '0');
-                const b = parseInt(match[3]).toString(16).padStart(2, '0');
-                return `#${r}${g}${b}`;
-              }
-              return null;
-            };
-            
-            const textHex = rgbToHex(textColor);
-            const bgHex = rgbToHex(bg);
-            if (!textHex || !bgHex) return 0;
-            
-            const hexToRgb = (hex: string) => {
-              const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-              return result ? {
-                r: parseInt(result[1], 16),
-                g: parseInt(result[2], 16),
-                b: parseInt(result[3], 16)
-              } : null;
-            };
-            
-            const getLuminance = (r: number, g: number, b: number) => {
-              const [rs, gs, bs] = [r, g, b].map(c => {
-                c = c / 255;
-                return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-              });
-              return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
-            };
-            
-            const rgb1 = hexToRgb(textHex);
-            const rgb2 = hexToRgb(bgHex);
-            if (!rgb1 || !rgb2) return 0;
-            
-            const lum1 = getLuminance(rgb1.r, rgb1.g, rgb1.b);
-            const lum2 = getLuminance(rgb2.r, rgb2.g, rgb2.b);
-            const lighter = Math.max(lum1, lum2);
-            const darker = Math.min(lum1, lum2);
-            return (lighter + 0.05) / (darker + 0.05);
-          }
-          parent = parent.parentElement;
+          return 0;
         }
-        return 0;
+        
+        const rgbToHex = (rgb: string) => {
+          const match = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+          if (match) {
+            const r = parseInt(match[1]).toString(16).padStart(2, '0');
+            const g = parseInt(match[2]).toString(16).padStart(2, '0');
+            const b = parseInt(match[3]).toString(16).padStart(2, '0');
+            return `#${r}${g}${b}`;
+          }
+          return null;
+        };
+        
+        const textHex = rgbToHex(textColor);
+        const bgHex = rgbToHex(bg);
+        if (!textHex || !bgHex) return 0;
+        
+        const hexToRgb = (hex: string) => {
+          const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+          return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+          } : null;
+        };
+        
+        const getLuminance = (r: number, g: number, b: number) => {
+          const [rs, gs, bs] = [r, g, b].map(c => {
+            c = c / 255;
+            return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+          });
+          return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+        };
+        
+        const rgb1 = hexToRgb(textHex);
+        const rgb2 = hexToRgb(bgHex);
+        if (!rgb1 || !rgb2) return 0;
+        
+        const lum1 = getLuminance(rgb1.r, rgb1.g, rgb1.b);
+        const lum2 = getLuminance(rgb2.r, rgb2.g, rgb2.b);
+        const lighter = Math.max(lum1, lum2);
+        const darker = Math.min(lum1, lum2);
+        return (lighter + 0.05) / (darker + 0.05);
       });
       
       // WCAG 2.1 AA requires 4.5:1 for normal text
