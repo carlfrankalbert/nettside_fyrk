@@ -11,7 +11,21 @@ import Logo from './Logo.astro';
         <span class="sr-only">Fyrk - Hjem</span>
       </a>
       
-      <ul class="flex items-center gap-8" role="list">
+      <!-- Mobile menu button -->
+      <button
+        id="mobile-menu-button"
+        class="md:hidden p-2 text-brand-navy focus-visible:ring-2 focus-visible:ring-brand-cyan focus-visible:ring-offset-2 rounded-md"
+        aria-label="Åpne meny"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+      
+      <!-- Desktop navigation -->
+      <ul class="hidden md:flex items-center gap-8" role="list">
         <li>
           <a 
             href="/" 
@@ -46,6 +60,70 @@ import Logo from './Logo.astro';
         </li>
       </ul>
     </div>
+    
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4 border-t border-neutral-200">
+      <ul class="flex flex-col gap-4 pt-4" role="list">
+        <li>
+          <a 
+            href="/" 
+            class="block font-primary font-medium text-brand-navy hover:text-brand-cyan-darker transition-colors duration-fast focus-visible:ring-2 focus-visible:ring-brand-cyan focus-visible:ring-offset-2 rounded-md px-2 py-2"
+          >
+            Hjem
+          </a>
+        </li>
+        <li>
+          <a 
+            href="/om" 
+            class="block font-primary font-medium text-brand-navy hover:text-brand-cyan-darker transition-colors duration-fast focus-visible:ring-2 focus-visible:ring-brand-cyan focus-visible:ring-offset-2 rounded-md px-2 py-2"
+          >
+            Om oss
+          </a>
+        </li>
+        <li>
+          <a 
+            href="/blogg" 
+            class="block font-primary font-medium text-brand-navy hover:text-brand-cyan-darker transition-colors duration-fast focus-visible:ring-2 focus-visible:ring-brand-cyan focus-visible:ring-offset-2 rounded-md px-2 py-2"
+          >
+            Blogg
+          </a>
+        </li>
+        <li>
+          <a 
+            href="/kontakt" 
+            class="block btn btn-primary text-center"
+          >
+            Kontakt
+          </a>
+        </li>
+      </ul>
+    </div>
   </nav>
 </header>
+
+<script>
+  // Mobile menu toggle
+  const menuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+  
+  if (menuButton && mobileMenu) {
+    menuButton.addEventListener('click', () => {
+      const isExpanded = menuButton.getAttribute('aria-expanded') === 'true';
+      menuButton.setAttribute('aria-expanded', !isExpanded);
+      mobileMenu.classList.toggle('hidden');
+      
+      // Update icon
+      const icon = menuButton.querySelector('svg');
+      if (icon) {
+        if (isExpanded) {
+          // Show hamburger icon
+          icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />';
+        } else {
+          // Show close icon
+          icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />';
+        }
+      }
+    });
+  }
+</script>
 
