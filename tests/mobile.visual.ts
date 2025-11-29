@@ -46,7 +46,7 @@ test.describe('Mobile Visual Regression - UX Designer Perspective', () => {
   });
 
   test('contact page mobile', async ({ page }) => {
-    await page.goto('/konakt');
+    await page.goto('/kontakt');
     await page.waitForLoadState('networkidle');
     await expect(page).toHaveScreenshot('contact-mobile.png', {
       fullPage: true,

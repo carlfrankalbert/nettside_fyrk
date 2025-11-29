@@ -23,7 +23,7 @@ test.describe('Homepage Smoke Tests', () => {
       { text: 'Hjem', href: '/' },
       { text: 'Om oss', href: '/om' },
       { text: 'Blogg', href: '/blogg' },
-      { text: 'Konakt', href: '/konakt' },
+      { text: 'Kontakt', href: '/kontakt' },
     ];
 
     // Get the main navigation element to scope the search

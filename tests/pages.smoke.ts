@@ -4,7 +4,7 @@ test.describe('All Pages Smoke Tests', () => {
   const pages = [
     { path: '/', title: /Fyrk/ },
     { path: '/om', title: /Om oss/ },
-    { path: '/konakt', title: /Konakt/ },
+    { path: '/kontakt', title: /Kontakt/ },
     { path: '/blogg', title: /Blogg/ },
   ];
 
