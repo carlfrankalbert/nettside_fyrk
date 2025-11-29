@@ -30,6 +30,11 @@ jobs:
           PLAYWRIGHT_TEST_BASE_URL: https://fyrk.no
         run: npx playwright test --project=smoke --project=smoke-mobile --project=smoke-tablet
       
+      - name: Run mobile UX validation
+        env:
+          PLAYWRIGHT_TEST_BASE_URL: https://fyrk.no
+        run: npx playwright test --project=ux-mobile
+      
       - name: Upload test results
         if: failure()
         uses: actions/upload-artifact@v4

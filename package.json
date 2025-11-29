@@ -11,6 +11,9 @@
     "test": "playwright test",
     "test:smoke": "playwright test --project=smoke --project=smoke-mobile --project=smoke-tablet",
     "test:visual": "playwright test --project=visual",
+    "test:visual-mobile": "playwright test --project=visual-mobile",
+    "test:ux-mobile": "playwright test --project=ux-mobile",
+    "test:mobile": "playwright test --project=visual-mobile --project=ux-mobile",
     "test:ui": "playwright test --ui"
   },
   "dependencies": {

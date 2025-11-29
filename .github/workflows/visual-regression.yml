@@ -28,7 +28,12 @@ jobs:
       - name: Run visual regression tests
         env:
           PLAYWRIGHT_TEST_BASE_URL: https://fyrk.no
-        run: npx playwright test --project=visual --project=visual-firefox --project=visual-safari --project=visual-iphone14 --project=visual-pixel7 --project=visual-ipad
+        run: npx playwright test --project=visual --project=visual-firefox --project=visual-safari --project=visual-iphone14 --project=visual-pixel7 --project=visual-ipad --project=visual-mobile
+      
+      - name: Run mobile UX tests
+        env:
+          PLAYWRIGHT_TEST_BASE_URL: https://fyrk.no
+        run: npx playwright test --project=ux-mobile
       
       - name: Upload visual diff artifacts
         if: always()

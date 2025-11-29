@@ -62,6 +62,18 @@ export default defineConfig({
       testMatch: /.*\.visual\.ts/,
       use: { ...devices['iPad Pro'] },
     },
+    // Mobile visual tests
+    {
+      name: 'visual-mobile',
+      testMatch: /mobile\.visual\.ts/,
+      use: { ...devices['iPhone 14'] },
+    },
+    // Mobile UX tests
+    {
+      name: 'ux-mobile',
+      testMatch: /mobile\.ux\.ts/,
+      use: { ...devices['iPhone 14'] },
+    },
     // Add more configurations as needed based on analytics
   ],
 
