@@ -14,6 +14,7 @@
     "test:visual-mobile": "playwright test --project=visual-mobile",
     "test:ux-mobile": "playwright test --project=ux-mobile",
     "test:mobile": "playwright test --project=visual-mobile --project=ux-mobile",
+    "test:security": "playwright test --project=security",
     "test:ui": "playwright test --ui"
   },
   "dependencies": {
