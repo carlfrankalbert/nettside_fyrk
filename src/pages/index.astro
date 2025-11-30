@@ -34,106 +34,227 @@ const description = 'Fyrk leverer produktledelse der kvalitet møter forretnings
   </head>
   <body>
     <div class="min-h-screen bg-gradient-to-b from-neutral-50 to-white flex items-center justify-center px-4">
-      <div class="max-w-2xl mx-auto text-center flex flex-col items-center justify-center">
+      <div class="w-full max-w-2xl mx-auto text-center flex flex-col items-center justify-center">
         <!-- Logo with Neural Network -->
         <a 
           href="mailto:hei@fyrk.no" 
-          class="relative inline-block neural-logo-container focus-visible:ring-2 focus-visible:ring-brand-cyan focus-visible:ring-offset-2 rounded-md"
+          class="relative inline-flex items-center justify-center neural-logo-container focus-visible:ring-2 focus-visible:ring-brand-cyan focus-visible:ring-offset-2 rounded-md"
           aria-label="Send e-post til hei@fyrk.no"
         >
-          <!-- Neural network overlay -->
+          <!-- Neural network brain visualization (behind logo) -->
           <svg 
             class="absolute inset-0 w-full h-full neural-network-overlay" 
             viewBox="0 0 400 120" 
             fill="none" 
             xmlns="http://www.w3.org/2000/svg"
             preserveAspectRatio="xMidYMid meet"
+            style="z-index: 0;"
           >
-            <!-- Neural network nodes around logo -->
-            <circle cx="50" cy="30" r="3" fill="#5AB9D3" class="neural-node" style="animation-delay: 0s;" />
-            <circle cx="350" cy="30" r="3" fill="#5AB9D3" class="neural-node" style="animation-delay: 0.3s;" />
-            <circle cx="80" cy="90" r="3" fill="#5AB9D3" class="neural-node" style="animation-delay: 0.6s;" />
-            <circle cx="320" cy="90" r="3" fill="#5AB9D3" class="neural-node" style="animation-delay: 0.9s;" />
-            <circle cx="30" cy="60" r="2.5" fill="#7CC8DD" class="neural-node" style="animation-delay: 0.15s;" />
-            <circle cx="370" cy="60" r="2.5" fill="#7CC8DD" class="neural-node" style="animation-delay: 0.45s;" />
-            <circle cx="100" cy="20" r="2.5" fill="#7CC8DD" class="neural-node" style="animation-delay: 0.75s;" />
-            <circle cx="300" cy="100" r="2.5" fill="#7CC8DD" class="neural-node" style="animation-delay: 1.05s;" />
+            <!-- Gradient definitions for glowing effect -->
+            <defs>
+              <linearGradient id="glow-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#5AB9D3" stop-opacity="0.7" />
+                <stop offset="50%" stop-color="#7CC8DD" stop-opacity="1" />
+                <stop offset="100%" stop-color="#5AB9D3" stop-opacity="0.7" />
+              </linearGradient>
+              <radialGradient id="node-glow">
+                <stop offset="0%" stop-color="#7CC8DD" stop-opacity="1" />
+                <stop offset="70%" stop-color="#5AB9D3" stop-opacity="0.9" />
+                <stop offset="100%" stop-color="#5AB9D3" stop-opacity="0" />
+              </radialGradient>
+            </defs>
             
-            <!-- Neural network connections to logo center -->
-            <line x1="50" y1="30" x2="200" y2="60" stroke="#5AB9D3" stroke-width="1.5" opacity="0.4" class="neural-connection" style="animation-delay: 0s;" />
-            <line x1="350" y1="30" x2="200" y2="60" stroke="#5AB9D3" stroke-width="1.5" opacity="0.4" class="neural-connection" style="animation-delay: 0.2s;" />
-            <line x1="80" y1="90" x2="200" y2="60" stroke="#5AB9D3" stroke-width="1.5" opacity="0.4" class="neural-connection" style="animation-delay: 0.4s;" />
-            <line x1="320" y1="90" x2="200" y2="60" stroke="#5AB9D3" stroke-width="1.5" opacity="0.4" class="neural-connection" style="animation-delay: 0.6s;" />
-            <line x1="30" y1="60" x2="200" y2="60" stroke="#7CC8DD" stroke-width="1" opacity="0.3" class="neural-connection" style="animation-delay: 0.1s;" />
-            <line x1="370" y1="60" x2="200" y2="60" stroke="#7CC8DD" stroke-width="1" opacity="0.3" class="neural-connection" style="animation-delay: 0.3s;" />
-            <line x1="100" y1="20" x2="200" y2="60" stroke="#7CC8DD" stroke-width="1" opacity="0.3" class="neural-connection" style="animation-delay: 0.5s;" />
-            <line x1="300" y1="100" x2="200" y2="60" stroke="#7CC8DD" stroke-width="1" opacity="0.3" class="neural-connection" style="animation-delay: 0.7s;" />
+            <!-- Subtle background network lines -->
+            <g class="background-network" opacity="0.12">
+              <line x1="50" y1="30" x2="120" y2="50" stroke="#1E3A5F" stroke-width="0.5" />
+              <line x1="350" y1="30" x2="280" y2="50" stroke="#1E3A5F" stroke-width="0.5" />
+              <line x1="70" y1="90" x2="140" y2="70" stroke="#1E3A5F" stroke-width="0.5" />
+              <line x1="330" y1="90" x2="260" y2="70" stroke="#1E3A5F" stroke-width="0.5" />
+              <line x1="80" y1="20" x2="200" y2="60" stroke="#1E3A5F" stroke-width="0.5" />
+              <line x1="320" y1="20" x2="200" y2="60" stroke="#1E3A5F" stroke-width="0.5" />
+            </g>
             
-            <!-- Interconnecting lines between nodes -->
-            <line x1="50" y1="30" x2="80" y2="90" stroke="#5AB9D3" stroke-width="1" opacity="0.2" class="neural-connection" style="animation-delay: 0.25s;" />
-            <line x1="350" y1="30" x2="320" y2="90" stroke="#5AB9D3" stroke-width="1" opacity="0.2" class="neural-connection" style="animation-delay: 0.55s;" />
-            <line x1="30" y1="60" x2="100" y2="20" stroke="#7CC8DD" stroke-width="0.8" opacity="0.2" class="neural-connection" style="animation-delay: 0.35s;" />
-            <line x1="370" y1="60" x2="300" y2="100" stroke="#7CC8DD" stroke-width="0.8" opacity="0.2" class="neural-connection" style="animation-delay: 0.65s;" />
+            <!-- Brain silhouette (side view) - centered behind logo -->
+            <path 
+              d="M 100 50 
+                 Q 85 35 95 30 
+                 Q 105 25 125 27 
+                 Q 145 29 165 35 
+                 Q 185 41 200 45 
+                 Q 215 41 235 35 
+                 Q 255 29 275 27 
+                 Q 295 25 305 30 
+                 Q 315 35 300 50 
+                 Q 290 60 285 70 
+                 Q 280 80 275 90 
+                 Q 270 100 265 105 
+                 Q 260 110 255 112 
+                 Q 250 115 245 117 
+                 Q 240 120 235 121 
+                 Q 230 122 200 123 
+                 Q 170 122 165 121 
+                 Q 160 120 155 117 
+                 Q 150 115 145 112 
+                 Q 140 110 135 105 
+                 Q 130 100 125 90 
+                 Q 120 80 115 70 
+                 Q 110 60 100 50 Z" 
+              stroke="#1E3A5F" 
+              stroke-width="2.5" 
+              fill="none"
+              class="brain-outline"
+            />
+            
+            <!-- Glowing oval loop path inside brain (main focus) -->
+            <ellipse 
+              cx="200" 
+              cy="60" 
+              rx="55" 
+              ry="30" 
+              fill="none" 
+              stroke="url(#glow-gradient)" 
+              stroke-width="2.5" 
+              opacity="0.85"
+              class="neural-loop-path"
+            />
+            
+            <!-- Neural network nodes along the oval loop -->
+            <circle cx="200" cy="30" r="4" fill="url(#node-glow)" class="neural-node" style="animation-delay: 0s;" />
+            <circle cx="230" cy="42" r="3.5" fill="url(#node-glow)" class="neural-node" style="animation-delay: 0.25s;" />
+            <circle cx="245" cy="60" r="4" fill="url(#node-glow)" class="neural-node" style="animation-delay: 0.5s;" />
+            <circle cx="230" cy="78" r="3.5" fill="url(#node-glow)" class="neural-node" style="animation-delay: 0.75s;" />
+            <circle cx="200" cy="90" r="4" fill="url(#node-glow)" class="neural-node" style="animation-delay: 1s;" />
+            <circle cx="170" cy="78" r="3.5" fill="url(#node-glow)" class="neural-node" style="animation-delay: 1.25s;" />
+            <circle cx="155" cy="60" r="4" fill="url(#node-glow)" class="neural-node" style="animation-delay: 1.5s;" />
+            <circle cx="170" cy="42" r="3.5" fill="url(#node-glow)" class="neural-node" style="animation-delay: 1.75s;" />
+            
+            <!-- Connections between nodes along the smooth oval loop -->
+            <path 
+              d="M 200 30 Q 215 36 230 42 T 245 60 T 230 78 T 200 90 T 170 78 T 155 60 T 170 42 T 200 30" 
+              stroke="url(#glow-gradient)" 
+              stroke-width="2" 
+              fill="none" 
+              opacity="0.7"
+              class="neural-connection"
+            />
+            
+            <!-- Animated light traveling around the loop (showing neurons firing) -->
+            <circle 
+              r="6" 
+              fill="#7CC8DD" 
+              opacity="0.95"
+              class="traveling-light"
+            >
+              <animateMotion 
+                dur="3s" 
+                repeatCount="indefinite" 
+                path="M 200 30 Q 215 36 230 42 T 245 60 T 230 78 T 200 90 T 170 78 T 155 60 T 170 42 T 200 30"
+              />
+            </circle>
           </svg>
           
-          <!-- Fyrk Logo -->
+          <!-- Fyrk Logo (in front of brain visualization) -->
           <img 
             src="/fyrk-logo-primary-navy.svg" 
             alt="Fyrk logo" 
             class="h-24 md:h-32 lg:h-40 relative z-10 transition-transform duration-normal hover:scale-105"
             width="300"
             height="84"
+            style="position: relative; z-index: 10;"
           />
         </a>
       </div>
     </div>
     
     <style>
-      /* Neural network logo container */
-      .neural-logo-container {
-        display: inline-block;
-      }
-      
       .neural-network-overlay {
         pointer-events: none;
         overflow: visible;
+        z-index: 0;
       }
       
+      .neural-logo-container {
+        position: relative;
+      }
+      
+      /* Brain outline subtle animation */
+      .brain-outline {
+        filter: drop-shadow(0 0 2px rgba(30, 58, 95, 0.3));
+      }
+      
+      /* Neural nodes pulsing */
       .neural-node {
         animation: neural-pulse 2s ease-in-out infinite;
+        filter: drop-shadow(0 0 4px rgba(122, 200, 221, 0.8));
       }
       
-      .neural-connection {
-        animation: neural-flow 3s ease-in-out infinite;
+      /* Glowing loop path */
+      .neural-loop-path {
+        filter: drop-shadow(0 0 6px rgba(122, 200, 221, 0.6));
+        animation: loop-glow 2.5s ease-in-out infinite;
+      }
+      
+      /* Traveling light glow effect */
+      .traveling-light {
+        filter: drop-shadow(0 0 8px rgba(122, 200, 221, 1));
+        animation: light-pulse 0.5s ease-in-out infinite;
+      }
+      
+      /* Background network subtle fade */
+      .background-network {
+        animation: background-fade 4s ease-in-out infinite;
       }
       
       @keyframes neural-pulse {
         0%, 100% {
-          opacity: 0.4;
+          opacity: 0.7;
           transform: scale(1);
         }
         50% {
           opacity: 1;
-          transform: scale(1.5);
+          transform: scale(1.2);
         }
       }
       
-      @keyframes neural-flow {
+      @keyframes loop-glow {
         0%, 100% {
-          opacity: 0.2;
-          stroke-dasharray: 0, 1000;
+          opacity: 0.6;
         }
         50% {
-          opacity: 0.6;
-          stroke-dasharray: 500, 1000;
+          opacity: 0.9;
+        }
+      }
+      
+      @keyframes light-pulse {
+        0%, 100% {
+          opacity: 0.8;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.3);
+        }
+      }
+      
+      @keyframes background-fade {
+        0%, 100% {
+          opacity: 0.1;
+        }
+        50% {
+          opacity: 0.2;
         }
       }
       
       @media (prefers-reduced-motion: reduce) {
         .neural-network-overlay,
         .neural-node,
-        .neural-connection {
+        .neural-loop-path,
+        .traveling-light,
+        .background-network {
           animation: none;
+        }
+        .traveling-light {
+          display: none;
         }
       }
     </style>
