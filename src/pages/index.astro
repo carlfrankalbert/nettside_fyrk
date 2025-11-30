@@ -28,40 +28,28 @@ const description = 'Fyrk leverer produktledelse der kvalitet møter forretnings
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-
+    
     <!-- Canonical -->
     <link rel="canonical" href={site} />
   </head>
   <body>
-    <div class="min-h-screen bg-gradient-to-b from-neutral-50 to-white flex items-center justify-center px-4">
-      <div class="max-w-2xl mx-auto text-center">
-        <!-- Logo -->
-        <div class="mb-12">
-          <img 
-            src="/fyrk-logo-primary-navy.svg" 
-            alt="Fyrk logo" 
-            class="h-16 md:h-20 mx-auto"
-            width="200"
-            height="56"
-          />
-        </div>
+    <div class="min-h-screen bg-gradient-to-b from-brand-navy via-brand-cyan-darker to-brand-cyan flex items-center justify-center px-4">
+      <div class="max-w-2xl mx-auto text-center flex flex-col justify-between min-h-screen py-12">
+        <!-- Top spacer -->
+        <div class="flex-1"></div>
         
-        <!-- Contact -->
-        <div class="flex flex-col items-center gap-6">
+        <!-- Middle spacer -->
+        <div class="flex-1"></div>
+        
+        <!-- Bottom third with email -->
+        <div class="flex-1 flex items-end justify-center pb-12">
           <a 
             href="mailto:hei@fyrk.no" 
-            class="text-2xl md:text-3xl font-medium text-brand-cyan-darker hover:text-brand-cyan transition-colors duration-fast font-primary focus-visible:ring-2 focus-visible:ring-brand-cyan focus-visible:ring-offset-2 rounded-md px-2 py-1"
+            class="text-2xl md:text-3xl font-medium text-white hover:text-brand-cyan-light transition-colors duration-fast font-primary focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand-navy rounded-md px-2 py-1"
             aria-label="Send e-post til hei@fyrk.no"
           >
             hei@fyrk.no
           </a>
-          
-          <!-- Decorative element -->
-          <div class="flex gap-2 mt-4" aria-hidden="true">
-            <div class="w-3 h-3 bg-brand-cyan rounded-full"></div>
-            <div class="w-3 h-3 bg-brand-cyan-light rounded-full"></div>
-            <div class="w-3 h-3 bg-brand-cyan-lighter rounded-full"></div>
-          </div>
         </div>
       </div>
     </div>
