@@ -28,6 +28,7 @@ For å sette opp `test.fyrk.no` subdomain, må du konfigurere DNS:
    - Legg til `test.fyrk.no`
    - GitHub vil automatisk opprette en CNAME-fil
 
+<<<<<<< HEAD
 ### Alternativ: Netlify Setup
 
 Hvis du bruker Netlify:
@@ -37,6 +38,8 @@ Hvis du bruker Netlify:
    - Legg til custom domain: `test.fyrk.no`
 3. Konfigurer DNS:
    - CNAME: `test` → `<netlify-site>.netlify.app`
+=======
+>>>>>>> dev
 
 ## Deployment Workflow
 

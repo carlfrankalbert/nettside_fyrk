@@ -30,13 +30,11 @@ Dette genererer en `dist/` mappe med statiske filer klar for deployment.
 3. Velg "GitHub Actions" som source
 4. Workflow vil automatisk deploye når du pusher til `main` branch
 
-### Netlify
+### Andre hosting-tjenester
 
-1. Connect repository til Netlify
-2. Build settings:
-   - Build command: `npm run build`
-   - Publish directory: `dist`
-3. Netlify vil automatisk håndtere kontaktformularen
+Nettsiden kan deployes til enhver statisk hosting-tjeneste:
+- Build command: `npm run build`
+- Publish directory: `dist`
 
 ## Struktur
 
