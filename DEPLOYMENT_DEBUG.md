@@ -31,17 +31,7 @@ git push origin main
 
 ## Problem 2: test.fyrk.no shows 404
 
-### Option A: Netlify (Recommended)
-1. Go to: https://www.netlify.com
-2. Import repository: `carlfrankalbert/nettside_fyrk`
-3. Configure:
-   - **Branch:** `develop`
-   - **Build command:** `npm run build`
-   - **Publish directory:** `dist`
-4. Add custom domain: `test.fyrk.no`
-5. Update DNS CNAME: `test` → `<netlify-site>.netlify.app`
-
-### Option B: GitHub Pages Preview Environment
+### Option A: GitHub Pages Preview Environment
 1. Go to: https://github.com/carlfrankalbert/nettside_fyrk/settings/pages
 2. Check if `preview` environment exists
 3. If not, the `deploy-preview.yml` workflow should create it
