@@ -1,0 +1,49 @@
+---
+import { textClasses, cn } from '../utils/classes';
+
+/**
+ * Reusable section header component
+ * Provides consistent styling for section headings and descriptions
+ */
+interface Props {
+  heading: string;
+  headingId: string;
+  description?: string;
+  headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
+  class?: string;
+}
+
+const { 
+  heading, 
+  headingId, 
+  description,
+  headingLevel = 2,
+  class: className = ''
+} = Astro.props;
+
+const headingClasses = {
+  1: 'text-h1',
+  2: 'text-h2 md:text-[2.75rem]',
+  3: 'text-h3',
+  4: 'text-h4',
+  5: 'text-h5',
+  6: 'text-h6',
+};
+
+const HeadingTag = `h${headingLevel}` as keyof JSX.IntrinsicElements;
+---
+
+<div class={cn('text-center', className)}>
+  <HeadingTag 
+    id={headingId} 
+    class={cn(headingClasses[headingLevel], 'mb-6 md:mb-8', textClasses.primary, 'font-bold tracking-tight')}
+  >
+    {heading}
+  </HeadingTag>
+  {description && (
+    <p class={cn('text-lg md:text-xl', textClasses.secondary, 'max-w-[70ch] mx-auto leading-relaxed')}>
+      {description}
+    </p>
+  )}
+</div>
+

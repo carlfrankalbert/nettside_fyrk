@@ -1,0 +1,71 @@
+---
+import { textClasses } from '../utils/classes';
+
+interface Props {
+  id: string;
+  name: string;
+  label: string;
+  type?: 'text' | 'email' | 'tel' | 'textarea';
+  required?: boolean;
+  autocomplete?: string;
+  helpText?: string;
+  rows?: number;
+  placeholder?: string;
+}
+
+const {
+  id,
+  name,
+  label,
+  type = 'text',
+  required = false,
+  autocomplete,
+  helpText,
+  rows = 6,
+  placeholder
+} = Astro.props;
+
+const errorId = `${id}-error`;
+const helpId = `${id}-help`;
+---
+
+<div>
+  <label for={id} class={`block font-primary font-medium ${textClasses.primary} mb-2`}>
+    {label}
+    {required && (
+      <span class={textClasses.error} aria-label="påkrevd">*</span>
+    )}
+  </label>
+  {type === 'textarea' ? (
+    <textarea
+      id={id}
+      name={name}
+      rows={rows}
+      required={required}
+      class="input resize-y"
+      aria-required={required}
+      aria-describedby={`${errorId} ${helpId}`}
+      aria-invalid="false"
+      placeholder={placeholder}
+    ></textarea>
+  ) : (
+    <input
+      type={type}
+      id={id}
+      name={name}
+      required={required}
+      class="input"
+      aria-required={required}
+      aria-describedby={`${errorId} ${helpId}`}
+      aria-invalid="false"
+      autocomplete={autocomplete}
+      placeholder={placeholder}
+    />
+  )}
+  {helpText && (
+    <span id={helpId} class="sr-only">{helpText}</span>
+  )}
+  <span id={errorId} class={`${textClasses.error} text-sm mt-1 hidden`} role="alert" aria-live="polite"></span>
+</div>
+
+

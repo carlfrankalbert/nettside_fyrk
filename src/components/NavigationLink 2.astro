@@ -1,0 +1,35 @@
+---
+interface Props {
+  href: string;
+  label: string;
+  isPrimary?: boolean;
+  isMobile?: boolean;
+}
+
+const { href, label, isPrimary = false, isMobile = false } = Astro.props;
+
+// Base link classes for non-primary links
+const baseLinkClasses = "font-primary font-medium text-brand-navy dark:text-white hover:text-brand-cyan-darker dark:hover:text-brand-cyan transition-colors duration-fast focus-visible:ring-2 focus-visible:ring-brand-cyan focus-visible:ring-offset-2 rounded-md";
+const mobileBaseClasses = `${baseLinkClasses} block px-2 py-3`;
+const desktopBaseClasses = `${baseLinkClasses} px-2 py-1`;
+
+// Primary button classes
+const primaryMobileClasses = "block w-full btn btn-primary text-center";
+const primaryDesktopClasses = "btn btn-primary";
+
+// Determine final classes based on props
+const getLinkClasses = (): string => {
+  if (isPrimary) {
+    return isMobile ? primaryMobileClasses : primaryDesktopClasses;
+  }
+  return isMobile ? mobileBaseClasses : desktopBaseClasses;
+};
+
+const linkClasses = getLinkClasses();
+---
+
+<a href={href} class={linkClasses}>
+  {label}
+</a>
+
+
