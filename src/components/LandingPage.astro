@@ -1,0 +1,36 @@
+---
+/**
+ * LandingPage Component
+ * 
+ * Enkel landing page som vises når PUBLIC_FEATURE_FULL_SITE_ENABLED er false.
+ * Viser kun logo og en kort "Coming soon" melding.
+ * 
+ * Brukes i produksjon inntil hele nettsiden er klar for lansering.
+ */
+import LandingLogo from './LandingLogo.astro';
+import SEOHead from './SEOHead.astro';
+import { SITE_CONFIG } from '../config/site';
+import '../styles/global.css';
+---
+
+<!doctype html>
+<html lang="no">
+  <head>
+    <SEOHead 
+      title={SITE_CONFIG.name}
+      description={SITE_CONFIG.description}
+      type="website"
+    />
+  </head>
+  <body>
+    <div class="min-h-screen bg-gradient-to-b from-neutral-50 to-white dark:from-neutral-900 dark:to-neutral-800 flex items-center justify-center px-4">
+      <div class="w-full max-w-2xl mx-auto text-center flex flex-col items-center justify-center gap-8">
+        <LandingLogo />
+        <p class="text-lg md:text-xl text-neutral-700 dark:text-neutral-300 font-light">
+          Coming soon
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
+

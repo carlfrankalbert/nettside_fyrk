@@ -1,0 +1,114 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  actions: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build for production
+        run: npm run build
+        env:
+          # Feature flag: Standard false (kun landing page)
+          # Endre til 'true' når hele nettsiden er klar for lansering
+          # For å aktivere full site: sett PUBLIC_FEATURE_FULL_SITE_ENABLED: 'true'
+          PUBLIC_FEATURE_FULL_SITE_ENABLED: ${{ secrets.PUBLIC_FEATURE_FULL_SITE_ENABLED || 'false' }}
+          # Site URL for produksjon (custom domain eller GitHub Pages)
+          # For custom domain: sett SITE secret i GitHub repository settings
+          # For GitHub Pages: bruk standard URL eller sett base i astro.config.mjs
+          SITE: ${{ secrets.SITE || 'https://fyrk.no' }}
+      
+      - name: Ensure CNAME for production (if custom domain)
+        # Kun hvis custom domain er konfigurert
+        run: |
+          if [ -n "${{ secrets.SITE }}" ] && [[ "${{ secrets.SITE }}" != *"github.io"* ]]; then
+            echo "$(echo ${{ secrets.SITE }} | sed 's|https\?://||' | sed 's|/.*||')" > dist/CNAME
+            echo "CNAME created for custom domain"
+          fi
+        continue-on-error: true
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    environment:
+      name: production
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Cancel in-progress deployments
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            try {
+              const { data: deployments } = await github.rest.repos.listPagesDeployments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                per_page: 10
+              });
+              
+              const inProgress = deployments.filter(d => 
+                d.status === 'queued' || 
+                d.status === 'in_progress' ||
+                d.status === 'building'
+              );
+              
+              if (inProgress.length > 0) {
+                console.log(`Found ${inProgress.length} in-progress deployment(s), cancelling...`);
+                
+                for (const deployment of inProgress) {
+                  try {
+                    await github.rest.repos.cancelPagesDeployment({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      pages_deployment_id: deployment.id
+                    });
+                    console.log(`✓ Cancelled deployment ${deployment.id} (status: ${deployment.status})`);
+                  } catch (error) {
+                    console.log(`⚠ Could not cancel deployment ${deployment.id}: ${error.message}`);
+                  }
+                }
+                
+                console.log('Waiting 3 seconds for cancellations to process...');
+                await new Promise(resolve => setTimeout(resolve, 3000));
+              } else {
+                console.log('✓ No in-progress deployments found');
+              }
+            } catch (error) {
+              console.log(`⚠ Error checking deployments: ${error.message}`);
+              console.log('Continuing with deployment anyway...');
+            }
+      
+      - name: Deploy to GitHub Pages (Production)
+        id: deployment
+        uses: actions/deploy-pages@v4
+
