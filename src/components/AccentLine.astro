@@ -1,0 +1,20 @@
+---
+import { cn } from '../utils/classes';
+
+/**
+ * Accent line decoration component
+ * Used to add visual accent above headings
+ */
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+---
+
+<div class={cn('flex items-center justify-center gap-3 opacity-60', className)} aria-hidden="true">
+  <div class="h-px w-12 bg-brand-cyan"></div>
+  <div class="h-1.5 w-1.5 rounded-full bg-brand-cyan"></div>
+  <div class="h-px w-12 bg-brand-cyan"></div>
+</div>
+
