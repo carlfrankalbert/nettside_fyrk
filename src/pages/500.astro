@@ -1,22 +1,30 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { spacingClasses, buttonClasses, textClasses, backgroundClasses, cn } from '../utils/classes';
+// Redirect all 500s to landing page
+import '../styles/global.css';
+import LandingLogo from '../components/LandingLogo.astro';
+import SEOHead from '../components/SEOHead.astro';
+import { SITE_CONFIG } from '../config/site';
 ---
 
-<BaseLayout title="Noe gikk galt" description="Beklager, det oppstod en feil.">
-  <section class={cn('py-24', backgroundClasses.white)} aria-labelledby="error-heading">
-    <div class={cn(spacingClasses.container, 'text-center')}>
-      <div class="max-w-2xl mx-auto">
-        <p class="text-6xl font-bold text-brand-cyan-darker dark:text-brand-cyan mb-4" aria-hidden="true">500</p>
-        <h1 id="error-heading" class={cn('text-h1 mb-4', textClasses.primary)}>Noe gikk galt</h1>
-        <p class={cn('text-lg mb-8', textClasses.secondary)}>
-          Beklager, det oppstod en teknisk feil. Prøv igjen senere.
-        </p>
-        <a href="/" class={buttonClasses.primary}>
-          Tilbake til forsiden
-        </a>
+<!doctype html>
+<html lang="no">
+  <head>
+    <SEOHead 
+      title={SITE_CONFIG.name}
+      description={SITE_CONFIG.description}
+      type="website"
+    />
+    <meta http-equiv="refresh" content="0; url=/" />
+  </head>
+  <body>
+    <div class="min-h-screen bg-gradient-to-b from-neutral-50 to-white dark:from-neutral-900 dark:to-neutral-800 flex items-center justify-center px-4">
+      <div class="w-full max-w-2xl mx-auto text-center flex flex-col items-center justify-center">
+        <LandingLogo />
       </div>
     </div>
-  </section>
-</BaseLayout>
-
+    <script>
+      // Client-side redirect as fallback
+      window.location.href = '/';
+    </script>
+  </body>
+</html>
