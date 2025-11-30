@@ -51,6 +51,22 @@ export const focusClasses = {
 } as const;
 
 /**
+ * Common button size and style classes
+ */
+export const buttonClasses = {
+  base: 'btn',
+  primary: 'btn btn-primary',
+  secondary: 'btn btn-secondary',
+  outline: 'btn btn-outline',
+  large: 'text-lg px-10 py-4',
+  medium: 'text-base md:text-lg px-6 md:px-8',
+  small: 'text-base px-8',
+  withShadow: 'shadow-lg hover:shadow-xl',
+  withShadowXL: 'shadow-xl hover:shadow-2xl hover:scale-105',
+  fullWidth: 'w-full sm:w-auto',
+} as const;
+
+/**
  * Combine multiple class strings, filtering out empty values
  */
 export function cn(...classes: (string | undefined | null | false)[]): string {

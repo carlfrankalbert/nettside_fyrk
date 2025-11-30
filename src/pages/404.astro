@@ -1,17 +1,18 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { spacingClasses, buttonClasses, textClasses, backgroundClasses, cn } from '../utils/classes';
 ---
 
 <BaseLayout title="Side ikke funnet" description="Beklager, siden du leter etter finnes ikke.">
-  <section class="py-24 bg-white dark:bg-neutral-900" aria-labelledby="error-heading">
-    <div class="container mx-auto px-4 text-center">
+  <section class={cn('py-24', backgroundClasses.white)} aria-labelledby="error-heading">
+    <div class={cn(spacingClasses.container, 'text-center')}>
       <div class="max-w-2xl mx-auto">
         <p class="text-6xl font-bold text-brand-cyan-darker dark:text-brand-cyan mb-4" aria-hidden="true">404</p>
-        <h1 id="error-heading" class="text-h1 mb-4">Side ikke funnet</h1>
-        <p class="text-lg text-neutral-700 dark:text-neutral-300 mb-8">
+        <h1 id="error-heading" class={cn('text-h1 mb-4', textClasses.primary)}>Side ikke funnet</h1>
+        <p class={cn('text-lg mb-8', textClasses.secondary)}>
           Beklager, siden du leter etter finnes ikke eller har blitt flyttet.
         </p>
-        <a href="/" class="btn btn-primary">
+        <a href="/" class={buttonClasses.primary}>
           Tilbake til forsiden
         </a>
       </div>

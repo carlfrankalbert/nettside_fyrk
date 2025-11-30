@@ -2,17 +2,18 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import FormField from '../components/FormField.astro';
 import { EXTERNAL_LINKS, linkClasses } from '../utils/links';
+import { spacingClasses, buttonClasses, textClasses, backgroundClasses, cn } from '../utils/classes';
 ---
 
 <BaseLayout 
   title="Kontakt"
   description="Ta kontakt med Fyrk for å høre hvordan vi kan hjelpe ditt selskap med produktledelse som leverer resultater."
 >
-  <section class="py-24 bg-white dark:bg-neutral-900" aria-labelledby="contact-heading">
-    <div class="container mx-auto px-4">
+  <section class={cn('py-24', backgroundClasses.white)} aria-labelledby="contact-heading">
+    <div class={spacingClasses.container}>
       <div class="max-w-3xl mx-auto">
-        <h1 id="contact-heading" class="text-h1 mb-4">Kontakt oss</h1>
-        <p class="text-lg text-neutral-700 dark:text-neutral-300 mb-12">
+        <h1 id="contact-heading" class={cn('text-h1 mb-4', textClasses.primary)}>Kontakt oss</h1>
+        <p class={cn('text-lg mb-12', textClasses.secondary)}>
           Har du spørsmål eller vil du høre mer om hvordan vi kan hjelpe ditt selskap? Send oss en melding, så tar vi kontakt.
         </p>
 
@@ -94,7 +95,7 @@ import { EXTERNAL_LINKS, linkClasses } from '../utils/links';
             </div>
           </div>
 
-          <button type="submit" class="btn btn-primary w-full sm:w-auto text-lg px-8" aria-describedby="submit-help">
+          <button type="submit" class={cn(buttonClasses.primary, buttonClasses.fullWidth, buttonClasses.small)} aria-describedby="submit-help">
             Send melding
           </button>
           <span id="submit-help" class="sr-only">Send inn kontaktformularen</span>
