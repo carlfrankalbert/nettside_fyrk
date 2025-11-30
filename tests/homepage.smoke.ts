@@ -51,7 +51,7 @@ test.describe('Homepage Smoke Tests', () => {
 
   test('CTA buttons are visible and clickable', async ({ page }) => {
     await page.goto('/');
-    const contactButton = page.getByRole('link', { name: /Ta kontakt/i });
+    const contactButton = page.getByRole('link', { name: /Snakk med oss/i });
     await expect(contactButton.first()).toBeVisible();
   });
 });

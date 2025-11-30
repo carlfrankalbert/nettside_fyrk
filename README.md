@@ -1,8 +1,10 @@
 # Fyrk Nettside
 
-Nettside for Fyrk bygget med Astro, Tailwind CSS og design system.
+Nettside for Fyrk bygget med Astro, Tailwind CSS og design system. Nettsiden følger de 8 grunnleggende designprinsippene og er WCAG 2.1 AA compliant.
 
-## Utvikling
+## 🚀 Komme i gang
+
+Se [QUICKSTART.md](./QUICKSTART.md) for rask start-guide.
 
 ```bash
 # Installer avhengigheter
@@ -18,34 +20,88 @@ npm run build
 npm run preview
 ```
 
-## Struktur
+## 📁 Struktur
 
-- `src/pages/` - Sider (index, om, kontakt, blogg)
-- `src/components/` - Gjenbrukbare komponenter
-- `src/layouts/` - Side-layouts
-- `src/styles/` - Globale stiler og design system
-- `public/` - Statiske filer (logoer, etc.)
+```
+src/
+├── components/     # Gjenbrukbare komponenter
+├── layouts/        # Side-layouts
+├── pages/          # Sider (index, om, kontakt, blogg)
+├── styles/         # Globale stiler og design system
+├── data/           # Data-filer (navigation, services, etc.)
+└── content/        # Content collections (blogg)
 
-## Design System
+docs/
+├── deployment/     # Deployment-dokumentasjon
+├── development/    # Utvikler-dokumentasjon
+└── design/         # Design-dokumentasjon
+
+tests/              # Playwright tester
+```
+
+## 🎨 Design System
 
 Nettsiden følger Fyrk design system med:
-- WCAG 2.1 AA compliance
-- 8-punkts grid-system
-- Navy (#001F3F) og Cyan (#5AB9D3) farger
-- Inter font family
+- **Farger:** Navy (#001F3F), Cyan (#5AB9D3), Nøytrale
+- **Typografi:** Inter (headings), System fonts (body)
+- **Spacing:** 8px grid-system
+- **WCAG 2.1 AA compliant:** Alle kontrastforhold er testet
+- **Dark mode:** Full støtte med system preference detection
 
-## Deployment
+### Designprinsipper
 
-Nettsiden er konfigurert for deployment på GitHub Pages eller Netlify.
+Nettsiden følger de 8 grunnleggende designprinsippene:
+1. ✅ **Alignment** - Konsistent justering med container-basert layout
+2. ✅ **Hierarchy** - Klar typografisk hierarki (Display → H1 → H2 → Body)
+3. ✅ **Contrast** - Høy kontrast (WCAG 2.1 AA compliant)
+4. ✅ **Repetition** - Konsistent bruk av farger, fonter, former
+5. ✅ **Proximity** - Logisk gruppering av relaterte elementer
+6. ✅ **Balance** - Asymmetrisk balanse i layout
+7. ✅ **Color** - Strategisk bruk av brand-farger
+8. ✅ **Negative Space** - Generøs whitespace for lesbarhet
 
-For Netlify:
-1. Connect repository til Netlify
-2. Build command: `npm run build`
-3. Publish directory: `dist`
+Se [docs/design/DESIGN_PRINCIPLES.md](./docs/design/DESIGN_PRINCIPLES.md) for detaljert evaluering.
 
-## Kontaktformular
+## 🧪 Testing
 
-Kontaktformularen bruker Netlify Forms. For å aktivere:
-1. Deploy til Netlify
-2. Legg til `netlify` attributt på form-elementet (allerede gjort)
-3. Netlify vil automatisk håndtere form submissions
+```bash
+# Kjør alle tester
+npm test
+
+# Kjør smoke tests
+npx playwright test --project=smoke
+
+# Kjør visual regression tests
+npx playwright test --project=visual
+
+# Kjør contrast tests
+npx playwright test --project=contrast
+```
+
+Se [docs/development/TESTING.md](./docs/development/TESTING.md) for mer informasjon.
+
+## 📚 Dokumentasjon
+
+- **Quick Start:** [QUICKSTART.md](./QUICKSTART.md)
+- **Deployment:** [docs/deployment/](./docs/deployment/)
+- **Development:** [docs/development/](./docs/development/)
+- **Design:** [docs/design/](./docs/design/)
+- **Designprinsipper:** [docs/design/DESIGN_PRINCIPLES.md](./docs/design/DESIGN_PRINCIPLES.md)
+
+## 🚢 Deployment
+
+Nettsiden er konfigurert for deployment på GitHub Pages med custom domain (fyrk.no).
+
+Se [docs/deployment/](./docs/deployment/) for detaljerte instruksjoner.
+
+## 🛠️ Teknologi
+
+- **Astro** - Static site generator
+- **Tailwind CSS** - Utility-first CSS framework
+- **Playwright** - End-to-end testing
+- **TypeScript** - Type safety
+- **GitHub Actions** - CI/CD
+
+## 📄 Lisens
+
+© 2025 Fyrk. Alle rettigheter reservert.

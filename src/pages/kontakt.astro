@@ -87,7 +87,7 @@ import { EXTERNAL_LINKS, linkClasses } from '../utils/links';
               aria-invalid="false"
             />
             <div class="flex-1">
-              <label for="consent" class="text-sm text-neutral-700 leading-relaxed">
+              <label for="consent" class="text-sm text-neutral-700 dark:text-neutral-200 leading-relaxed">
                 Jeg samtykker til at Fyrk kan lagre og behandle mine personopplysninger for å svare på henvendelsen. <span class="text-feedback-error" aria-label="påkrevd">*</span>
               </label>
               <span id="consent-error" class="text-feedback-error text-sm mt-1 hidden block" role="alert" aria-live="polite"></span>
@@ -100,11 +100,11 @@ import { EXTERNAL_LINKS, linkClasses } from '../utils/links';
           <span id="submit-help" class="sr-only">Send inn kontaktformularen</span>
         </form>
 
-        <div class="mt-16 pt-12 border-t border-neutral-200" aria-labelledby="other-contact-heading">
+        <div class="mt-16 pt-12 border-t border-neutral-200 dark:border-neutral-700" aria-labelledby="other-contact-heading">
           <h2 id="other-contact-heading" class="text-h3 mb-6">Andre måter å nå oss på</h2>
           <div class="space-y-4">
             <div>
-              <h3 class="font-primary font-semibold text-brand-navy mb-2">LinkedIn</h3>
+              <h3 class="font-primary font-semibold text-brand-navy dark:text-white mb-2">LinkedIn</h3>
               <a 
                 href={EXTERNAL_LINKS.linkedin}
                 target="_blank" 
@@ -116,7 +116,7 @@ import { EXTERNAL_LINKS, linkClasses } from '../utils/links';
               </a>
             </div>
             <div>
-              <h3 class="font-primary font-semibold text-brand-navy mb-2">Nettsted</h3>
+              <h3 class="font-primary font-semibold text-brand-navy dark:text-white mb-2">Nettsted</h3>
               <a 
                 href={EXTERNAL_LINKS.site}
                 class={linkClasses.external}
@@ -126,8 +126,8 @@ import { EXTERNAL_LINKS, linkClasses } from '../utils/links';
               </a>
             </div>
             <div>
-              <h3 class="font-primary font-semibold text-brand-navy mb-2">Lokasjon</h3>
-              <p class="text-neutral-700">Oslo, Norge</p>
+              <h3 class="font-primary font-semibold text-brand-navy dark:text-white mb-2">Lokasjon</h3>
+              <p class="text-neutral-700 dark:text-neutral-200">Oslo, Norge</p>
             </div>
           </div>
         </div>

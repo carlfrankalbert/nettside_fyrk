@@ -1,24 +1,83 @@
 ---
-import '../styles/global.css';
-import LandingLogo from '../components/LandingLogo.astro';
-import SEOHead from '../components/SEOHead.astro';
-import { SITE_CONFIG } from '../config/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import Section from '../components/Section.astro';
+import CTASection from '../components/CTASection.astro';
+import FeatureList from '../components/FeatureList.astro';
+import { services } from '../data/services';
+import { targetAudience } from '../data/targetAudience';
 ---
 
-<!doctype html>
-<html lang="no">
-  <head>
-    <SEOHead 
-      title={SITE_CONFIG.name}
-      description={SITE_CONFIG.description}
-      type="website"
-    />
-  </head>
-  <body>
-    <div class="min-h-screen bg-gradient-to-b from-neutral-50 to-white flex items-center justify-center px-4">
-      <div class="w-full max-w-2xl mx-auto text-center flex flex-col items-center justify-center">
-        <LandingLogo />
+<BaseLayout 
+  title="Hjem" 
+  description="Fyrk leverer produktledelse som leverer forretningsverdi. Med erfaring fra fintech og smidige leveransemiljøer hjelper vi selskaper å bygge digitale produkter som faktisk holder mål."
+>
+  <!-- Hero Section -->
+  <Section background="gradient" ariaLabelledBy="hero-heading" padding="large">
+    <div class="max-w-5xl mx-auto text-center">
+      <!-- Subtle accent line above heading -->
+      <div class="flex items-center justify-center gap-3 mb-8 opacity-60">
+        <div class="h-px w-12 bg-brand-cyan"></div>
+        <div class="h-1.5 w-1.5 rounded-full bg-brand-cyan"></div>
+        <div class="h-px w-12 bg-brand-cyan"></div>
+      </div>
+      
+      <h1 id="hero-heading" class="text-display md:text-[4rem] font-bold text-brand-navy dark:text-white mb-8 md:mb-12 leading-[1.1] tracking-tight">
+        Produktledelse som <span class="text-brand-cyan-darker dark:text-brand-cyan">leverer</span> forretningsverdi
+      </h1>
+      <p class="text-xl md:text-2xl text-neutral-700 dark:text-neutral-200 mb-10 md:mb-16 leading-relaxed max-w-[70ch] mx-auto font-light">
+        Vi hjelper organisasjoner å få mennesker, prosesser og teknologi til å virke sammen for å skape produkter som virker – raskt, trygt og med reell brukerverdi.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center">
+        <a href="/kontakt" class="btn btn-primary text-lg px-10 py-4 shadow-lg hover:shadow-xl transition-all duration-normal" aria-label="Snakk med oss fra Fyrk">
+          Snakk med oss
+        </a>
+        <a href="/om" class="btn btn-outline text-lg px-10 py-4 hover:shadow-md transition-all duration-normal" aria-label="Les mer om Fyrk">
+          Les mer om oss
+        </a>
       </div>
     </div>
-  </body>
-</html>
+  </Section>
+
+  <!-- Services Section -->
+  <Section background="white" ariaLabelledBy="services-heading">
+    <div class="text-center mb-20 md:mb-32">
+      <h2 id="services-heading" class="text-h2 md:text-[2.75rem] mb-6 md:mb-8 dark:text-white font-bold tracking-tight">
+        Hva vi tilbyr
+      </h2>
+      <p class="text-lg md:text-xl text-neutral-700 dark:text-neutral-300 max-w-[70ch] mx-auto leading-relaxed">
+        Vi leverer produktledelse som leverer, teambygging og trygg leveranse for organisasjoner som trenger både hastighet og soliditet.
+      </p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr] gap-8 md:gap-16 max-w-7xl mx-auto">
+      {services.map((service, index) => (
+        <ServiceCard
+          icon={service.icon}
+          title={service.title}
+          description={service.description}
+          featured={index === 0}
+        />
+      ))}
+    </div>
+  </Section>
+
+  <!-- Who We Help Section -->
+  <Section background="neutral" ariaLabelledBy="who-we-help-heading">
+    <FeatureList 
+      heading="Passer for selskaper som:" 
+      items={targetAudience}
+      headingId="who-we-help-heading"
+    />
+  </Section>
+
+  <!-- CTA Section -->
+  <CTASection
+    heading="Klar til å starte?"
+    description="Ta kontakt for å høre hvordan vi kan hjelpe ditt selskap med produktledelse som faktisk leverer resultater."
+    buttonText="Snakk med oss"
+    buttonHref="/kontakt"
+    buttonAriaLabel="Snakk med oss fra Fyrk"
+    variant="secondary"
+  />
+</BaseLayout>
