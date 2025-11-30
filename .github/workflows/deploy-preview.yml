@@ -53,34 +53,44 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { data: deployments } = await github.rest.repos.listPagesDeployments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              per_page: 10
-            });
-            
-            const inProgress = deployments.filter(d => d.status === 'queued' || d.status === 'in_progress');
-            
-            if (inProgress.length > 0) {
-              console.log(`Found ${inProgress.length} in-progress deployment(s), cancelling...`);
+            try {
+              const { data: deployments } = await github.rest.repos.listPagesDeployments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                per_page: 10
+              });
               
-              for (const deployment of inProgress) {
-                try {
-                  await github.rest.repos.cancelPagesDeployment({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    pages_deployment_id: deployment.id
-                  });
-                  console.log(`Cancelled deployment ${deployment.id}`);
-                } catch (error) {
-                  console.log(`Could not cancel deployment ${deployment.id}: ${error.message}`);
+              const inProgress = deployments.filter(d => 
+                d.status === 'queued' || 
+                d.status === 'in_progress' ||
+                d.status === 'building'
+              );
+              
+              if (inProgress.length > 0) {
+                console.log(`Found ${inProgress.length} in-progress deployment(s), cancelling...`);
+                
+                for (const deployment of inProgress) {
+                  try {
+                    await github.rest.repos.cancelPagesDeployment({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      pages_deployment_id: deployment.id
+                    });
+                    console.log(`✓ Cancelled deployment ${deployment.id} (status: ${deployment.status})`);
+                  } catch (error) {
+                    console.log(`⚠ Could not cancel deployment ${deployment.id}: ${error.message}`);
+                  }
                 }
+                
+                // Wait a moment for cancellations to process
+                console.log('Waiting 3 seconds for cancellations to process...');
+                await new Promise(resolve => setTimeout(resolve, 3000));
+              } else {
+                console.log('✓ No in-progress deployments found');
               }
-              
-              // Wait a moment for cancellations to process
-              await new Promise(resolve => setTimeout(resolve, 2000));
-            } else {
-              console.log('No in-progress deployments found');
+            } catch (error) {
+              console.log(`⚠ Error checking deployments: ${error.message}`);
+              console.log('Continuing with deployment anyway...');
             }
       
       - name: Deploy to GitHub Pages (Preview)
