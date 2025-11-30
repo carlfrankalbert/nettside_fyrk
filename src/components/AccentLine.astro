@@ -4,6 +4,7 @@ import { cn } from '../utils/classes';
 /**
  * Accent line decoration component
  * Used to add visual accent above headings
+ * Subtle decorative element that doesn't look like navigation indicators
  */
 interface Props {
   class?: string;
@@ -12,9 +13,9 @@ interface Props {
 const { class: className = '' } = Astro.props;
 ---
 
-<div class={cn('flex items-center justify-center gap-3 opacity-60', className)} aria-hidden="true">
-  <div class="h-px w-12 bg-brand-cyan"></div>
-  <div class="h-1.5 w-1.5 rounded-full bg-brand-cyan"></div>
-  <div class="h-px w-12 bg-brand-cyan"></div>
+<div class={cn('flex items-center justify-center mb-8', className)} aria-hidden="true">
+  <div class="h-px w-20 bg-gradient-to-r from-transparent via-brand-cyan/50 to-brand-cyan"></div>
+  <div class="h-px w-20 bg-brand-cyan mx-2"></div>
+  <div class="h-px w-20 bg-gradient-to-l from-transparent via-brand-cyan/50 to-brand-cyan"></div>
 </div>
 
