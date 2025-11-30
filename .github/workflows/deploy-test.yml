@@ -1,4 +1,4 @@
-name: Deploy to test.fyrk.no
+name: Deploy to fyrk.no/test
 
 on:
   push:
@@ -30,10 +30,8 @@ jobs:
       - name: Build for test environment
         run: npm run build
         env:
-          SITE: ${{ secrets.TEST_SITE || 'https://test.fyrk.no' }}
-      
-      - name: Create CNAME for test subdomain
-        run: echo "test.fyrk.no" > dist/CNAME
+          SITE: ${{ secrets.TEST_SITE || 'https://fyrk.no' }}
+          PUBLIC_WHITELISTED_IPS: ${{ secrets.WHITELISTED_IPS || '' }}
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -50,6 +48,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Deploy to test.fyrk.no
+      - name: Deploy to fyrk.no/test
         id: deployment
         uses: actions/deploy-pages@v4
