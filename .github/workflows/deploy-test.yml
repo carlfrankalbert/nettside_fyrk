@@ -53,4 +53,3 @@ jobs:
       - name: Deploy to test.fyrk.no
         id: deployment
         uses: actions/deploy-pages@v4
-
