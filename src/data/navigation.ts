@@ -1,8 +1,4 @@
-export interface NavItem {
-  href: string;
-  label: string;
-  isPrimary?: boolean;
-}
+import type { NavItem } from '../types';
 
 export const mainNavigation: NavItem[] = [
   { href: '/', label: 'Hjem' },

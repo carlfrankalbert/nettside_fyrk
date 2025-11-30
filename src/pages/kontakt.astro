@@ -1,5 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import FormField from '../components/FormField.astro';
+import { EXTERNAL_LINKS, linkClasses } from '../utils/links';
 ---
 
 <BaseLayout 
@@ -10,7 +12,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <div class="container mx-auto px-4">
       <div class="max-w-3xl mx-auto">
         <h1 id="contact-heading" class="text-h1 mb-4">Kontakt oss</h1>
-        <p class="text-lg text-neutral-500 dark:text-neutral-300 mb-12">
+        <p class="text-lg text-neutral-700 dark:text-neutral-300 mb-12">
           Har du spørsmål eller vil du høre mer om hvordan vi kan hjelpe ditt selskap? Send oss en melding, så tar vi kontakt.
         </p>
 
@@ -34,76 +36,44 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <div role="alert" id="form-error" class="hidden bg-feedback-error/10 border-2 border-feedback-error text-feedback-error p-4 rounded-lg mb-4" aria-live="assertive"></div>
           <div role="status" id="form-success" class="hidden bg-feedback-success/10 border-2 border-feedback-success text-feedback-success p-4 rounded-lg mb-4" aria-live="polite"></div>
           
-          <div>
-            <label for="name" class="block font-primary font-medium text-brand-navy mb-2">
-              Navn <span class="text-feedback-error" aria-label="påkrevd">*</span>
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              required
-              class="input"
-              aria-required="true"
-              aria-describedby="name-error name-help"
-              aria-invalid="false"
-              autocomplete="name"
-            />
-            <span id="name-help" class="sr-only">Skriv inn ditt fullstendige navn</span>
-            <span id="name-error" class="text-feedback-error text-sm mt-1 hidden block" role="alert" aria-live="polite"></span>
-          </div>
+          <FormField
+            id="name"
+            name="name"
+            label="Navn"
+            type="text"
+            required={true}
+            autocomplete="name"
+            helpText="Skriv inn ditt fullstendige navn"
+          />
 
-          <div>
-            <label for="email" class="block font-primary font-medium text-brand-navy mb-2">
-              E-post <span class="text-feedback-error" aria-label="påkrevd">*</span>
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              required
-              class="input"
-              aria-required="true"
-              aria-describedby="email-error email-help"
-              aria-invalid="false"
-              autocomplete="email"
-            />
-            <span id="email-help" class="sr-only">Skriv inn din e-postadresse</span>
-            <span id="email-error" class="text-feedback-error text-sm mt-1 hidden block" role="alert" aria-live="polite"></span>
-          </div>
+          <FormField
+            id="email"
+            name="email"
+            label="E-post"
+            type="email"
+            required={true}
+            autocomplete="email"
+            helpText="Skriv inn din e-postadresse"
+          />
 
-          <div>
-            <label for="company" class="block font-primary font-medium text-brand-navy mb-2">
-              Selskap
-            </label>
-            <input
-              type="text"
-              id="company"
-              name="company"
-              class="input"
-              autocomplete="organization"
-              aria-describedby="company-help"
-            />
-            <span id="company-help" class="sr-only">Skriv inn navnet på ditt selskap (valgfritt)</span>
-          </div>
+          <FormField
+            id="company"
+            name="company"
+            label="Selskap"
+            type="text"
+            autocomplete="organization"
+            helpText="Skriv inn navnet på ditt selskap (valgfritt)"
+          />
 
-          <div>
-            <label for="message" class="block font-primary font-medium text-brand-navy mb-2">
-              Melding <span class="text-feedback-error" aria-label="påkrevd">*</span>
-            </label>
-            <textarea
-              id="message"
-              name="message"
-              rows="6"
-              required
-              class="input resize-y"
-              aria-required="true"
-              aria-describedby="message-error message-help"
-              aria-invalid="false"
-            ></textarea>
-            <span id="message-help" class="sr-only">Beskriv din henvendelse eller spørsmål</span>
-            <span id="message-error" class="text-feedback-error text-sm mt-1 hidden block" role="alert" aria-live="polite"></span>
-          </div>
+          <FormField
+            id="message"
+            name="message"
+            label="Melding"
+            type="textarea"
+            required={true}
+            rows={6}
+            helpText="Beskriv din henvendelse eller spørsmål"
+          />
 
           <div class="flex items-start gap-3">
             <input
@@ -136,10 +106,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <div>
               <h3 class="font-primary font-semibold text-brand-navy mb-2">LinkedIn</h3>
               <a 
-                href="https://www.linkedin.com/company/fyrk/" 
+                href={EXTERNAL_LINKS.linkedin}
                 target="_blank" 
                 rel="noopener noreferrer"
-                class="text-brand-cyan-darker hover:text-brand-cyan transition-colors duration-fast"
+                class={linkClasses.external}
                 aria-label="Besøk Fyrk på LinkedIn (åpnes i ny fane)"
               >
                 linkedin.com/company/fyrk
@@ -148,8 +118,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <div>
               <h3 class="font-primary font-semibold text-brand-navy mb-2">Nettsted</h3>
               <a 
-                href="https://fyrk.no" 
-                class="text-brand-cyan-darker hover:text-brand-cyan transition-colors duration-fast"
+                href={EXTERNAL_LINKS.site}
+                class={linkClasses.external}
                 aria-label="Besøk Fyrk nettsted"
               >
                 fyrk.no

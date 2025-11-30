@@ -2,6 +2,7 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import ThemeToggle from '../components/ThemeToggle.astro';
+import SEOHead from '../components/SEOHead.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -13,8 +14,8 @@ interface Props {
 
 const { 
   title, 
-  description = 'Fyrk leverer produktledelse der kvalitet møter forretningsverdi.',
-  image = '/og-image.png',
+  description,
+  image,
   type = 'website'
 } = Astro.props;
 
@@ -24,30 +25,13 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 <!doctype html>
 <html lang="no">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="description" content={description} />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/fyrk-monogram-primary-navy.svg" />
-    <meta name="generator" content={Astro.generator} />
-    <title>{title} | Fyrk</title>
-
-    <!-- Open Graph -->
-    <meta property="og:title" content={`${title} | Fyrk`} />
-    <meta property="og:description" content={description} />
-    <meta property="og:type" content={type} />
-    <meta property="og:url" content={canonicalURL} />
-    <meta property="og:image" content={new URL(image, Astro.site)} />
-    <meta property="og:locale" content="nb_NO" />
-    <meta property="og:site_name" content="Fyrk" />
-
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={`${title} | Fyrk`} />
-    <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={new URL(image, Astro.site)} />
-
-    <!-- Canonical -->
-    <link rel="canonical" href={canonicalURL} />
+    <SEOHead 
+      title={title}
+      description={description}
+      image={image}
+      type={type}
+      canonicalUrl={canonicalURL}
+    />
   </head>
   <body>
     <a href="#main-content" class="skip-link">Hopp til hovedinnhold</a>

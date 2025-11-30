@@ -1,37 +1,18 @@
 ---
 import '../styles/global.css';
 import LandingLogo from '../components/LandingLogo.astro';
-
-const site = 'https://fyrk.no';
-const title = 'Fyrk';
-const description = 'Fyrk leverer produktledelse der kvalitet møter forretningsverdi.';
+import SEOHead from '../components/SEOHead.astro';
+import { SITE_CONFIG } from '../config/site';
 ---
 
 <!doctype html>
 <html lang="no">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="description" content={description} />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/fyrk-monogram-primary-navy.svg" />
-    <meta name="generator" content={Astro.generator} />
-    <title>{title}</title>
-
-    <!-- Open Graph -->
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={site} />
-    <meta property="og:locale" content="nb_NO" />
-    <meta property="og:site_name" content="Fyrk" />
-
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
-    
-    <!-- Canonical -->
-    <link rel="canonical" href={site} />
+    <SEOHead 
+      title={SITE_CONFIG.name}
+      description={SITE_CONFIG.description}
+      type="website"
+    />
   </head>
   <body>
     <div class="min-h-screen bg-gradient-to-b from-neutral-50 to-white flex items-center justify-center px-4">

@@ -1,0 +1,50 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  canonicalUrl?: URL;
+}
+
+const { 
+  title,
+  description,
+  image,
+  type = 'website',
+  canonicalUrl
+} = Astro.props;
+
+const site = Astro.site || new URL('https://fyrk.no');
+const fullTitle = `${title} | Fyrk`;
+const metaDescription = description || 'Fyrk leverer produktledelse der kvalitet møter forretningsverdi.';
+const ogImage = image ? new URL(image, site) : new URL('/og-image.png', site);
+const canonical = canonicalUrl || new URL(Astro.url.pathname, site);
+---
+
+<meta charset="UTF-8" />
+<meta name="description" content={metaDescription} />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" type="image/svg+xml" href="/fyrk-monogram-primary-navy.svg" />
+<meta name="generator" content={Astro.generator} />
+<title>{fullTitle}</title>
+
+<!-- Open Graph -->
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={metaDescription} />
+<meta property="og:type" content={type} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:locale" content="nb_NO" />
+<meta property="og:site_name" content="Fyrk" />
+
+<!-- Twitter -->
+<meta name="twitter:card" content={type === 'article' ? 'summary_large_image' : 'summary'} />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={metaDescription} />
+{type === 'article' && <meta name="twitter:image" content={ogImage} />}
+
+<!-- Canonical -->
+<link rel="canonical" href={canonical} />
+
+

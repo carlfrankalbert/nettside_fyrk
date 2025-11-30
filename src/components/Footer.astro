@@ -1,6 +1,7 @@
 ---
 import Logo from './Logo.astro';
 import { mainNavigation } from '../data/navigation';
+import { EXTERNAL_LINKS, linkClasses } from '../utils/links';
 ---
 
 <footer class="bg-brand-navy text-white mt-24" role="contentinfo">
@@ -20,7 +21,7 @@ import { mainNavigation } from '../data/navigation';
             <li>
               <a 
                 href={item.href} 
-                class="text-neutral-100 hover:text-brand-cyan-light transition-colors duration-fast focus-visible:ring-2 focus-visible:ring-brand-cyan focus-visible:ring-offset-2 rounded-md px-1"
+                class={linkClasses.footer}
               >
                 {item.label}
               </a>
@@ -35,18 +36,18 @@ import { mainNavigation } from '../data/navigation';
           <p>Oslo, Norge</p>
           <p class="mt-2">
             <a 
-              href="https://www.linkedin.com/company/fyrk/" 
+              href={EXTERNAL_LINKS.linkedin}
               target="_blank" 
               rel="noopener noreferrer"
-              class="text-neutral-100 hover:text-brand-cyan-light transition-colors duration-fast focus-visible:ring-2 focus-visible:ring-brand-cyan focus-visible:ring-offset-2 rounded-md px-1"
+              class={linkClasses.footer}
             >
               LinkedIn
             </a>
           </p>
           <p class="mt-2">
             <a 
-              href="https://fyrk.no" 
-              class="text-neutral-100 hover:text-brand-cyan-light transition-colors duration-fast focus-visible:ring-2 focus-visible:ring-brand-cyan focus-visible:ring-offset-2 rounded-md px-1"
+              href={EXTERNAL_LINKS.site}
+              class={linkClasses.footer}
             >
               fyrk.no
             </a>
