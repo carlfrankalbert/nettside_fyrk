@@ -1,5 +1,6 @@
 ---
 import Logo from './Logo.astro';
+import NavigationLink from './NavigationLink.astro';
 import { mainNavigation } from '../data/navigation';
 ---
 
@@ -28,15 +29,7 @@ import { mainNavigation } from '../data/navigation';
       <ul class="hidden md:flex items-center gap-8" role="list">
         {mainNavigation.map((item) => (
           <li>
-            <a 
-              href={item.href} 
-              class={item.isPrimary 
-                ? "btn btn-primary"
-                : "font-primary font-medium text-brand-navy hover:text-brand-cyan-darker transition-colors duration-fast focus-visible:ring-2 focus-visible:ring-brand-cyan focus-visible:ring-offset-2 rounded-md px-2 py-1"
-              }
-            >
-              {item.label}
-            </a>
+            <NavigationLink href={item.href} label={item.label} isPrimary={item.isPrimary ?? false} />
           </li>
         ))}
       </ul>
@@ -47,15 +40,7 @@ import { mainNavigation } from '../data/navigation';
       <ul class="flex flex-col gap-3 pt-4" role="list">
         {mainNavigation.map((item) => (
           <li class={item.isPrimary ? "mt-2" : ""}>
-            <a 
-              href={item.href} 
-              class={item.isPrimary
-                ? "block w-full btn btn-primary text-center"
-                : "block font-primary font-medium text-brand-navy hover:text-brand-cyan-darker transition-colors duration-fast focus-visible:ring-2 focus-visible:ring-brand-cyan focus-visible:ring-offset-2 rounded-md px-2 py-3"
-              }
-            >
-              {item.label}
-            </a>
+            <NavigationLink href={item.href} label={item.label} isPrimary={item.isPrimary ?? false} isMobile={true} />
           </li>
         ))}
       </ul>
@@ -71,25 +56,27 @@ import { mainNavigation } from '../data/navigation';
   if (menuButton && mobileMenu) {
     menuButton.addEventListener('click', () => {
       const isExpanded = menuButton.getAttribute('aria-expanded') === 'true';
-      menuButton.setAttribute('aria-expanded', !isExpanded);
+      const newExpandedState = !isExpanded;
+      
+      menuButton.setAttribute('aria-expanded', String(newExpandedState));
       mobileMenu.classList.toggle('hidden');
       
       // Update icon and aria-label
       const icon = menuButton.querySelector('svg');
       if (icon) {
-        if (isExpanded) {
-          // Show hamburger icon
-          icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />';
-          menuButton.setAttribute('aria-label', 'Åpne meny');
-        } else {
+        if (newExpandedState) {
           // Show close icon
           icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />';
           menuButton.setAttribute('aria-label', 'Lukk meny');
+        } else {
+          // Show hamburger icon
+          icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />';
+          menuButton.setAttribute('aria-label', 'Åpne meny');
         }
       }
       
       // Focus management: when opening menu, focus first link
-      if (!isExpanded) {
+      if (newExpandedState) {
         const firstLink = mobileMenu.querySelector('a');
         if (firstLink) {
           setTimeout(() => firstLink.focus(), 100);

@@ -1,0 +1,25 @@
+---
+interface Props {
+  href: string;
+  label: string;
+  isPrimary?: boolean;
+  isMobile?: boolean;
+}
+
+const { href, label, isPrimary = false, isMobile = false } = Astro.props;
+
+const baseClasses = isMobile
+  ? "block font-primary font-medium text-brand-navy hover:text-brand-cyan-darker transition-colors duration-fast focus-visible:ring-2 focus-visible:ring-brand-cyan focus-visible:ring-offset-2 rounded-md px-2 py-3"
+  : "font-primary font-medium text-brand-navy hover:text-brand-cyan-darker transition-colors duration-fast focus-visible:ring-2 focus-visible:ring-brand-cyan focus-visible:ring-offset-2 rounded-md px-2 py-1";
+
+const linkClasses = isPrimary
+  ? isMobile
+    ? "block w-full btn btn-primary text-center"
+    : "btn btn-primary"
+  : baseClasses;
+---
+
+<a href={href} class={linkClasses}>
+  {label}
+</a>
+
