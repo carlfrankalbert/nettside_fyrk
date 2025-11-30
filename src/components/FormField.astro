@@ -1,4 +1,6 @@
 ---
+import { textClasses } from '../utils/classes';
+
 interface Props {
   id: string;
   name: string;
@@ -28,10 +30,10 @@ const helpId = `${id}-help`;
 ---
 
 <div>
-  <label for={id} class="block font-primary font-medium text-brand-navy dark:text-white mb-2">
+  <label for={id} class={`block font-primary font-medium ${textClasses.primary} mb-2`}>
     {label}
     {required && (
-      <span class="text-feedback-error" aria-label="påkrevd">*</span>
+      <span class={textClasses.error} aria-label="påkrevd">*</span>
     )}
   </label>
   {type === 'textarea' ? (
@@ -63,7 +65,7 @@ const helpId = `${id}-help`;
   {helpText && (
     <span id={helpId} class="sr-only">{helpText}</span>
   )}
-  <span id={errorId} class="text-feedback-error text-sm mt-1 hidden block" role="alert" aria-live="polite"></span>
+  <span id={errorId} class={`${textClasses.error} text-sm mt-1 hidden`} role="alert" aria-live="polite"></span>
 </div>
 
 

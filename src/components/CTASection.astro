@@ -1,4 +1,6 @@
 ---
+import { spacingClasses, transitionClasses, cn } from '../utils/classes';
+
 interface Props {
   heading: string;
   description: string;
@@ -20,11 +22,11 @@ const {
 const buttonClass = variant === 'primary' ? 'btn-primary' : 'btn-secondary';
 ---
 
-<section class="py-24 md:py-40 bg-gradient-to-br from-brand-navy via-brand-navy to-brand-cyan-darker text-white relative overflow-hidden" aria-labelledby="cta-heading">
+<section class={cn(spacingClasses.sectionLarge, 'bg-gradient-to-br from-brand-navy via-brand-navy to-brand-cyan-darker text-white relative overflow-hidden')} aria-labelledby="cta-heading">
   <!-- Subtle pattern overlay -->
   <div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 40px 40px;" aria-hidden="true"></div>
   
-  <div class="container mx-auto px-4 text-center relative z-10">
+  <div class={cn(spacingClasses.container, 'text-center relative z-10')}>
     <div class="max-w-4xl mx-auto">
       <h2 id="cta-heading" class="text-h2 md:text-[2.75rem] mb-6 md:mb-10 font-bold tracking-tight">{heading}</h2>
       <p class="text-xl md:text-2xl text-neutral-100 mb-12 md:mb-16 max-w-[70ch] mx-auto leading-relaxed font-light">
@@ -32,7 +34,7 @@ const buttonClass = variant === 'primary' ? 'btn-primary' : 'btn-secondary';
       </p>
       <a 
         href={buttonHref} 
-        class={`btn ${buttonClass} text-lg px-10 py-4 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-normal`}
+        class={cn('btn', buttonClass, 'text-lg px-10 py-4 shadow-xl hover:shadow-2xl hover:scale-105', transitionClasses.normal)}
         aria-label={buttonAriaLabel || buttonText}
       >
         {buttonText}

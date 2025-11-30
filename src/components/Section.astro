@@ -1,4 +1,6 @@
 ---
+import { backgroundClasses, spacingClasses, cn } from '../utils/classes';
+
 interface Props {
   id?: string;
   ariaLabelledBy?: string;
@@ -15,25 +17,25 @@ const {
   class: className = ''
 } = Astro.props;
 
-const backgroundClasses = {
-  white: 'bg-white dark:bg-neutral-900',
-  neutral: 'bg-neutral-50 dark:bg-neutral-800',
-  navy: 'bg-brand-navy text-white',
-  gradient: 'bg-gradient-to-br from-neutral-50 via-white to-neutral-50 dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900',
+const backgroundClassMap = {
+  white: backgroundClasses.white,
+  neutral: backgroundClasses.neutral,
+  navy: backgroundClasses.navy,
+  gradient: backgroundClasses.gradient,
 };
 
-const paddingClasses = {
-  normal: 'py-24 md:py-32',
-  large: 'py-32 md:py-40',
+const paddingClassMap = {
+  normal: spacingClasses.sectionNormal,
+  large: spacingClasses.sectionLarge,
 };
 ---
 
 <section 
   id={id}
-  class={`${backgroundClasses[background]} ${paddingClasses[padding]} ${className}`}
+  class={cn(backgroundClassMap[background], paddingClassMap[padding], className)}
   aria-labelledby={ariaLabelledBy}
 >
-  <div class="container mx-auto px-4">
+  <div class={spacingClasses.container}>
     <slot />
   </div>
 </section>
