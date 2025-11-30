@@ -83,6 +83,8 @@ export default {
         md: '0 4px 6px rgba(0,0,0,0.1)',
         lg: '0 10px 15px rgba(0,0,0,0.1)',
         xl: '0 20px 25px rgba(0,0,0,0.1)',
+        '2xl': '0 25px 50px -12px rgba(0,0,0,0.25)',
+        'brand-cyan': '0 10px 30px -5px rgba(90, 185, 211, 0.3)',
       },
       transitionDuration: {
         fast: '150ms',
