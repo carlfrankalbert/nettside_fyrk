@@ -35,53 +35,15 @@ const description = 'Fyrk leverer produktledelse der kvalitet møter forretnings
   <body>
     <div class="min-h-screen bg-gradient-to-b from-neutral-50 to-white flex items-center justify-center px-4">
       <div class="max-w-2xl mx-auto text-center flex flex-col items-center justify-center gap-10">
-        <!-- Logo with Brain Neural Network -->
-        <div class="w-full flex justify-center items-center relative">
-          <div class="relative">
-            <!-- Neural network connections moving around logo -->
-            <svg 
-              class="absolute inset-0 w-full h-full neural-network-overlay" 
-              viewBox="0 0 400 120" 
-              fill="none" 
-              xmlns="http://www.w3.org/2000/svg"
-              preserveAspectRatio="xMidYMid meet"
-            >
-              <!-- Animated neural network nodes around logo -->
-              <circle cx="50" cy="30" r="3" fill="#5AB9D3" class="neural-node" style="animation-delay: 0s;" />
-              <circle cx="350" cy="30" r="3" fill="#5AB9D3" class="neural-node" style="animation-delay: 0.3s;" />
-              <circle cx="80" cy="90" r="3" fill="#5AB9D3" class="neural-node" style="animation-delay: 0.6s;" />
-              <circle cx="320" cy="90" r="3" fill="#5AB9D3" class="neural-node" style="animation-delay: 0.9s;" />
-              <circle cx="30" cy="60" r="2.5" fill="#7CC8DD" class="neural-node" style="animation-delay: 0.15s;" />
-              <circle cx="370" cy="60" r="2.5" fill="#7CC8DD" class="neural-node" style="animation-delay: 0.45s;" />
-              <circle cx="100" cy="20" r="2.5" fill="#7CC8DD" class="neural-node" style="animation-delay: 0.75s;" />
-              <circle cx="300" cy="100" r="2.5" fill="#7CC8DD" class="neural-node" style="animation-delay: 1.05s;" />
-              
-              <!-- Moving neural network connections -->
-              <line x1="50" y1="30" x2="200" y2="60" stroke="#5AB9D3" stroke-width="1.5" opacity="0.4" class="neural-connection" style="animation-delay: 0s;" />
-              <line x1="350" y1="30" x2="200" y2="60" stroke="#5AB9D3" stroke-width="1.5" opacity="0.4" class="neural-connection" style="animation-delay: 0.2s;" />
-              <line x1="80" y1="90" x2="200" y2="60" stroke="#5AB9D3" stroke-width="1.5" opacity="0.4" class="neural-connection" style="animation-delay: 0.4s;" />
-              <line x1="320" y1="90" x2="200" y2="60" stroke="#5AB9D3" stroke-width="1.5" opacity="0.4" class="neural-connection" style="animation-delay: 0.6s;" />
-              <line x1="30" y1="60" x2="200" y2="60" stroke="#7CC8DD" stroke-width="1" opacity="0.3" class="neural-connection" style="animation-delay: 0.1s;" />
-              <line x1="370" y1="60" x2="200" y2="60" stroke="#7CC8DD" stroke-width="1" opacity="0.3" class="neural-connection" style="animation-delay: 0.3s;" />
-              <line x1="100" y1="20" x2="200" y2="60" stroke="#7CC8DD" stroke-width="1" opacity="0.3" class="neural-connection" style="animation-delay: 0.5s;" />
-              <line x1="300" y1="100" x2="200" y2="60" stroke="#7CC8DD" stroke-width="1" opacity="0.3" class="neural-connection" style="animation-delay: 0.7s;" />
-              
-              <!-- Interconnecting lines between nodes -->
-              <line x1="50" y1="30" x2="80" y2="90" stroke="#5AB9D3" stroke-width="1" opacity="0.2" class="neural-connection" style="animation-delay: 0.25s;" />
-              <line x1="350" y1="30" x2="320" y2="90" stroke="#5AB9D3" stroke-width="1" opacity="0.2" class="neural-connection" style="animation-delay: 0.55s;" />
-              <line x1="30" y1="60" x2="100" y2="20" stroke="#7CC8DD" stroke-width="0.8" opacity="0.2" class="neural-connection" style="animation-delay: 0.35s;" />
-              <line x1="370" y1="60" x2="300" y2="100" stroke="#7CC8DD" stroke-width="0.8" opacity="0.2" class="neural-connection" style="animation-delay: 0.65s;" />
-            </svg>
-            
-            <!-- Fyrk Logo (the "brain") -->
-            <img 
-              src="/fyrk-logo-primary-navy.svg" 
-              alt="Fyrk logo" 
-              class="h-24 md:h-32 lg:h-40 relative z-10"
-              width="300"
-              height="84"
-            />
-          </div>
+        <!-- Logo -->
+        <div class="w-full flex justify-center items-center">
+          <img 
+            src="/fyrk-logo-primary-navy.svg" 
+            alt="Fyrk logo" 
+            class="h-24 md:h-32 lg:h-40"
+            width="300"
+            height="84"
+          />
         </div>
         
         <!-- Contact -->
@@ -127,42 +89,6 @@ const description = 'Fyrk leverer produktledelse der kvalitet møter forretnings
     </div>
     
     <style>
-      /* Neural network overlay around logo */
-      .neural-network-overlay {
-        pointer-events: none;
-        overflow: visible;
-      }
-      
-      .neural-node {
-        animation: neural-pulse 2s ease-in-out infinite;
-      }
-      
-      .neural-connection {
-        animation: neural-flow 3s ease-in-out infinite;
-      }
-      
-      @keyframes neural-pulse {
-        0%, 100% {
-          opacity: 0.4;
-          transform: scale(1);
-        }
-        50% {
-          opacity: 1;
-          transform: scale(1.5);
-        }
-      }
-      
-      @keyframes neural-flow {
-        0%, 100% {
-          opacity: 0.2;
-          stroke-dasharray: 0, 1000;
-        }
-        50% {
-          opacity: 0.6;
-          stroke-dasharray: 500, 1000;
-        }
-      }
-      
       /* AI Icon container */
       .ai-icon-container {
         animation: float 3s ease-in-out infinite;
@@ -221,9 +147,6 @@ const description = 'Fyrk leverer produktledelse der kvalitet møter forretnings
       }
       
       @media (prefers-reduced-motion: reduce) {
-        .neural-network-overlay,
-        .neural-node,
-        .neural-connection,
         .ai-icon-container,
         .ai-node,
         .ai-node-center,
