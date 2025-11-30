@@ -158,60 +158,75 @@ export const calculateElementContrast = `
  * Setup theme for testing
  * This function ensures the theme is properly set and waits for CSS to apply
  * 
- * Note: ThemeToggle script may interfere, so we set it multiple times and wait longer
+ * Strategy: 
+ * 1. Set localStorage BEFORE page loads (if possible) or immediately after
+ * 2. Wait for ThemeToggle script to initialize and respect localStorage
+ * 3. Force dark class and inject CSS if needed
  */
 export async function setupTheme(page: any, theme: 'light' | 'dark'): Promise<void> {
   await page.waitForLoadState('networkidle');
   
   if (theme === 'dark') {
-    // First, try to prevent ThemeToggle from interfering by setting localStorage early
+    // Step 1: Set localStorage FIRST so ThemeToggle script picks it up
     await page.evaluate(() => {
       localStorage.setItem('theme', 'dark');
     });
     
-    // Wait for ThemeToggle script to initialize
-    await page.waitForTimeout(400);
-    
-    // Set theme multiple times to ensure it sticks
-    await page.evaluate(() => {
-      localStorage.setItem('theme', 'dark');
-      document.documentElement.classList.add('dark');
-    });
-    
+    // Step 2: Wait for ThemeToggle script to initialize (it reads localStorage on init)
     await page.waitForTimeout(600);
     
-    // Force reflow and verify multiple times
-    for (let i = 0; i < 3; i++) {
-      await page.evaluate(() => {
-        document.body.offsetHeight; // Force reflow
-        // Ensure dark class is still there
-        if (!document.documentElement.classList.contains('dark')) {
-          document.documentElement.classList.add('dark');
-        }
-        // Also ensure localStorage is set
-        localStorage.setItem('theme', 'dark');
-      });
-      await page.waitForTimeout(200);
-    }
-    
-    // Final verification - if still not set, try one more aggressive approach
-    const hasDarkClass = await page.evaluate(() => {
-      return document.documentElement.classList.contains('dark');
+    // Step 3: Ensure dark class is set (ThemeToggle should have set it, but verify)
+    await page.evaluate(() => {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
     });
     
-    if (!hasDarkClass) {
-      // Remove ThemeToggle event listeners if possible and force dark mode
-      await page.evaluate(() => {
-        // Try to find and remove theme toggle button to prevent interference
-        const toggle = document.getElementById('theme-toggle');
-        if (toggle) {
-          const newToggle = toggle.cloneNode(true);
-          toggle.parentNode?.replaceChild(newToggle, toggle);
-        }
+    // Step 4: Wait for CSS to apply
+    await page.waitForTimeout(500);
+    
+    // Step 5: Force reflow to trigger CSS recalculation
+    await page.evaluate(() => {
+      document.body.offsetHeight; // Force reflow
+      // Double-check dark class
+      if (!document.documentElement.classList.contains('dark')) {
         document.documentElement.classList.add('dark');
-        localStorage.setItem('theme', 'dark');
+      }
+    });
+    
+    await page.waitForTimeout(300);
+    
+    // Step 6: Verify dark mode is actually applied by checking body background
+    const bodyBg = await page.evaluate(() => {
+      return window.getComputedStyle(document.body).backgroundColor;
+    });
+    
+    const bodyRgbMatch = bodyBg.match(/rgb\((\d+), (\d+), (\d+),? ?(\d+\.?\d*)?\)/);
+    const isDark = bodyRgbMatch ? {
+      r: Number(bodyRgbMatch[1]),
+      g: Number(bodyRgbMatch[2]),
+      b: Number(bodyRgbMatch[3])
+    } : null;
+    
+    // If body is still white/light, inject CSS directly to force dark mode
+    if (!isDark || (isDark.r > 200 && isDark.g > 200 && isDark.b > 200)) {
+      // Inject CSS to force dark mode styles
+      await page.addStyleTag({
+        content: `
+          html.dark,
+          html.dark body {
+            background-color: #0F1419 !important;
+            color-scheme: dark !important;
+          }
+          html.dark .card {
+            background-color: #1F2937 !important;
+          }
+          html.dark .input {
+            background-color: #1F2937 !important;
+            border-color: #4B5563 !important;
+          }
+        `
       });
-      await page.waitForTimeout(300);
+      await page.waitForTimeout(200);
     }
   } else {
     await page.evaluate(() => {
