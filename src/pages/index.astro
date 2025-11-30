@@ -1,90 +1,24 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import ServiceCard from '../components/ServiceCard.astro';
-import Section from '../components/Section.astro';
-import CTASection from '../components/CTASection.astro';
-import FeatureList from '../components/FeatureList.astro';
-import AccentLine from '../components/AccentLine.astro';
-import SectionHeader from '../components/SectionHeader.astro';
-import ButtonGroup from '../components/ButtonGroup.astro';
-import { services } from '../data/services';
-import { targetAudience } from '../data/targetAudience';
-import { textClasses, cn } from '../utils/classes';
+import '../styles/global.css';
+import LandingLogo from '../components/LandingLogo.astro';
+import SEOHead from '../components/SEOHead.astro';
+import { SITE_CONFIG } from '../config/site';
 ---
 
-<BaseLayout 
-  title="Hjem" 
-  description="Fyrk leverer produktledelse som leverer forretningsverdi. Med erfaring fra fintech og smidige leveransemiljøer hjelper vi selskaper å bygge digitale produkter som faktisk holder mål."
->
-  <!-- Hero Section -->
-  <Section background="gradient" ariaLabelledBy="hero-heading" padding="large">
-    <div class="max-w-5xl mx-auto text-center">
-      <AccentLine />
-      
-      <h1 id="hero-heading" class={cn('text-display md:text-[4rem] lg:text-[5rem] font-bold', textClasses.primary, 'mb-6 md:mb-10 leading-[1.1] tracking-tight')}>
-        Produktledelse som <span class="text-brand-cyan-darker dark:text-brand-cyan">leverer</span> forretningsverdi
-      </h1>
-      <p class={cn('text-lg md:text-xl lg:text-2xl', textClasses.secondary, 'mb-8 md:mb-12 leading-relaxed max-w-[70ch] mx-auto font-light')}>
-        Vi hjelper organisasjoner å få mennesker, prosesser og teknologi til å virke sammen for å skape produkter som virker – raskt, trygt og med reell brukerverdi.
-      </p>
-      
-      <ButtonGroup 
-        buttons={[
-          {
-            text: 'Snakk med oss',
-            href: '/kontakt',
-            variant: 'primary',
-            ariaLabel: 'Snakk med oss fra Fyrk'
-          },
-          {
-            text: 'Les mer om oss',
-            href: '/om',
-            variant: 'outline',
-            ariaLabel: 'Les mer om Fyrk'
-          }
-        ]}
-      />
-    </div>
-  </Section>
-
-  <!-- Services Section -->
-  <Section background="white" ariaLabelledBy="services-heading">
-    <SectionHeader 
-      heading="Hva vi tilbyr"
-      headingId="services-heading"
-      description="Vi leverer produktledelse som leverer, teambygging og trygg leveranse for organisasjoner som trenger både hastighet og soliditet."
-      headingLevel={2}
-      class="mb-20 md:mb-32"
+<!doctype html>
+<html lang="no">
+  <head>
+    <SEOHead 
+      title={SITE_CONFIG.name}
+      description={SITE_CONFIG.description}
+      type="website"
     />
-    
-    <div class="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr] gap-8 md:gap-16 max-w-7xl mx-auto">
-      {services.map((service, index) => (
-        <ServiceCard
-          icon={service.icon}
-          title={service.title}
-          description={service.description}
-          featured={index === 0}
-        />
-      ))}
+  </head>
+  <body>
+    <div class="min-h-screen bg-gradient-to-b from-neutral-50 to-white dark:from-neutral-900 dark:to-neutral-800 flex items-center justify-center px-4">
+      <div class="w-full max-w-2xl mx-auto text-center flex flex-col items-center justify-center">
+        <LandingLogo />
+      </div>
     </div>
-  </Section>
-
-  <!-- Who We Help Section -->
-  <Section background="neutral" ariaLabelledBy="who-we-help-heading">
-    <FeatureList 
-      heading="Passer for selskaper som:" 
-      items={targetAudience}
-      headingId="who-we-help-heading"
-    />
-  </Section>
-
-  <!-- CTA Section -->
-  <CTASection
-    heading="Klar til å starte?"
-    description="Ta kontakt for å høre hvordan vi kan hjelpe ditt selskap med produktledelse som faktisk leverer resultater."
-    buttonText="Snakk med oss"
-    buttonHref="/kontakt"
-    buttonAriaLabel="Snakk med oss fra Fyrk"
-    variant="secondary"
-  />
-</BaseLayout>
+  </body>
+</html>
