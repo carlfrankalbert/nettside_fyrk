@@ -49,7 +49,7 @@ export default function OKRReviewer() {
       <div>
         <label
           htmlFor="okr-input"
-          className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2"
+          className="block text-sm font-medium text-[#374151] mb-2"
         >
           Lim inn OKR-settet ditt
         </label>
@@ -59,7 +59,7 @@ export default function OKRReviewer() {
           onChange={(e) => setInput(e.target.value)}
           placeholder={PLACEHOLDER}
           rows={10}
-          className="input resize-y"
+          className="w-full px-4 py-3 text-base text-[#1F2937] bg-white border border-[#E5E7EB] rounded-lg resize-y focus:outline-none focus:ring-2 focus:ring-[#5AB9D3] focus:border-[#5AB9D3] placeholder:text-[#9CA3AF] disabled:opacity-60 disabled:cursor-not-allowed"
           disabled={loading}
         />
       </div>
@@ -68,21 +68,20 @@ export default function OKRReviewer() {
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="btn btn-primary"
+          className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-[#001F3F] rounded-lg hover:bg-[#001F3F]/90 focus:outline-none focus:ring-2 focus:ring-[#5AB9D3] focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
         >
           {loading ? 'Vurderer...' : 'Analyser OKR'}
         </button>
 
         {error && (
-          <p className="text-feedback-error text-sm">{error}</p>
+          <p className="text-[#C41E3A] text-sm">{error}</p>
         )}
       </div>
 
       {result && (
-        <div className="card mt-8">
+        <div className="mt-8 p-6 bg-white border border-[#E5E7EB] rounded-lg">
           <div
-            className="prose prose-neutral dark:prose-invert max-w-none whitespace-pre-wrap"
-            style={{ whiteSpace: 'pre-wrap' }}
+            className="text-[#1F2937] leading-relaxed whitespace-pre-wrap"
           >
             {result}
           </div>
