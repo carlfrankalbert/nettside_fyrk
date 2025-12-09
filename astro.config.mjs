@@ -10,6 +10,9 @@ export default defineConfig({
   adapter: node({
     mode: 'standalone'
   }),
+  devToolbar: {
+    enabled: true
+  },
   // For GitHub Pages, uncomment the base if deploying to a subdirectory:
   // base: '/nettside_fyrk',
   // For custom domain (fyrk.no), use:
