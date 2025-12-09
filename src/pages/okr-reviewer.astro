@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import OKRReviewer from '../components/OKRReviewer';
+
+export const prerender = false;
+---
+
+<BaseLayout
+  title="OKR Reviewer | FYRK"
+  description="Få et raskt, strukturert blikk på kvaliteten i OKR-ene deres – uten workshop eller lange prosesser."
+>
+  <div class="max-w-2xl mx-auto px-6 py-16 md:py-24">
+    <h1 class="text-h2 md:text-h1 mb-6">
+      OKR-review når du trenger et ærlig blikk
+    </h1>
+
+    <div class="text-lg text-neutral-700 dark:text-neutral-300 space-y-4 mb-12">
+      <p>
+        Mange team jobber med OKR, men ender likevel opp med mål som egentlig er oppgavelister,
+        Key Results som ikke kan måles, og lite sammenheng mellom strategi og det som faktisk gjøres.
+      </p>
+      <p>
+        FYRK OKR Reviewer gir deg et raskt, strukturert blikk på kvaliteten i OKR-ene deres –
+        uten workshop, styringsgrupper eller lange dokumenter.
+      </p>
+    </div>
+
+    <OKRReviewer client:load />
+
+    <div class="mt-16 pt-8 border-t border-neutral-200 dark:border-neutral-700">
+      <p class="text-neutral-500 dark:text-neutral-400">
+        Vil du ha et menneskelig review i tillegg – og sparring på hvordan dere kan jobbe bedre med mål og prioritering?
+        <a href="mailto:carl@fyrk.no" class="text-brand-cyan-darker dark:text-brand-cyan hover:underline">
+          Ta kontakt med FYRK.
+        </a>
+      </p>
+    </div>
+  </div>
+</BaseLayout>

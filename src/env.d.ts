@@ -1,5 +1,14 @@
 /// <reference path="../.astro/types.d.ts" />
 
+interface ImportMetaEnv {
+  readonly ANTHROPIC_API_KEY: string;
+  readonly CLAUDE_MODEL?: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
+
 // Form attributes (legacy - kept for compatibility)
 declare global {
   namespace astroHTML.JSX {
