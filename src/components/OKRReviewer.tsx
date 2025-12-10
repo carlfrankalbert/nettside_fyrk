@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { reviewOKR } from '../services/okr-service';
 
 const PLACEHOLDER = `Objective:
 Øke bruken av mobilbanken blant småbedrifter i Norge.
@@ -24,24 +25,15 @@ export default function OKRReviewer() {
     setError(null);
     setResult(null);
 
-    try {
-      const response = await fetch('/api/okr-reviewer', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input: input.trim() }),
-      });
+    const response = await reviewOKR(input.trim());
 
-      if (!response.ok) {
-        throw new Error('Request failed');
-      }
-
-      const data = await response.json();
-      setResult(data.output);
-    } catch (err) {
-      setError('Noe gikk galt under vurderingen. Prøv igjen om litt.');
-    } finally {
-      setLoading(false);
+    if (response.success) {
+      setResult(response.output);
+    } else {
+      setError(response.error);
     }
+
+    setLoading(false);
   };
 
   return (
@@ -49,7 +41,7 @@ export default function OKRReviewer() {
       <div>
         <label
           htmlFor="okr-input"
-          className="block text-sm font-medium text-[#374151] mb-2"
+          className="block text-sm font-medium text-neutral-700 mb-2"
         >
           Lim inn OKR-settet ditt
         </label>
@@ -59,7 +51,7 @@ export default function OKRReviewer() {
           onChange={(e) => setInput(e.target.value)}
           placeholder={PLACEHOLDER}
           rows={10}
-          className="w-full px-4 py-3 text-base text-[#1F2937] bg-white border border-[#E5E7EB] rounded-lg resize-y focus:outline-none focus:ring-2 focus:ring-[#5AB9D3] focus:border-[#5AB9D3] placeholder:text-[#9CA3AF] disabled:opacity-60 disabled:cursor-not-allowed"
+          className="w-full px-4 py-3 text-base text-neutral-700 bg-white border border-neutral-200 rounded-lg resize-y focus:outline-none focus:ring-2 focus:ring-brand-cyan focus:border-brand-cyan placeholder:text-neutral-500 disabled:opacity-60 disabled:cursor-not-allowed"
           disabled={loading}
         />
       </div>
@@ -68,21 +60,19 @@ export default function OKRReviewer() {
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-[#001F3F] rounded-lg hover:bg-[#001F3F]/90 focus:outline-none focus:ring-2 focus:ring-[#5AB9D3] focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+          className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-none focus:ring-2 focus:ring-brand-cyan focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
         >
           {loading ? 'Vurderer...' : 'Analyser OKR'}
         </button>
 
         {error && (
-          <p className="text-[#C41E3A] text-sm">{error}</p>
+          <p className="text-feedback-error text-sm">{error}</p>
         )}
       </div>
 
       {result && (
-        <div className="mt-8 p-6 bg-white border border-[#E5E7EB] rounded-lg">
-          <div
-            className="text-[#1F2937] leading-relaxed whitespace-pre-wrap"
-          >
+        <div className="mt-8 p-6 bg-white border border-neutral-200 rounded-lg">
+          <div className="text-neutral-700 leading-relaxed whitespace-pre-wrap">
             {result}
           </div>
         </div>

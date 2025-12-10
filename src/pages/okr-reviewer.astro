@@ -9,13 +9,13 @@ export const prerender = false;
   title="OKR Reviewer | FYRK"
   description="Få et raskt, strukturert blikk på kvaliteten i OKR-ene deres – uten workshop eller lange prosesser."
 >
-  <main class="min-h-screen flex flex-col">
+  <main class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
     <div class="flex-1 max-w-2xl mx-auto px-6 py-16 md:py-24 w-full">
-      <h1 class="text-[2rem] font-semibold text-[#001F3F] mb-6 leading-tight">
+      <h1 class="text-h2 font-semibold text-brand-navy mb-6 leading-tight">
         OKR-review når du trenger et ærlig blikk
       </h1>
 
-      <div class="text-[1.125rem] text-[#4B5563] space-y-4 mb-12 leading-relaxed">
+      <div class="text-lg text-neutral-500 space-y-4 mb-12 leading-relaxed">
         <p>
           Mange team jobber med OKR, men ender likevel opp med mål som egentlig er oppgavelister,
           Key Results som ikke kan måles, og lite sammenheng mellom strategi og det som faktisk gjøres.
@@ -28,31 +28,23 @@ export const prerender = false;
 
       <OKRReviewer client:load />
 
-      <div class="mt-16 pt-8 border-t border-[#E5E7EB]">
-        <p class="text-[#6B7280]">
+      <div class="mt-16 pt-8 border-t border-neutral-200">
+        <p class="text-neutral-500">
           Vil du ha et menneskelig review i tillegg – og sparring på hvordan dere kan jobbe bedre med mål og prioritering?
-          <a href="mailto:carl@fyrk.no" class="text-[#001F3F] hover:text-[#2A7A92] underline underline-offset-2">
+          <a href="mailto:carl@fyrk.no" class="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2">
             Ta kontakt med FYRK.
           </a>
         </p>
       </div>
     </div>
 
-    <footer class="py-8 border-t border-[#E5E7EB] text-center text-sm text-[#6B7280]">
+    <footer class="py-8 border-t border-neutral-200 text-center text-sm text-neutral-500">
       <p>
         Laget av
-        <a href="https://fyrk.no" class="text-[#001F3F] hover:text-[#2A7A92]">
+        <a href="https://fyrk.no" class="text-brand-navy hover:text-brand-cyan-darker">
           FYRK
         </a>
       </p>
     </footer>
   </main>
 </MinimalLayout>
-
-<style>
-  /* Force light mode styles */
-  :global(body) {
-    background-color: #FAFAFA !important;
-    color: #1F2937 !important;
-  }
-</style>
