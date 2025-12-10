@@ -92,6 +92,14 @@ Se [docs/development/TESTING.md](./docs/development/TESTING.md) for mer informas
 
 Nettsiden er konfigurert for deployment på GitHub Pages med custom domain (fyrk.no).
 
+**⚠️ Viktig:** OKR Reviewer-funksjonen krever server-side rendering og vil ikke fungere på GitHub Pages (som kun støtter statiske filer). For å aktivere OKR Reviewer i produksjon, må nettsiden deployes til en plattform som støtter Node.js eller serverless functions, som:
+- Vercel
+- Netlify
+- Railway
+- Fly.io
+
+For nå vises OKR Reviewer-lenken på landing page, men `/okr-reviewer` vil returnere 404 på GitHub Pages-deployment.
+
 Se [docs/deployment/](./docs/deployment/) for detaljerte instruksjoner.
 
 ## 🛠️ Teknologi
