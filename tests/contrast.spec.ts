@@ -321,9 +321,7 @@ test.describe('Contrast Tests - Dark Mode', () => {
 test.describe('Contrast Tests - All Pages', () => {
   const pages = [
     { path: '/', name: 'homepage', skipLightBgCheck: true }, // Landing page has intentional dark theme
-    { path: '/om', name: 'about' },
-    { path: '/kontakt', name: 'contact' },
-    { path: '/blogg', name: 'blog' },
+    // Note: /om, /kontakt, /blogg pages don't exist yet - add them here when created
   ];
 
   for (const pageInfo of pages) {
