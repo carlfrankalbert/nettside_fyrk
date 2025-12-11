@@ -1,4 +1,5 @@
 /// <reference path="../.astro/types.d.ts" />
+/// <reference types="@astrojs/cloudflare" />
 
 interface ImportMetaEnv {
   readonly ANTHROPIC_API_KEY: string;
@@ -7,6 +8,15 @@ interface ImportMetaEnv {
 
 interface ImportMeta {
   readonly env: ImportMetaEnv;
+}
+
+type Runtime = import('@astrojs/cloudflare').Runtime<{
+  ANTHROPIC_API_KEY: string;
+  ANTHROPIC_MODEL?: string;
+}>;
+
+declare namespace App {
+  interface Locals extends Runtime {}
 }
 
 // Form attributes (legacy - kept for compatibility)

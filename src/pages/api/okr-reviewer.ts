@@ -51,7 +51,7 @@ interface AnthropicErrorResponse {
   };
 }
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const { input } = await request.json();
 
@@ -62,9 +62,15 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const apiKey = import.meta.env.ANTHROPIC_API_KEY;
-    const model = import.meta.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-5-20250929';
+    // Access environment variables from Cloudflare runtime
+    // In Cloudflare Pages, secrets are accessed via locals.runtime.env
+    const cloudflareEnv = (locals as App.Locals).runtime?.env;
+    const apiKey = cloudflareEnv?.ANTHROPIC_API_KEY || import.meta.env.ANTHROPIC_API_KEY;
+    const model = cloudflareEnv?.ANTHROPIC_MODEL || import.meta.env.ANTHROPIC_MODEL || 'claude-sonnet-4-5-20250929';
 
+    console.log('Cloudflare env available:', !!cloudflareEnv);
+    console.log('API Key from Cloudflare:', !!cloudflareEnv?.ANTHROPIC_API_KEY);
+    console.log('API Key from import.meta.env:', !!import.meta.env.ANTHROPIC_API_KEY);
     console.log('API Key present:', !!apiKey);
     console.log('Model:', model);
 
