@@ -90,25 +90,32 @@ Se [docs/development/TESTING.md](./docs/development/TESTING.md) for mer informas
 
 ## 🚢 Deployment
 
-Nettsiden er konfigurert for deployment på GitHub Pages med custom domain (fyrk.no).
+Nettsiden er deployet på **Cloudflare Pages** med custom domain (fyrk.no).
 
-**⚠️ Viktig:** OKR Reviewer-funksjonen krever server-side rendering og vil ikke fungere på GitHub Pages (som kun støtter statiske filer). For å aktivere OKR Reviewer i produksjon, må nettsiden deployes til en plattform som støtter Node.js eller serverless functions, som:
-- Vercel
-- Netlify
-- Railway
-- Fly.io
+### Cloudflare Pages
+- **URL:** https://fyrk.no
+- **Platform:** Cloudflare Pages med Astro SSR-støtte
+- **Adapter:** `@astrojs/cloudflare`
+- **Auto-deploy:** Pushes til `main` branch deployes automatisk
 
-For nå vises OKR Reviewer-lenken på landing page, men `/okr-reviewer` vil returnere 404 på GitHub Pages-deployment.
+### Miljøvariabler (Cloudflare Pages)
+Følgende miljøvariabler må settes i Cloudflare Pages Settings:
+- `ANTHROPIC_API_KEY` - API-nøkkel for Claude (OKR Reviewer)
+
+### Tidligere GitHub Pages deployment
+GitHub Pages deployment er fortsatt konfigurert, men fungerer kun for statiske sider (ikke OKR Reviewer).
 
 Se [docs/deployment/](./docs/deployment/) for detaljerte instruksjoner.
 
 ## 🛠️ Teknologi
 
-- **Astro** - Static site generator
+- **Astro** - Static site generator med SSR-støtte
+- **Cloudflare Pages** - Hosting og deployment
 - **Tailwind CSS** - Utility-first CSS framework
+- **React** - UI komponenter (OKR Reviewer)
 - **Playwright** - End-to-end testing
 - **TypeScript** - Type safety
-- **GitHub Actions** - CI/CD
+- **GitHub** - Versjonskontroll og CI/CD
 
 ## 📄 Lisens
 
