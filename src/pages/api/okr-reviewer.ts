@@ -1,5 +1,4 @@
 import type { APIRoute } from 'astro';
-import Anthropic from '@anthropic-ai/sdk';
 
 export const prerender = false;
 
@@ -36,6 +35,22 @@ Følg disse reglene:
    - Hver KR må være målbar med en numerisk terskel
    - Ingen aktiviteter forkledd som resultater`;
 
+// Anthropic API response types
+interface AnthropicTextBlock {
+  type: 'text';
+  text: string;
+}
+
+interface AnthropicResponse {
+  content: AnthropicTextBlock[];
+}
+
+interface AnthropicErrorResponse {
+  error?: {
+    message?: string;
+  };
+}
+
 export const POST: APIRoute = async ({ request }) => {
   try {
     const { input } = await request.json();
@@ -61,23 +76,41 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const client = new Anthropic({ apiKey });
-
-    const message = await client.messages.create({
-      model,
-      max_tokens: 1500,
-      messages: [
-        {
-          role: 'user',
-          content: `Vurder følgende OKR-sett:\n\n${input.trim()}`,
-        },
-      ],
-      system: SYSTEM_PROMPT,
+    // Use fetch directly instead of Anthropic SDK for Cloudflare Workers compatibility
+    const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 1500,
+        system: SYSTEM_PROMPT,
+        messages: [
+          {
+            role: 'user',
+            content: `Vurder følgende OKR-sett:\n\n${input.trim()}`,
+          },
+        ],
+      }),
     });
 
-    const output = message.content[0].type === 'text'
-      ? message.content[0].text
-      : '';
+    if (!anthropicResponse.ok) {
+      const errorData = await anthropicResponse.json() as AnthropicErrorResponse;
+      console.error('Anthropic API error:', anthropicResponse.status, errorData);
+      return new Response(
+        JSON.stringify({
+          error: 'Failed to evaluate OKR',
+          details: errorData?.error?.message || `API returned ${anthropicResponse.status}`,
+        }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const data = await anthropicResponse.json() as AnthropicResponse;
+    const output = data.content[0]?.type === 'text' ? data.content[0].text : '';
 
     return new Response(
       JSON.stringify({ output }),
