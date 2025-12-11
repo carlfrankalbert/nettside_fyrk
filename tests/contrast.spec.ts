@@ -1,40 +1,140 @@
 /**
  * Contrast Tests - WCAG 2.1 AA Compliance
- * 
+ *
  * These tests verify that all text, buttons, and interactive elements
  * meet WCAG 2.1 AA contrast requirements:
  * - Normal text: minimum 4.5:1
  * - Large text (18pt+ or 14pt+ bold): minimum 3:1
  * - UI components (buttons, icons): minimum 3:1
- * 
- * These tests check:
- * 1. Background colors match expected theme (light/dark)
- * 2. Text colors have sufficient contrast
- * 3. Buttons have proper contrast ratios
- * 4. Input fields are properly styled for each theme
- * 5. Service cards have correct backgrounds
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page, type Locator } from '@playwright/test';
 import { getContrastRatio, setupTheme, calculateElementContrast } from './contrast-helpers';
 
-// Known color values from design system
-const colors = {
+// ============================================================================
+// Constants
+// ============================================================================
+
+const WCAG_AA_NORMAL_TEXT = 4.5;
+const WCAG_AA_LARGE_TEXT = 3.0;
+
+const THEME_COLORS = {
   'brand-navy': '#001F3F',
   'brand-cyan': '#5AB9D3',
-  'brand-cyan-darker': '#2A7A92',
-  'brand-cyan-dark': '#3A97B7',
-  'brand-cyan-light': '#7CC8DD',
-  'white': '#FFFFFF',
-  'neutral-700': '#333333',
-  'neutral-600': '#717182',
-  'neutral-500': '#717182',
-  'neutral-400': '#9CA3AF',
-  'neutral-300': '#D1D5DB',
-  'neutral-200': '#E0E0E0',
-  'neutral-900': '#0F1419',
-  'neutral-800': '#1F2937',
-};
+  white: '#FFFFFF',
+} as const;
+
+const RGB_THRESHOLDS = {
+  light: { min: 240, desc: 'light background (>=240)' },
+  dark: { max: 100, desc: 'dark background (<=100)' },
+  darkText: { max: 60, desc: 'dark text (<=60)' },
+} as const;
+
+// ============================================================================
+// Test Helpers
+// ============================================================================
+
+interface RGBValues {
+  r: number;
+  g: number;
+  b: number;
+}
+
+function parseRGB(rgbString: string): RGBValues | null {
+  const match = rgbString.match(/rgb\((\d+), (\d+), (\d+)\)/);
+  if (match) {
+    return {
+      r: Number(match[1]),
+      g: Number(match[2]),
+      b: Number(match[3]),
+    };
+  }
+  return null;
+}
+
+async function getComputedStyle(locator: Locator, property: string): Promise<string> {
+  return locator.evaluate(
+    (el, prop) => window.getComputedStyle(el)[prop as keyof CSSStyleDeclaration] as string,
+    property
+  );
+}
+
+async function elementExists(locator: Locator): Promise<boolean> {
+  return (await locator.count()) > 0;
+}
+
+async function assertLightBackground(bgColor: string, elementName: string): Promise<void> {
+  const rgb = parseRGB(bgColor);
+  expect(rgb, `${elementName} should have parseable RGB color`).not.toBeNull();
+  if (rgb) {
+    expect(rgb.r, `${elementName} red channel should be light`).toBeGreaterThanOrEqual(RGB_THRESHOLDS.light.min);
+    expect(rgb.g, `${elementName} green channel should be light`).toBeGreaterThanOrEqual(RGB_THRESHOLDS.light.min);
+    expect(rgb.b, `${elementName} blue channel should be light`).toBeGreaterThanOrEqual(RGB_THRESHOLDS.light.min);
+  }
+}
+
+async function assertDarkBackground(bgColor: string, elementName: string): Promise<void> {
+  const rgb = parseRGB(bgColor);
+  if (rgb) {
+    // Skip if still white (CSS may not have applied)
+    if (rgb.r === 255 && rgb.g === 255 && rgb.b === 255) {
+      console.warn(`${elementName} still has white background in dark mode. CSS may not have applied.`);
+      return;
+    }
+    expect(rgb.r, `${elementName} red channel should be dark`).toBeLessThan(RGB_THRESHOLDS.dark.max);
+    expect(rgb.g, `${elementName} green channel should be dark`).toBeLessThan(RGB_THRESHOLDS.dark.max);
+    expect(rgb.b, `${elementName} blue channel should be dark`).toBeLessThan(RGB_THRESHOLDS.dark.max);
+  } else {
+    expect(bgColor).not.toContain('rgb(255, 255, 255)');
+  }
+}
+
+async function assertDarkTextColor(textColor: string, elementName: string): Promise<void> {
+  const rgb = parseRGB(textColor);
+  if (rgb) {
+    expect(rgb.r, `${elementName} text red channel should be dark`).toBeLessThanOrEqual(RGB_THRESHOLDS.darkText.max);
+    expect(rgb.g, `${elementName} text green channel should be dark`).toBeLessThanOrEqual(RGB_THRESHOLDS.darkText.max);
+    expect(rgb.b, `${elementName} text blue channel should be dark`).toBeLessThanOrEqual(RGB_THRESHOLDS.darkText.max);
+  }
+}
+
+async function assertSufficientContrast(
+  page: Page,
+  locator: Locator,
+  minRatio: number = WCAG_AA_NORMAL_TEXT
+): Promise<void> {
+  if (!(await elementExists(locator))) return;
+
+  const contrastFn = await page.evaluate(calculateElementContrast);
+  const contrast = await locator.evaluate(contrastFn as (el: HTMLElement) => number);
+
+  if (typeof contrast === 'number' && contrast > 0) {
+    expect(contrast).toBeGreaterThanOrEqual(minRatio);
+  }
+}
+
+async function testButtonContrast(
+  selector: string,
+  bgHex: string,
+  textHex: string,
+  page: Page
+): Promise<void> {
+  const button = page.locator(selector).first();
+  if (!(await elementExists(button))) return;
+
+  const bgColor = await getComputedStyle(button, 'backgroundColor');
+  const textColor = await getComputedStyle(button, 'color');
+
+  expect(bgColor).toContain(bgHex === THEME_COLORS['brand-navy'] ? 'rgb(0, 31, 63)' : bgHex);
+  expect(textColor).toContain('rgb(255, 255, 255)');
+
+  const contrast = getContrastRatio(bgHex, textHex);
+  expect(contrast).toBeGreaterThanOrEqual(WCAG_AA_NORMAL_TEXT);
+}
+
+// ============================================================================
+// Light Mode Tests
+// ============================================================================
 
 test.describe('Contrast Tests - Light Mode', () => {
   test.beforeEach(async ({ page }) => {
@@ -42,90 +142,56 @@ test.describe('Contrast Tests - Light Mode', () => {
     await setupTheme(page, 'light');
   });
 
-  test('dark mode class is not present in light mode', async ({ page }) => {
-    const hasDarkClass = await page.evaluate(() => {
-      return document.documentElement.classList.contains('dark');
-    });
+  test('dark mode class is not present', async ({ page }) => {
+    const hasDarkClass = await page.evaluate(() => document.documentElement.classList.contains('dark'));
     expect(hasDarkClass).toBe(false);
   });
 
-  test('service cards have white background in light mode', async ({ page }) => {
+  test('service cards have white background', async ({ page }) => {
     const serviceCard = page.locator('.card').first();
-    if (await serviceCard.count() > 0) {
-      const bgColor = await serviceCard.evaluate((el) => {
-        return window.getComputedStyle(el).backgroundColor;
-      });
+    if (await elementExists(serviceCard)) {
+      const bgColor = await getComputedStyle(serviceCard, 'backgroundColor');
       expect(bgColor).toContain('rgb(255, 255, 255)');
     }
   });
 
-  test('input fields have white background in light mode', async ({ page }) => {
+  test('input fields have white background', async ({ page }) => {
     await page.goto('/kontakt');
     const input = page.locator('.input').first();
-    if (await input.count() > 0) {
-      const bgColor = await input.evaluate((el) => {
-        return window.getComputedStyle(el).backgroundColor;
-      });
+    if (await elementExists(input)) {
+      const bgColor = await getComputedStyle(input, 'backgroundColor');
       expect(bgColor).toContain('rgb(255, 255, 255)');
     }
   });
 
-  test('buttons have sufficient contrast', async ({ page }) => {
-    // Test primary button
-    const primaryButton = page.locator('.btn-primary').first();
-    if (await primaryButton.count() > 0) {
-      const bgColor = await primaryButton.evaluate((el) => {
-        return window.getComputedStyle(el).backgroundColor;
-      });
-      const textColor = await primaryButton.evaluate((el) => {
-        return window.getComputedStyle(el).color;
-      });
-      
-      expect(bgColor).toContain('rgb(0, 31, 63)'); // brand-navy
-      expect(textColor).toContain('rgb(255, 255, 255)'); // white
-      
-      const contrast = getContrastRatio('#001F3F', '#FFFFFF');
-      expect(contrast).toBeGreaterThanOrEqual(4.5);
-    }
+  test('primary button has sufficient contrast', async ({ page }) => {
+    await testButtonContrast('.btn-primary', THEME_COLORS['brand-navy'], THEME_COLORS.white, page);
+  });
 
-    // Test secondary button
-    const secondaryButton = page.locator('.btn-secondary').first();
-    if (await secondaryButton.count() > 0) {
-      const contrast = getContrastRatio('#2A7A92', '#FFFFFF');
-      expect(contrast).toBeGreaterThanOrEqual(4.5);
+  test('secondary button has sufficient contrast', async ({ page }) => {
+    const button = page.locator('.btn-secondary').first();
+    if (await elementExists(button)) {
+      const contrast = getContrastRatio('#2A7A92', THEME_COLORS.white);
+      expect(contrast).toBeGreaterThanOrEqual(WCAG_AA_NORMAL_TEXT);
     }
   });
 
-  test('body text has sufficient contrast on white background', async ({ page }) => {
-    // Ensure we're in light mode
+  test('body text has sufficient contrast', async ({ page }) => {
     await setupTheme(page, 'light');
-    
     const bodyText = page.locator('main p, section p').filter({ hasText: /./ }).first();
-    if (await bodyText.count() > 0) {
-      const contrastFn = await page.evaluate(calculateElementContrast);
-      const contrast = await bodyText.evaluate(contrastFn);
-      
-      // If contrast is 0, it means we couldn't find a background - skip this test
-      if (contrast > 0) {
-        expect(contrast).toBeGreaterThanOrEqual(4.5);
-      }
-    }
+    await assertSufficientContrast(page, bodyText);
   });
 
   test('headings have sufficient contrast', async ({ page }) => {
     const heading = page.locator('h1, h2, h3').first();
-    if (await heading.count() > 0) {
-      const textColor = await heading.evaluate((el) => {
-        return window.getComputedStyle(el).color;
-      });
-      
-      const rgbMatch = textColor.match(/rgb\((\d+), (\d+), (\d+)\)/);
-      if (rgbMatch) {
-        const [, r, g, b] = rgbMatch.map(Number);
+    if (await elementExists(heading)) {
+      const textColor = await getComputedStyle(heading, 'color');
+      const rgb = parseRGB(textColor);
+      if (rgb) {
         // brand-navy is #001F3F = rgb(0, 31, 63)
-        expect(r).toBeLessThanOrEqual(10);
-        expect(g).toBeLessThanOrEqual(40);
-        expect(b).toBeLessThanOrEqual(70);
+        expect(rgb.r).toBeLessThanOrEqual(10);
+        expect(rgb.g).toBeLessThanOrEqual(40);
+        expect(rgb.b).toBeLessThanOrEqual(70);
       }
     }
   });
@@ -133,71 +199,38 @@ test.describe('Contrast Tests - Light Mode', () => {
   test('input fields have sufficient contrast', async ({ page }) => {
     await page.goto('/kontakt');
     const input = page.locator('.input').first();
-    if (await input.count() > 0) {
-      const bgColor = await input.evaluate((el) => {
-        return window.getComputedStyle(el).backgroundColor;
-      });
-      const textColor = await input.evaluate((el) => {
-        return window.getComputedStyle(el).color;
-      });
-      
+    if (await elementExists(input)) {
+      const bgColor = await getComputedStyle(input, 'backgroundColor');
+      const textColor = await getComputedStyle(input, 'color');
+
       expect(bgColor).toContain('rgb(255, 255, 255)');
-      
-      const rgbMatch = textColor.match(/rgb\((\d+), (\d+), (\d+)\)/);
-      if (rgbMatch) {
-        const [, r, g, b] = rgbMatch.map(Number);
-        expect(r).toBeLessThanOrEqual(60);
-        expect(g).toBeLessThanOrEqual(60);
-        expect(b).toBeLessThanOrEqual(60);
-      }
+      await assertDarkTextColor(textColor, 'input field');
     }
   });
 
-  test('service cards have light background in light mode', async ({ page }) => {
+  test('service cards have correct styling', async ({ page }) => {
     const serviceCard = page.locator('.card').first();
-    if (await serviceCard.count() > 0) {
-      const bgColor = await serviceCard.evaluate((el) => {
-        return window.getComputedStyle(el).backgroundColor;
-      });
-      
-      const rgbMatch = bgColor.match(/rgb\((\d+), (\d+), (\d+)\)/);
-      if (rgbMatch) {
-        const [, r, g, b] = rgbMatch.map(Number);
-        expect(r).toBeGreaterThanOrEqual(240);
-        expect(g).toBeGreaterThanOrEqual(240);
-        expect(b).toBeGreaterThanOrEqual(240);
-      }
-      
-      // Check text color on card
+    if (await elementExists(serviceCard)) {
+      const bgColor = await getComputedStyle(serviceCard, 'backgroundColor');
+      await assertLightBackground(bgColor, 'service card');
+
       const cardText = serviceCard.locator('p').first();
-      if (await cardText.count() > 0) {
-        const textColor = await cardText.evaluate((el) => {
-          return window.getComputedStyle(el).color;
-        });
-        const textRgbMatch = textColor.match(/rgb\((\d+), (\d+), (\d+)\)/);
-        if (textRgbMatch) {
-          const [, r, g, b] = textRgbMatch.map(Number);
-          expect(r).toBeLessThanOrEqual(60);
-          expect(g).toBeLessThanOrEqual(60);
-          expect(b).toBeLessThanOrEqual(60);
-        }
+      if (await elementExists(cardText)) {
+        const textColor = await getComputedStyle(cardText, 'color');
+        await assertDarkTextColor(textColor, 'card text');
       }
     }
   });
 
   test('links have sufficient contrast', async ({ page }) => {
     const link = page.locator('main a:not(.btn), section a:not(.btn)').filter({ hasText: /./ }).first();
-    if (await link.count() > 0) {
-      const contrastFn = await page.evaluate(calculateElementContrast);
-      const contrast = await link.evaluate(contrastFn);
-
-      // If contrast is 0 or undefined, it means we couldn't calculate it - skip
-      if (typeof contrast === 'number' && contrast > 0) {
-        expect(contrast).toBeGreaterThanOrEqual(4.5);
-      }
-    }
+    await assertSufficientContrast(page, link);
   });
 });
+
+// ============================================================================
+// Dark Mode Tests
+// ============================================================================
 
 test.describe('Contrast Tests - Dark Mode', () => {
   test.beforeEach(async ({ page }) => {
@@ -205,209 +238,119 @@ test.describe('Contrast Tests - Dark Mode', () => {
     await setupTheme(page, 'dark');
   });
 
-  test('dark mode class is present in dark mode', async ({ page }) => {
-    const hasDarkClass = await page.evaluate(() => {
-      return document.documentElement.classList.contains('dark');
-    });
+  test('dark mode class is present', async ({ page }) => {
+    const hasDarkClass = await page.evaluate(() => document.documentElement.classList.contains('dark'));
     expect(hasDarkClass).toBe(true);
   });
 
-  test('service cards have dark background in dark mode', async ({ page }) => {
+  test('service cards have dark background', async ({ page }) => {
     const serviceCard = page.locator('.card').first();
-    if (await serviceCard.count() > 0) {
+    if (await elementExists(serviceCard)) {
       await page.waitForTimeout(200);
-      
-      const bgColor = await serviceCard.evaluate((el) => {
-        return window.getComputedStyle(el).backgroundColor;
-      });
-      
+      const bgColor = await getComputedStyle(serviceCard, 'backgroundColor');
       expect(bgColor).not.toContain('rgb(255, 255, 255)');
-      
-      const rgbMatch = bgColor.match(/rgb\((\d+), (\d+), (\d+)\)/);
-      if (rgbMatch) {
-        const [, r, g, b] = rgbMatch.map(Number);
-        expect(r).toBeLessThan(100);
-        expect(g).toBeLessThan(100);
-        expect(b).toBeLessThan(100);
-      } else {
-        expect(bgColor).not.toBe('rgb(255, 255, 255)');
-      }
+      await assertDarkBackground(bgColor, 'service card');
     }
   });
 
-  test('input fields have dark background in dark mode', async ({ page }) => {
+  test('input fields have dark background', async ({ page }) => {
     await page.goto('/kontakt');
     const input = page.locator('.input').first();
-    if (await input.count() > 0) {
-      // Wait longer for dark mode CSS to apply (including injected CSS)
+    if (await elementExists(input)) {
       await page.waitForTimeout(500);
-      
-      const bgColor = await input.evaluate((el) => {
-        return window.getComputedStyle(el).backgroundColor;
-      });
-      
-      const rgbMatch = bgColor.match(/rgb\((\d+), (\d+), (\d+)\)/);
-      if (rgbMatch) {
-        const [, r, g, b] = rgbMatch.map(Number);
-        // If it's white (255, 255, 255), dark mode CSS hasn't applied
-        // In that case, the injected CSS should have fixed it, but if not, skip this assertion
-        if (r === 255 && g === 255 && b === 255) {
-          console.warn('Input field still has white background in dark mode. CSS may not have applied.');
-          // Skip this test if dark mode hasn't applied - the injected CSS should handle this
-          return;
-        }
-        // Should be dark (less than 100 for all channels for neutral-800)
-        expect(r).toBeLessThan(100);
-        expect(g).toBeLessThan(100);
-        expect(b).toBeLessThan(100);
-      } else {
-        // If no match, it might be a different format, but should not be white
-        expect(bgColor).not.toContain('rgb(255, 255, 255)');
-      }
+      const bgColor = await getComputedStyle(input, 'backgroundColor');
+      await assertDarkBackground(bgColor, 'input field');
     }
   });
 
-  test('body text has sufficient contrast on dark background', async ({ page }) => {
+  test('body text has sufficient contrast', async ({ page }) => {
     const bodyText = page.locator('main p, section p').filter({ hasText: /./ }).first();
-    if (await bodyText.count() > 0) {
-      const contrastFn = await page.evaluate(calculateElementContrast);
-      const contrast = await bodyText.evaluate(contrastFn);
-      
-      // If contrast is 0 or undefined, it means we couldn't calculate it - skip
-      if (contrast && contrast > 0) {
-        expect(contrast).toBeGreaterThanOrEqual(4.5);
-      }
-    }
+    await assertSufficientContrast(page, bodyText);
   });
 
-  test('input fields have sufficient contrast in dark mode', async ({ page }) => {
+  test('input fields have sufficient contrast', async ({ page }) => {
     await page.goto('/kontakt');
     const input = page.locator('.input').first();
-    if (await input.count() > 0) {
-      const contrastFn = await page.evaluate(calculateElementContrast);
-      const contrast = await input.evaluate(contrastFn);
-      
-      // If contrast is 0 or undefined, it means we couldn't calculate it - skip
-      if (contrast && contrast > 0) {
-        expect(contrast).toBeGreaterThanOrEqual(4.5);
-      }
-    }
+    await assertSufficientContrast(page, input);
   });
 
-  test('service cards text has sufficient contrast in dark mode', async ({ page }) => {
+  test('service cards text has sufficient contrast', async ({ page }) => {
     const serviceCard = page.locator('.card').first();
-    if (await serviceCard.count() > 0) {
+    if (await elementExists(serviceCard)) {
       const cardText = serviceCard.locator('p').first();
-      if (await cardText.count() > 0) {
-        const contrastFn = await page.evaluate(calculateElementContrast);
-        const contrast = await cardText.evaluate(contrastFn);
-        
-        // If contrast is 0 or undefined, it means we couldn't calculate it - skip
-        if (contrast && contrast > 0) {
-          expect(contrast).toBeGreaterThanOrEqual(4.5);
-        }
-      }
+      await assertSufficientContrast(page, cardText);
     }
   });
 
-  test('links have sufficient contrast in dark mode', async ({ page }) => {
+  test('links have sufficient contrast', async ({ page }) => {
     const link = page.locator('main a:not(.btn), section a:not(.btn)').filter({ hasText: /./ }).first();
-    if (await link.count() > 0) {
-      const contrastFn = await page.evaluate(calculateElementContrast);
-      const contrast = await link.evaluate(contrastFn);
-
-      // If contrast is 0 or undefined, it means we couldn't calculate it - skip
-      if (typeof contrast === 'number' && contrast > 0) {
-        expect(contrast).toBeGreaterThanOrEqual(4.5);
-      }
-    }
+    await assertSufficientContrast(page, link);
   });
 });
 
-test.describe('Contrast Tests - All Pages', () => {
-  const pages = [
-    { path: '/', name: 'homepage', skipLightBgCheck: true }, // Landing page has intentional dark theme
-    // Note: /om, /kontakt, /blogg pages don't exist yet - add them here when created
-  ];
+// ============================================================================
+// All Pages Tests (Parameterized)
+// ============================================================================
 
-  for (const pageInfo of pages) {
-    test(`${pageInfo.name} page has sufficient contrast in light mode`, async ({ page }) => {
-      await page.goto(pageInfo.path);
+interface PageConfig {
+  path: string;
+  name: string;
+  skipLightBgCheck?: boolean;
+}
+
+const testPages: PageConfig[] = [
+  { path: '/', name: 'homepage', skipLightBgCheck: true }, // Landing page has intentional dark theme
+];
+
+test.describe('Contrast Tests - All Pages', () => {
+  for (const pageConfig of testPages) {
+    test(`${pageConfig.name} - light mode contrast`, async ({ page }) => {
+      await page.goto(pageConfig.path);
       await setupTheme(page, 'light');
 
-      // Skip body background check for pages with intentional dark theme (like landing page)
-      if (pageInfo.skipLightBgCheck) {
-        return;
-      }
+      if (pageConfig.skipLightBgCheck) return;
 
-      const bodyBg = await page.evaluate(() => {
-        return window.getComputedStyle(document.body).backgroundColor;
-      });
-      const bodyRgbMatch = bodyBg.match(/rgb\((\d+), (\d+), (\d+)\)/);
-      if (bodyRgbMatch) {
-        const [, r, g, b] = bodyRgbMatch.map(Number);
-        expect(r).toBeGreaterThanOrEqual(240);
-        expect(g).toBeGreaterThanOrEqual(240);
-        expect(b).toBeGreaterThanOrEqual(240);
-      }
+      const bodyBg = await page.evaluate(() => window.getComputedStyle(document.body).backgroundColor);
+      await assertLightBackground(bodyBg, 'body');
     });
 
-    test(`${pageInfo.name} page has sufficient contrast in dark mode`, async ({ page }) => {
-      // Skip dark mode check for pages with intentional dark theme (like landing page)
-      if (pageInfo.skipLightBgCheck) {
-        return;
-      }
+    test(`${pageConfig.name} - dark mode contrast`, async ({ page }) => {
+      if (pageConfig.skipLightBgCheck) return;
 
-      await page.goto(pageInfo.path);
+      await page.goto(pageConfig.path);
       await setupTheme(page, 'dark');
 
-      // Verify dark class is actually set
-      const hasDarkClass = await page.evaluate(() => {
-        return document.documentElement.classList.contains('dark');
-      });
-
-      // If dark class is not set, skip this test or fail with a clear message
+      const hasDarkClass = await page.evaluate(() => document.documentElement.classList.contains('dark'));
       if (!hasDarkClass) {
-        console.warn(`Dark mode class not set for ${pageInfo.name} page. Skipping dark mode contrast test.`);
+        console.warn(`Dark mode class not set for ${pageConfig.name} page. Skipping.`);
         return;
       }
 
-      // Wait a bit more for CSS to fully apply
       await page.waitForTimeout(300);
-      
-      const bodyBg = await page.evaluate(() => {
-        return window.getComputedStyle(document.body).backgroundColor;
-      });
-      const bodyRgbMatch = bodyBg.match(/rgb\((\d+), (\d+), (\d+)\)/);
-      if (bodyRgbMatch) {
-        const [, r, g, b] = bodyRgbMatch.map(Number);
-        // neutral-900 is #0F1419 = rgb(15, 20, 25)
-        // Should be dark (less than 30 for all channels)
-        // If body is still white, dark mode CSS hasn't applied yet
-        if (r === 255 && g === 255 && b === 255) {
-          console.warn(`Body background is still white for ${pageInfo.name} page in dark mode. CSS may not have applied.`);
-          // Skip this assertion if dark mode hasn't applied
-          return;
-        }
-        expect(r).toBeLessThanOrEqual(30);
-        expect(g).toBeLessThanOrEqual(30);
-        expect(b).toBeLessThanOrEqual(30);
+
+      // Verify body background
+      const bodyBg = await page.evaluate(() => window.getComputedStyle(document.body).backgroundColor);
+      const rgb = parseRGB(bodyBg);
+      if (rgb && rgb.r === 255 && rgb.g === 255 && rgb.b === 255) {
+        console.warn(`Body still white for ${pageConfig.name} in dark mode. CSS may not have applied.`);
+        return;
       }
-      
-      // Verify service cards have dark background if they exist
+      if (rgb) {
+        expect(rgb.r).toBeLessThanOrEqual(30);
+        expect(rgb.g).toBeLessThanOrEqual(30);
+        expect(rgb.b).toBeLessThanOrEqual(30);
+      }
+
+      // Verify service cards
       const serviceCard = page.locator('.card').first();
-      if (await serviceCard.count() > 0) {
+      if (await elementExists(serviceCard)) {
         await page.waitForTimeout(100);
-        const cardBg = await serviceCard.evaluate((el) => {
-          return window.getComputedStyle(el).backgroundColor;
-        });
-        const cardRgbMatch = cardBg.match(/rgb\((\d+), (\d+), (\d+)\)/);
-        if (cardRgbMatch) {
-          const [, r, g, b] = cardRgbMatch.map(Number);
-          // neutral-800 is rgb(31, 41, 55), so allow up to 60 for all channels
-          expect(r).toBeLessThanOrEqual(60);
-          expect(g).toBeLessThanOrEqual(60);
-          expect(b).toBeLessThanOrEqual(60);
+        const cardBg = await getComputedStyle(serviceCard, 'backgroundColor');
+        const cardRgb = parseRGB(cardBg);
+        if (cardRgb) {
+          expect(cardRgb.r).toBeLessThanOrEqual(60);
+          expect(cardRgb.g).toBeLessThanOrEqual(60);
+          expect(cardRgb.b).toBeLessThanOrEqual(60);
         } else {
           expect(cardBg).not.toContain('rgb(255, 255, 255)');
         }

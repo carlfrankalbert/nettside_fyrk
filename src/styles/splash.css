@@ -1,0 +1,214 @@
+/**
+ * Splash Page Styles
+ * Styles for the landing page with neural canvas animation
+ */
+
+/* ============================================================================
+   Base Styles
+   ============================================================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #02040b;
+  overflow: hidden;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* ============================================================================
+   Neural Canvas
+   ============================================================================ */
+
+#neural-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* Radial overlay: light center, dark edges */
+.center-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    ellipse 70% 60% at 50% 50%,
+    transparent 0%,
+    rgba(2, 4, 11, 0.3) 40%,
+    rgba(2, 4, 11, 0.7) 70%,
+    rgba(2, 4, 11, 0.9) 100%
+  );
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ============================================================================
+   Container & Layout
+   ============================================================================ */
+
+.container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.logo-wrapper {
+  position: relative;
+  padding: 50px 70px;
+}
+
+/* ============================================================================
+   Social Links
+   ============================================================================ */
+
+.social-links {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  justify-content: center;
+}
+
+.social-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(60, 100, 140, 0.1);
+  border: 1px solid rgba(120, 160, 200, 0.15);
+  transition: all 0.3s ease;
+}
+
+.social-link:hover {
+  background: rgba(60, 100, 140, 0.2);
+  border-color: rgba(120, 160, 200, 0.3);
+  transform: translateY(-2px);
+}
+
+.social-link:focus-visible {
+  outline: 2px solid rgba(120, 160, 200, 0.5);
+  outline-offset: 4px;
+}
+
+.social-link svg {
+  width: 20px;
+  height: 20px;
+  fill: rgba(160, 196, 220, 0.8);
+  transition: fill 0.3s ease;
+}
+
+.social-link:hover svg {
+  fill: rgba(184, 212, 232, 1);
+}
+
+/* ============================================================================
+   Glow Effects
+   ============================================================================ */
+
+/* Soft glow rings behind logo */
+.glow-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+.glow-ring-1 {
+  width: 380px;
+  height: 180px;
+  background: radial-gradient(ellipse, rgba(60, 100, 140, 0.12) 0%, transparent 70%);
+  animation: glowRing1 12s ease-in-out infinite;
+}
+
+.glow-ring-2 {
+  width: 320px;
+  height: 150px;
+  background: radial-gradient(ellipse, rgba(70, 120, 160, 0.08) 0%, transparent 70%);
+  animation: glowRing2 12s ease-in-out infinite 4s;
+}
+
+/* ============================================================================
+   Logo
+   ============================================================================ */
+
+.logo-svg {
+  display: block;
+  filter: drop-shadow(0 0 12px rgba(120, 160, 200, 0.15));
+  animation: logoPulse 12s ease-in-out infinite;
+}
+
+/* ============================================================================
+   Animations
+   ============================================================================ */
+
+@keyframes glowRing1 {
+  0%,
+  100% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.03);
+  }
+}
+
+@keyframes glowRing2 {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1.01);
+  }
+  50% {
+    opacity: 0.85;
+    transform: translate(-50%, -50%) scale(1.045);
+  }
+}
+
+@keyframes logoPulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 10px rgba(120, 160, 200, 0.12));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 16px rgba(130, 170, 210, 0.18));
+    transform: scale(1.005);
+  }
+}
+
+/* ============================================================================
+   Reduced Motion
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-ring-1,
+  .glow-ring-2 {
+    animation: none;
+    opacity: 0.7;
+  }
+
+  .logo-svg {
+    animation: none;
+    filter: drop-shadow(0 0 10px rgba(120, 160, 200, 0.12));
+  }
+}

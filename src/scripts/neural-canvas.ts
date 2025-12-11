@@ -3,39 +3,15 @@
  * A calm, professional neural network visualization with configurable presets
  */
 
-interface RGB {
-  r: number;
-  g: number;
-  b: number;
-}
+import {
+  type NeuralCanvasPreset,
+  PRESETS,
+  getPresetForUserPreferences,
+} from '../config/neural-canvas-presets';
 
-interface Preset {
-  nodeCount: number;
-  connectionMaxDist: number;
-  centerBias: number;
-  lineBaseAlpha: number;
-  lineActiveAlpha: number;
-  lineWidth: number;
-  nodeBaseAlpha: number;
-  nodeActiveAlpha: number;
-  nodeBaseSize: number;
-  nodeGlowSize: number;
-  signalSpawnInterval: number;
-  signalSpawnVariance: number;
-  signalSpeed: number;
-  signalSpeedVariance: number;
-  signalCascadeChance: number;
-  signalIntensity: number;
-  signalTrailLength: number;
-  signalTrailSteps: number;
-  nodeJitterAmount: number;
-  nodeJitterSpeed: number;
-  nodeJitterChance: number;
-  timeIncrement: number;
-  lineColor: RGB;
-  nodeColor: RGB;
-  signalColor: RGB;
-}
+// ============================================================================
+// Types
+// ============================================================================
 
 interface Node {
   x: number;
@@ -62,91 +38,34 @@ interface Signal {
   width: number;
 }
 
-const PRESETS: Record<string, Preset> = {
-  calm: {
-    nodeCount: 80,
-    connectionMaxDist: 0.14,
-    centerBias: 0.7,
-    lineBaseAlpha: 0.025,
-    lineActiveAlpha: 0.08,
-    lineWidth: 0.5,
-    nodeBaseAlpha: 0.18,
-    nodeActiveAlpha: 0.5,
-    nodeBaseSize: 1.3,
-    nodeGlowSize: 2.0,
-    signalSpawnInterval: 2800,
-    signalSpawnVariance: 1500,
-    signalSpeed: 0.003,
-    signalSpeedVariance: 0.002,
-    signalCascadeChance: 0.35,
-    signalIntensity: 0.45,
-    signalTrailLength: 0.28,
-    signalTrailSteps: 14,
-    nodeJitterAmount: 1.0,
-    nodeJitterSpeed: 0.03,
-    nodeJitterChance: 0.003,
-    timeIncrement: 0.008,
-    lineColor: { r: 50, g: 80, b: 120 },
-    nodeColor: { r: 70, g: 110, b: 150 },
-    signalColor: { r: 80, g: 130, b: 180 },
-  },
+interface Point {
+  x: number;
+  y: number;
+}
 
-  ultraCalm: {
-    nodeCount: 55,
-    connectionMaxDist: 0.12,
-    centerBias: 0.75,
-    lineBaseAlpha: 0.018,
-    lineActiveAlpha: 0.05,
-    lineWidth: 0.4,
-    nodeBaseAlpha: 0.12,
-    nodeActiveAlpha: 0.35,
-    nodeBaseSize: 1.1,
-    nodeGlowSize: 1.5,
-    signalSpawnInterval: 4500,
-    signalSpawnVariance: 2000,
-    signalSpeed: 0.002,
-    signalSpeedVariance: 0.001,
-    signalCascadeChance: 0.2,
-    signalIntensity: 0.35,
-    signalTrailLength: 0.22,
-    signalTrailSteps: 10,
-    nodeJitterAmount: 0.5,
-    nodeJitterSpeed: 0.02,
-    nodeJitterChance: 0.002,
-    timeIncrement: 0.005,
-    lineColor: { r: 45, g: 70, b: 105 },
-    nodeColor: { r: 60, g: 95, b: 130 },
-    signalColor: { r: 70, g: 115, b: 160 },
-  },
+// ============================================================================
+// Math Utilities
+// ============================================================================
 
-  reducedMotion: {
-    nodeCount: 50,
-    connectionMaxDist: 0.12,
-    centerBias: 0.7,
-    lineBaseAlpha: 0.02,
-    lineActiveAlpha: 0.02,
-    lineWidth: 0.4,
-    nodeBaseAlpha: 0.15,
-    nodeActiveAlpha: 0.15,
-    nodeBaseSize: 1.2,
-    nodeGlowSize: 0,
-    signalSpawnInterval: 999999,
-    signalSpawnVariance: 0,
-    signalSpeed: 0,
-    signalSpeedVariance: 0,
-    signalCascadeChance: 0,
-    signalIntensity: 0,
-    signalTrailLength: 0,
-    signalTrailSteps: 0,
-    nodeJitterAmount: 0,
-    nodeJitterSpeed: 0,
-    nodeJitterChance: 0,
-    timeIncrement: 0.002,
-    lineColor: { r: 45, g: 70, b: 105 },
-    nodeColor: { r: 60, g: 95, b: 130 },
-    signalColor: { r: 70, g: 115, b: 160 },
-  },
-};
+function bezierPoint(
+  t: number,
+  p0x: number,
+  p0y: number,
+  p1x: number,
+  p1y: number,
+  p2x: number,
+  p2y: number
+): Point {
+  const mt = 1 - t;
+  return {
+    x: mt * mt * p0x + 2 * mt * t * p1x + t * t * p2x,
+    y: mt * mt * p0y + 2 * mt * t * p1y + t * t * p2y,
+  };
+}
+
+// ============================================================================
+// Main Animation Function
+// ============================================================================
 
 export function initNeuralCanvas(canvasId: string): void {
   const canvas = document.getElementById(canvasId) as HTMLCanvasElement | null;
@@ -155,6 +74,7 @@ export function initNeuralCanvas(canvasId: string): void {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
+  // State
   let width = 0;
   let height = 0;
   let centerX = 0;
@@ -165,14 +85,127 @@ export function initNeuralCanvas(canvasId: string): void {
   let lastSignalSpawn = 0;
   let nextSignalDelay = 0;
 
+  // Configuration
   let prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let currentMode = prefersReducedMotion ? 'reducedMotion' : 'calm';
-  let config = PRESETS[currentMode];
+  let config: NeuralCanvasPreset = PRESETS[currentMode];
+
+  // ============================================================================
+  // Signal Management
+  // ============================================================================
 
   function scheduleNextSignal(): void {
-    nextSignalDelay = config.signalSpawnInterval + (Math.random() - 0.5) * 2 * config.signalSpawnVariance;
+    nextSignalDelay =
+      config.signalSpawnInterval + (Math.random() - 0.5) * 2 * config.signalSpawnVariance;
     lastSignalSpawn = performance.now();
   }
+
+  function spawnSignal(): void {
+    if (nodes.length === 0 || config.signalSpawnInterval > 99999) return;
+
+    const candidates: number[] = [];
+    for (let i = 0; i < nodes.length; i++) {
+      if (nodes[i].connections.length > 0) {
+        const weight = Math.ceil(nodes[i].centerFactor * 3);
+        for (let w = 0; w < weight; w++) {
+          candidates.push(i);
+        }
+      }
+    }
+
+    if (candidates.length === 0) return;
+
+    const sourceIdx = candidates[Math.floor(Math.random() * candidates.length)];
+    const sourceNode = nodes[sourceIdx];
+    const targetIdx =
+      sourceNode.connections[Math.floor(Math.random() * sourceNode.connections.length)];
+
+    const col = config.signalColor;
+
+    signals.push({
+      fromIdx: sourceIdx,
+      toIdx: targetIdx,
+      progress: 0,
+      speed: config.signalSpeed + Math.random() * config.signalSpeedVariance,
+      r: col.r + Math.floor(Math.random() * 30),
+      g: col.g + Math.floor(Math.random() * 30),
+      b: col.b + Math.floor(Math.random() * 25),
+      intensity: config.signalIntensity * (0.8 + Math.random() * 0.4),
+      width: 1.2 + Math.random() * 0.8,
+    });
+
+    sourceNode.activation = Math.min(1, sourceNode.activation + 0.5);
+    scheduleNextSignal();
+  }
+
+  function updateSignals(): void {
+    const now = performance.now();
+    if (now - lastSignalSpawn > nextSignalDelay) {
+      spawnSignal();
+    }
+
+    const newSignals: Signal[] = [];
+
+    for (const signal of signals) {
+      signal.progress += signal.speed;
+
+      if (signal.progress >= 1) {
+        const targetNode = nodes[signal.toIdx];
+        if (targetNode) {
+          targetNode.activation = Math.min(1, targetNode.activation + signal.intensity * 0.6);
+
+          if (targetNode.connections.length > 0 && Math.random() < config.signalCascadeChance) {
+            const validTargets = targetNode.connections.filter((c) => c !== signal.fromIdx);
+
+            if (validTargets.length > 0) {
+              const nextTarget = validTargets[Math.floor(Math.random() * validTargets.length)];
+
+              newSignals.push({
+                fromIdx: signal.toIdx,
+                toIdx: nextTarget,
+                progress: 0,
+                speed: config.signalSpeed + Math.random() * config.signalSpeedVariance,
+                r: Math.min(200, signal.r + Math.floor((Math.random() - 0.3) * 15)),
+                g: Math.min(210, signal.g + Math.floor((Math.random() - 0.3) * 15)),
+                b: Math.min(220, signal.b + Math.floor((Math.random() - 0.2) * 10)),
+                intensity: signal.intensity * (0.6 + Math.random() * 0.25),
+                width: signal.width * 0.85,
+              });
+            }
+          }
+        }
+      } else {
+        newSignals.push(signal);
+      }
+    }
+
+    signals = newSignals;
+  }
+
+  // ============================================================================
+  // Node Management
+  // ============================================================================
+
+  function updateNodes(): void {
+    for (const node of nodes) {
+      node.activation *= 0.992;
+
+      if (Math.random() < config.nodeJitterChance) {
+        node.targetVx = (Math.random() - 0.5) * config.nodeJitterAmount;
+        node.targetVy = (Math.random() - 0.5) * config.nodeJitterAmount;
+      }
+
+      node.vx += (node.targetVx - node.vx) * config.nodeJitterSpeed;
+      node.vy += (node.targetVy - node.vy) * config.nodeJitterSpeed;
+
+      node.targetVx *= 0.99;
+      node.targetVy *= 0.99;
+    }
+  }
+
+  // ============================================================================
+  // Network Initialization
+  // ============================================================================
 
   function initNetwork(): void {
     nodes = [];
@@ -241,136 +274,13 @@ export function initNeuralCanvas(canvasId: string): void {
     scheduleNextSignal();
   }
 
-  function resize(): void {
-    width = canvas!.width = window.innerWidth;
-    height = canvas!.height = window.innerHeight;
-    centerX = width / 2;
-    centerY = height / 2;
-    initNetwork();
-  }
+  // ============================================================================
+  // Rendering
+  // ============================================================================
 
-  function spawnSignal(): void {
-    if (nodes.length === 0 || config.signalSpawnInterval > 99999) return;
-
-    const candidates: number[] = [];
-    for (let i = 0; i < nodes.length; i++) {
-      if (nodes[i].connections.length > 0) {
-        const weight = Math.ceil(nodes[i].centerFactor * 3);
-        for (let w = 0; w < weight; w++) {
-          candidates.push(i);
-        }
-      }
-    }
-
-    if (candidates.length === 0) return;
-
-    const sourceIdx = candidates[Math.floor(Math.random() * candidates.length)];
-    const sourceNode = nodes[sourceIdx];
-    const targetIdx = sourceNode.connections[Math.floor(Math.random() * sourceNode.connections.length)];
-
-    const col = config.signalColor;
-
-    signals.push({
-      fromIdx: sourceIdx,
-      toIdx: targetIdx,
-      progress: 0,
-      speed: config.signalSpeed + Math.random() * config.signalSpeedVariance,
-      r: col.r + Math.floor(Math.random() * 30),
-      g: col.g + Math.floor(Math.random() * 30),
-      b: col.b + Math.floor(Math.random() * 25),
-      intensity: config.signalIntensity * (0.8 + Math.random() * 0.4),
-      width: 1.2 + Math.random() * 0.8,
-    });
-
-    sourceNode.activation = Math.min(1, sourceNode.activation + 0.5);
-    scheduleNextSignal();
-  }
-
-  function updateSignals(): void {
-    const now = performance.now();
-    if (now - lastSignalSpawn > nextSignalDelay) {
-      spawnSignal();
-    }
-
-    const newSignals: Signal[] = [];
-
-    for (const signal of signals) {
-      signal.progress += signal.speed;
-
-      if (signal.progress >= 1) {
-        const targetNode = nodes[signal.toIdx];
-        if (targetNode) {
-          targetNode.activation = Math.min(1, targetNode.activation + signal.intensity * 0.6);
-
-          if (targetNode.connections.length > 0 && Math.random() < config.signalCascadeChance) {
-            const validTargets = targetNode.connections.filter((c) => c !== signal.fromIdx);
-
-            if (validTargets.length > 0) {
-              const nextTarget = validTargets[Math.floor(Math.random() * validTargets.length)];
-
-              newSignals.push({
-                fromIdx: signal.toIdx,
-                toIdx: nextTarget,
-                progress: 0,
-                speed: config.signalSpeed + Math.random() * config.signalSpeedVariance,
-                r: Math.min(200, signal.r + Math.floor((Math.random() - 0.3) * 15)),
-                g: Math.min(210, signal.g + Math.floor((Math.random() - 0.3) * 15)),
-                b: Math.min(220, signal.b + Math.floor((Math.random() - 0.2) * 10)),
-                intensity: signal.intensity * (0.6 + Math.random() * 0.25),
-                width: signal.width * 0.85,
-              });
-            }
-          }
-        }
-      } else {
-        newSignals.push(signal);
-      }
-    }
-
-    signals = newSignals;
-  }
-
-  function updateNodes(): void {
-    for (const node of nodes) {
-      node.activation *= 0.992;
-
-      if (Math.random() < config.nodeJitterChance) {
-        node.targetVx = (Math.random() - 0.5) * config.nodeJitterAmount;
-        node.targetVy = (Math.random() - 0.5) * config.nodeJitterAmount;
-      }
-
-      node.vx += (node.targetVx - node.vx) * config.nodeJitterSpeed;
-      node.vy += (node.targetVy - node.vy) * config.nodeJitterSpeed;
-
-      node.targetVx *= 0.99;
-      node.targetVy *= 0.99;
-    }
-  }
-
-  function bezierPoint(
-    t: number,
-    p0x: number,
-    p0y: number,
-    p1x: number,
-    p1y: number,
-    p2x: number,
-    p2y: number
-  ): { x: number; y: number } {
-    const mt = 1 - t;
-    return {
-      x: mt * mt * p0x + 2 * mt * t * p1x + t * t * p2x,
-      y: mt * mt * p0y + 2 * mt * t * p1y + t * t * p2y,
-    };
-  }
-
-  function draw(): void {
-    ctx!.clearRect(0, 0, width, height);
-    time += config.timeIncrement;
-
+  function drawConnections(): void {
     const lineCol = config.lineColor;
-    const nodeCol = config.nodeColor;
 
-    // Draw connections
     for (const node of nodes) {
       const nx = node.x + node.vx;
       const ny = node.y + node.vy;
@@ -399,8 +309,9 @@ export function initNeuralCanvas(canvasId: string): void {
         ctx!.stroke();
       }
     }
+  }
 
-    // Draw signals
+  function drawSignals(): void {
     for (const signal of signals) {
       const from = nodes[signal.fromIdx];
       const to = nodes[signal.toIdx];
@@ -419,6 +330,7 @@ export function initNeuralCanvas(canvasId: string): void {
       const steps = config.signalTrailSteps;
       const trailLen = config.signalTrailLength;
 
+      // Draw trail
       for (let t = 0; t < steps; t++) {
         const trailT = Math.max(0, signal.progress - (t / steps) * trailLen);
         const pos = bezierPoint(trailT, fx, fy, midX, midY, tox, toy);
@@ -432,12 +344,19 @@ export function initNeuralCanvas(canvasId: string): void {
         ctx!.fill();
       }
 
+      // Draw head
       const headPos = bezierPoint(signal.progress, fx, fy, midX, midY, tox, toy);
       const headSize = signal.width * 1.8;
 
       const grad = ctx!.createRadialGradient(headPos.x, headPos.y, 0, headPos.x, headPos.y, headSize);
-      grad.addColorStop(0, `rgba(${signal.r},${signal.g},${signal.b},${(signal.intensity * 0.7).toFixed(4)})`);
-      grad.addColorStop(0.5, `rgba(${signal.r},${signal.g},${signal.b},${(signal.intensity * 0.2).toFixed(4)})`);
+      grad.addColorStop(
+        0,
+        `rgba(${signal.r},${signal.g},${signal.b},${(signal.intensity * 0.7).toFixed(4)})`
+      );
+      grad.addColorStop(
+        0.5,
+        `rgba(${signal.r},${signal.g},${signal.b},${(signal.intensity * 0.2).toFixed(4)})`
+      );
       grad.addColorStop(1, `rgba(${signal.r},${signal.g},${signal.b},0)`);
 
       ctx!.beginPath();
@@ -445,8 +364,11 @@ export function initNeuralCanvas(canvasId: string): void {
       ctx!.fillStyle = grad;
       ctx!.fill();
     }
+  }
 
-    // Draw nodes
+  function drawNodes(): void {
+    const nodeCol = config.nodeColor;
+
     for (const node of nodes) {
       const x = node.x + node.vx;
       const y = node.y + node.vy;
@@ -454,13 +376,20 @@ export function initNeuralCanvas(canvasId: string): void {
       const activation = node.activation;
       const cf = node.centerFactor;
 
+      // Draw glow
       if (activation > 0.1 && config.nodeGlowSize > 0) {
         const glowSize = node.size * (config.nodeGlowSize + activation * 2.5);
         const glowAlpha = activation * 0.25 * cf;
 
         const glowGrad = ctx!.createRadialGradient(x, y, 0, x, y, glowSize);
-        glowGrad.addColorStop(0, `rgba(${nodeCol.r},${nodeCol.g},${nodeCol.b},${glowAlpha.toFixed(4)})`);
-        glowGrad.addColorStop(0.5, `rgba(${nodeCol.r},${nodeCol.g},${nodeCol.b},${(glowAlpha * 0.3).toFixed(4)})`);
+        glowGrad.addColorStop(
+          0,
+          `rgba(${nodeCol.r},${nodeCol.g},${nodeCol.b},${glowAlpha.toFixed(4)})`
+        );
+        glowGrad.addColorStop(
+          0.5,
+          `rgba(${nodeCol.r},${nodeCol.g},${nodeCol.b},${(glowAlpha * 0.3).toFixed(4)})`
+        );
         glowGrad.addColorStop(1, `rgba(${nodeCol.r},${nodeCol.g},${nodeCol.b},0)`);
 
         ctx!.beginPath();
@@ -469,6 +398,7 @@ export function initNeuralCanvas(canvasId: string): void {
         ctx!.fill();
       }
 
+      // Draw core
       const coreAlpha = (config.nodeBaseAlpha + activation * config.nodeActiveAlpha) * cf;
       const coreSize = node.size * (1 + activation * 0.2);
 
@@ -477,6 +407,15 @@ export function initNeuralCanvas(canvasId: string): void {
       ctx!.fillStyle = `rgba(${nodeCol.r + 25},${nodeCol.g + 25},${nodeCol.b + 15},${coreAlpha.toFixed(4)})`;
       ctx!.fill();
     }
+  }
+
+  function draw(): void {
+    ctx!.clearRect(0, 0, width, height);
+    time += config.timeIncrement;
+
+    drawConnections();
+    drawSignals();
+    drawNodes();
 
     updateSignals();
     updateNodes();
@@ -484,15 +423,32 @@ export function initNeuralCanvas(canvasId: string): void {
     requestAnimationFrame(draw);
   }
 
-  // Listen for reduced motion preference changes
-  window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', (e) => {
+  // ============================================================================
+  // Event Handlers
+  // ============================================================================
+
+  function resize(): void {
+    width = canvas!.width = window.innerWidth;
+    height = canvas!.height = window.innerHeight;
+    centerX = width / 2;
+    centerY = height / 2;
+    initNetwork();
+  }
+
+  function handleReducedMotionChange(e: MediaQueryListEvent): void {
     prefersReducedMotion = e.matches;
     currentMode = prefersReducedMotion ? 'reducedMotion' : 'calm';
-    config = PRESETS[currentMode];
+    config = getPresetForUserPreferences(prefersReducedMotion);
     resize();
-  });
+  }
 
+  // ============================================================================
+  // Initialize
+  // ============================================================================
+
+  window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', handleReducedMotionChange);
   window.addEventListener('resize', resize);
+
   resize();
   draw();
 }
