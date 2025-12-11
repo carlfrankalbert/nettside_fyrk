@@ -50,10 +50,13 @@ export const POST: APIRoute = async ({ request }) => {
     const apiKey = import.meta.env.ANTHROPIC_API_KEY;
     const model = import.meta.env.CLAUDE_MODEL ?? 'claude-sonnet-4-20250514';
 
+    console.log('API Key present:', !!apiKey);
+    console.log('Model:', model);
+
     if (!apiKey) {
       console.error('ANTHROPIC_API_KEY not configured');
       return new Response(
-        JSON.stringify({ error: 'Server not configured' }),
+        JSON.stringify({ error: 'Server not configured: Missing API key' }),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
     }
@@ -83,8 +86,21 @@ export const POST: APIRoute = async ({ request }) => {
 
   } catch (err) {
     console.error('OKR review error:', err);
+
+    // Log detailed error information
+    if (err instanceof Error) {
+      console.error('Error name:', err.name);
+      console.error('Error message:', err.message);
+      console.error('Error stack:', err.stack);
+    }
+
+    // Return more specific error for debugging
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ error: 'Failed to evaluate OKR' }),
+      JSON.stringify({
+        error: 'Failed to evaluate OKR',
+        details: errorMessage
+      }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
