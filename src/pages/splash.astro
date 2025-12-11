@@ -1,0 +1,263 @@
+---
+import '../styles/global.css';
+import SEOHead from '../components/SEOHead.astro';
+import { SITE_CONFIG } from '../config/site';
+import { EXTERNAL_LINKS } from '../utils/links';
+---
+
+<!doctype html>
+<html lang="no">
+  <head>
+    <SEOHead 
+      title={SITE_CONFIG.name}
+      description={SITE_CONFIG.description}
+      type="website"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #02040b;
+        overflow: hidden;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      }
+
+      #neural-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+      }
+
+      /* Radial overlay: light center, dark edges */
+      .center-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(
+          ellipse 70% 60% at 50% 50%,
+          transparent 0%,
+          rgba(2, 4, 11, 0.3) 40%,
+          rgba(2, 4, 11, 0.7) 70%,
+          rgba(2, 4, 11, 0.9) 100%
+        );
+        z-index: 2;
+        pointer-events: none;
+      }
+
+      .container {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+      }
+
+      .logo-wrapper {
+        position: relative;
+        padding: 50px 70px;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 1.5rem;
+        margin-top: 2rem;
+        justify-content: center;
+      }
+
+      .social-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: rgba(60, 100, 140, 0.1);
+        border: 1px solid rgba(120, 160, 200, 0.15);
+        transition: all 0.3s ease;
+      }
+
+      .social-link:hover {
+        background: rgba(60, 100, 140, 0.2);
+        border-color: rgba(120, 160, 200, 0.3);
+        transform: translateY(-2px);
+      }
+
+      .social-link:focus-visible {
+        outline: 2px solid rgba(120, 160, 200, 0.5);
+        outline-offset: 4px;
+      }
+
+      .social-link svg {
+        width: 20px;
+        height: 20px;
+        fill: rgba(160, 196, 220, 0.8);
+        transition: fill 0.3s ease;
+      }
+
+      .social-link:hover svg {
+        fill: rgba(184, 212, 232, 1);
+      }
+
+      /* Soft glow rings behind logo */
+      .glow-ring {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        filter: blur(60px);
+        pointer-events: none;
+      }
+
+      .glow-ring-1 {
+        width: 380px;
+        height: 180px;
+        background: radial-gradient(ellipse, rgba(60, 100, 140, 0.12) 0%, transparent 70%);
+        animation: glowRing1 12s ease-in-out infinite;
+      }
+
+      .glow-ring-2 {
+        width: 320px;
+        height: 150px;
+        background: radial-gradient(ellipse, rgba(70, 120, 160, 0.08) 0%, transparent 70%);
+        animation: glowRing2 12s ease-in-out infinite 4s;
+      }
+
+      @keyframes glowRing1 {
+        0%, 100% { 
+          opacity: 0.8; 
+          transform: translate(-50%, -50%) scale(1); 
+        }
+        50% { 
+          opacity: 1; 
+          transform: translate(-50%, -50%) scale(1.03); 
+        }
+      }
+
+      @keyframes glowRing2 {
+        0%, 100% { 
+          opacity: 0.6; 
+          transform: translate(-50%, -50%) scale(1.01); 
+        }
+        50% { 
+          opacity: 0.85; 
+          transform: translate(-50%, -50%) scale(1.045); 
+        }
+      }
+
+      .logo-svg {
+        display: block;
+        filter: drop-shadow(0 0 12px rgba(120, 160, 200, 0.15));
+        animation: logoPulse 12s ease-in-out infinite;
+      }
+
+      @keyframes logoPulse {
+        0%, 100% { 
+          filter: drop-shadow(0 0 10px rgba(120, 160, 200, 0.12));
+          transform: scale(1);
+        }
+        50% { 
+          filter: drop-shadow(0 0 16px rgba(130, 170, 210, 0.18));
+          transform: scale(1.005);
+        }
+      }
+
+      /* Reduced motion overrides */
+      @media (prefers-reduced-motion: reduce) {
+        .glow-ring-1, .glow-ring-2 {
+          animation: none;
+          opacity: 0.7;
+        }
+        
+        .logo-svg {
+          animation: none;
+          filter: drop-shadow(0 0 10px rgba(120, 160, 200, 0.12));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="neural-canvas"></canvas>
+    <div class="center-overlay"></div>
+    
+    <div class="container">
+      <div class="logo-wrapper">
+        <div class="glow-ring glow-ring-1"></div>
+        <div class="glow-ring glow-ring-2"></div>
+
+        <svg class="logo-svg" width="500" height="141" viewBox="0 0 500 141" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#a0c4dc">
+                <animate attributeName="stop-color" values="#a0c4dc;#b8d4e8;#a0c4dc" dur="12s" repeatCount="indefinite"/>
+              </stop>
+              <stop offset="50%" style="stop-color:#b0d0e4">
+                <animate attributeName="stop-color" values="#b0d0e4;#c8e0f0;#b0d0e4" dur="12s" repeatCount="indefinite"/>
+              </stop>
+              <stop offset="100%" style="stop-color:#a0c4dc">
+                <animate attributeName="stop-color" values="#a0c4dc;#b8d4e8;#a0c4dc" dur="12s" repeatCount="indefinite"/>
+              </stop>
+            </linearGradient>
+          </defs>
+          <g transform="translate(126.24, 35.59) scale(1.5)">
+            <path d="M30.8184 8.11475H9.84082V19.2056H28.7725V27.3188H9.84082V46.5464H0V15.5005L15.499 0.00146484H30.8184V8.11475ZM0 11.2583V0.00146484H11.2568L0 11.2583Z" fill="url(#logoGradient)" />
+            <path d="M34.71 0H45.7327L56.3463 20.0455H56.8009L67.4145 0H78.4372L61.46 30.0909V46.5455H51.6872V30.0909L34.71 0Z" fill="url(#logoGradient)" />
+            <path d="M83.8125 46.5455V0H102.176C105.691 0 108.691 0.628788 111.176 1.88636C113.676 3.12879 115.578 4.89394 116.881 7.18182C118.199 9.45455 118.858 12.1288 118.858 15.2045C118.858 18.2955 118.191 20.9545 116.858 23.1818C115.525 25.3939 113.593 27.0909 111.062 28.2727C108.547 29.4545 105.502 30.0455 101.926 30.0455H89.6307V22.1364H100.335C102.214 22.1364 103.775 21.8788 105.017 21.3636C106.259 20.8485 107.184 20.0758 107.79 19.0455C108.411 18.0152 108.722 16.7348 108.722 15.2045C108.722 13.6591 108.411 12.3561 107.79 11.2955C107.184 10.2348 106.252 9.43182 104.994 8.88636C103.752 8.32576 102.184 8.04546 100.29 8.04546H93.6534V46.5455H83.8125ZM108.949 25.3636L120.517 46.5455H109.653L98.3352 25.3636H108.949Z" fill="url(#logoGradient)" />
+            <path d="M125.812 46.5455V0H135.653V20.5227H136.267L153.017 0H164.812L147.54 20.8409L165.017 46.5455H153.244L140.494 27.4091L135.653 33.3182V46.5455H125.812Z" fill="url(#logoGradient)" />
+          </g>
+        </svg>
+      </div>
+
+      <div class="social-links">
+        <a
+          href="/okr-reviewer"
+          class="social-link"
+          aria-label="Prøv OKR Reviewer"
+        >
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+          </svg>
+        </a>
+        <a
+          href={EXTERNAL_LINKS.email}
+          class="social-link"
+          aria-label="Send e-post til hei@fyrk.no"
+        >
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 4H4C2.9 4 2.01 4.9 2.01 6L2 18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4ZM20 8L12 13L4 8V6L12 11L20 6V8Z"/>
+          </svg>
+        </a>
+        <a
+          href={EXTERNAL_LINKS.linkedin}
+          class="social-link"
+          aria-label="Besøk FYRK på LinkedIn"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 3A2 2 0 0 1 21 5V19A2 2 0 0 1 19 21H5A2 2 0 0 1 3 19V5A2 2 0 0 1 5 3H19M18.5 18.5V13.2A3.26 3.26 0 0 0 15.24 9.94C14.39 9.94 13.4 10.46 12.92 11.24V10.13H10.13V18.5H12.92V13.57C12.92 12.8 13.54 12.17 14.31 12.17A1.4 1.4 0 0 1 15.71 13.57V18.5H18.5M6.88 8.56A1.68 1.68 0 0 0 8.56 6.88C8.56 5.95 7.81 5.19 6.88 5.19A1.69 1.69 0 0 0 5.19 6.88C5.19 7.81 5.95 8.56 6.88 8.56M8.27 18.5V10.13H5.5V18.5H8.27Z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <script>
+      import { initNeuralCanvas } from '../scripts/neural-canvas';
+      initNeuralCanvas('neural-canvas');
+    </script>
+  </body>
+</html>
