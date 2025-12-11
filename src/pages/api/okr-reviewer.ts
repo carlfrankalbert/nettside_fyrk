@@ -1,6 +1,8 @@
 import type { APIRoute } from 'astro';
 import Anthropic from '@anthropic-ai/sdk';
 
+export const prerender = false;
+
 const SYSTEM_PROMPT = `Du er OKR Reviewer for FYRK – en rolig, strukturert og svært kompetent produktleder.
 Oppgaven din er å evaluere OKR-er med klarhet, presisjon og en jordnær skandinavisk tone.
 
