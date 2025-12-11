@@ -90,17 +90,32 @@ Se [docs/development/TESTING.md](./docs/development/TESTING.md) for mer informas
 
 ## 🚢 Deployment
 
-Nettsiden er konfigurert for deployment på GitHub Pages med custom domain (fyrk.no).
+Nettsiden er deployet på **Cloudflare Pages** med custom domain (fyrk.no).
+
+### Cloudflare Pages
+- **URL:** https://fyrk.no
+- **Platform:** Cloudflare Pages med Astro SSR-støtte
+- **Adapter:** `@astrojs/cloudflare`
+- **Auto-deploy:** Pushes til `main` branch deployes automatisk
+
+### Miljøvariabler (Cloudflare Pages)
+Følgende miljøvariabler må settes i Cloudflare Pages Settings:
+- `ANTHROPIC_API_KEY` - API-nøkkel for Claude (OKR Reviewer)
+
+### Tidligere GitHub Pages deployment
+GitHub Pages deployment er fortsatt konfigurert, men fungerer kun for statiske sider (ikke OKR Reviewer).
 
 Se [docs/deployment/](./docs/deployment/) for detaljerte instruksjoner.
 
 ## 🛠️ Teknologi
 
-- **Astro** - Static site generator
+- **Astro** - Static site generator med SSR-støtte
+- **Cloudflare Pages** - Hosting og deployment
 - **Tailwind CSS** - Utility-first CSS framework
+- **React** - UI komponenter (OKR Reviewer)
 - **Playwright** - End-to-end testing
 - **TypeScript** - Type safety
-- **GitHub Actions** - CI/CD
+- **GitHub** - Versjonskontroll og CI/CD
 
 ## 📄 Lisens
 

@@ -4,3 +4,9 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), microphone=(), camera=()
 
+# API endpoints can have CORS if needed
+/api/*
+  Access-Control-Allow-Origin: https://fyrk.no
+  Access-Control-Allow-Methods: POST, OPTIONS
+  Access-Control-Allow-Headers: Content-Type
+
