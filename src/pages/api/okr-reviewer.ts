@@ -48,7 +48,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const apiKey = import.meta.env.ANTHROPIC_API_KEY;
-    const model = import.meta.env.CLAUDE_MODEL ?? 'claude-sonnet-4-5';
+    const model = import.meta.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-5-20250929';
 
     console.log('API Key present:', !!apiKey);
     console.log('Model:', model);

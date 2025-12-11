@@ -2,7 +2,7 @@
 
 interface ImportMetaEnv {
   readonly ANTHROPIC_API_KEY: string;
-  readonly CLAUDE_MODEL?: string;
+  readonly ANTHROPIC_MODEL?: string;
 }
 
 interface ImportMeta {
