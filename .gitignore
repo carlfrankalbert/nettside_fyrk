@@ -2,6 +2,9 @@
 dist/
 .output/
 
+# astro generated files
+.astro/integrations/
+
 # dependencies
 node_modules/
 
