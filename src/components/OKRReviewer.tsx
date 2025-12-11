@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { reviewOKR } from '../services/okr-service';
+import { useState, useRef } from 'react';
+import { reviewOKRStreaming } from '../services/okr-service';
 
 const PLACEHOLDER = `Objective:
 Øke bruken av mobilbanken blant småbedrifter i Norge.
@@ -14,6 +14,8 @@ export default function OKRReviewer() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<string | null>(null);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const handleSubmit = async () => {
     if (!input.trim()) {
@@ -21,19 +23,36 @@ export default function OKRReviewer() {
       return;
     }
 
+    // Prevent duplicate submissions
+    if (loading) return;
+
     setLoading(true);
+    setIsStreaming(true);
     setError(null);
-    setResult(null);
+    setResult('');
 
-    const response = await reviewOKR(input.trim());
+    // Create abort controller for cancellation
+    abortControllerRef.current = new AbortController();
 
-    if (response.success) {
-      setResult(response.output);
-    } else {
-      setError(response.error);
-    }
-
-    setLoading(false);
+    await reviewOKRStreaming(
+      input.trim(),
+      (chunk) => {
+        // Append streaming chunk
+        setResult((prev) => (prev || '') + chunk);
+      },
+      () => {
+        // Streaming complete
+        setLoading(false);
+        setIsStreaming(false);
+      },
+      (errorMsg) => {
+        // Error occurred
+        setError(errorMsg);
+        setLoading(false);
+        setIsStreaming(false);
+        setResult(null);
+      }
+    );
   };
 
   return (
@@ -62,7 +81,17 @@ export default function OKRReviewer() {
           disabled={loading}
           className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-none focus:ring-2 focus:ring-brand-cyan focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
         >
-          {loading ? 'Vurderer...' : 'Analyser OKR'}
+          {loading ? (
+            <>
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Vurderer...
+            </>
+          ) : (
+            'Analyser OKR'
+          )}
         </button>
 
         {error && (
@@ -70,10 +99,13 @@ export default function OKRReviewer() {
         )}
       </div>
 
-      {result && (
+      {(result || isStreaming) && (
         <div className="mt-8 p-6 bg-white border border-neutral-200 rounded-lg">
           <div className="text-neutral-700 leading-relaxed whitespace-pre-wrap">
             {result}
+            {isStreaming && !result && (
+              <span className="inline-block w-2 h-4 ml-1 bg-brand-cyan animate-pulse"></span>
+            )}
           </div>
         </div>
       )}
