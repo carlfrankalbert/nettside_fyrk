@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { reviewOKRStreaming } from '../services/okr-service';
 
 const PLACEHOLDER = `Objective:
@@ -16,6 +16,14 @@ export default function OKRReviewer() {
   const [result, setResult] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const resultRef = useRef<HTMLDivElement | null>(null);
+
+  // Auto-scroll to result when streaming starts
+  useEffect(() => {
+    if (isStreaming && resultRef.current) {
+      resultRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [isStreaming]);
 
   const handleSubmit = async () => {
     if (!input.trim()) {
@@ -75,32 +83,41 @@ export default function OKRReviewer() {
         />
       </div>
 
-      <div className="flex items-center gap-4">
-        <button
-          onClick={handleSubmit}
-          disabled={loading}
-          className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-none focus:ring-2 focus:ring-brand-cyan focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-        >
-          {loading ? (
-            <>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Vurderer...
-            </>
-          ) : (
-            'Ta OKR-sjekken'
-          )}
-        </button>
+      <div className="space-y-3">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-none focus:ring-2 focus:ring-brand-cyan focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+          >
+            {loading ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Vurderer...
+              </>
+            ) : (
+              'Ta OKR-sjekken'
+            )}
+          </button>
 
-        {error && (
-          <p className="text-feedback-error text-sm">{error}</p>
-        )}
+          {error && (
+            <p className="text-feedback-error text-sm">{error}</p>
+          )}
+        </div>
+        <p className="text-xs text-neutral-400">Ingen lagring · Ingen pålogging</p>
       </div>
 
       {(result || isStreaming) && (
-        <div className="mt-8 p-6 bg-white border border-neutral-200 rounded-lg">
+        <div
+          ref={resultRef}
+          className="mt-8 p-6 bg-neutral-50 border border-neutral-200 rounded-lg shadow-sm"
+        >
+          <h3 className="text-sm font-semibold text-brand-navy mb-4 uppercase tracking-wide">
+            Vurdering
+          </h3>
           <div className="text-neutral-700 leading-relaxed whitespace-pre-wrap">
             {result}
             {isStreaming && !result && (
