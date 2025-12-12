@@ -77,7 +77,7 @@ export default function OKRReviewer() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Lim inn Objective og tilhørende Key Results her."
-          rows={8}
+          rows={6}
           className="w-full px-4 py-3 text-base text-neutral-700 bg-white border border-neutral-200 rounded-lg resize-y focus:outline-none focus:ring-2 focus:ring-brand-cyan focus:border-brand-cyan placeholder:text-neutral-400 disabled:opacity-60 disabled:cursor-not-allowed"
           disabled={loading}
         />
@@ -127,13 +127,13 @@ export default function OKRReviewer() {
             <p className="text-feedback-error text-sm">{error}</p>
           )}
         </div>
-        <p className="text-xs text-neutral-400">Ingen lagring · Ingen pålogging</p>
+        <p className="text-xs text-neutral-500">Ingen lagring · Ingen pålogging</p>
       </div>
 
       {(result || isStreaming) && (
         <div
           ref={resultRef}
-          className="mt-8 p-6 bg-neutral-50 border border-neutral-200 rounded-lg shadow-sm"
+          className="mt-8 p-6 bg-white border border-neutral-200 rounded-lg shadow-sm"
         >
           <h3 className="text-sm font-semibold text-brand-navy mb-4 uppercase tracking-wide">
             Vurdering
