@@ -1,0 +1,138 @@
+---
+import MinimalLayout from '../layouts/MinimalLayout.astro';
+import OKRReviewer from '../components/OKRReviewer';
+
+export const prerender = false;
+---
+
+<MinimalLayout
+  title="OKR-sjekken | FYRK"
+  description="Lim inn OKR-settet ditt og få en strukturert kvalitetsvurdering på under ett minutt. Ment som støtte til refleksjon."
+>
+  <main class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
+    <div class="flex-1 max-w-2xl mx-auto px-6 py-12 md:py-16 w-full">
+
+      <!-- Hero: Above fold -->
+      <header class="mb-8">
+        <h1 class="text-h2 font-semibold text-brand-navy mb-3 leading-tight">
+          Holder OKR-ene dine faktisk mål?
+        </h1>
+        <p class="text-lg text-neutral-600 leading-relaxed">
+          Lim inn OKR-settet ditt og få en strukturert kvalitetsvurdering på under ett minutt.
+        </p>
+        <p class="text-base text-neutral-500 italic mt-1">
+          Ment som støtte til refleksjon – ikke som fasit.
+        </p>
+      </header>
+
+      <!-- Input + CTA -->
+      <section class="mb-10">
+        <OKRReviewer client:load />
+      </section>
+
+      <!-- Dette får du: Compact, right after CTA -->
+      <section class="mb-12 py-6 px-5 bg-white border border-neutral-200 rounded-lg">
+        <p class="text-sm font-medium text-neutral-600 mb-3">På under ett minutt får du:</p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm text-neutral-600">
+          <div class="flex items-start gap-2">
+            <span class="text-brand-cyan font-bold">✓</span>
+            <span>Samlet vurdering av OKR-kvalitet</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-brand-cyan font-bold">✓</span>
+            <span>Hva som fungerer og bør forbedres</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-brand-cyan font-bold">✓</span>
+            <span>Forslag til mer outcome-baserte OKR-er</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Eksempel på vurdering -->
+      <section class="mb-12">
+        <h2 class="text-lg font-semibold text-brand-navy mb-3">Eksempel på vurdering</h2>
+        <p class="text-neutral-600 mb-4 text-sm">Utdrag fra en typisk OKR-vurdering:</p>
+        <div class="p-5 bg-neutral-100 border border-neutral-200 rounded-lg text-neutral-700 text-sm space-y-2">
+          <p>– Objective er retningsgivende, men mangler målbart utfall.</p>
+          <p>– KR1 og KR2 er aktiviteter, ikke resultater.</p>
+          <p>– KR3 er målbart, men "5 poeng" kan være for lite ambisiøst.</p>
+          <p class="font-medium">– Forslag: Reformuler til "Øke andelen brukere som fullfører onboarding fra 45 % til 70 %."</p>
+        </div>
+      </section>
+
+      <!-- Når er dette nyttig -->
+      <section class="mb-12">
+        <h2 class="text-lg font-semibold text-brand-navy mb-3">Når er OKR-sjekken nyttig?</h2>
+        <ul class="text-neutral-600 space-y-2 text-sm">
+          <li class="flex items-start gap-2">
+            <span class="text-neutral-400">•</span>
+            <span>Dere står foran en ny OKR-periode og vil ha en rask kvalitetskontroll</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-neutral-400">•</span>
+            <span>OKR-ene har begynt å ligne mer på en oppgaveliste enn et målbilde</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-neutral-400">•</span>
+            <span>Teamet er uenig om hva som egentlig er målet</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-neutral-400">•</span>
+            <span>Du trenger et nøytralt utgangspunkt for en bedre diskusjon</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Om AI og personvern: Progressive disclosure -->
+      <section class="mb-12">
+        <details class="group">
+          <summary class="flex items-center gap-2 cursor-pointer text-sm text-neutral-600 hover:text-neutral-700">
+            <span>OKR-ene du legger inn brukes kun til å generere vurderingen.</span>
+            <span class="text-brand-navy underline underline-offset-2">Les mer om AI og personvern</span>
+            <svg class="w-4 h-4 text-neutral-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </summary>
+          <div class="mt-4 p-4 bg-neutral-100 rounded-lg text-sm text-neutral-600 space-y-3">
+            <p>
+              OKR-sjekken bruker AI til å analysere teksten du legger inn, basert på en fast struktur
+              og vurderingskriterier definert av FYRK.
+            </p>
+            <p>
+              AI-en brukes som et analyseverktøy for å peke på mønstre, uklarheter og forbedringsmuligheter.
+              Vurderingen er ment som et utgangspunkt for refleksjon og videre samtale – ikke som en
+              objektiv sannhet eller erstatning for menneskelig vurdering.
+            </p>
+            <p>
+              Data lagres ikke og brukes ikke til videre analyse eller trening av modeller.
+            </p>
+          </div>
+        </details>
+      </section>
+
+      <!-- Menneskelig oppfølging -->
+      <section class="pt-8 border-t border-neutral-200">
+        <h2 class="text-lg font-semibold text-brand-navy mb-3">Ønsker du et menneskelig blikk i tillegg?</h2>
+        <p class="text-neutral-600 text-sm mb-4">
+          OKR-sjekken er ment som et første steg. Hvis du vil diskutere OKR-ene dine videre,
+          eller jobbe mer systematisk med prioritering og produktledelse, er du velkommen til å
+          <a href="mailto:carl@fyrk.no" class="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2">
+            ta kontakt med FYRK.
+          </a>
+        </p>
+        <p class="text-xs text-neutral-400">
+          OKR-sjekken er et lite verktøy laget av FYRK som et eksperiment og supplement til rådgivning og sparring.
+        </p>
+      </section>
+    </div>
+
+    <footer class="py-6 border-t border-neutral-200 text-center text-sm text-neutral-500">
+      <p>
+        Laget av
+        <a href="https://fyrk.no" class="text-brand-navy hover:text-brand-cyan-darker">FYRK</a>
+        · Drevet av Claude Sonnet
+      </p>
+    </footer>
+  </main>
+</MinimalLayout>
