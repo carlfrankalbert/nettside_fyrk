@@ -74,11 +74,11 @@ import { EXTERNAL_LINKS } from '../utils/links';
             </g>
           </svg>
 
-          <h1 class="text-h1 md:text-display font-semibold text-brand-navy mb-6 leading-tight">
+          <h1 class="text-h1 md:text-display font-semibold text-brand-navy mb-4 leading-tight">
             Produktledelse når hverdagen er kompleks
           </h1>
 
-          <p class="text-lg md:text-xl text-neutral-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p class="text-lg md:text-xl text-neutral-600 mb-8 max-w-2xl mx-auto leading-relaxed">
             Fokuset er å gjøre strategi til handling, og faktisk få ting gjort.
             Målet er å skape en arbeidsform som tåler endringer uten å miste fart.
           </p>
@@ -98,8 +98,13 @@ import { EXTERNAL_LINKS } from '../utils/links';
       </section>
 
       <!-- Om FYRK Section -->
-      <section id="om" class="py-20 md:py-28 px-6 bg-white">
-        <div class="max-w-4xl mx-auto">
+      <section id="om" class="py-20 md:py-28 px-6 bg-white relative overflow-hidden">
+        <!-- Subtle diagonal FYRK signature element -->
+        <div class="absolute inset-0 pointer-events-none">
+          <div class="absolute -right-1/4 top-1/4 w-[800px] h-[400px] bg-gradient-to-br from-brand-navy/[0.04] to-transparent rotate-[-25deg] rounded-[100px]"></div>
+        </div>
+
+        <div class="max-w-4xl mx-auto relative z-10">
           <h2 class="text-h2 font-semibold text-brand-navy mb-8 text-center">
             Om FYRK
           </h2>
@@ -120,40 +125,41 @@ import { EXTERNAL_LINKS } from '../utils/links';
 
           <div class="grid md:grid-cols-3 gap-6">
             <!-- Produktstrategi -->
-            <div class="bg-white rounded-xl p-8 text-center shadow-md border border-neutral-100 hover:shadow-lg hover:border-brand-navy/10 transition-all duration-300">
+            <div class="bg-white rounded-xl py-10 px-8 text-center shadow-md border border-neutral-100 hover:shadow-lg hover:border-brand-navy/10 hover:-translate-y-1 transition-all duration-200">
               <div class="w-14 h-14 bg-brand-navy rounded-xl flex items-center justify-center mx-auto mb-5">
                 <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                 </svg>
               </div>
               <h4 class="text-h5 font-semibold text-brand-navy mb-3">Produktstrategi</h4>
-              <p class="text-neutral-600">
+              <p class="text-neutral-600 mb-0">
                 Prioritering som sikrer at det som bygges gir verdi.
               </p>
             </div>
 
             <!-- Prosessledelse -->
-            <div class="bg-white rounded-xl p-8 text-center shadow-md border border-neutral-100 hover:shadow-lg hover:border-brand-navy/10 transition-all duration-300">
+            <div class="bg-white rounded-xl py-10 px-8 text-center shadow-md border border-neutral-100 hover:shadow-lg hover:border-brand-navy/10 hover:-translate-y-1 transition-all duration-200">
               <div class="w-14 h-14 bg-brand-navy rounded-xl flex items-center justify-center mx-auto mb-5">
+                <!-- Layers icon - represents structured workflow -->
                 <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                 </svg>
               </div>
               <h4 class="text-h5 font-semibold text-brand-navy mb-3">Prosessledelse</h4>
-              <p class="text-neutral-600">
+              <p class="text-neutral-600 mb-0">
                 Smidige arbeidsformer som gir flyt, ikke bare seremonier.
               </p>
             </div>
 
             <!-- Kvalitetsledelse -->
-            <div class="bg-white rounded-xl p-8 text-center shadow-md border border-neutral-100 hover:shadow-lg hover:border-brand-navy/10 transition-all duration-300">
+            <div class="bg-white rounded-xl py-10 px-8 text-center shadow-md border border-neutral-100 hover:shadow-lg hover:border-brand-navy/10 hover:-translate-y-1 transition-all duration-200">
               <div class="w-14 h-14 bg-brand-navy rounded-xl flex items-center justify-center mx-auto mb-5">
                 <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
               </div>
               <h4 class="text-h5 font-semibold text-brand-navy mb-3">Kvalitetsledelse</h4>
-              <p class="text-neutral-600">
+              <p class="text-neutral-600 mb-0">
                 Et helhetlig kvalitetsfokus der QA starter i idéfasen.
               </p>
             </div>
@@ -196,10 +202,10 @@ import { EXTERNAL_LINKS } from '../utils/links';
               </div>
             </div>
 
-            <!-- Placeholder for future tools -->
-            <div class="bg-white/10 rounded-xl p-8 md:p-10 border border-dashed border-white/30 text-center">
-              <p class="text-white/60">
-                Flere verktøy kommer snart...
+            <!-- FYRK Labs preview -->
+            <div class="bg-white/10 rounded-xl p-8 md:p-10 border border-white/20 text-center">
+              <p class="text-white/80 font-medium mb-0">
+                FYRK Labs: Flere AI-verktøy lanseres i 2025 – følg med.
               </p>
             </div>
           </div>
@@ -207,13 +213,18 @@ import { EXTERNAL_LINKS } from '../utils/links';
       </section>
 
       <!-- Kontakt Section -->
-      <section id="kontakt" class="py-20 md:py-28 px-6 bg-white">
-        <div class="max-w-2xl mx-auto text-center">
+      <section id="kontakt" class="py-20 md:py-28 px-6 relative overflow-hidden bg-gradient-to-b from-neutral-50/50 to-white">
+        <!-- Subtle diagonal FYRK signature element -->
+        <div class="absolute inset-0 pointer-events-none">
+          <div class="absolute -left-1/4 bottom-0 w-[600px] h-[300px] bg-gradient-to-tr from-brand-navy/[0.03] to-transparent rotate-[-25deg] rounded-[100px]"></div>
+        </div>
+
+        <div class="max-w-2xl mx-auto text-center relative z-10">
           <h2 class="text-h2 font-semibold text-brand-navy mb-4">
             Kontakt
           </h2>
-          <p class="text-lg text-neutral-500 mb-10">
-            Trenger du hjelp med produktledelse, OKR, eller hvordan du kan jobbe smartere med AI? Ta kontakt for en uforpliktende prat.
+          <p class="text-lg text-neutral-600 mb-10">
+            Trenger du hjelp med produktledelse, OKR eller AI-strategi? Det starter ofte med en uformell prat.
           </p>
 
           <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -248,18 +259,28 @@ import { EXTERNAL_LINKS } from '../utils/links';
     </main>
 
     <!-- Footer -->
-    <footer class="py-8 px-6 border-t border-neutral-200 bg-neutral-50">
-      <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-neutral-500">
-        <svg width="60" height="18" viewBox="0 0 166 47" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M30.8184 8.11475H9.84082V19.2056H28.7725V27.3188H9.84082V46.5464H0V15.5005L15.499 0.00146484H30.8184V8.11475ZM0 11.2583V0.00146484H11.2568L0 11.2583Z" fill="#717182" />
-          <path d="M34.71 0H45.7327L56.3463 20.0455H56.8009L67.4145 0H78.4372L61.46 30.0909V46.5455H51.6872V30.0909L34.71 0Z" fill="#717182" />
-          <path d="M83.8125 46.5455V0H102.176C105.691 0 108.691 0.628788 111.176 1.88636C113.676 3.12879 115.578 4.89394 116.881 7.18182C118.199 9.45455 118.858 12.1288 118.858 15.2045C118.858 18.2955 118.191 20.9545 116.858 23.1818C115.525 25.3939 113.593 27.0909 111.062 28.2727C108.547 29.4545 105.502 30.0455 101.926 30.0455H89.6307V22.1364H100.335C102.214 22.1364 103.775 21.8788 105.017 21.3636C106.259 20.8485 107.184 20.0758 107.79 19.0455C108.411 18.0152 108.722 16.7348 108.722 15.2045C108.722 13.6591 108.411 12.3561 107.79 11.2955C107.184 10.2348 106.252 9.43182 104.994 8.88636C103.752 8.32576 102.184 8.04546 100.29 8.04546H93.6534V46.5455H83.8125ZM108.949 25.3636L120.517 46.5455H109.653L98.3352 25.3636H108.949Z" fill="#717182" />
-          <path d="M125.812 46.5455V0H135.653V20.5227H136.267L153.017 0H164.812L147.54 20.8409L165.017 46.5455H153.244L140.494 27.4091L135.653 33.3182V46.5455H125.812Z" fill="#717182" />
-        </svg>
+    <footer class="py-10 px-6 border-t border-neutral-200 bg-neutral-50 relative overflow-hidden">
+      <!-- Subtle diagonal FYRK signature element -->
+      <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute -right-1/4 -bottom-1/2 w-[500px] h-[250px] bg-gradient-to-tl from-brand-navy/[0.04] to-transparent rotate-[-25deg] rounded-[80px]"></div>
+      </div>
 
-        <div class="flex items-center gap-6">
-          <a href={EXTERNAL_LINKS.email} class="hover:text-brand-navy transition-colors no-underline">Kontakt</a>
-          <a href={EXTERNAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer" class="hover:text-brand-navy transition-colors no-underline">LinkedIn</a>
+      <div class="max-w-6xl mx-auto relative z-10">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-neutral-500">
+          <div class="flex flex-col items-center md:items-start gap-2">
+            <svg width="60" height="18" viewBox="0 0 166 47" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M30.8184 8.11475H9.84082V19.2056H28.7725V27.3188H9.84082V46.5464H0V15.5005L15.499 0.00146484H30.8184V8.11475ZM0 11.2583V0.00146484H11.2568L0 11.2583Z" fill="#717182" />
+              <path d="M34.71 0H45.7327L56.3463 20.0455H56.8009L67.4145 0H78.4372L61.46 30.0909V46.5455H51.6872V30.0909L34.71 0Z" fill="#717182" />
+              <path d="M83.8125 46.5455V0H102.176C105.691 0 108.691 0.628788 111.176 1.88636C113.676 3.12879 115.578 4.89394 116.881 7.18182C118.199 9.45455 118.858 12.1288 118.858 15.2045C118.858 18.2955 118.191 20.9545 116.858 23.1818C115.525 25.3939 113.593 27.0909 111.062 28.2727C108.547 29.4545 105.502 30.0455 101.926 30.0455H89.6307V22.1364H100.335C102.214 22.1364 103.775 21.8788 105.017 21.3636C106.259 20.8485 107.184 20.0758 107.79 19.0455C108.411 18.0152 108.722 16.7348 108.722 15.2045C108.722 13.6591 108.411 12.3561 107.79 11.2955C107.184 10.2348 106.252 9.43182 104.994 8.88636C103.752 8.32576 102.184 8.04546 100.29 8.04546H93.6534V46.5455H83.8125ZM108.949 25.3636L120.517 46.5455H109.653L98.3352 25.3636H108.949Z" fill="#717182" />
+              <path d="M125.812 46.5455V0H135.653V20.5227H136.267L153.017 0H164.812L147.54 20.8409L165.017 46.5455H153.244L140.494 27.4091L135.653 33.3182V46.5455H125.812Z" fill="#717182" />
+            </svg>
+            <span class="text-xs text-neutral-400">Strategi. Prioritering. Resultater.</span>
+          </div>
+
+          <div class="flex items-center gap-6">
+            <a href={EXTERNAL_LINKS.email} class="hover:text-brand-navy transition-colors no-underline">Kontakt</a>
+            <a href={EXTERNAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer" class="hover:text-brand-navy transition-colors no-underline">LinkedIn</a>
+          </div>
         </div>
       </div>
     </footer>
