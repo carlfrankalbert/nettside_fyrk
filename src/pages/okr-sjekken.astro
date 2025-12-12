@@ -7,29 +7,21 @@ export const prerender = false;
 
 <MinimalLayout
   title="OKR-sjekken | FYRK"
-  description="Få en rask og strukturert vurdering av kvaliteten i OKR-ene deres. Ingen workshop, ingen presentasjoner - bare en enkel sjekk."
+  description="En rask, strukturert vurdering av OKR-settet ditt – ment som støtte og refleksjon, ikke som fasit."
 >
   <main class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
     <div class="flex-1 max-w-2xl mx-auto px-6 py-16 md:py-24 w-full">
-      <h1 class="text-h2 font-semibold text-brand-navy mb-6 leading-tight">
-        OKR-sjekken - når du trenger klarhet, raskt
+      <h1 class="text-h2 font-semibold text-brand-navy mb-4 leading-tight">
+        Sjekk kvaliteten på OKR-ene dine
       </h1>
 
-      <div class="text-lg text-neutral-500 space-y-4 mb-12 leading-relaxed">
-        <p>
-          Mange team jobber med OKR, men ender likevel opp med mål som blir oppgavelister,
-          Key Results som er vanskelige å måle, eller mål som ikke helt henger sammen med
-          problemet man prøver å løse.
-        </p>
-        <p>
-          OKR-sjekken gir deg en rask og strukturert vurdering av kvaliteten i OKR-ene deres.
-          Du får et ærlig blikk på hva som fungerer, hva som skurrer - og et konkret forslag
-          til hvordan målbildet kan bli tydeligere.
-        </p>
-        <p class="font-medium text-neutral-600">
-          Ingen workshop. Ingen presentasjoner. Bare en enkel sjekk.
-        </p>
-      </div>
+      <p class="text-lg text-neutral-500 mb-4 leading-relaxed">
+        En rask, strukturert vurdering av OKR-settet ditt – ment som støtte og refleksjon, ikke som fasit.
+      </p>
+
+      <p class="text-sm text-neutral-400 mb-12">
+        OKR-sjekken er et lite verktøy laget av FYRK som et eksperiment og et supplement til rådgivning og sparring.
+      </p>
 
       <section class="mb-16">
         <h2 class="text-xl font-semibold text-brand-navy mb-4">Ta OKR-sjekken</h2>
@@ -37,56 +29,67 @@ export const prerender = false;
         <OKRReviewer client:load />
       </section>
 
-      <section class="mb-16 pt-4">
+      <section class="mb-16">
         <h2 class="text-xl font-semibold text-brand-navy mb-4">Dette får du</h2>
         <p class="text-neutral-500 mb-4">På under ett minutt får du:</p>
         <ul class="list-disc list-inside text-neutral-500 space-y-2 ml-2">
           <li>En samlet vurdering av kvaliteten på OKR-settet</li>
           <li>Hva som fungerer godt og bør beholdes</li>
-          <li>Hva som er uklart, lite målbart eller i praksis blir aktiviteter</li>
+          <li>Hva som er uklart, lite målbart eller for aktivitetsorientert</li>
           <li>Tre konkrete forbedringsforslag</li>
           <li>Et forslag til hvordan OKR-ene kan formuleres tydeligere og mer outcome-basert</li>
         </ul>
-        <p class="text-neutral-500 mt-4 italic">
-          Resultatet er ment som støtte og refleksjon - ikke som en fasit.
+        <p class="text-neutral-400 mt-4 text-sm">
+          Resultatet er ment som støtte og refleksjon – ikke som en endelig vurdering.
         </p>
+      </section>
+
+      <section class="mb-16">
+        <h2 class="text-xl font-semibold text-brand-navy mb-4">Eksempel på vurdering</h2>
+        <p class="text-neutral-500 mb-4">Slik kan en del av vurderingen se ut:</p>
+        <div class="p-5 bg-neutral-100 border border-neutral-200 rounded-lg text-neutral-600 text-sm space-y-2">
+          <p>– Objective er relevant, men bredt formulert og kan tolkes på flere måter.</p>
+          <p>– Key Result 2 måler aktivitet og effektivitet, men ikke direkte effekt for brukeren.</p>
+          <p>– Vurder å knytte ett Key Result tydeligere til ønsket brukeradferd.</p>
+          <p>– Forslag: Presiser hvilken endring i bruksmønster som definerer suksess.</p>
+        </div>
       </section>
 
       <section class="mb-16">
         <h2 class="text-xl font-semibold text-brand-navy mb-4">Når er OKR-sjekken nyttig?</h2>
         <p class="text-neutral-500 mb-4">OKR-sjekken er særlig nyttig når:</p>
         <ul class="list-disc list-inside text-neutral-500 space-y-2 ml-2">
-          <li>Dere går inn i en ny OKR-periode og vil gjøre en rask kvalitetssjekk</li>
+          <li>Dere står foran en ny OKR-periode og vil ha en rask kvalitetskontroll</li>
           <li>OKR-ene har begynt å ligne mer på en oppgaveliste enn et målbilde</li>
           <li>Teamet er uenig om hva som egentlig er målet</li>
-          <li>Du trenger et nøytralt utgangspunkt for en bedre samtale</li>
+          <li>Du trenger et nøytralt utgangspunkt for en bedre diskusjon</li>
         </ul>
       </section>
 
       <section class="mb-16">
-        <h2 class="text-xl font-semibold text-brand-navy mb-4">Om vurderingen og bruk av data</h2>
-        <p class="text-neutral-500 mb-4">
-          OKR-sjekken gir en automatisk og strukturert vurdering basert på FYRKs metode for gode OKR.
-          Resultatet er ment som et utgangspunkt for videre diskusjon og forbedring - ikke som en fasit.
-        </p>
-        <p class="text-neutral-500">
-          OKR-ene du legger inn brukes kun til å generere vurderingen du ser på skjermen.
-          De lagres ikke, deles ikke videre og brukes ikke til analyse eller trening av modeller.
-        </p>
+        <h2 class="text-xl font-semibold text-brand-navy mb-4">Om vurderingen og bruk av AI</h2>
+        <div class="text-neutral-500 space-y-4">
+          <p>
+            OKR-sjekken bruker AI til å analysere teksten du legger inn, basert på en fast struktur
+            og vurderingskriterier definert av FYRK.
+          </p>
+          <p>
+            AI-en brukes som et analyseverktøy for å peke på mønstre, uklarheter og forbedringsmuligheter.
+            Vurderingen er ment som et utgangspunkt for refleksjon og videre samtale – ikke som en
+            objektiv sannhet eller erstatning for menneskelig vurdering.
+          </p>
+          <p>
+            OKR-ene du legger inn brukes kun til å generere vurderingen du ser på skjermen.
+            De lagres ikke og brukes ikke til videre analyse eller trening av modeller.
+          </p>
+        </div>
       </section>
 
       <div class="pt-8 border-t border-neutral-200">
-        <h2 class="text-xl font-semibold text-brand-navy mb-4">Vil du ha et menneskelig blikk i tillegg?</h2>
+        <h2 class="text-xl font-semibold text-brand-navy mb-4">Ønsker du et menneskelig blikk i tillegg?</h2>
         <p class="text-neutral-500 mb-4">
-          OKR-sjekken er et lite verktøy laget av FYRK.
-        </p>
-        <p class="text-neutral-500 mb-4">
-          Jeg jobber som innleid produktleder der kompleksiteten er høy og behovet for tydelige
-          prioriteringer er stort. Ofte starter forbedringen nettopp med å rydde i målbildet
-          og gjøre det tydelig nok til at team faktisk kan levere på det.
-        </p>
-        <p class="text-neutral-500">
-          Vil du ha en gjennomgang av OKR-ene deres med et menneske i andre enden også, er du velkommen til å
+          OKR-sjekken er ment som et første steg. Hvis du vil diskutere OKR-ene dine videre,
+          eller jobbe mer systematisk med prioritering og produktledelse, er du velkommen til å
           <a href="mailto:carl@fyrk.no" class="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2">
             ta kontakt med FYRK.
           </a>
@@ -100,8 +103,8 @@ export const prerender = false;
         <a href="https://fyrk.no" class="text-brand-navy hover:text-brand-cyan-darker">
           FYRK
         </a>
-        · Drevet av Claude Sonnet
       </p>
+      <p class="mt-1">Drevet av Claude Sonnet</p>
     </footer>
   </main>
 </MinimalLayout>
