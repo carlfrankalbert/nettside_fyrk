@@ -90,7 +90,7 @@ export default function OKRReviewer() {
               Vurderer...
             </>
           ) : (
-            'Analyser OKR'
+            'Ta OKR-sjekken'
           )}
         </button>
 

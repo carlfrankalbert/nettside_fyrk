@@ -1,0 +1,107 @@
+---
+import MinimalLayout from '../layouts/MinimalLayout.astro';
+import OKRReviewer from '../components/OKRReviewer';
+
+export const prerender = false;
+---
+
+<MinimalLayout
+  title="OKR-sjekken | FYRK"
+  description="Få en rask og strukturert vurdering av kvaliteten i OKR-ene deres. Ingen workshop, ingen presentasjoner - bare en enkel sjekk."
+>
+  <main class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
+    <div class="flex-1 max-w-2xl mx-auto px-6 py-16 md:py-24 w-full">
+      <h1 class="text-h2 font-semibold text-brand-navy mb-6 leading-tight">
+        OKR-sjekken - når du trenger klarhet, raskt
+      </h1>
+
+      <div class="text-lg text-neutral-500 space-y-4 mb-12 leading-relaxed">
+        <p>
+          Mange team jobber med OKR, men ender likevel opp med mål som i praksis blir oppgavelister,
+          Key Results som er vanskelige å måle, eller mål som ikke helt henger sammen med det
+          problemet man prøver å løse.
+        </p>
+        <p>
+          OKR-sjekken gir deg en rask og strukturert vurdering av kvaliteten i OKR-ene deres.
+          Du får et ærlig blikk på hva som fungerer, hva som skurrer - og et konkret forslag
+          til hvordan målbildet kan bli tydeligere.
+        </p>
+        <p class="font-medium text-neutral-600">
+          Ingen workshop. Ingen presentasjoner. Bare en enkel sjekk.
+        </p>
+      </div>
+
+      <section class="mb-16">
+        <h2 class="text-xl font-semibold text-brand-navy mb-4">Ta OKR-sjekken</h2>
+        <p class="text-neutral-500 mb-6">Lim inn ett Objective med tilhørende Key Results.</p>
+        <OKRReviewer client:load />
+      </section>
+
+      <section class="mb-16">
+        <h2 class="text-xl font-semibold text-brand-navy mb-4">Dette får du</h2>
+        <p class="text-neutral-500 mb-4">På under ett minutt får du:</p>
+        <ul class="list-disc list-inside text-neutral-500 space-y-2 ml-2">
+          <li>En samlet vurdering av kvaliteten på OKR-settet</li>
+          <li>Hva som fungerer godt og bør beholdes</li>
+          <li>Hva som er uklart, lite målbart eller for aktivitetsorientert</li>
+          <li>Tre konkrete forbedringsforslag</li>
+          <li>Et forslag til hvordan OKR-ene kan formuleres tydeligere og mer outcome-basert</li>
+        </ul>
+        <p class="text-neutral-500 mt-4 italic">
+          Resultatet er ment som støtte og refleksjon - ikke som en fasit.
+        </p>
+      </section>
+
+      <section class="mb-16">
+        <h2 class="text-xl font-semibold text-brand-navy mb-4">Når er OKR-sjekken nyttig?</h2>
+        <p class="text-neutral-500 mb-4">OKR-sjekken er særlig nyttig når:</p>
+        <ul class="list-disc list-inside text-neutral-500 space-y-2 ml-2">
+          <li>Dere går inn i en ny OKR-periode og vil gjøre en rask kvalitetssjekk</li>
+          <li>OKR-ene har begynt å ligne mer på en oppgaveliste enn et målbilde</li>
+          <li>Teamet er uenig om hva som egentlig er målet</li>
+          <li>Du trenger et nøytralt utgangspunkt for en bedre samtale</li>
+        </ul>
+      </section>
+
+      <section class="mb-16">
+        <h2 class="text-xl font-semibold text-brand-navy mb-4">Om vurderingen og bruk av data</h2>
+        <p class="text-neutral-500 mb-4">
+          OKR-sjekken gir en automatisk og strukturert vurdering basert på FYRKs metode for gode OKR.
+          Resultatet er ment som et utgangspunkt for videre diskusjon og forbedring - ikke som en fasit.
+        </p>
+        <p class="text-neutral-500">
+          OKR-ene du legger inn brukes kun til å generere vurderingen du ser på skjermen.
+          De lagres ikke, deles ikke videre og brukes ikke til analyse eller trening av modeller.
+        </p>
+      </section>
+
+      <div class="pt-8 border-t border-neutral-200">
+        <h2 class="text-xl font-semibold text-brand-navy mb-4">Vil du ha et menneskelig blikk i tillegg?</h2>
+        <p class="text-neutral-500 mb-4">
+          OKR-sjekken er et lite verktøy laget av FYRK.
+        </p>
+        <p class="text-neutral-500 mb-4">
+          Jeg jobber som innleid produktleder der kompleksiteten er høy og behovet for tydelige
+          prioriteringer er stort. Ofte starter forbedringen nettopp med å rydde i målbildet
+          og gjøre det tydelig nok til at team faktisk kan levere på det.
+        </p>
+        <p class="text-neutral-500">
+          Vil du ha en gjennomgang av OKR-ene deres med et menneske i andre enden også, er du velkommen til å
+          <a href="mailto:carl@fyrk.no" class="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2">
+            ta kontakt med FYRK.
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <footer class="py-8 border-t border-neutral-200 text-center text-sm text-neutral-500">
+      <p>
+        Laget av
+        <a href="https://fyrk.no" class="text-brand-navy hover:text-brand-cyan-darker">
+          FYRK
+        </a>
+        · Drevet av Claude Sonnet
+      </p>
+    </footer>
+  </main>
+</MinimalLayout>
