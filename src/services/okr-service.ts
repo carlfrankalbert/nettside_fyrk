@@ -93,7 +93,7 @@ export async function reviewOKR(input: string): Promise<OKRReviewResult> {
   // Create new request promise
   const requestPromise = (async (): Promise<OKRReviewResult> => {
     try {
-      const response = await fetch('/api/okr-reviewer', {
+      const response = await fetch('/api/okr-sjekken', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ input }),
@@ -173,7 +173,7 @@ export async function reviewOKRStreaming(
   }
 
   try {
-    const response = await fetch('/api/okr-reviewer', {
+    const response = await fetch('/api/okr-sjekken', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ input, stream: true }),
