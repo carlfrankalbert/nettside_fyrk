@@ -37,9 +37,36 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
       }
+
+      .skip-link {
+        position: absolute;
+        top: -100%;
+        left: 1rem;
+        z-index: 9999;
+        padding: 0.75rem 1.5rem;
+        background-color: #001F3F;
+        color: white;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        transition: top 0.2s ease;
+      }
+
+      .skip-link:focus {
+        top: 1rem;
+        outline: 2px solid #2A7A92;
+        outline-offset: 2px;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .skip-link {
+          transition: none;
+        }
+      }
     </style>
   </head>
   <body>
+    <a href="#main-content" class="skip-link">Hopp til hovedinnhold</a>
     <slot />
   </body>
 </html>

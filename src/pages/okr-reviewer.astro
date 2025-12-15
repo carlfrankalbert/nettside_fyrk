@@ -9,41 +9,51 @@ export const prerender = false;
   title="OKR Reviewer | FYRK"
   description="Få et raskt, strukturert blikk på kvaliteten i OKR-ene deres – uten workshop eller lange prosesser."
 >
-  <main class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
-    <div class="flex-1 max-w-2xl mx-auto px-6 py-16 md:py-24 w-full">
-      <h1 class="text-h2 font-semibold text-brand-navy mb-6 leading-tight">
-        OKR-review når du trenger et ærlig blikk
-      </h1>
+  <main id="main-content" class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
+    <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-12 md:py-24 w-full">
+      <header class="mb-10 md:mb-12">
+        <h1 class="text-h3 md:text-h2 font-semibold text-brand-navy mb-4 leading-tight">
+          Holder OKR-ene dine faktisk mål?
+        </h1>
 
-      <div class="text-lg text-neutral-500 space-y-4 mb-12 leading-relaxed">
-        <p>
-          Mange team jobber med OKR, men ender likevel opp med mål som egentlig er oppgavelister,
-          Key Results som ikke kan måles, og lite sammenheng mellom strategi og det som faktisk gjøres.
+        <p class="text-base md:text-lg text-neutral-600 leading-relaxed mb-2">
+          Få et <strong class="font-medium">raskt, strukturert blikk</strong> på kvaliteten i OKR-ene
+          dine – uten workshop eller lange dokumenter.
         </p>
-        <p>
-          FYRK OKR Reviewer gir deg et raskt, strukturert blikk på kvaliteten i OKR-ene deres –
-          uten workshop, styringsgrupper eller lange dokumenter.
+        <p class="text-sm md:text-base text-neutral-500 italic">
+          Ment som støtte til refleksjon – ikke som fasit.
         </p>
-      </div>
+      </header>
 
       <OKRReviewer client:load />
 
-      <div class="mt-16 pt-8 border-t border-neutral-200">
-        <p class="text-neutral-500">
-          Vil du ha et menneskelig review i tillegg – og sparring på hvordan dere kan jobbe bedre med mål og prioritering?
-          <a href="mailto:carl@fyrk.no" class="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2">
-            Ta kontakt med FYRK.
-          </a>
+      <section class="mt-16 pt-8 border-t border-neutral-200" aria-labelledby="human-review-heading">
+        <h2 id="human-review-heading" class="text-lg font-semibold text-brand-navy mb-3">
+          Ønsker du et menneskelig blikk i tillegg?
+        </h2>
+        <p class="text-neutral-600 mb-4">
+          Vil du ha sparring på hvordan dere kan jobbe bedre med mål og prioritering?
         </p>
-      </div>
+        <a
+          href="mailto:carl@fyrk.no"
+          class="inline-flex items-center gap-2 px-4 py-2 text-brand-navy hover:text-white hover:bg-brand-navy border-2 border-brand-navy rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
+          aria-label="Send e-post til FYRK for personlig rådgivning"
+        >
+          <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          Ta kontakt med FYRK
+        </a>
+      </section>
     </div>
 
     <footer class="py-8 border-t border-neutral-200 text-center text-sm text-neutral-500">
       <p>
-        Laget av
-        <a href="https://fyrk.no" class="text-brand-navy hover:text-brand-cyan-darker">
+        Laget av{' '}
+        <a href="https://fyrk.no" class="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2">
           FYRK
         </a>
+        {' '}· Drevet av Claude Sonnet
       </p>
     </footer>
   </main>
