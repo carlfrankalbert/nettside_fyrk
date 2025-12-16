@@ -1,0 +1,42 @@
+---
+/**
+ * Landing page footer
+ * Displays company info and contact links
+ */
+import LandingLogo from '../ui/LandingLogo.astro';
+
+interface Props {
+  address: string;
+  orgNumber: string;
+  emailHref: string;
+  emailLabel: string;
+  linkedinHref: string;
+  linkedinLabel: string;
+}
+
+const { address, orgNumber, emailHref, emailLabel, linkedinHref, linkedinLabel } = Astro.props;
+---
+
+<footer class="py-10 px-6 border-t border-neutral-200 bg-neutral-50 relative overflow-hidden">
+  <!-- Subtle diagonal FYRK signature element -->
+  <div class="absolute inset-0 pointer-events-none">
+    <div class="absolute -right-1/4 -bottom-1/2 w-[500px] h-[250px] bg-gradient-to-tl from-brand-navy/[0.04] to-transparent rotate-[-25deg] rounded-[80px]"></div>
+  </div>
+
+  <div class="max-w-6xl mx-auto relative z-10">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-neutral-500">
+      <div class="flex flex-col items-center md:items-start gap-3">
+        <LandingLogo variant="muted" />
+        <div class="text-xs text-neutral-400 text-center md:text-left">
+          <p class="mb-1">{address}</p>
+          <p class="mb-0">Org.nr: {orgNumber}</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-6">
+        <a href={emailHref} class="hover:text-brand-navy transition-colors no-underline">{emailLabel}</a>
+        <a href={linkedinHref} target="_blank" rel="noopener noreferrer" class="hover:text-brand-navy transition-colors no-underline">{linkedinLabel}</a>
+      </div>
+    </div>
+  </div>
+</footer>

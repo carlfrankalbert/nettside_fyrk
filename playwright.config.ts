@@ -86,6 +86,18 @@ export default defineConfig({
       testMatch: /security\.spec\.ts/,
       use: { ...devices['Desktop Chrome'] },
     },
+    // OKR-sjekken API tests
+    {
+      name: 'okr-api',
+      testMatch: /okr-sjekken\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    // Theme toggle tests
+    {
+      name: 'theme',
+      testMatch: /theme-toggle\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
     // Add more configurations as needed based on analytics
   ],
 

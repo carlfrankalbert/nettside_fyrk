@@ -1,0 +1,32 @@
+---
+/**
+ * Situations section showing when FYRK can help
+ * Displays a grid of bullet points with icons
+ */
+
+interface Props {
+  title: string;
+  situations: string[];
+}
+
+const { title, situations } = Astro.props;
+---
+
+<section class="py-16 md:py-20 px-6 bg-neutral-50 border-y border-neutral-200">
+  <div class="max-w-4xl mx-auto">
+    <h2 class="text-h4 font-semibold text-brand-navy mb-8 text-center">
+      {title}
+    </h2>
+
+    <div class="grid md:grid-cols-2 gap-4 max-w-3xl mx-auto">
+      {situations.map((situation) => (
+        <div class="flex items-start gap-3 bg-white rounded-lg p-4 border border-neutral-100">
+          <svg class="w-5 h-5 text-brand-navy flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+          <p class="text-neutral-600 mb-0">{situation}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

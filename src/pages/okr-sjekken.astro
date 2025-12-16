@@ -7,35 +7,75 @@ export const prerender = false;
 
 <MinimalLayout
   title="OKR-sjekken | FYRK"
-  description="Få et raskt, strukturert blikk på kvaliteten i OKR-ene deres – uten workshop eller lange prosesser."
+  description="Lim inn OKR-settet ditt og få en strukturert kvalitetsvurdering på under ett minutt. Ment som støtte til refleksjon."
 >
   <main id="main-content" class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
-    <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-12 md:py-24 w-full">
-      <header class="mb-10 md:mb-12">
-        <h1 class="text-h3 md:text-h2 font-semibold text-brand-navy mb-4 leading-tight">
+    <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-12 md:py-16 w-full">
+
+      <!-- Hero -->
+      <header class="mb-8">
+        <h1 class="text-h3 md:text-h2 font-semibold text-brand-navy mb-3 leading-tight">
           Holder OKR-ene dine faktisk mål?
         </h1>
-
-        <p class="text-base md:text-lg text-neutral-600 leading-relaxed mb-2">
-          Få et <strong class="font-medium">raskt, strukturert blikk</strong> på kvaliteten i OKR-ene
-          dine – uten workshop eller lange dokumenter.
+        <p class="text-base md:text-lg text-neutral-600 leading-relaxed">
+          Lim inn OKR-settet ditt og få en strukturert kvalitetsvurdering på under ett minutt.
         </p>
-        <p class="text-sm md:text-base text-neutral-500 italic">
+        <p class="text-sm md:text-base text-neutral-500 italic mt-1">
           Ment som støtte til refleksjon – ikke som fasit.
         </p>
       </header>
 
-      <OKRReviewer client:load />
+      <!-- Input + CTA -->
+      <section class="mb-10">
+        <OKRReviewer client:load />
+      </section>
 
-      <section class="mt-16 pt-8 border-t border-neutral-200" aria-labelledby="human-review-heading">
+      <!-- Eksempel på vurdering -->
+      <section class="mb-12" aria-labelledby="example-heading">
+        <h2 id="example-heading" class="text-lg font-semibold text-brand-navy mb-3">Eksempel på vurdering</h2>
+        <p class="text-neutral-600 mb-4 text-sm">Utdrag fra en typisk OKR-vurdering:</p>
+        <div class="p-5 bg-neutral-100 border border-neutral-200 rounded-lg text-neutral-700 text-sm space-y-2">
+          <p>– Objective er retningsgivende, men mangler målbart utfall.</p>
+          <p>– KR1 og KR2 er aktiviteter, ikke resultater.</p>
+          <p>– KR3 er målbart, men "5 poeng" kan være for lite ambisiøst.</p>
+          <p class="font-medium">– Forslag: Reformuler til "Øke andelen brukere som fullfører onboarding fra 45 % til 70 %."</p>
+        </div>
+      </section>
+
+      <!-- Når er dette nyttig -->
+      <section class="mb-12" aria-labelledby="when-useful-heading">
+        <h2 id="when-useful-heading" class="text-lg font-semibold text-brand-navy mb-3">Når er OKR-sjekken nyttig?</h2>
+        <ul class="text-neutral-600 space-y-2 text-sm" role="list">
+          <li class="flex items-start gap-2">
+            <span class="text-neutral-400" aria-hidden="true">•</span>
+            <span>Dere står foran en ny OKR-periode og vil ha en rask kvalitetskontroll</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-neutral-400" aria-hidden="true">•</span>
+            <span>OKR-ene har begynt å ligne mer på en oppgaveliste enn et målbilde</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-neutral-400" aria-hidden="true">•</span>
+            <span>Teamet er uenig om hva som egentlig er målet</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-neutral-400" aria-hidden="true">•</span>
+            <span>Du trenger et nøytralt utgangspunkt for en bedre diskusjon</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Menneskelig oppfølging -->
+      <section class="pt-8 border-t border-neutral-200" aria-labelledby="human-review-heading">
         <h2 id="human-review-heading" class="text-lg font-semibold text-brand-navy mb-3">
           Ønsker du et menneskelig blikk i tillegg?
         </h2>
-        <p class="text-neutral-600 mb-4">
-          Vil du ha sparring på hvordan dere kan jobbe bedre med mål og prioritering?
+        <p class="text-neutral-600 text-sm mb-4">
+          OKR-sjekken er ment som et første steg. Hvis du vil diskutere OKR-ene dine videre,
+          eller jobbe mer systematisk med prioritering og produktledelse, er du velkommen til å ta kontakt.
         </p>
         <a
-          href="mailto:carl@fyrk.no"
+          href="mailto:hei@fyrk.no"
           class="inline-flex items-center gap-2 px-4 py-2 text-brand-navy hover:text-white hover:bg-brand-navy border-2 border-brand-navy rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
           aria-label="Send e-post til FYRK for personlig rådgivning"
         >
@@ -44,10 +84,13 @@ export const prerender = false;
           </svg>
           Ta kontakt med FYRK
         </a>
+        <p class="text-xs text-neutral-400 mt-4">
+          OKR-sjekken er et lite verktøy laget av FYRK som et eksperiment og supplement til rådgivning og sparring.
+        </p>
       </section>
     </div>
 
-    <footer class="py-8 border-t border-neutral-200 text-center text-sm text-neutral-500">
+    <footer class="py-6 border-t border-neutral-200 text-center text-sm text-neutral-500">
       <p>
         Laget av{' '}
         <a href="https://fyrk.no" class="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2">

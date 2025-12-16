@@ -2,12 +2,12 @@ import { useState, useRef } from 'react';
 import { reviewOKRStreaming } from '../services/okr-service';
 
 const EXAMPLE_OKR = `Objective:
-Øke bruken av mobilbanken blant småbedrifter i Norge.
+Gjøre det enkelt og trygt for brukere å komme i gang med produktet.
 
 Key Results:
-1. Øke andelen aktive brukere fra 20 % til 35 % innen Q4.
-2. Redusere tiden det tar å gjennomføre en betaling med 30 %.
-3. Minst 70 % av brukertestene skal gi score 4 eller bedre.`;
+1. Øke aktiveringsraten (fullført onboarding) fra 45 % til 70 %.
+2. Redusere tid til første verdi fra 10 minutter til under 3 minutter.
+3. Redusere onboarding-relaterte supporthenvendelser med 50 %.`;
 
 export default function OKRReviewer() {
   const [input, setInput] = useState('');
@@ -75,7 +75,7 @@ export default function OKRReviewer() {
             type="button"
             onClick={handleFillExample}
             disabled={loading}
-            className="text-sm text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 focus:outline-none focus:ring-2 focus:ring-brand-cyan focus:ring-offset-2 rounded disabled:opacity-60 disabled:cursor-not-allowed"
+            className="text-sm text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 focus:bg-neutral-100 focus:px-2 focus:-mx-2 rounded transition-all disabled:opacity-60 disabled:cursor-not-allowed"
           >
             Vis eksempel
           </button>
@@ -122,7 +122,7 @@ export default function OKRReviewer() {
               <span>Vurderer OKR-ene dine...</span>
             </>
           ) : (
-            'Sjekk OKR-settet'
+            'Sjekk OKR-settet ditt'
           )}
         </button>
 
@@ -142,25 +142,25 @@ export default function OKRReviewer() {
 
       {/* Dette får du */}
       <div className="p-5 bg-neutral-100 rounded-lg">
-        <p className="font-medium text-neutral-700 mb-3">Dette får du:</p>
+        <p className="font-medium text-neutral-700 mb-3">På under ett minutt får du:</p>
         <ul className="space-y-2 text-neutral-700" role="list">
           <li className="flex items-start gap-2">
             <svg className="w-5 h-5 text-feedback-success flex-shrink-0 mt-0.5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
-            <span>Vurdering av kvaliteten på Objective og Key Results</span>
+            <span>Samlet vurdering av OKR-kvalitet</span>
           </li>
           <li className="flex items-start gap-2">
             <svg className="w-5 h-5 text-feedback-success flex-shrink-0 mt-0.5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
-            <span>Konkrete forbedringsforslag til hvert punkt</span>
+            <span>Hva som fungerer og bør forbedres</span>
           </li>
           <li className="flex items-start gap-2">
             <svg className="w-5 h-5 text-feedback-success flex-shrink-0 mt-0.5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
-            <span>Tips til bedre sammenheng mellom mål og resultater</span>
+            <span>Forslag til mer outcome-baserte OKR-er</span>
           </li>
         </ul>
       </div>

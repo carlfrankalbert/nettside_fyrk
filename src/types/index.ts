@@ -2,11 +2,19 @@
  * Shared TypeScript types and interfaces
  */
 
+// ============================================================================
+// Navigation Types
+// ============================================================================
+
 export interface NavItem {
   href: string;
   label: string;
   isPrimary?: boolean;
 }
+
+// ============================================================================
+// SEO Types
+// ============================================================================
 
 export interface SEOProps {
   title: string;
@@ -15,6 +23,10 @@ export interface SEOProps {
   type?: 'website' | 'article';
   canonicalUrl?: URL;
 }
+
+// ============================================================================
+// Form Types
+// ============================================================================
 
 export interface FormFieldProps {
   id: string;
@@ -28,4 +40,131 @@ export interface FormFieldProps {
   placeholder?: string;
 }
 
+// ============================================================================
+// OKR API Types
+// ============================================================================
 
+/**
+ * Successful OKR review response
+ */
+export interface OKRReviewResponse {
+  success: true;
+  output: string;
+  cached?: boolean;
+}
+
+/**
+ * Failed OKR review response
+ */
+export interface OKRReviewError {
+  success: false;
+  error: string;
+}
+
+/**
+ * Union type for OKR review result
+ */
+export type OKRReviewResult = OKRReviewResponse | OKRReviewError;
+
+/**
+ * OKR API request body
+ */
+export interface OKRReviewRequest {
+  input: string;
+  stream?: boolean;
+}
+
+/**
+ * OKR API success response (server format)
+ */
+export interface OKRAPISuccessResponse {
+  output: string;
+  cached: boolean;
+}
+
+/**
+ * OKR API error response (server format)
+ */
+export interface OKRAPIErrorResponse {
+  error: string;
+  details?: string;
+}
+
+/**
+ * SSE event for streaming OKR review
+ */
+export interface OKRStreamEvent {
+  text?: string;
+  error?: boolean;
+  message?: string;
+}
+
+// ============================================================================
+// Anthropic API Types
+// ============================================================================
+
+/**
+ * Anthropic API text block response
+ */
+export interface AnthropicTextBlock {
+  type: 'text';
+  text: string;
+}
+
+/**
+ * Anthropic API response structure
+ */
+export interface AnthropicResponse {
+  content: AnthropicTextBlock[];
+}
+
+/**
+ * Anthropic streaming event structure
+ */
+export interface AnthropicStreamEvent {
+  type: string;
+  delta?: {
+    type: string;
+    text?: string;
+  };
+}
+
+/**
+ * Anthropic API error response
+ */
+export interface AnthropicErrorResponse {
+  error?: {
+    message?: string;
+  };
+}
+
+// ============================================================================
+// Component Props Types
+// ============================================================================
+
+/**
+ * Props for bullet point list items
+ */
+export interface BulletPointProps {
+  text: string;
+}
+
+/**
+ * Props for competency/service cards
+ */
+export interface CompetencyCardProps {
+  title: string;
+  description: string;
+  icon: string;
+}
+
+/**
+ * Props for tool cards
+ */
+export interface ToolCardProps {
+  title: string;
+  description: string;
+  href: string;
+  buttonText: string;
+  icon?: string;
+}

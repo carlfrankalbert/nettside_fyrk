@@ -1,0 +1,56 @@
+---
+/**
+ * About section for the landing page
+ * Displays company information and core competencies
+ */
+import CompetencyCard from './CompetencyCard.astro';
+
+interface Competency {
+  title: string;
+  description: string;
+  iconPath: string;
+}
+
+interface Props {
+  title: string;
+  description: string;
+  subtitle: string;
+  competencyTitle: string;
+  competencies: Competency[];
+}
+
+const { title, description, subtitle, competencyTitle, competencies } = Astro.props;
+---
+
+<section id="om" class="py-20 md:py-28 px-6 bg-white relative overflow-hidden">
+  <!-- Subtle diagonal FYRK signature element -->
+  <div class="absolute inset-0 pointer-events-none">
+    <div class="absolute -right-1/4 top-1/4 w-[800px] h-[400px] bg-gradient-to-br from-brand-navy/[0.04] to-transparent rotate-[-25deg] rounded-[100px]"></div>
+  </div>
+
+  <div class="max-w-4xl mx-auto relative z-10">
+    <h2 class="text-h2 font-semibold text-brand-navy mb-8 text-center">
+      {title}
+    </h2>
+
+    <div class="text-lg text-neutral-600 space-y-6 mb-16 max-w-3xl mx-auto text-center">
+      <p>{description}</p>
+      <p class="text-base text-neutral-500">{subtitle}</p>
+    </div>
+
+    <!-- Kjernekompetanser -->
+    <h3 class="text-h4 font-semibold text-brand-navy mb-8 text-center">
+      {competencyTitle}
+    </h3>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      {competencies.map((competency) => (
+        <CompetencyCard
+          title={competency.title}
+          description={competency.description}
+          iconPath={competency.iconPath}
+        />
+      ))}
+    </div>
+  </div>
+</section>

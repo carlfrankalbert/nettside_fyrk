@@ -1,0 +1,26 @@
+---
+/**
+ * Competency card component for displaying core competencies
+ * Used in the "Om FYRK" section
+ */
+
+interface Props {
+  title: string;
+  description: string;
+  iconPath: string;
+}
+
+const { title, description, iconPath } = Astro.props;
+---
+
+<div class="bg-white rounded-xl py-10 px-8 text-center shadow-md border border-neutral-100 hover:shadow-lg hover:border-brand-navy/10 hover:-translate-y-1 transition-all duration-200">
+  <div class="w-14 h-14 bg-brand-navy rounded-xl flex items-center justify-center mx-auto mb-5">
+    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={iconPath}></path>
+    </svg>
+  </div>
+  <h4 class="text-h5 font-semibold text-brand-navy mb-3">{title}</h4>
+  <p class="text-neutral-600 mb-0">
+    {description}
+  </p>
+</div>
