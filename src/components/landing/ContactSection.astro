@@ -1,0 +1,52 @@
+---
+/**
+ * Contact section for the landing page
+ * Displays contact information and call-to-action buttons
+ */
+
+interface Props {
+  title: string;
+  description: string;
+  subtitle: string;
+  emailHref: string;
+  emailLabel: string;
+  linkedinHref: string;
+  linkedinLabel: string;
+}
+
+const { title, description, subtitle, emailHref, emailLabel, linkedinHref, linkedinLabel } = Astro.props;
+---
+
+<section id="kontakt" class="py-20 md:py-28 px-6 relative overflow-hidden bg-gradient-to-b from-neutral-50/50 to-white">
+  <!-- Subtle diagonal FYRK signature element -->
+  <div class="absolute inset-0 pointer-events-none">
+    <div class="absolute -left-1/4 bottom-0 w-[600px] h-[300px] bg-gradient-to-tr from-brand-navy/[0.03] to-transparent rotate-[-25deg] rounded-[100px]"></div>
+  </div>
+
+  <div class="max-w-2xl mx-auto text-center relative z-10">
+    <h2 class="text-h2 font-semibold text-brand-navy mb-4">
+      {title}
+    </h2>
+    <p class="text-lg text-neutral-600 mb-4">
+      {description}
+    </p>
+    <p class="text-base text-neutral-500 mb-10">
+      {subtitle}
+    </p>
+
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a href={emailHref} class="btn btn-primary no-underline inline-flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+        </svg>
+        {emailLabel}
+      </a>
+      <a href={linkedinHref} target="_blank" rel="noopener noreferrer" class="btn btn-outline no-underline inline-flex items-center gap-2">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 3A2 2 0 0 1 21 5V19A2 2 0 0 1 19 21H5A2 2 0 0 1 3 19V5A2 2 0 0 1 5 3H19M18.5 18.5V13.2A3.26 3.26 0 0 0 15.24 9.94C14.39 9.94 13.4 10.46 12.92 11.24V10.13H10.13V18.5H12.92V13.57C12.92 12.8 13.54 12.17 14.31 12.17A1.4 1.4 0 0 1 15.71 13.57V18.5H18.5M6.88 8.56A1.68 1.68 0 0 0 8.56 6.88C8.56 5.95 7.81 5.19 6.88 5.19A1.69 1.69 0 0 0 5.19 6.88C5.19 7.81 5.95 8.56 6.88 8.56M8.27 18.5V10.13H5.5V18.5H8.27Z"/>
+        </svg>
+        {linkedinLabel}
+      </a>
+    </div>
+  </div>
+</section>

@@ -3,70 +3,12 @@
  * Handles API communication for OKR analysis with caching and streaming support
  */
 
-export interface OKRReviewResponse {
-  success: true;
-  output: string;
-  cached?: boolean;
-}
-
-export interface OKRReviewError {
-  success: false;
-  error: string;
-}
-
-export type OKRReviewResult = OKRReviewResponse | OKRReviewError;
-
-const DEFAULT_ERROR_MESSAGE = 'Noe gikk galt under vurderingen. Prøv igjen om litt.';
-const CACHE_KEY_PREFIX = 'okr_cache_';
-const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+import type { OKRReviewResponse, OKRReviewError, OKRReviewResult, OKRStreamEvent } from '../types';
+import { hashInput, localStorageCache } from '../utils/cache';
+import { ERROR_MESSAGES, API_ROUTES } from '../utils/constants';
 
 // In-memory cache for request deduplication
 const pendingRequests = new Map<string, Promise<OKRReviewResult>>();
-
-/**
- * Generate a simple hash for cache key
- */
-async function hashInput(input: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(input.trim().toLowerCase());
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-/**
- * Get cached result from localStorage
- */
-function getCachedResult(cacheKey: string): string | null {
-  try {
-    const cached = localStorage.getItem(CACHE_KEY_PREFIX + cacheKey);
-    if (!cached) return null;
-
-    const { output, timestamp } = JSON.parse(cached);
-    if (Date.now() - timestamp > CACHE_TTL_MS) {
-      localStorage.removeItem(CACHE_KEY_PREFIX + cacheKey);
-      return null;
-    }
-
-    return output;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Save result to localStorage cache
- */
-function setCachedResult(cacheKey: string, output: string): void {
-  try {
-    localStorage.setItem(
-      CACHE_KEY_PREFIX + cacheKey,
-      JSON.stringify({ output, timestamp: Date.now() })
-    );
-  } catch (e) {
-    console.warn('Failed to cache result:', e);
-  }
-}
 
 /**
  * Submit an OKR for AI-powered review (non-streaming)
@@ -75,7 +17,7 @@ export async function reviewOKR(input: string): Promise<OKRReviewResult> {
   const cacheKey = await hashInput(input);
 
   // Check localStorage cache first
-  const cachedOutput = getCachedResult(cacheKey);
+  const cachedOutput = localStorageCache.get(cacheKey);
   if (cachedOutput) {
     return {
       success: true,
@@ -93,7 +35,7 @@ export async function reviewOKR(input: string): Promise<OKRReviewResult> {
   // Create new request promise
   const requestPromise = (async (): Promise<OKRReviewResult> => {
     try {
-      const response = await fetch('/api/okr-sjekken', {
+      const response = await fetch(API_ROUTES.OKR_REVIEW, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ input }),
@@ -103,12 +45,12 @@ export async function reviewOKR(input: string): Promise<OKRReviewResult> {
         if (response.status === 429) {
           return {
             success: false,
-            error: 'For mange forespørsler. Vent litt før du prøver igjen.',
+            error: ERROR_MESSAGES.RATE_LIMIT,
           };
         }
         return {
           success: false,
-          error: DEFAULT_ERROR_MESSAGE,
+          error: ERROR_MESSAGES.OKR_REVIEW_DEFAULT,
         };
       }
 
@@ -117,13 +59,13 @@ export async function reviewOKR(input: string): Promise<OKRReviewResult> {
       if (!data.output) {
         return {
           success: false,
-          error: DEFAULT_ERROR_MESSAGE,
+          error: ERROR_MESSAGES.OKR_REVIEW_DEFAULT,
         };
       }
 
       // Cache successful result
       if (!data.cached) {
-        setCachedResult(cacheKey, data.output);
+        localStorageCache.set(cacheKey, data.output);
       }
 
       return {
@@ -134,7 +76,7 @@ export async function reviewOKR(input: string): Promise<OKRReviewResult> {
     } catch {
       return {
         success: false,
-        error: DEFAULT_ERROR_MESSAGE,
+        error: ERROR_MESSAGES.OKR_REVIEW_DEFAULT,
       };
     } finally {
       pendingRequests.delete(cacheKey);
@@ -157,7 +99,7 @@ export async function reviewOKRStreaming(
   const cacheKey = await hashInput(input);
 
   // Check localStorage cache first
-  const cachedOutput = getCachedResult(cacheKey);
+  const cachedOutput = localStorageCache.get(cacheKey);
   if (cachedOutput) {
     // Simulate streaming for cached results
     const words = cachedOutput.split(' ');
@@ -173,7 +115,7 @@ export async function reviewOKRStreaming(
   }
 
   try {
-    const response = await fetch('/api/okr-sjekken', {
+    const response = await fetch(API_ROUTES.OKR_REVIEW, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ input, stream: true }),
@@ -181,16 +123,16 @@ export async function reviewOKRStreaming(
 
     if (!response.ok) {
       if (response.status === 429) {
-        onError('For mange forespørsler. Vent litt før du prøver igjen.');
+        onError(ERROR_MESSAGES.RATE_LIMIT);
       } else {
-        onError(DEFAULT_ERROR_MESSAGE);
+        onError(ERROR_MESSAGES.OKR_REVIEW_DEFAULT);
       }
       return;
     }
 
     const reader = response.body?.getReader();
     if (!reader) {
-      onError(DEFAULT_ERROR_MESSAGE);
+      onError(ERROR_MESSAGES.OKR_REVIEW_DEFAULT);
       return;
     }
 
@@ -211,15 +153,15 @@ export async function reviewOKRStreaming(
           const data = line.slice(6);
           if (data === '[DONE]') {
             // Cache the complete output
-            setCachedResult(cacheKey, fullOutput);
+            localStorageCache.set(cacheKey, fullOutput);
             onComplete();
             return;
           }
 
           try {
-            const event = JSON.parse(data);
+            const event: OKRStreamEvent = JSON.parse(data);
             if (event.error) {
-              onError(event.message || DEFAULT_ERROR_MESSAGE);
+              onError(event.message || ERROR_MESSAGES.OKR_REVIEW_DEFAULT);
               return;
             }
             if (event.text) {
@@ -234,6 +176,9 @@ export async function reviewOKRStreaming(
     }
   } catch (error) {
     console.error('Streaming error:', error);
-    onError(DEFAULT_ERROR_MESSAGE);
+    onError(ERROR_MESSAGES.OKR_REVIEW_DEFAULT);
   }
 }
+
+// Re-export types for convenience
+export type { OKRReviewResponse, OKRReviewError, OKRReviewResult };
