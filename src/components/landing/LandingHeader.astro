@@ -1,0 +1,53 @@
+---
+/**
+ * Landing page header with navigation
+ * Simplified header specifically for the landing page
+ */
+import LandingLogo from '../ui/LandingLogo.astro';
+import { ELEMENT_IDS } from '../../utils/constants';
+
+interface NavLink {
+  href: string;
+  label: string;
+}
+
+interface Props {
+  navLinks: NavLink[];
+}
+
+const { navLinks } = Astro.props;
+---
+
+<header class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-neutral-200">
+  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-2 no-underline">
+      <LandingLogo />
+    </a>
+
+    <div class="hidden md:flex items-center gap-8">
+      {navLinks.map((link) => (
+        <a href={link.href} class="text-neutral-700 hover:text-brand-navy no-underline font-medium transition-colors">
+          {link.label}
+        </a>
+      ))}
+    </div>
+
+    <!-- Mobile menu button -->
+    <button id={ELEMENT_IDS.MOBILE_MENU_BUTTON} class="md:hidden p-2 text-neutral-700" aria-label="Åpne meny">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div id={ELEMENT_IDS.MOBILE_MENU} class="hidden md:hidden border-t border-neutral-200 bg-white">
+    <div class="px-6 py-4 space-y-4">
+      {navLinks.map((link) => (
+        <a href={link.href} class="block text-neutral-700 hover:text-brand-navy no-underline font-medium">
+          {link.label}
+        </a>
+      ))}
+    </div>
+  </div>
+</header>

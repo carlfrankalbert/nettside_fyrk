@@ -1,4 +1,7 @@
 import type { APIRoute } from 'astro';
+import type { AnthropicResponse, AnthropicStreamEvent, AnthropicErrorResponse } from '../../types';
+import { hashInput, createServerCacheManager, createRateLimiter } from '../../utils/cache';
+import { ERROR_MESSAGES, ANTHROPIC_CONFIG, HTTP_HEADERS, CACHE_HEADERS } from '../../utils/constants';
 
 export const prerender = false;
 
@@ -35,99 +38,13 @@ Følg disse reglene:
    - Hver KR må være målbar med en numerisk terskel
    - Ingen aktiviteter forkledd som resultater`;
 
-// Anthropic API response types
-interface AnthropicTextBlock {
-  type: 'text';
-  text: string;
-}
+// Create shared cache and rate limiter instances (persist across requests in same Worker)
+const cacheManager = createServerCacheManager();
+const rateLimiter = createRateLimiter();
 
-interface AnthropicResponse {
-  content: AnthropicTextBlock[];
-}
-
-interface AnthropicStreamDelta {
-  type: 'content_block_delta';
-  delta: {
-    type: 'text_delta';
-    text: string;
-  };
-}
-
-interface AnthropicStreamEvent {
-  type: string;
-  delta?: {
-    type: string;
-    text?: string;
-  };
-}
-
-interface AnthropicErrorResponse {
-  error?: {
-    message?: string;
-  };
-}
-
-// Cache configuration
-interface CacheEntry {
-  output: string;
-  timestamp: number;
-}
-
-interface RateLimitEntry {
-  count: number;
-  resetTime: number;
-}
-
-const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 10; // 10 requests per minute
-
-// In-memory cache and rate limiter (persists across requests in the same Worker instance)
-const cache = new Map<string, CacheEntry>();
-const rateLimits = new Map<string, RateLimitEntry>();
-
-// Simple hash function for cache keys
-async function hashInput(input: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(input.trim().toLowerCase());
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-// Clean up expired cache entries
-function cleanCache(): void {
-  const now = Date.now();
-  for (const [key, entry] of cache.entries()) {
-    if (now - entry.timestamp > CACHE_TTL_MS) {
-      cache.delete(key);
-    }
-  }
-}
-
-// Check and update rate limit
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const limit = rateLimits.get(ip);
-
-  if (!limit || now > limit.resetTime) {
-    // Create new rate limit window
-    rateLimits.set(ip, {
-      count: 1,
-      resetTime: now + RATE_LIMIT_WINDOW_MS,
-    });
-    return true;
-  }
-
-  if (limit.count >= RATE_LIMIT_MAX_REQUESTS) {
-    return false;
-  }
-
-  limit.count++;
-  return true;
-}
-
-// Get client IP from request
+/**
+ * Get client IP from request headers
+ */
 function getClientIP(request: Request): string {
   // Try Cloudflare headers first
   const cfConnectingIP = request.headers.get('cf-connecting-ip');
@@ -142,6 +59,35 @@ function getClientIP(request: Request): string {
   return 'unknown';
 }
 
+/**
+ * Create an Anthropic API request body
+ */
+function createAnthropicRequestBody(input: string, model: string, stream: boolean) {
+  return {
+    model,
+    max_tokens: ANTHROPIC_CONFIG.MAX_TOKENS,
+    system: SYSTEM_PROMPT,
+    stream,
+    messages: [
+      {
+        role: 'user',
+        content: `Vurder følgende OKR-sett:\n\n${input.trim()}`,
+      },
+    ],
+  };
+}
+
+/**
+ * Create Anthropic API request headers
+ */
+function createAnthropicHeaders(apiKey: string) {
+  return {
+    'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
+    'x-api-key': apiKey,
+    'anthropic-version': ANTHROPIC_CONFIG.VERSION,
+  };
+}
+
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const { input, stream = false } = await request.json();
@@ -149,13 +95,13 @@ export const POST: APIRoute = async ({ request, locals }) => {
     if (!input?.trim()) {
       return new Response(
         JSON.stringify({ error: 'Missing input' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
+        { status: 400, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
       );
     }
 
     // Rate limiting
     const clientIP = getClientIP(request);
-    if (!checkRateLimit(clientIP)) {
+    if (!rateLimiter.checkAndUpdate(clientIP)) {
       return new Response(
         JSON.stringify({
           error: 'Rate limit exceeded',
@@ -164,7 +110,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         {
           status: 429,
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
             'Retry-After': '60'
           }
         }
@@ -172,9 +118,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     // Check cache
-    cleanCache(); // Clean up expired entries
+    cacheManager.cleanup();
     const cacheKey = await hashInput(input);
-    const cachedEntry = cache.get(cacheKey);
+    const cachedEntry = cacheManager.get(cacheKey);
 
     if (cachedEntry) {
       console.log('Cache hit for input hash:', cacheKey.substring(0, 8));
@@ -186,8 +132,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
         {
           status: 200,
           headers: {
-            'Content-Type': 'application/json',
-            'X-Cache': 'HIT'
+            'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
+            'X-Cache': CACHE_HEADERS.HIT
           }
         }
       );
@@ -196,13 +142,13 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // Access environment variables from Cloudflare runtime
     const cloudflareEnv = (locals as App.Locals).runtime?.env;
     const apiKey = cloudflareEnv?.ANTHROPIC_API_KEY || import.meta.env.ANTHROPIC_API_KEY;
-    const model = cloudflareEnv?.ANTHROPIC_MODEL || import.meta.env.ANTHROPIC_MODEL || 'claude-sonnet-4-5-20250929';
+    const model = cloudflareEnv?.ANTHROPIC_MODEL || import.meta.env.ANTHROPIC_MODEL || ANTHROPIC_CONFIG.DEFAULT_MODEL;
 
     if (!apiKey) {
       console.error('ANTHROPIC_API_KEY not configured');
       return new Response(
-        JSON.stringify({ error: 'Server not configured: Missing API key' }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: ERROR_MESSAGES.SERVER_NOT_CONFIGURED }),
+        { status: 500, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
       );
     }
 
@@ -214,32 +160,17 @@ export const POST: APIRoute = async ({ request, locals }) => {
       const customReadable = new ReadableStream({
         async start(controller) {
           try {
-            const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
+            const anthropicResponse = await fetch(ANTHROPIC_CONFIG.API_URL, {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': apiKey,
-                'anthropic-version': '2023-06-01',
-              },
-              body: JSON.stringify({
-                model,
-                max_tokens: 1500,
-                system: SYSTEM_PROMPT,
-                stream: true,
-                messages: [
-                  {
-                    role: 'user',
-                    content: `Vurder følgende OKR-sett:\n\n${input.trim()}`,
-                  },
-                ],
-              }),
+              headers: createAnthropicHeaders(apiKey),
+              body: JSON.stringify(createAnthropicRequestBody(input, model, true)),
             });
 
             if (!anthropicResponse.ok) {
               const errorData = await anthropicResponse.json() as AnthropicErrorResponse;
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({
                 error: true,
-                message: errorData?.error?.message || 'API error'
+                message: errorData?.error?.message || ERROR_MESSAGES.API_ERROR
               })}\n\n`));
               controller.close();
               return;
@@ -282,10 +213,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
             }
 
             // Cache the complete output
-            cache.set(cacheKey, {
-              output: fullOutput,
-              timestamp: Date.now(),
-            });
+            cacheManager.set(cacheKey, fullOutput);
 
             controller.enqueue(encoder.encode('data: [DONE]\n\n'));
             controller.close();
@@ -293,7 +221,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
             console.error('Streaming error:', error);
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({
               error: true,
-              message: 'Streaming failed'
+              message: ERROR_MESSAGES.STREAMING_FAILED
             })}\n\n`));
             controller.close();
           }
@@ -302,33 +230,19 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
       return new Response(customReadable, {
         headers: {
-          'Content-Type': 'text/event-stream',
-          'Cache-Control': 'no-cache',
-          'Connection': 'keep-alive',
-          'X-Cache': 'MISS',
+          'Content-Type': HTTP_HEADERS.CONTENT_TYPE_SSE,
+          'Cache-Control': HTTP_HEADERS.CACHE_CONTROL_NO_CACHE,
+          'Connection': HTTP_HEADERS.CONNECTION_KEEP_ALIVE,
+          'X-Cache': CACHE_HEADERS.MISS,
         },
       });
     }
 
     // Non-streaming response
-    const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
+    const anthropicResponse = await fetch(ANTHROPIC_CONFIG.API_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: 1500,
-        system: SYSTEM_PROMPT,
-        messages: [
-          {
-            role: 'user',
-            content: `Vurder følgende OKR-sett:\n\n${input.trim()}`,
-          },
-        ],
-      }),
+      headers: createAnthropicHeaders(apiKey),
+      body: JSON.stringify(createAnthropicRequestBody(input, model, false)),
     });
 
     if (!anthropicResponse.ok) {
@@ -339,7 +253,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
           error: 'Failed to evaluate OKR',
           details: errorData?.error?.message || `API returned ${anthropicResponse.status}`,
         }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
+        { status: 500, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
       );
     }
 
@@ -347,18 +261,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const output = data.content[0]?.type === 'text' ? data.content[0].text : '';
 
     // Cache the result
-    cache.set(cacheKey, {
-      output,
-      timestamp: Date.now(),
-    });
+    cacheManager.set(cacheKey, output);
 
     return new Response(
       JSON.stringify({ output, cached: false }),
       {
         status: 200,
         headers: {
-          'Content-Type': 'application/json',
-          'X-Cache': 'MISS'
+          'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
+          'X-Cache': CACHE_HEADERS.MISS
         }
       }
     );
@@ -378,7 +289,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         error: 'Failed to evaluate OKR',
         details: errorMessage
       }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { status: 500, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
     );
   }
 };
