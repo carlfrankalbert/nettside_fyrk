@@ -22,7 +22,8 @@ import { EXTERNAL_LINKS } from '../utils/links';
     <header class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-neutral-200">
       <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         <a href="/" class="flex items-center gap-2 no-underline">
-          <svg width="80" height="24" viewBox="0 0 166 47" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="80" height="24" viewBox="0 0 166 47" fill="none" xmlns="http://www.w3.org/2000/svg" aria-labelledby="header-logo-title">
+            <title id="header-logo-title">FYRK</title>
             <path d="M30.8184 8.11475H9.84082V19.2056H28.7725V27.3188H9.84082V46.5464H0V15.5005L15.499 0.00146484H30.8184V8.11475ZM0 11.2583V0.00146484H11.2568L0 11.2583Z" fill="#001F3F" />
             <path d="M34.71 0H45.7327L56.3463 20.0455H56.8009L67.4145 0H78.4372L61.46 30.0909V46.5455H51.6872V30.0909L34.71 0Z" fill="#001F3F" />
             <path d="M83.8125 46.5455V0H102.176C105.691 0 108.691 0.628788 111.176 1.88636C113.676 3.12879 115.578 4.89394 116.881 7.18182C118.199 9.45455 118.858 12.1288 118.858 15.2045C118.858 18.2955 118.191 20.9545 116.858 23.1818C115.525 25.3939 113.593 27.0909 111.062 28.2727C108.547 29.4545 105.502 30.0455 101.926 30.0455H89.6307V22.1364H100.335C102.214 22.1364 103.775 21.8788 105.017 21.3636C106.259 20.8485 107.184 20.0758 107.79 19.0455C108.411 18.0152 108.722 16.7348 108.722 15.2045C108.722 13.6591 108.411 12.3561 107.79 11.2955C107.184 10.2348 106.252 9.43182 104.994 8.88636C103.752 8.32576 102.184 8.04546 100.29 8.04546H93.6534V46.5455H83.8125ZM108.949 25.3636L120.517 46.5455H109.653L98.3352 25.3636H108.949Z" fill="#001F3F" />
@@ -58,7 +59,7 @@ import { EXTERNAL_LINKS } from '../utils/links';
       <!-- Hero Section -->
       <section class="pt-32 pb-20 md:pt-40 md:pb-28 px-6 relative overflow-hidden bg-gradient-to-br from-neutral-50 via-white to-neutral-100">
         <!-- Decorative F watermark -->
-        <div class="absolute -right-20 -top-20 opacity-[0.03] pointer-events-none">
+        <div class="absolute -right-20 -top-20 opacity-[0.03] pointer-events-none" aria-hidden="true">
           <svg width="500" height="500" viewBox="0 0 31 47" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M30.8184 8.11475H9.84082V19.2056H28.7725V27.3188H9.84082V46.5464H0V15.5005L15.499 0.00146484H30.8184V8.11475ZM0 11.2583V0.00146484H11.2568L0 11.2583Z" fill="#001F3F" />
           </svg>
@@ -87,33 +88,33 @@ import { EXTERNAL_LINKS } from '../utils/links';
       </section>
 
       <!-- Typiske situasjoner -->
-      <section class="py-16 md:py-20 px-6 bg-neutral-50 border-y border-neutral-200">
+      <section class="py-16 md:py-20 px-6 bg-neutral-50 border-y border-neutral-200" aria-labelledby="situasjoner-heading">
         <div class="max-w-4xl mx-auto">
-          <h2 class="text-h4 font-semibold text-brand-navy mb-8 text-center">
+          <h2 id="situasjoner-heading" class="text-h4 font-semibold text-brand-navy mb-8 text-center">
             FYRK hjelper når
           </h2>
 
           <div class="grid md:grid-cols-2 gap-4 max-w-3xl mx-auto">
             <div class="flex items-start gap-3 bg-white rounded-lg p-4 border border-neutral-100">
-              <svg class="w-5 h-5 text-brand-navy flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-brand-navy flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
               </svg>
               <p class="text-neutral-600 mb-0">Teamet har mange parallelle initiativ og mangler retning</p>
             </div>
             <div class="flex items-start gap-3 bg-white rounded-lg p-4 border border-neutral-100">
-              <svg class="w-5 h-5 text-brand-navy flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-brand-navy flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
               </svg>
               <p class="text-neutral-600 mb-0">Strategi ligger i dokumenter, men ikke i hverdagen</p>
             </div>
             <div class="flex items-start gap-3 bg-white rounded-lg p-4 border border-neutral-100">
-              <svg class="w-5 h-5 text-brand-navy flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-brand-navy flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
               </svg>
               <p class="text-neutral-600 mb-0">Smidige metoder føles som seremonier uten effekt</p>
             </div>
             <div class="flex items-start gap-3 bg-white rounded-lg p-4 border border-neutral-100">
-              <svg class="w-5 h-5 text-brand-navy flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-brand-navy flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
               </svg>
               <p class="text-neutral-600 mb-0">Kvalitet lider fordi QA kommer for sent i prosessen</p>
@@ -123,14 +124,14 @@ import { EXTERNAL_LINKS } from '../utils/links';
       </section>
 
       <!-- Om FYRK Section -->
-      <section id="om" class="py-20 md:py-28 px-6 bg-white relative overflow-hidden">
+      <section id="om" class="py-20 md:py-28 px-6 bg-white relative overflow-hidden" aria-labelledby="om-heading">
         <!-- Subtle diagonal FYRK signature element -->
-        <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
           <div class="absolute -right-1/4 top-1/4 w-[800px] h-[400px] bg-gradient-to-br from-brand-navy/[0.04] to-transparent rotate-[-25deg] rounded-[100px]"></div>
         </div>
 
         <div class="max-w-4xl mx-auto relative z-10">
-          <h2 class="text-h2 font-semibold text-brand-navy mb-8 text-center">
+          <h2 id="om-heading" class="text-h2 font-semibold text-brand-navy mb-8 text-center">
             Om FYRK
           </h2>
 
@@ -152,7 +153,7 @@ import { EXTERNAL_LINKS } from '../utils/links';
             <!-- Produktstrategi -->
             <div class="bg-white rounded-xl py-10 px-8 text-center shadow-md border border-neutral-100 hover:shadow-lg hover:border-brand-navy/10 hover:-translate-y-1 transition-all duration-200">
               <div class="w-14 h-14 bg-brand-navy rounded-xl flex items-center justify-center mx-auto mb-5">
-                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                 </svg>
               </div>
@@ -166,7 +167,7 @@ import { EXTERNAL_LINKS } from '../utils/links';
             <div class="bg-white rounded-xl py-10 px-8 text-center shadow-md border border-neutral-100 hover:shadow-lg hover:border-brand-navy/10 hover:-translate-y-1 transition-all duration-200">
               <div class="w-14 h-14 bg-brand-navy rounded-xl flex items-center justify-center mx-auto mb-5">
                 <!-- Layers icon - represents structured workflow -->
-                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                 </svg>
               </div>
@@ -179,7 +180,7 @@ import { EXTERNAL_LINKS } from '../utils/links';
             <!-- Kvalitetsledelse -->
             <div class="bg-white rounded-xl py-10 px-8 text-center shadow-md border border-neutral-100 hover:shadow-lg hover:border-brand-navy/10 hover:-translate-y-1 transition-all duration-200">
               <div class="w-14 h-14 bg-brand-navy rounded-xl flex items-center justify-center mx-auto mb-5">
-                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
               </div>
@@ -193,13 +194,13 @@ import { EXTERNAL_LINKS } from '../utils/links';
       </section>
 
       <!-- Verktøy Section -->
-      <section id="verktoy" class="py-20 md:py-28 px-6 bg-brand-navy relative overflow-hidden">
+      <section id="verktoy" class="py-20 md:py-28 px-6 bg-brand-navy relative overflow-hidden" aria-labelledby="verktoy-heading">
         <!-- Decorative elements -->
-        <div class="absolute top-0 left-0 w-96 h-96 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-        <div class="absolute bottom-0 right-0 w-64 h-64 bg-white/5 rounded-full translate-x-1/3 translate-y-1/3"></div>
+        <div class="absolute top-0 left-0 w-96 h-96 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2" aria-hidden="true"></div>
+        <div class="absolute bottom-0 right-0 w-64 h-64 bg-white/5 rounded-full translate-x-1/3 translate-y-1/3" aria-hidden="true"></div>
 
         <div class="max-w-4xl mx-auto relative z-10">
-          <h2 class="text-h2 font-semibold text-white mb-4 text-center">
+          <h2 id="verktoy-heading" class="text-h2 font-semibold text-white mb-4 text-center">
             Verktøy
           </h2>
           <p class="text-lg text-neutral-300 mb-12 text-center max-w-2xl mx-auto">
@@ -211,7 +212,7 @@ import { EXTERNAL_LINKS } from '../utils/links';
             <div class="bg-white rounded-xl p-8 md:p-10 shadow-lg">
               <div class="flex flex-col md:flex-row md:items-center gap-6">
                 <div class="w-16 h-16 bg-brand-navy rounded-xl flex items-center justify-center flex-shrink-0">
-                  <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
                   </svg>
                 </div>
@@ -238,14 +239,14 @@ import { EXTERNAL_LINKS } from '../utils/links';
       </section>
 
       <!-- Kontakt Section -->
-      <section id="kontakt" class="py-20 md:py-28 px-6 relative overflow-hidden bg-gradient-to-b from-neutral-50/50 to-white">
+      <section id="kontakt" class="py-20 md:py-28 px-6 relative overflow-hidden bg-gradient-to-b from-neutral-50/50 to-white" aria-labelledby="kontakt-heading">
         <!-- Subtle diagonal FYRK signature element -->
-        <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
           <div class="absolute -left-1/4 bottom-0 w-[600px] h-[300px] bg-gradient-to-tr from-brand-navy/[0.03] to-transparent rotate-[-25deg] rounded-[100px]"></div>
         </div>
 
         <div class="max-w-2xl mx-auto text-center relative z-10">
-          <h2 class="text-h2 font-semibold text-brand-navy mb-4">
+          <h2 id="kontakt-heading" class="text-h2 font-semibold text-brand-navy mb-4">
             Ta kontakt
           </h2>
           <p class="text-lg text-neutral-600 mb-4">
@@ -257,13 +258,13 @@ import { EXTERNAL_LINKS } from '../utils/links';
 
           <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <a href={EXTERNAL_LINKS.email} class="btn btn-primary no-underline inline-flex items-center gap-2">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
               </svg>
               hei@fyrk.no
             </a>
             <a href={EXTERNAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer" class="btn btn-outline no-underline inline-flex items-center gap-2">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M19 3A2 2 0 0 1 21 5V19A2 2 0 0 1 19 21H5A2 2 0 0 1 3 19V5A2 2 0 0 1 5 3H19M18.5 18.5V13.2A3.26 3.26 0 0 0 15.24 9.94C14.39 9.94 13.4 10.46 12.92 11.24V10.13H10.13V18.5H12.92V13.57C12.92 12.8 13.54 12.17 14.31 12.17A1.4 1.4 0 0 1 15.71 13.57V18.5H18.5M6.88 8.56A1.68 1.68 0 0 0 8.56 6.88C8.56 5.95 7.81 5.19 6.88 5.19A1.69 1.69 0 0 0 5.19 6.88C5.19 7.81 5.95 8.56 6.88 8.56M8.27 18.5V10.13H5.5V18.5H8.27Z"/>
               </svg>
               LinkedIn
@@ -276,14 +277,14 @@ import { EXTERNAL_LINKS } from '../utils/links';
     <!-- Footer -->
     <footer class="py-10 px-6 border-t border-neutral-200 bg-neutral-50 relative overflow-hidden">
       <!-- Subtle diagonal FYRK signature element -->
-      <div class="absolute inset-0 pointer-events-none">
+      <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
         <div class="absolute -right-1/4 -bottom-1/2 w-[500px] h-[250px] bg-gradient-to-tl from-brand-navy/[0.04] to-transparent rotate-[-25deg] rounded-[80px]"></div>
       </div>
 
       <div class="max-w-6xl mx-auto relative z-10">
         <div class="flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-neutral-500">
           <div class="flex flex-col items-center md:items-start gap-3">
-            <svg width="60" height="18" viewBox="0 0 166 47" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="60" height="18" viewBox="0 0 166 47" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M30.8184 8.11475H9.84082V19.2056H28.7725V27.3188H9.84082V46.5464H0V15.5005L15.499 0.00146484H30.8184V8.11475ZM0 11.2583V0.00146484H11.2568L0 11.2583Z" fill="#717182" />
               <path d="M34.71 0H45.7327L56.3463 20.0455H56.8009L67.4145 0H78.4372L61.46 30.0909V46.5455H51.6872V30.0909L34.71 0Z" fill="#717182" />
               <path d="M83.8125 46.5455V0H102.176C105.691 0 108.691 0.628788 111.176 1.88636C113.676 3.12879 115.578 4.89394 116.881 7.18182C118.199 9.45455 118.858 12.1288 118.858 15.2045C118.858 18.2955 118.191 20.9545 116.858 23.1818C115.525 25.3939 113.593 27.0909 111.062 28.2727C108.547 29.4545 105.502 30.0455 101.926 30.0455H89.6307V22.1364H100.335C102.214 22.1364 103.775 21.8788 105.017 21.3636C106.259 20.8485 107.184 20.0758 107.79 19.0455C108.411 18.0152 108.722 16.7348 108.722 15.2045C108.722 13.6591 108.411 12.3561 107.79 11.2955C107.184 10.2348 106.252 9.43182 104.994 8.88636C103.752 8.32576 102.184 8.04546 100.29 8.04546H93.6534V46.5455H83.8125ZM108.949 25.3636L120.517 46.5455H109.653L98.3352 25.3636H108.949Z" fill="#717182" />

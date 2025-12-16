@@ -21,7 +21,7 @@ export default {
           100: '#F5F5F5',
           200: '#E0E0E0',
           300: '#CBCED4',
-          500: '#717182',
+          500: '#5a5a6e', // Improved contrast ratio (was #717182)
           700: '#333333',
           900: '#0F1419',
         },
