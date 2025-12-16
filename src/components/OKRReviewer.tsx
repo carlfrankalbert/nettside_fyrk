@@ -75,7 +75,7 @@ export default function OKRReviewer() {
             type="button"
             onClick={handleFillExample}
             disabled={loading}
-            className="text-sm text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 focus:outline-none focus:ring-2 focus:ring-brand-cyan focus:ring-offset-2 rounded disabled:opacity-60 disabled:cursor-not-allowed"
+            className="text-sm text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 focus:bg-neutral-100 focus:px-2 focus:-mx-2 rounded transition-all disabled:opacity-60 disabled:cursor-not-allowed"
           >
             Vis eksempel
           </button>
