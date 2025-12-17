@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { reviewOKRStreaming } from '../services/okr-service';
 import OKRResultDisplay from './OKRResultDisplay';
 
@@ -10,11 +10,7 @@ Key Results:
 2. Redusere tid til første verdi fra 10 minutter til under 3 minutter.
 3. Redusere onboarding-relaterte supporthenvendelser med 50 %.`;
 
-interface OKRReviewerProps {
-  onResultGenerated?: (hasResult: boolean) => void;
-}
-
-export default function OKRReviewer({ onResultGenerated }: OKRReviewerProps) {
+export default function OKRReviewer() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,11 +21,6 @@ export default function OKRReviewer({ onResultGenerated }: OKRReviewerProps) {
   const abortControllerRef = useRef<AbortController | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  // Notify parent when result state changes
-  useEffect(() => {
-    onResultGenerated?.(!!result);
-  }, [result, onResultGenerated]);
 
   const handleFillExample = () => {
     // Trigger animation
@@ -158,7 +149,7 @@ Key Results:
           rows={8}
           aria-describedby={error ? 'okr-error okr-help' : 'okr-help'}
           aria-invalid={error ? 'true' : undefined}
-          className={`w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 rounded-lg resize-y min-h-[220px] focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker placeholder:text-neutral-400 disabled:opacity-60 disabled:cursor-not-allowed aria-[invalid=true]:border-feedback-error transition-all duration-300 ${
+          className={`w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 rounded-lg resize-y min-h-[220px] focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker placeholder:text-neutral-500 disabled:opacity-60 disabled:cursor-not-allowed aria-[invalid=true]:border-feedback-error transition-all duration-300 ${
             isExampleAnimating
               ? 'border-brand-cyan bg-brand-cyan-lightest/50 ring-2 ring-brand-cyan shadow-brand-cyan scale-[1.01]'
               : 'border-neutral-300'

@@ -14,7 +14,7 @@ function ScoreRing({ score, isStreaming }: { score: number | null; isStreaming: 
     if (isStreaming) {
       return (
         <div className="flex items-center justify-center w-24 h-24 rounded-full bg-neutral-100 animate-pulse">
-          <span className="text-neutral-400 text-sm">...</span>
+          <span className="text-neutral-500 text-sm">...</span>
         </div>
       );
     }
