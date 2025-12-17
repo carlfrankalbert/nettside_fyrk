@@ -1,106 +1,238 @@
 # Testing Documentation
 
+## Oversikt
+
+Prosjektet bruker to test-rammeverk:
+
+1. **Playwright** - E2E-tester, visual regression, og integrasjonstester
+2. **Vitest** - Unit-tester for funksjoner og utilities
+
 ## Visual Testing Philosophy
 
-Our testing approach follows a clear separation of concerns:
+Vår testing-tilnærming følger en klar separasjon:
 
-- **Functional tests verify *presence*** (element exists)
-  - Smoke tests check that critical elements are present and functional
-  - They verify that the page loads, navigation works, and key content is visible
-  - Example: "The contact form is visible and accessible"
+- **Funksjonelle tester verifiserer *tilstedeværelse*** (element eksisterer)
+  - Smoke tests sjekker at kritiske elementer er til stede og funksjonelle
+  - De verifiserer at siden laster, navigasjon fungerer, og nøkkelinnhold er synlig
+  - Eksempel: "Kontaktskjemaet er synlig og tilgjengelig"
 
-- **Visual regression tests verify *appearance*** (element looks correct)
-  - Visual tests capture screenshots and compare them against approved baselines
-  - They detect any visual changes, whether intentional or unintentional
-  - Example: "The homepage hero section matches the approved design"
+- **Visual regression tests verifiserer *utseende*** (element ser riktig ut)
+  - Visuelle tester tar screenshots og sammenligner mot godkjente baselines
+  - De oppdager visuelle endringer, enten tilsiktede eller utilsiktede
+  - Eksempel: "Hjemmesiden hero-seksjon matcher godkjent design"
 
-- **Baseline screenshots represent the approved design**
-  - Baseline screenshots in `tests/__snapshots__/` are the source of truth
-  - These represent the design that has been reviewed and approved
-  - Any deviation from baseline indicates a potential issue or intentional change
+- **Baseline screenshots representerer godkjent design**
+  - Baseline screenshots i `tests/__snapshots__/` er sannhetskilden
+  - Disse representerer design som er gjennomgått og godkjent
+  - Ethvert avvik fra baseline indikerer et potensielt problem eller tilsiktet endring
 
-- **Any visual deviation from baseline must be reviewed and either fixed or approved as new baseline**
-  - When visual tests fail, the difference must be investigated
-  - If the change is unintentional (bug), it must be fixed
-  - If the change is intentional (new design), the baseline must be updated after review
+## Kjør Tester Lokalt
 
-## Overview
-
-This project uses Playwright for automated testing with two main test suites:
-
-1. **Smoke Tests** - Daily automated tests for critical user flows (verify presence)
-2. **Visual Regression Tests** - Monthly automated tests for visual consistency (verify appearance)
-
-## Running Tests Locally
-
-### Prerequisites
+### Forutsetninger
 
 ```bash
 npm install
 npm run build
+npx playwright install  # Installer nettlesere første gang
 ```
 
-### Run All Tests
+### Alle Tester
 
 ```bash
+# Alle E2E-tester (Playwright)
 npm test
+
+# Alle unit-tester (Vitest)
+npm run test:unit
 ```
 
-### Run Smoke Tests Only
+## E2E Testing (Playwright)
+
+### Test-prosjekter
+
+| Prosjekt | Kommando | Beskrivelse |
+|----------|----------|-------------|
+| Smoke | `npm run test:smoke` | Kritiske brukerflyter (desktop, mobile, tablet) |
+| Visual | `npm run test:visual` | Visual regression (desktop) |
+| Visual Mobile | `npm run test:visual-mobile` | Mobil visual regression |
+| UX Mobile | `npm run test:ux-mobile` | Mobil brukeropplevelse |
+| Mobile (alle) | `npm run test:mobile` | Visual + UX mobile kombinert |
+| Security | `npm run test:security` | OWASP sikkerhetstester |
+| OKR API | `npm run test:okr-api` | OKR-sjekken API-tester |
+| Theme | `npm run test:theme` | Dark/light mode testing |
+
+### Smoke Tests
+
+Daglige tester for kritiske brukerflyter:
 
 ```bash
 npm run test:smoke
 ```
 
-### Run Visual Regression Tests Only
+Kjører på:
+- Desktop Chrome
+- iPhone 14
+- iPad Pro
+
+### Visual Regression Tests
+
+Månedlige tester for visuell konsistens:
 
 ```bash
 npm run test:visual
 ```
 
-### Run Tests with UI
+Kjører på:
+- Desktop Chrome, Firefox, Safari
+- iPhone 14, Pixel 7
+- iPad Pro
+
+### Security Tests
+
+OWASP-baserte sikkerhetstester:
+
+```bash
+npm run test:security
+```
+
+Tester inkluderer:
+- XSS-beskyttelse
+- Input-validering
+- Headers-sikkerhet
+
+### OKR API Tests
+
+Tester for OKR-sjekken API-endepunktet:
+
+```bash
+npm run test:okr-api
+```
+
+Tester inkluderer:
+- Input-validering
+- Rate limiting
+- Prompt injection-beskyttelse
+- Respons-format
+
+### Theme Toggle Tests
+
+Tester for dark/light mode:
+
+```bash
+npm run test:theme
+```
+
+Tester inkluderer:
+- System preference detection
+- Toggle-funksjonalitet
+- Persistens i localStorage
+
+### Playwright UI Mode
+
+For interaktiv debugging:
 
 ```bash
 npm run test:ui
 ```
 
-## Test Structure
+## Unit Testing (Vitest)
+
+Unit-tester bruker Vitest med happy-dom for DOM-simulering.
+
+### Kjør Unit Tests
+
+```bash
+# Kjør én gang
+npm run test:unit
+
+# Watch mode (re-kjører ved endringer)
+npm run test:unit:watch
+
+# Med coverage rapport
+npm run test:unit:coverage
+```
+
+### Testfiler
+
+Unit-tester ligger i `src/` ved siden av kildekoden:
+
+```
+src/
+├── utils/
+│   ├── form-validation.ts
+│   ├── form-validation.test.ts
+│   ├── okr-parser.ts
+│   ├── okr-parser.test.ts
+│   ├── cache.ts
+│   └── cache.test.ts
+├── services/
+│   ├── okr-service.ts
+│   └── okr-service.test.ts
+```
+
+### Eksempel Unit Test
+
+```typescript
+// src/utils/example.test.ts
+import { describe, it, expect } from 'vitest';
+import { myFunction } from './example';
+
+describe('myFunction', () => {
+  it('should return expected result', () => {
+    const result = myFunction('input');
+    expect(result).toBe('expected');
+  });
+});
+```
+
+## Test Struktur
 
 ```
 tests/
-├── homepage.smoke.ts      # Homepage smoke tests
-├── contact.smoke.ts       # Contact page smoke tests
-├── pages.smoke.ts         # All pages smoke tests
-├── homepage.visual.ts     # Homepage visual regression
-└── pages.visual.ts        # All pages visual regression
+├── pages.smoke.ts          # Alle sider smoke tests
+├── pages.visual.ts         # Desktop visual regression
+├── mobile.visual.ts        # Mobile visual regression
+├── mobile.ux.ts            # Mobile UX tests
+├── contrast.spec.ts        # WCAG kontrast-tester
+├── security.spec.ts        # Sikkerhetstester
+├── okr-sjekken.spec.ts     # OKR API tests
+├── theme-toggle.spec.ts    # Theme toggle tests
+└── *-snapshots/            # Visual regression baselines
 ```
 
 ## GitHub Actions Workflows
 
 ### Daily Smoke Test
 
-- **Schedule:** Every day at 06:00 UTC
-- **Manual trigger:** Available via workflow_dispatch
-- **Tests:** Critical user flows across desktop, mobile, and tablet
-- **Location:** `.github/workflows/smoke-test.yml`
+- **Schedule:** Hver dag kl 06:00 UTC
+- **Manuell trigger:** Tilgjengelig via workflow_dispatch
+- **Tester:** Kritiske brukerflyter på desktop, mobile, tablet
+- **Lokasjon:** `.github/workflows/smoke-test.yml`
 
 ### Monthly Visual Regression
 
-- **Schedule:** First day of each month at 08:00 UTC
-- **Manual trigger:** Available via workflow_dispatch
-- **Tests:** Visual snapshots across top device/browser configurations
-- **Location:** `.github/workflows/visual-regression.yml`
+- **Schedule:** Første dag i måneden kl 08:00 UTC
+- **Manuell trigger:** Tilgjengelig via workflow_dispatch
+- **Tester:** Visual snapshots på topp device/browser-konfigurasjoner
+- **Lokasjon:** `.github/workflows/visual-regression.yml`
 
-## Test Configuration
+## Oppdater Visual Baselines
 
-Tests are configured in `playwright.config.ts` with separate projects for:
+Når du gjør tilsiktede visuelle endringer:
 
-- **Smoke tests:** Desktop Chrome, iPhone 14, iPad Pro
-- **Visual regression:** Desktop Chrome, Firefox, Safari, iPhone 14, Pixel 7, iPad Pro
+1. **Gjør designendringene** i kodebasen
+2. **Kjør visual tests lokalt**: `npm run test:visual`
+3. **Gjennomgå forskjellene** i testresultatene:
+   - Sjekk diff-bildene i `test-results/`
+   - Verifiser at endringene matcher tilsiktet design
+4. **Oppdater baselines**: `npx playwright test --update-snapshots`
+5. **Commit de oppdaterte snapshotsene** sammen med kodeendringene
 
-## Adding New Tests
+**Viktig**: Oppdater aldri baselines uten å gjennomgå de visuelle forskjellene først.
 
-### Smoke Test Example
+## Legge til Nye Tester
+
+### Ny Smoke Test
 
 ```typescript
 // tests/new-feature.smoke.ts
@@ -112,7 +244,7 @@ test('new feature works', async ({ page }) => {
 });
 ```
 
-### Visual Test Example
+### Ny Visual Test
 
 ```typescript
 // tests/new-feature.visual.ts
@@ -127,68 +259,58 @@ test('new feature visual snapshot', async ({ page }) => {
 });
 ```
 
-## Updating Visual Baselines
+### Ny Unit Test
 
-When you make intentional visual changes:
+```typescript
+// src/utils/new-utility.test.ts
+import { describe, it, expect } from 'vitest';
+import { newUtility } from './new-utility';
 
-1. **Make your design changes** to the codebase
-2. **Run visual tests locally**: `npm run test:visual`
-3. **Review the differences** in the test results:
-   - Check the diff images in `test-results/` to see what changed
-   - Verify that the changes match your intended design
-4. **Get approval** (if required by your team's process):
-   - Ensure the new visual state is reviewed and approved
-   - Document the reason for the visual change
-5. **Update baselines**: `npx playwright test --update-snapshots`
-   - This replaces the old baseline with the new approved design
-   - Only run this after confirming the changes are intentional and correct
-6. **Commit the updated snapshots** along with your code changes
-   - The new baseline screenshots become the new source of truth
+describe('newUtility', () => {
+  it('handles valid input', () => {
+    expect(newUtility('valid')).toBe(true);
+  });
 
-**Important**: Never update baselines without reviewing the visual differences first. The baseline represents the approved design, so updating it should be a deliberate decision.
+  it('handles invalid input', () => {
+    expect(newUtility('')).toBe(false);
+  });
+});
+```
 
-## CI/CD Integration
+## Konfigurasjon
 
-Tests run automatically:
-- **Smoke tests:** Daily at 06:00 UTC
-- **Visual regression:** Monthly on the 1st at 08:00 UTC
+### Playwright Config
 
-Both workflows can also be triggered manually from the GitHub Actions tab.
+Tester er konfigurert i `playwright.config.ts` med separate prosjekter for ulike testtyper og devices.
 
-## Troubleshooting
+### Vitest Config
 
-### Tests fail locally
+Unit-tester er konfigurert i `vitest.config.ts` (eller `vite.config.ts`) med happy-dom for DOM-simulering.
 
-1. Make sure the site is built: `npm run build`
-2. Check that Playwright browsers are installed: `npx playwright install`
-3. Verify the preview server starts: `npm run preview`
+## Feilsøking
 
-### Visual tests show false positives
+### Tester feiler lokalt
 
-- **Review the diff images** in `test-results/` directory to see what changed
-- **Determine if the change is intentional or a bug**:
-  - If it's a bug: Fix the code and re-run tests
-  - If it's intentional: Follow the "Updating Visual Baselines" process above
-- Adjust `maxDiffPixelRatio` in test files only if needed for minor rendering differences
-- **Never ignore visual test failures** - they indicate a deviation from the approved design
+1. Sørg for at siden er bygget: `npm run build`
+2. Sjekk at Playwright-nettlesere er installert: `npx playwright install`
+3. Verifiser at preview-serveren starter: `npm run preview`
 
-### Visual tests fail in CI
+### Visual tests viser false positives
 
-When visual regression tests fail in GitHub Actions:
+- **Gjennomgå diff-bildene** i `test-results/`
+- **Avgjør om endringen er tilsiktet eller en bug**:
+  - Hvis bug: Fiks koden og kjør tester på nytt
+  - Hvis tilsiktet: Følg prosessen for å oppdatere baselines
+- Juster `maxDiffPixelRatio` kun hvis nødvendig for mindre rendering-forskjeller
 
-1. **Download the visual diff artifacts** from the workflow run
-2. **Review the differences** in the uploaded screenshots
-3. **Determine the cause**:
-   - **Unintentional change (bug)**: Fix the code, commit, and push
-   - **Intentional change (new design)**: 
-     - Update baselines locally: `npx playwright test --update-snapshots`
-     - Commit the updated baselines with your code changes
-     - Push to trigger a new test run
-4. **Document the change** in your commit message or PR description
+### Unit tests feiler
 
-### CI tests fail
+1. Sjekk at alle avhengigheter er installert: `npm install`
+2. Kjør tester i watch mode for debugging: `npm run test:unit:watch`
+3. Bruk `--reporter=verbose` for mer detaljert output
 
-- Check GitHub Actions logs for specific errors
-- Verify that the production site (fyrk.no) is accessible
-- Ensure all dependencies are listed in `package.json`
+### CI-tester feiler
 
+- Sjekk GitHub Actions-logger for spesifikke feil
+- Verifiser at produksjonssiden (fyrk.no) er tilgjengelig
+- Sørg for at alle dependencies er listet i `package.json`
