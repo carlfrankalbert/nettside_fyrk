@@ -80,13 +80,18 @@ import {
       const mobileMenu = document.getElementById(ELEMENT_IDS.MOBILE_MENU);
 
       menuBtn?.addEventListener('click', () => {
-        mobileMenu?.classList.toggle('hidden');
+        const isHidden = mobileMenu?.classList.toggle('hidden');
+        // Update aria-expanded state for accessibility
+        menuBtn.setAttribute('aria-expanded', String(!isHidden));
+        menuBtn.setAttribute('aria-label', isHidden ? 'Åpne meny' : 'Lukk meny');
       });
 
       // Close mobile menu when clicking a link
       mobileMenu?.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', () => {
           mobileMenu?.classList.add('hidden');
+          menuBtn?.setAttribute('aria-expanded', 'false');
+          menuBtn?.setAttribute('aria-label', 'Åpne meny');
         });
       });
     </script>
