@@ -19,13 +19,11 @@ export const navLinks = [
  * Hero section content
  */
 export const heroContent = {
-  tagline: 'Rådgivning · Produktstrategi · OKR',
+  tagline: 'Når hverdagen er kompleks og kravene mange',
   headline: 'Produktledelse som gjør strategi til handling',
   description: 'FYRK hjelper team som vil levere, ikke bare planlegge. Med struktur som tåler endringer uten å miste fart.',
-  ctaText: 'Book en gratis samtale',
+  ctaText: 'Ta en uforpliktende prat',
   ctaHref: '#kontakt',
-  secondaryCtaText: 'Prøv OKR-sjekken gratis',
-  secondaryCtaHref: PAGE_ROUTES.OKR_REVIEWER,
 } as const;
 
 /**
