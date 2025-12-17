@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react';
 import { reviewOKRStreaming } from '../services/okr-service';
 import OKRResultDisplay from './OKRResultDisplay';
+import { CheckIcon, ErrorIcon, SpinnerIcon, ChevronRightIcon } from './ui/Icon';
+import { cn } from '../utils/classes';
 
 const EXAMPLE_OKR = `Objective:
 Gjøre det enkelt og trygt for brukere å komme i gang med produktet.
@@ -92,21 +94,15 @@ export default function OKRReviewer() {
       <div className="p-4 bg-neutral-100 rounded-lg">
         <ul className="space-y-1.5 text-sm text-neutral-700" role="list">
           <li className="flex items-start gap-2">
-            <svg className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
+            <CheckIcon className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" />
             <span>Lim inn <strong>Objective</strong> + <strong>Key Results</strong></span>
           </li>
           <li className="flex items-start gap-2">
-            <svg className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
+            <CheckIcon className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" />
             <span>Få vurdering, styrker og forbedringsforslag</span>
           </li>
           <li className="flex items-start gap-2">
-            <svg className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
+            <CheckIcon className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" />
             <span>Under ett minutt · Ingen lagring</span>
           </li>
         </ul>
@@ -149,11 +145,16 @@ Key Results:
           rows={8}
           aria-describedby={error ? 'okr-error okr-help' : 'okr-help'}
           aria-invalid={error ? 'true' : undefined}
-          className={`w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 rounded-lg resize-y min-h-[220px] focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker placeholder:text-neutral-500 disabled:opacity-60 disabled:cursor-not-allowed aria-[invalid=true]:border-feedback-error transition-all duration-300 ${
+          className={cn(
+            'w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 rounded-lg',
+            'resize-y min-h-[220px] placeholder:text-neutral-500',
+            'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker',
+            'disabled:opacity-60 disabled:cursor-not-allowed',
+            'aria-[invalid=true]:border-feedback-error transition-all duration-300',
             isExampleAnimating
               ? 'border-brand-cyan bg-brand-cyan-lightest/50 ring-2 ring-brand-cyan shadow-brand-cyan scale-[1.01]'
               : 'border-neutral-300'
-          }`}
+          )}
           disabled={loading}
         />
       </div>
@@ -169,16 +170,7 @@ Key Results:
         >
           {loading ? (
             <>
-              <svg
-                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
+              <SpinnerIcon className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
               <span>Vurderer OKR-ene dine...</span>
             </>
           ) : (
@@ -198,9 +190,7 @@ Key Results:
 
         {error && (
           <p id="okr-error" role="alert" className="text-feedback-error text-sm flex items-center gap-2">
-            <svg className="w-4 h-4 flex-shrink-0" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
+            <ErrorIcon className="w-4 h-4 flex-shrink-0" />
             {error}
           </p>
         )}
@@ -218,16 +208,7 @@ Key Results:
         {loading && !result && (
           <div className="mt-8 p-6 bg-white border-2 border-neutral-200 rounded-lg">
             <div className="flex items-center gap-3 text-neutral-500">
-              <svg
-                className="animate-spin h-5 w-5"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
+              <SpinnerIcon className="animate-spin h-5 w-5" />
               <span>Vurderer OKR-ene dine - dette tar vanligvis 5-10 sekunder...</span>
             </div>
           </div>
@@ -252,14 +233,7 @@ Key Results:
           aria-controls="privacy-content"
           className="flex items-center gap-2 text-sm text-brand-navy hover:text-brand-cyan-darker focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded py-2"
         >
-          <svg
-            className={`w-4 h-4 transition-transform ${isPrivacyOpen ? 'rotate-90' : ''}`}
-            aria-hidden="true"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-          </svg>
+          <ChevronRightIcon className={cn('w-4 h-4 transition-transform', isPrivacyOpen && 'rotate-90')} />
           Les mer om AI og personvern
         </button>
         {isPrivacyOpen && (

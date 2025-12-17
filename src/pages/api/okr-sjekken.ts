@@ -7,36 +7,35 @@ export const prerender = false;
 
 const SYSTEM_PROMPT = `Du er OKR Reviewer for FYRK – en rolig, strukturert og svært kompetent produktleder.
 Oppgaven din er å evaluere OKR-er med klarhet, presisjon og en jordnær skandinavisk tone.
-
 Svar ALLTID på norsk (bokmål).
 
-Følg disse reglene:
+## Scoring (1-10)
+Bruk denne sjekklisten og summer poengene:
 
-1. Returner output i nøyaktig fire seksjoner:
-   1) Samlet vurdering (inkluder score 1-10)
-   2) Hva fungerer bra
-   3) Hva bør forbedres
-   4) Forslag til forbedret OKR-sett
+OBJECTIVE (maks 4 poeng):
+- Inspirerende og retningsgivende, ikke bare en aktivitet (1p)
+- Kvalitativt formulert – målet er ikke et tall i seg selv (1p)
+- Tydelig hvem det gjelder eller hvilket segment/område (1p)
+- Teamet kan realistisk påvirke utfallet (1p)
 
-2. Vær kortfattet. Ingen lange avsnitt. Ingen buzzwords.
+KEY RESULTS (maks 6 poeng):
+- Alle KRer er outcomes, ikke outputs eller aktiviteter (2p)
+- Alle har både baseline (nåverdi) OG målverdi (1p)
+- Tidsramme er spesifisert eller tydelig fra kontekst (1p)
+- Ambisjonsnivå er stretch men oppnåelig (ikke 10x) (1p)
+- God balanse – ikke alle KRer måler samme dimensjon (1p)
 
-3. Vær ærlig, men konstruktiv. Unngå hype. Vær spesifikk om hva som er uklart eller svakt.
+10/10 er mulig når alle kriterier er oppfylt. Vær raus når OKR-en treffer, streng når den bommer.
 
-4. Score OKR-settet fra 1–10 basert på:
-   - Er Objective resultatorientert og retningsgivende (ikke en aktivitet)?
-   - Er Key Results målbare med konkrete tall?
-   - Er de faktiske resultater (ikke aktiviteter eller oppgaver)?
-   - Er det en tydelig tråd fra Objective til KR-er?
+## Output-format
+Returner nøyaktig fire seksjoner:
+1) Samlet vurdering (inkluder score X/10 og kort begrunnelse)
+2) Hva fungerer bra (maks 3 kulepunkter, én setning hver)
+3) Hva kan forbedres (maks 3 kulepunkter, én setning hver)
+4) Forslag til forbedret OKR-sett (1 Objective + 2-3 KRer, alle KRer med baseline og mål)
 
-5. I "Hva fungerer bra" og "Hva bør forbedres":
-   - Maks 3 kulepunkter hver
-   - Hvert punkt = maks én setning
-
-6. I det omskrevne OKR-settet:
-   - Behold ÉN forbedret Objective
-   - Inkluder 2–3 Key Results
-   - Hver KR må være målbar med en numerisk terskel
-   - Ingen aktiviteter forkledd som resultater`;
+## Tone
+Vær ærlig, kortfattet og konstruktiv. Ingen buzzwords. Ingen lange avsnitt.`;
 
 // Create shared cache and rate limiter instances (persist across requests in same Worker)
 const cacheManager = createServerCacheManager();
@@ -94,7 +93,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     if (!input?.trim()) {
       return new Response(
-        JSON.stringify({ error: 'Missing input' }),
+        JSON.stringify({ error: ERROR_MESSAGES.MISSING_INPUT_API }),
         { status: 400, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
       );
     }
@@ -104,7 +103,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     if (!rateLimiter.checkAndUpdate(clientIP)) {
       return new Response(
         JSON.stringify({
-          error: 'Rate limit exceeded',
+          error: ERROR_MESSAGES.RATE_LIMIT_EXCEEDED,
           details: 'Please wait a moment before trying again'
         }),
         {
@@ -250,7 +249,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       console.error('Anthropic API error:', anthropicResponse.status, errorData);
       return new Response(
         JSON.stringify({
-          error: 'Failed to evaluate OKR',
+          error: ERROR_MESSAGES.FAILED_TO_EVALUATE,
           details: errorData?.error?.message || `API returned ${anthropicResponse.status}`,
         }),
         { status: 500, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
@@ -283,10 +282,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
       console.error('Error stack:', err.stack);
     }
 
-    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    const errorMessage = err instanceof Error ? err.message : ERROR_MESSAGES.UNKNOWN_ERROR;
     return new Response(
       JSON.stringify({
-        error: 'Failed to evaluate OKR',
+        error: ERROR_MESSAGES.FAILED_TO_EVALUATE,
         details: errorMessage
       }),
       { status: 500, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
