@@ -12,6 +12,33 @@ Key Results:
 2. Redusere tid til første verdi fra 10 minutter til under 3 minutter.
 3. Redusere onboarding-relaterte supporthenvendelser med 50 %.`;
 
+/**
+ * Check if text appears to be URL-encoded
+ * Looks for common URL encoding patterns like %20 (space), %0A (newline), etc.
+ */
+function isUrlEncoded(text: string): boolean {
+  // Check for URL-encoded patterns: %XX where XX is hex
+  const urlEncodedPattern = /%[0-9A-Fa-f]{2}/;
+  if (!urlEncodedPattern.test(text)) return false;
+
+  // Additional check: common URL-encoded characters that shouldn't appear in normal OKR text
+  const commonEncodings = ['%20', '%0A', '%0D', '%C3']; // space, newline, carriage return, UTF-8 start
+  return commonEncodings.some(enc => text.includes(enc));
+}
+
+/**
+ * Safely decode URL-encoded text
+ * Falls back to original text if decoding fails
+ */
+function safeDecodeURIComponent(text: string): string {
+  try {
+    return decodeURIComponent(text);
+  } catch {
+    // If decoding fails, return original text
+    return text;
+  }
+}
+
 // Input validation constants
 const MIN_INPUT_LENGTH = 20;
 const MAX_INPUT_LENGTH = 2000;
@@ -61,6 +88,37 @@ export default function OKRReviewer() {
   const abortControllerRef = useRef<AbortController | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  /**
+   * Handle paste events to decode URL-encoded text
+   * This fixes an iOS Safari bug where copied text sometimes gets URL-encoded
+   */
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const pastedText = e.clipboardData.getData('text/plain');
+
+    if (isUrlEncoded(pastedText)) {
+      e.preventDefault();
+      const decodedText = safeDecodeURIComponent(pastedText);
+
+      // Get current cursor position
+      const textarea = e.currentTarget;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+
+      // Insert decoded text at cursor position
+      const newValue = input.substring(0, start) + decodedText + input.substring(end);
+      setInput(newValue);
+      if (error) setError(null);
+
+      // Reset cursor position after state update
+      setTimeout(() => {
+        if (textareaRef.current) {
+          const newPosition = start + decodedText.length;
+          textareaRef.current.setSelectionRange(newPosition, newPosition);
+        }
+      }, 0);
+    }
+  };
 
   const handleFillExample = () => {
     // Trigger animation
@@ -175,6 +233,7 @@ export default function OKRReviewer() {
             setInput(e.target.value);
             if (error) setError(null);
           }}
+          onPaste={handlePaste}
           placeholder="Objective:
 Ditt mål her...
 
