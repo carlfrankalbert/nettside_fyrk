@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { parseOKRResult, getScoreColor, type ParsedOKRResult } from '../utils/okr-parser';
+import { CheckIcon, WarningIcon, LightbulbIcon, CopyIcon } from './ui/Icon';
+import { cn } from '../utils/classes';
 
 interface OKRResultDisplayProps {
   result: string;
@@ -50,17 +52,17 @@ function ScoreRing({ score, isStreaming }: { score: number | null; isStreaming: 
             strokeLinecap="round"
             strokeDasharray={circumference}
             strokeDashoffset={offset}
-            className={`${colors.ring} transition-all duration-500`}
+            className={cn(colors.ring, 'transition-all duration-500')}
           />
         </svg>
         {/* Score text in center */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className={`text-2xl font-bold ${colors.text}`}>
+          <span className={cn('text-2xl font-bold', colors.text)}>
             {score}<span className="text-base font-normal text-neutral-500">/10</span>
           </span>
         </div>
       </div>
-      <span className={`text-sm font-medium ${colors.text}`}>{colors.label}</span>
+      <span className={cn('text-sm font-medium', colors.text)}>{colors.label}</span>
     </div>
   );
 }
@@ -91,16 +93,19 @@ function FeedbackCard({
   }
 
   return (
-    <div className={`p-4 rounded-lg border ${bgColor} ${borderColor}`}>
+    <div className={cn('p-4 rounded-lg border', bgColor, borderColor)}>
       <h4 className="font-medium text-neutral-700 mb-3 flex items-center gap-2">
-        <Icon className={`w-5 h-5 ${iconColor}`} />
+        <Icon className={cn('w-5 h-5', iconColor)} />
         {title}
       </h4>
       {items.length > 0 ? (
         <ul className="space-y-2">
           {items.map((item, index) => (
             <li key={index} className="flex items-start gap-2 text-sm text-neutral-600">
-              <span className={`mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0 ${isStrength ? 'bg-feedback-success' : 'bg-feedback-warning'}`} />
+              <span className={cn(
+                'mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0',
+                isStrength ? 'bg-feedback-success' : 'bg-feedback-warning'
+              )} />
               {item}
             </li>
           ))}
@@ -155,7 +160,14 @@ function SuggestionBox({ suggestion, isStreaming }: { suggestion: string; isStre
               <div className="flex justify-end mt-4 pt-3 border-t border-brand-cyan-light/50">
                 <button
                   onClick={handleCopy}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-brand-navy bg-white hover:bg-brand-cyan-lighter rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 border border-brand-cyan-light"
+                  className={cn(
+                    'inline-flex items-center gap-1.5 px-3 py-1.5',
+                    'text-sm font-medium text-brand-navy',
+                    'bg-white hover:bg-brand-cyan-lighter',
+                    'rounded-lg border border-brand-cyan-light',
+                    'transition-colors focus:outline-none',
+                    'focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2'
+                  )}
                   aria-label={copied ? 'Kopiert!' : 'Kopier til utklippstavle'}
                 >
                   {copied ? (
@@ -202,7 +214,7 @@ function SummarySection({ summary, isStreaming }: { summary: string; isStreaming
   return (
     <div className="mb-6">
       <h4 className="font-medium text-neutral-700 mb-2">Samlet vurdering</h4>
-      <div className={`text-sm text-neutral-600 leading-relaxed ${shouldCollapse ? 'line-clamp-3' : ''}`}>
+      <div className={cn('text-sm text-neutral-600 leading-relaxed', shouldCollapse && 'line-clamp-3')}>
         {summary || (
           <div className="space-y-2">
             <div className="h-3 w-full bg-neutral-200 rounded animate-pulse" />
@@ -219,39 +231,6 @@ function SummarySection({ summary, isStreaming }: { summary: string; isStreaming
         </button>
       )}
     </div>
-  );
-}
-
-// Icon components
-function CheckIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-    </svg>
-  );
-}
-
-function WarningIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-    </svg>
-  );
-}
-
-function LightbulbIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-      <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z" />
-    </svg>
-  );
-}
-
-function CopyIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-    </svg>
   );
 }
 

@@ -11,14 +11,22 @@ export const ERROR_MESSAGES = {
   OKR_REVIEW_DEFAULT: 'Noe gikk galt under vurderingen. Prøv igjen om litt.',
   /** Rate limit error message */
   RATE_LIMIT: 'For mange forespørsler. Vent litt før du prøver igjen.',
+  /** Rate limit exceeded (API response) */
+  RATE_LIMIT_EXCEEDED: 'Rate limit exceeded',
   /** Missing input error message */
   MISSING_INPUT: 'Vennligst skriv inn et OKR-sett for vurdering.',
+  /** Missing input (API response) */
+  MISSING_INPUT_API: 'Missing input',
   /** Server configuration error */
   SERVER_NOT_CONFIGURED: 'Server not configured: Missing API key',
   /** Streaming failed error */
   STREAMING_FAILED: 'Streaming failed',
   /** API error fallback */
   API_ERROR: 'API error',
+  /** Failed to evaluate OKR */
+  FAILED_TO_EVALUATE: 'Failed to evaluate OKR',
+  /** Unknown error */
+  UNKNOWN_ERROR: 'Unknown error',
 } as const;
 
 /**

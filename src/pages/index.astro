@@ -73,27 +73,8 @@ import {
     <LandingFooter {...footerContent} />
 
     <script>
-      import { ELEMENT_IDS } from '../utils/constants';
-
-      // Mobile menu toggle
-      const menuBtn = document.getElementById(ELEMENT_IDS.MOBILE_MENU_BUTTON);
-      const mobileMenu = document.getElementById(ELEMENT_IDS.MOBILE_MENU);
-
-      menuBtn?.addEventListener('click', () => {
-        const isHidden = mobileMenu?.classList.toggle('hidden');
-        // Update aria-expanded state for accessibility
-        menuBtn.setAttribute('aria-expanded', String(!isHidden));
-        menuBtn.setAttribute('aria-label', isHidden ? 'Åpne meny' : 'Lukk meny');
-      });
-
-      // Close mobile menu when clicking a link
-      mobileMenu?.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
-          mobileMenu?.classList.add('hidden');
-          menuBtn?.setAttribute('aria-expanded', 'false');
-          menuBtn?.setAttribute('aria-label', 'Åpne meny');
-        });
-      });
+      import { initMobileMenu } from '../scripts/mobile-menu';
+      initMobileMenu({ updateIcon: false });
     </script>
   </body>
 </html>

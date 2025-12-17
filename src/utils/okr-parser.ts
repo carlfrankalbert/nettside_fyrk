@@ -12,6 +12,31 @@ export interface ParsedOKRResult {
 }
 
 /**
+ * Section headers for parsing OKR review responses
+ * Centralized for easier maintenance and consistency
+ */
+const SECTION_HEADERS = {
+  /** Headers indicating summary/overall assessment section */
+  SUMMARY: ['samlet vurdering'],
+  /** Headers indicating strengths/what works well section */
+  STRENGTHS: ['hva fungerer', 'fungerer bra'],
+  /** Headers indicating improvements/areas to work on section */
+  IMPROVEMENTS: ['hva bør', 'hva kan', 'bør forbedres', 'kan forbedres'],
+  /** Headers indicating suggestion/rewritten OKR section */
+  SUGGESTION: ['forslag til', 'forbedret okr', 'omskrevet'],
+} as const;
+
+/**
+ * All section headers flattened for section boundary detection
+ */
+const ALL_SECTION_HEADERS = [
+  ...SECTION_HEADERS.SUMMARY,
+  ...SECTION_HEADERS.STRENGTHS,
+  ...SECTION_HEADERS.IMPROVEMENTS,
+  ...SECTION_HEADERS.SUGGESTION,
+] as const;
+
+/**
  * Extract numeric score from text (e.g., "8/10" or "Score: 8")
  */
 export function extractScore(text: string): number | null {
@@ -91,9 +116,18 @@ function extractBulletPoints(text: string): string[] {
 }
 
 /**
+ * Check if a line contains any section header
+ */
+function isSectionHeader(line: string): boolean {
+  const lowerLine = line.toLowerCase();
+  return ALL_SECTION_HEADERS.some(header => lowerLine.includes(header)) ||
+    /^#{1,3}\s/.test(line.trim());
+}
+
+/**
  * Find a section by its header and extract content until the next section
  */
-function findSection(text: string, headers: string[]): string {
+function findSection(text: string, headers: readonly string[]): string {
   const lines = text.split('\n');
   let capturing = false;
   let content: string[] = [];
@@ -102,14 +136,7 @@ function findSection(text: string, headers: string[]): string {
     const line = lines[i].trim().toLowerCase();
 
     // Check if this line starts a new section (any section header)
-    const isNewSection =
-      line.includes('samlet vurdering') ||
-      line.includes('hva fungerer') ||
-      line.includes('hva bør') ||
-      line.includes('hva kan') ||
-      line.includes('forslag til') ||
-      line.includes('forbedret okr') ||
-      /^#{1,3}\s/.test(lines[i].trim());
+    const isNewSection = isSectionHeader(lines[i]);
 
     // Check if this line matches our target headers
     const isTargetHeader = headers.some((h) => line.includes(h.toLowerCase()));
@@ -148,27 +175,18 @@ export function parseOKRResult(text: string): ParsedOKRResult {
   const score = extractScore(text);
 
   // Extract summary section and remove redundant score text and markdown
-  const summarySection = cleanMarkdown(removeScoreFromText(findSection(text, ['samlet vurdering'])));
+  const summarySection = cleanMarkdown(removeScoreFromText(findSection(text, SECTION_HEADERS.SUMMARY)));
 
   // Extract strengths
-  const strengthsSection = findSection(text, ['hva fungerer', 'fungerer bra']);
+  const strengthsSection = findSection(text, SECTION_HEADERS.STRENGTHS);
   const strengths = extractBulletPoints(strengthsSection);
 
   // Extract improvements
-  const improvementsSection = findSection(text, [
-    'hva bør',
-    'hva kan',
-    'bør forbedres',
-    'kan forbedres',
-  ]);
+  const improvementsSection = findSection(text, SECTION_HEADERS.IMPROVEMENTS);
   const improvements = extractBulletPoints(improvementsSection);
 
   // Extract suggestion and clean markdown
-  const suggestionSection = cleanMarkdown(findSection(text, [
-    'forslag til',
-    'forbedret okr',
-    'omskrevet',
-  ]));
+  const suggestionSection = cleanMarkdown(findSection(text, SECTION_HEADERS.SUGGESTION));
 
   // Check if the result seems complete (has all major sections)
   const hasAllSections =

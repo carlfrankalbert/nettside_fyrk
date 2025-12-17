@@ -94,7 +94,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     if (!input?.trim()) {
       return new Response(
-        JSON.stringify({ error: 'Missing input' }),
+        JSON.stringify({ error: ERROR_MESSAGES.MISSING_INPUT_API }),
         { status: 400, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
       );
     }
@@ -104,7 +104,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     if (!rateLimiter.checkAndUpdate(clientIP)) {
       return new Response(
         JSON.stringify({
-          error: 'Rate limit exceeded',
+          error: ERROR_MESSAGES.RATE_LIMIT_EXCEEDED,
           details: 'Please wait a moment before trying again'
         }),
         {
@@ -250,7 +250,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       console.error('Anthropic API error:', anthropicResponse.status, errorData);
       return new Response(
         JSON.stringify({
-          error: 'Failed to evaluate OKR',
+          error: ERROR_MESSAGES.FAILED_TO_EVALUATE,
           details: errorData?.error?.message || `API returned ${anthropicResponse.status}`,
         }),
         { status: 500, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
@@ -283,10 +283,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
       console.error('Error stack:', err.stack);
     }
 
-    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    const errorMessage = err instanceof Error ? err.message : ERROR_MESSAGES.UNKNOWN_ERROR;
     return new Response(
       JSON.stringify({
-        error: 'Failed to evaluate OKR',
+        error: ERROR_MESSAGES.FAILED_TO_EVALUATE,
         details: errorMessage
       }),
       { status: 500, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
