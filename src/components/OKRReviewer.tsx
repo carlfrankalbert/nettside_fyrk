@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { reviewOKRStreaming } from '../services/okr-service';
 import OKRResultDisplay from './OKRResultDisplay';
 
@@ -10,11 +10,7 @@ Key Results:
 2. Redusere tid til første verdi fra 10 minutter til under 3 minutter.
 3. Redusere onboarding-relaterte supporthenvendelser med 50 %.`;
 
-interface OKRReviewerProps {
-  onResultGenerated?: (hasResult: boolean) => void;
-}
-
-export default function OKRReviewer({ onResultGenerated }: OKRReviewerProps) {
+export default function OKRReviewer() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,11 +21,6 @@ export default function OKRReviewer({ onResultGenerated }: OKRReviewerProps) {
   const abortControllerRef = useRef<AbortController | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  // Notify parent when result state changes
-  useEffect(() => {
-    onResultGenerated?.(!!result);
-  }, [result, onResultGenerated]);
 
   const handleFillExample = () => {
     // Trigger animation
@@ -97,32 +88,31 @@ export default function OKRReviewer({ onResultGenerated }: OKRReviewerProps) {
 
   return (
     <div className="space-y-6" aria-busy={loading}>
-      {/* Value proposition - moved above input for better visibility */}
-      <div className="p-5 bg-neutral-100 rounded-lg">
-        <p className="font-medium text-neutral-700 mb-3">På under ett minutt får du:</p>
-        <ul className="space-y-2 text-neutral-700" role="list">
+      {/* Compact info box */}
+      <div className="p-4 bg-neutral-100 rounded-lg">
+        <ul className="space-y-1.5 text-sm text-neutral-700" role="list">
           <li className="flex items-start gap-2">
-            <svg className="w-5 h-5 text-feedback-success flex-shrink-0 mt-0.5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
-            <span>Samlet vurdering av OKR-kvalitet</span>
+            <span>Lim inn <strong>Objective</strong> + <strong>Key Results</strong></span>
           </li>
           <li className="flex items-start gap-2">
-            <svg className="w-5 h-5 text-feedback-success flex-shrink-0 mt-0.5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
-            <span>Hva som fungerer og bør forbedres</span>
+            <span>Få vurdering, styrker og forbedringsforslag</span>
           </li>
           <li className="flex items-start gap-2">
-            <svg className="w-5 h-5 text-feedback-success flex-shrink-0 mt-0.5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
-            <span>Forslag til mer outcome-baserte OKR-er</span>
+            <span>Under ett minutt · Ingen lagring</span>
           </li>
         </ul>
       </div>
 
-      {/* Input section with persistent instructions */}
+      {/* Input section */}
       <div>
         <div className="flex items-center justify-between mb-2">
           <label
@@ -137,23 +127,8 @@ export default function OKRReviewer({ onResultGenerated }: OKRReviewerProps) {
             disabled={loading}
             className="text-sm text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 focus:bg-neutral-100 focus:px-2 focus:-mx-2 rounded transition-all disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Vis eksempel
+            Prøv med eksempel
           </button>
-        </div>
-
-        {/* Persistent format instructions (visible while typing) */}
-        <div className="p-3 mb-3 bg-neutral-50 border border-neutral-200 rounded-lg">
-          <p className="text-sm text-neutral-600 mb-2 font-medium">Format:</p>
-          <ul className="text-sm text-neutral-500 space-y-1">
-            <li className="flex items-start gap-2">
-              <span className="text-neutral-400 font-mono">1.</span>
-              <span>Start med <strong className="text-neutral-600">Objective:</strong> etterfulgt av målet ditt</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-neutral-400 font-mono">2.</span>
-              <span>Legg til <strong className="text-neutral-600">Key Results:</strong> med 1-5 målbare resultater</span>
-            </li>
-          </ul>
         </div>
 
         <textarea
@@ -174,7 +149,7 @@ Key Results:
           rows={8}
           aria-describedby={error ? 'okr-error okr-help' : 'okr-help'}
           aria-invalid={error ? 'true' : undefined}
-          className={`w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 rounded-lg resize-y min-h-[220px] focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker placeholder:text-neutral-400 disabled:opacity-60 disabled:cursor-not-allowed aria-[invalid=true]:border-feedback-error transition-all duration-300 ${
+          className={`w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 rounded-lg resize-y min-h-[220px] focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker placeholder:text-neutral-500 disabled:opacity-60 disabled:cursor-not-allowed aria-[invalid=true]:border-feedback-error transition-all duration-300 ${
             isExampleAnimating
               ? 'border-brand-cyan bg-brand-cyan-lightest/50 ring-2 ring-brand-cyan shadow-brand-cyan scale-[1.01]'
               : 'border-neutral-300'
@@ -231,9 +206,6 @@ Key Results:
         )}
       </div>
 
-      <p className="text-sm text-neutral-500">
-        Ingen lagring · Ingen pålogging
-      </p>
 
       {/* Result area with structured display */}
       <div

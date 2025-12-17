@@ -14,7 +14,7 @@ function ScoreRing({ score, isStreaming }: { score: number | null; isStreaming: 
     if (isStreaming) {
       return (
         <div className="flex items-center justify-center w-24 h-24 rounded-full bg-neutral-100 animate-pulse">
-          <span className="text-neutral-400 text-sm">...</span>
+          <span className="text-neutral-500 text-sm">...</span>
         </div>
       );
     }
@@ -138,39 +138,41 @@ function SuggestionBox({ suggestion, isStreaming }: { suggestion: string; isStre
 
   return (
     <div className="mt-6">
-      <div className="flex items-center justify-between mb-3">
-        <h4 className="font-medium text-neutral-700 flex items-center gap-2">
-          <LightbulbIcon className="w-5 h-5 text-brand-cyan-darker" />
-          Forslag til forbedret OKR-sett
-        </h4>
-        {suggestion && !isStreaming && (
-          <button
-            onClick={handleCopy}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-brand-navy bg-brand-cyan-lightest hover:bg-brand-cyan-lighter rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
-            aria-label={copied ? 'Kopiert!' : 'Kopier til utklippstavle'}
-          >
-            {copied ? (
-              <>
-                <CheckIcon className="w-4 h-4" />
-                Kopiert!
-              </>
-            ) : (
-              <>
-                <CopyIcon className="w-4 h-4" />
-                Kopier
-              </>
-            )}
-          </button>
-        )}
-      </div>
+      <h4 className="font-medium text-neutral-700 flex items-center gap-2 mb-3">
+        <LightbulbIcon className="w-5 h-5 text-brand-cyan-darker" />
+        Forslag til forbedret OKR-sett
+      </h4>
       <div className="p-4 bg-brand-cyan-lightest/50 border-2 border-brand-cyan-light rounded-lg">
         {suggestion ? (
-          <pre className="text-sm text-neutral-700 whitespace-pre-wrap font-sans leading-relaxed">
-            {suggestion}
-            {isStreaming && (
-              <span className="inline-block w-2 h-4 ml-1 bg-brand-cyan animate-pulse" aria-hidden="true" />
+          <>
+            <pre className="text-sm text-neutral-700 whitespace-pre-wrap font-sans leading-relaxed">
+              {suggestion}
+              {isStreaming && (
+                <span className="inline-block w-2 h-4 ml-1 bg-brand-cyan animate-pulse" aria-hidden="true" />
+              )}
+            </pre>
+            {!isStreaming && (
+              <div className="flex justify-end mt-4 pt-3 border-t border-brand-cyan-light/50">
+                <button
+                  onClick={handleCopy}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-brand-navy bg-white hover:bg-brand-cyan-lighter rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 border border-brand-cyan-light"
+                  aria-label={copied ? 'Kopiert!' : 'Kopier til utklippstavle'}
+                >
+                  {copied ? (
+                    <>
+                      <CheckIcon className="w-4 h-4" />
+                      Kopiert!
+                    </>
+                  ) : (
+                    <>
+                      <CopyIcon className="w-4 h-4" />
+                      Kopier
+                    </>
+                  )}
+                </button>
+              </div>
             )}
-          </pre>
+          </>
         ) : (
           <div className="space-y-2">
             <div className="h-3 w-full bg-brand-cyan-lighter/50 rounded animate-pulse" />

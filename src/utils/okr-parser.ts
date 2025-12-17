@@ -36,6 +36,34 @@ export function extractScore(text: string): number | null {
 }
 
 /**
+ * Remove score text from summary to avoid redundancy with ScoreRing
+ */
+function removeScoreFromText(text: string): string {
+  return text
+    // Remove "Score: 8/10" or "**Score: 8/10**" patterns
+    .replace(/\*{0,2}score[:\s]*\d+\s*(?:\/\s*10|av\s*10)?\*{0,2}[.,]?\s*/gi, '')
+    // Remove standalone "8/10" at the start of lines
+    .replace(/^\d+\s*\/\s*10[.,]?\s*/gm, '')
+    .trim();
+}
+
+/**
+ * Clean markdown formatting from text
+ */
+function cleanMarkdown(text: string): string {
+  return text
+    // Remove bold markers **text** or __text__
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/__(.+?)__/g, '$1')
+    // Remove italic markers *text* or _text_
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/_(.+?)_/g, '$1')
+    // Remove horizontal rules ---
+    .replace(/^-{3,}$/gm, '')
+    .trim();
+}
+
+/**
  * Extract bullet points from a text section
  */
 function extractBulletPoints(text: string): string[] {
@@ -44,14 +72,18 @@ function extractBulletPoints(text: string): string[] {
 
   for (const line of lines) {
     const trimmed = line.trim();
+
+    // Skip horizontal rules
+    if (/^-{3,}$/.test(trimmed)) continue;
+
     // Match lines starting with -, *, •, or numbered like "1." or "1)"
     const bulletMatch = trimmed.match(/^[-*•]\s*(.+)$/);
     const numberedMatch = trimmed.match(/^\d+[.)]\s*(.+)$/);
 
     if (bulletMatch) {
-      bullets.push(bulletMatch[1].trim());
+      bullets.push(cleanMarkdown(bulletMatch[1].trim()));
     } else if (numberedMatch) {
-      bullets.push(numberedMatch[1].trim());
+      bullets.push(cleanMarkdown(numberedMatch[1].trim()));
     }
   }
 
@@ -115,8 +147,8 @@ export function parseOKRResult(text: string): ParsedOKRResult {
   // Extract score from anywhere in the text
   const score = extractScore(text);
 
-  // Extract summary section
-  const summarySection = findSection(text, ['samlet vurdering']);
+  // Extract summary section and remove redundant score text and markdown
+  const summarySection = cleanMarkdown(removeScoreFromText(findSection(text, ['samlet vurdering'])));
 
   // Extract strengths
   const strengthsSection = findSection(text, ['hva fungerer', 'fungerer bra']);
@@ -131,12 +163,12 @@ export function parseOKRResult(text: string): ParsedOKRResult {
   ]);
   const improvements = extractBulletPoints(improvementsSection);
 
-  // Extract suggestion
-  const suggestionSection = findSection(text, [
+  // Extract suggestion and clean markdown
+  const suggestionSection = cleanMarkdown(findSection(text, [
     'forslag til',
     'forbedret okr',
     'omskrevet',
-  ]);
+  ]));
 
   // Check if the result seems complete (has all major sections)
   const hasAllSections =
