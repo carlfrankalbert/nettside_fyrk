@@ -12,6 +12,44 @@ Key Results:
 2. Redusere tid til første verdi fra 10 minutter til under 3 minutter.
 3. Redusere onboarding-relaterte supporthenvendelser med 50 %.`;
 
+// Input validation constants
+const MIN_INPUT_LENGTH = 20;
+const MAX_INPUT_LENGTH = 2000;
+
+/**
+ * Validates OKR input for basic structure and length
+ * Returns error message if invalid, null if valid
+ */
+function validateOKRInput(input: string): string | null {
+  const trimmedInput = input.trim();
+
+  // Check minimum length
+  if (trimmedInput.length < MIN_INPUT_LENGTH) {
+    return `Input må være minst ${MIN_INPUT_LENGTH} tegn. Skriv inn et komplett OKR-sett.`;
+  }
+
+  // Check maximum length
+  if (trimmedInput.length > MAX_INPUT_LENGTH) {
+    return `Input kan ikke være lengre enn ${MAX_INPUT_LENGTH} tegn. Forkort OKR-settet ditt.`;
+  }
+
+  // Check for OKR-like content (case-insensitive)
+  const lowerInput = trimmedInput.toLowerCase();
+  const hasObjective = lowerInput.includes('objective') || lowerInput.includes('mål');
+  const hasKeyResult = lowerInput.includes('key result') || lowerInput.includes('kr') ||
+                       lowerInput.includes('nøkkelresultat') || /\d+\./.test(trimmedInput);
+
+  if (!hasObjective) {
+    return 'Input ser ikke ut som en OKR. Inkluder minst ett "Objective" eller "Mål".';
+  }
+
+  if (!hasKeyResult) {
+    return 'Input mangler Key Results. Legg til målbare resultater (f.eks. "1. Øke X fra Y til Z").';
+  }
+
+  return null;
+}
+
 export default function OKRReviewer() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -47,13 +85,15 @@ export default function OKRReviewer() {
   };
 
   const handleSubmit = async () => {
-    if (!input.trim()) {
-      setError('Lim inn minst ett Objective og Key Result for å få en vurdering.');
-      return;
-    }
-
     // Prevent duplicate submissions
     if (loading) return;
+
+    // Validate input
+    const validationError = validateOKRInput(input);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
 
     setLoading(true);
     setIsStreaming(true);
@@ -143,7 +183,8 @@ Key Results:
 2. Andre målbare resultat
 3. Tredje målbare resultat"
           rows={8}
-          aria-describedby={error ? 'okr-error okr-help' : 'okr-help'}
+          maxLength={MAX_INPUT_LENGTH}
+          aria-describedby={error ? 'okr-error okr-help okr-char-count' : 'okr-help okr-char-count'}
           aria-invalid={error ? 'true' : undefined}
           className={cn(
             'w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 rounded-lg',
@@ -157,6 +198,12 @@ Key Results:
           )}
           disabled={loading}
         />
+        <div id="okr-char-count" className="mt-1 text-xs text-neutral-500 text-right">
+          <span className={cn(input.length > MAX_INPUT_LENGTH * 0.9 && 'text-feedback-warning')}>
+            {input.length}
+          </span>
+          {' / '}{MAX_INPUT_LENGTH} tegn
+        </div>
       </div>
 
       {/* Action buttons */}
