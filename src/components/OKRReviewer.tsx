@@ -63,6 +63,31 @@ export default function OKRReviewer() {
 
   return (
     <div className="space-y-6" aria-busy={loading}>
+      {/* Value proposition - moved above input for better visibility */}
+      <div className="p-5 bg-neutral-100 rounded-lg">
+        <p className="font-medium text-neutral-700 mb-3">På under ett minutt får du:</p>
+        <ul className="space-y-2 text-neutral-700" role="list">
+          <li className="flex items-start gap-2">
+            <svg className="w-5 h-5 text-feedback-success flex-shrink-0 mt-0.5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+            <span>Samlet vurdering av OKR-kvalitet</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <svg className="w-5 h-5 text-feedback-success flex-shrink-0 mt-0.5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+            <span>Hva som fungerer og bør forbedres</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <svg className="w-5 h-5 text-feedback-success flex-shrink-0 mt-0.5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+            <span>Forslag til mer outcome-baserte OKR-er</span>
+          </li>
+        </ul>
+      </div>
+
       <div>
         <div className="flex items-center justify-between mb-2">
           <label
@@ -91,10 +116,10 @@ export default function OKRReviewer() {
             if (error) setError(null);
           }}
           placeholder={EXAMPLE_OKR}
-          rows={10}
+          rows={6}
           aria-describedby={error ? 'okr-error okr-help' : 'okr-help'}
           aria-invalid={error ? 'true' : undefined}
-          className="w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 border-neutral-300 rounded-lg resize-y focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker placeholder:text-neutral-500 disabled:opacity-60 disabled:cursor-not-allowed aria-[invalid=true]:border-feedback-error"
+          className="w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 border-neutral-300 rounded-lg resize-y min-h-[160px] focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker placeholder:text-neutral-500 disabled:opacity-60 disabled:cursor-not-allowed aria-[invalid=true]:border-feedback-error"
           disabled={loading}
         />
       </div>
@@ -139,31 +164,6 @@ export default function OKRReviewer() {
       <p className="text-sm text-neutral-500">
         Ingen lagring · Ingen pålogging
       </p>
-
-      {/* Dette får du */}
-      <div className="p-5 bg-neutral-100 rounded-lg">
-        <p className="font-medium text-neutral-700 mb-3">På under ett minutt får du:</p>
-        <ul className="space-y-2 text-neutral-700" role="list">
-          <li className="flex items-start gap-2">
-            <svg className="w-5 h-5 text-feedback-success flex-shrink-0 mt-0.5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
-            <span>Samlet vurdering av OKR-kvalitet</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <svg className="w-5 h-5 text-feedback-success flex-shrink-0 mt-0.5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
-            <span>Hva som fungerer og bør forbedres</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <svg className="w-5 h-5 text-feedback-success flex-shrink-0 mt-0.5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
-            <span>Forslag til mer outcome-baserte OKR-er</span>
-          </li>
-        </ul>
-      </div>
 
       {/* Resultat-område med aria-live */}
       <div
