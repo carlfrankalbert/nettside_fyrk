@@ -21,8 +21,10 @@ export default function OKRReviewer({ onResultGenerated }: OKRReviewerProps) {
   const [result, setResult] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+  const [isExampleAnimating, setIsExampleAnimating] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Notify parent when result state changes
   useEffect(() => {
@@ -30,8 +32,20 @@ export default function OKRReviewer({ onResultGenerated }: OKRReviewerProps) {
   }, [result, onResultGenerated]);
 
   const handleFillExample = () => {
+    // Trigger animation
+    setIsExampleAnimating(true);
     setInput(EXAMPLE_OKR);
     setError(null);
+
+    // Focus textarea
+    setTimeout(() => {
+      textareaRef.current?.focus();
+    }, 50);
+
+    // Reset animation state after animation completes
+    setTimeout(() => {
+      setIsExampleAnimating(false);
+    }, 600);
   };
 
   const handleClearResult = () => {
@@ -143,6 +157,7 @@ export default function OKRReviewer({ onResultGenerated }: OKRReviewerProps) {
         </div>
 
         <textarea
+          ref={textareaRef}
           id="okr-input"
           value={input}
           onChange={(e) => {
@@ -159,7 +174,11 @@ Key Results:
           rows={6}
           aria-describedby={error ? 'okr-error okr-help' : 'okr-help'}
           aria-invalid={error ? 'true' : undefined}
-          className="w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 border-neutral-300 rounded-lg resize-y min-h-[160px] focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker placeholder:text-neutral-400 disabled:opacity-60 disabled:cursor-not-allowed aria-[invalid=true]:border-feedback-error"
+          className={`w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 rounded-lg resize-y min-h-[160px] focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker placeholder:text-neutral-400 disabled:opacity-60 disabled:cursor-not-allowed aria-[invalid=true]:border-feedback-error transition-all duration-300 ${
+            isExampleAnimating
+              ? 'border-brand-cyan bg-brand-cyan-lightest/50 ring-2 ring-brand-cyan shadow-brand-cyan scale-[1.01]'
+              : 'border-neutral-300'
+          }`}
           disabled={loading}
         />
       </div>
