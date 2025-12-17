@@ -1,5 +1,6 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { reviewOKRStreaming } from '../services/okr-service';
+import OKRResultDisplay from './OKRResultDisplay';
 
 const EXAMPLE_OKR = `Objective:
 Gjøre det enkelt og trygt for brukere å komme i gang med produktet.
@@ -9,17 +10,46 @@ Key Results:
 2. Redusere tid til første verdi fra 10 minutter til under 3 minutter.
 3. Redusere onboarding-relaterte supporthenvendelser med 50 %.`;
 
-export default function OKRReviewer() {
+interface OKRReviewerProps {
+  onResultGenerated?: (hasResult: boolean) => void;
+}
+
+export default function OKRReviewer({ onResultGenerated }: OKRReviewerProps) {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+  const [isExampleAnimating, setIsExampleAnimating] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const resultRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Notify parent when result state changes
+  useEffect(() => {
+    onResultGenerated?.(!!result);
+  }, [result, onResultGenerated]);
 
   const handleFillExample = () => {
+    // Trigger animation
+    setIsExampleAnimating(true);
     setInput(EXAMPLE_OKR);
+    setError(null);
+
+    // Focus textarea
+    setTimeout(() => {
+      textareaRef.current?.focus();
+    }, 50);
+
+    // Reset animation state after animation completes
+    setTimeout(() => {
+      setIsExampleAnimating(false);
+    }, 600);
+  };
+
+  const handleClearResult = () => {
+    setResult(null);
     setError(null);
   };
 
@@ -50,6 +80,10 @@ export default function OKRReviewer() {
         // Streaming complete
         setLoading(false);
         setIsStreaming(false);
+        // Scroll to result
+        setTimeout(() => {
+          resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
       },
       (errorMsg) => {
         // Error occurred
@@ -88,6 +122,7 @@ export default function OKRReviewer() {
         </ul>
       </div>
 
+      {/* Input section with persistent instructions */}
       <div>
         <div className="flex items-center justify-between mb-2">
           <label
@@ -105,25 +140,50 @@ export default function OKRReviewer() {
             Vis eksempel
           </button>
         </div>
-        <p id="okr-help" className="text-sm text-neutral-500 mb-3">
-          Skriv ett Objective, deretter Key Results (1-5 stk).
-        </p>
+
+        {/* Persistent format instructions (visible while typing) */}
+        <div className="p-3 mb-3 bg-neutral-50 border border-neutral-200 rounded-lg">
+          <p className="text-sm text-neutral-600 mb-2 font-medium">Format:</p>
+          <ul className="text-sm text-neutral-500 space-y-1">
+            <li className="flex items-start gap-2">
+              <span className="text-neutral-400 font-mono">1.</span>
+              <span>Start med <strong className="text-neutral-600">Objective:</strong> etterfulgt av målet ditt</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-neutral-400 font-mono">2.</span>
+              <span>Legg til <strong className="text-neutral-600">Key Results:</strong> med 1-5 målbare resultater</span>
+            </li>
+          </ul>
+        </div>
+
         <textarea
+          ref={textareaRef}
           id="okr-input"
           value={input}
           onChange={(e) => {
             setInput(e.target.value);
             if (error) setError(null);
           }}
-          placeholder={EXAMPLE_OKR}
-          rows={6}
+          placeholder="Objective:
+Ditt mål her...
+
+Key Results:
+1. Første målbare resultat
+2. Andre målbare resultat
+3. Tredje målbare resultat"
+          rows={8}
           aria-describedby={error ? 'okr-error okr-help' : 'okr-help'}
           aria-invalid={error ? 'true' : undefined}
-          className="w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 border-neutral-300 rounded-lg resize-y min-h-[160px] focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker placeholder:text-neutral-500 disabled:opacity-60 disabled:cursor-not-allowed aria-[invalid=true]:border-feedback-error"
+          className={`w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 rounded-lg resize-y min-h-[220px] focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker placeholder:text-neutral-400 disabled:opacity-60 disabled:cursor-not-allowed aria-[invalid=true]:border-feedback-error transition-all duration-300 ${
+            isExampleAnimating
+              ? 'border-brand-cyan bg-brand-cyan-lightest/50 ring-2 ring-brand-cyan shadow-brand-cyan scale-[1.01]'
+              : 'border-neutral-300'
+          }`}
           disabled={loading}
         />
       </div>
 
+      {/* Action buttons */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
         <button
           type="button"
@@ -151,6 +211,16 @@ export default function OKRReviewer() {
           )}
         </button>
 
+        {result && !loading && (
+          <button
+            type="button"
+            onClick={handleClearResult}
+            className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
+          >
+            Nullstill
+          </button>
+        )}
+
         {error && (
           <p id="okr-error" role="alert" className="text-feedback-error text-sm flex items-center gap-2">
             <svg className="w-4 h-4 flex-shrink-0" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
@@ -165,8 +235,9 @@ export default function OKRReviewer() {
         Ingen lagring · Ingen pålogging
       </p>
 
-      {/* Resultat-område med aria-live */}
+      {/* Result area with structured display */}
       <div
+        ref={resultRef}
         aria-live="polite"
         aria-atomic="false"
         role="region"
@@ -191,21 +262,8 @@ export default function OKRReviewer() {
         )}
 
         {result && (
-          <div className="mt-8 p-6 bg-white border-2 border-neutral-200 rounded-lg">
-            <h2 className="text-lg font-semibold text-brand-navy mb-4 flex items-center gap-2">
-              {!isStreaming && (
-                <svg className="w-5 h-5 text-feedback-success" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-              )}
-              {isStreaming ? 'Vurdering pågår...' : 'Vurdering fullført'}
-            </h2>
-            <div className="text-neutral-700 leading-relaxed whitespace-pre-wrap">
-              {result}
-              {isStreaming && (
-                <span className="inline-block w-2 h-5 ml-1 bg-brand-cyan animate-pulse" aria-hidden="true"></span>
-              )}
-            </div>
+          <div className="mt-8 p-6 bg-white border-2 border-neutral-200 rounded-lg shadow-sm">
+            <OKRResultDisplay result={result} isStreaming={isStreaming} />
           </div>
         )}
       </div>
