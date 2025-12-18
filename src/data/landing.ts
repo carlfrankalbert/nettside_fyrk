@@ -23,6 +23,7 @@ export const heroContent = {
   tagline: 'Når hverdagen er kompleks og kravene mange',
   headline: 'Produktledelse som gjør strategi til handling',
   description: 'FYRK hjelper team som vil levere, ikke bare planlegge. Med struktur som tåler endringer uten å miste fart.',
+  subDescription: 'Ofte brukt når strategi er vedtatt, men prioriteringer og leveranse fortsatt spriker.',
   ctaText: 'Ta en uforpliktende prat',
   ctaHref: '#kontakt',
 } as const;
@@ -33,10 +34,10 @@ export const heroContent = {
 export const situationsContent = {
   title: 'FYRK hjelper når',
   situations: [
-    'Teamet har mange parallelle initiativer og mangler retning',
-    'Strategi ligger i dokumenter, men ikke i hverdagen',
-    'Smidige metoder følges som seremonier uten effekt',
-    'Kvalitet lider fordi QA kommer for sent i prosessen',
+    'Teamet har mange parallelle initiativer – og ingenting får fullt fokus',
+    'Strategi finnes, men påvirker ikke prioriteringer i praksis',
+    'Smidige metoder følges, men gir lite reell effekt',
+    'Kvalitet fanges for sent i prosessen og skaper unødvendig friksjon',
   ],
 } as const;
 
@@ -110,6 +111,7 @@ export const aboutContent = {
       'Jeg hjelper team med å gå fra friksjon til flyt. Det betyr færre overleveringer, mindre rapportering, og mer synlighet – slik at folk kan bruke tiden på det som skaper verdi.',
       'Med 15+ års erfaring fra bank, fintech og regulerte bransjer har jeg sett hva som bremser team. Jeg jobber for det motsatte – transparens, korte feedback-loops, og fokus på det som faktisk betyr noe.',
       'Jeg elsker å jobbe med forskjellige team og løse problemer.',
+      'Blir ofte brukt når det trengs tydelige prioriteringer uten å skape unødvendig uro.',
     ],
   },
 } as const;
@@ -121,7 +123,7 @@ export const testimonialsContent = {
   title: 'Hva tidligere kollegaer sier',
   testimonials: [
     {
-      quote: 'Han er tydelig, konkret, robust og god til å kommunisere med utviklingsteamet og interessenter rundt teamet.',
+      quote: 'Han er tydelig, konkret, robust og god til å kommunisere med utviklingsteamet og interessenter rundt teamet. Etter at han tok over ble det mye enklere å vite hva vi faktisk skulle prioritere.',
       role: 'Utviklingsleder',
       company: 'SpareBank 1',
     },
@@ -139,6 +141,7 @@ export const testimonialsContent = {
 export const toolsContent = {
   title: 'Verktøy',
   description: 'Praktiske verktøy for bedre arbeid med strategi og mål.',
+  intro: 'OKR-sjekken viser hvordan jeg vurderer kvalitet i mål, prioriteringer og strategisk retning.',
   tools: [
     {
       title: 'OKR-sjekken',
