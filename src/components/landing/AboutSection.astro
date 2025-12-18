@@ -1,56 +1,127 @@
 ---
 /**
  * About section for the landing page
- * Displays company information and core competencies
+ * "Hvem står bak" - Consolidated section with founder info, experience, testimonial, and LinkedIn CTA
  */
-import CompetencyCard from './CompetencyCard.astro';
 
-interface Competency {
-  title: string;
-  description: string;
-  iconPath: string;
+interface Testimonial {
+  quote: string;
+  role: string;
+  company: string;
+}
+
+interface LinkedinCta {
+  text: string;
+  href: string;
+}
+
+interface Founder {
+  heading: string;
+  image?: string;
+  paragraphs: string[];
+  experience: string;
+  testimonial: Testimonial;
+  linkedinCta: LinkedinCta;
+}
+
+interface ContentBlock {
+  heading: string;
+  paragraphs: string[];
 }
 
 interface Props {
   title: string;
-  description: string;
-  subtitle: string;
-  competencyTitle: string;
-  competencies: Competency[];
+  whyFyrk: ContentBlock;
+  founder: Founder;
 }
 
-const { title, description, subtitle, competencyTitle, competencies } = Astro.props;
+const { title, whyFyrk, founder } = Astro.props;
 ---
 
-<section id="om" class="py-20 md:py-28 px-6 bg-white relative overflow-hidden">
-  <!-- Subtle diagonal FYRK signature element -->
+<section id="om" class="py-20 md:py-28 px-6 bg-gradient-to-b from-neutral-50 to-white relative overflow-hidden">
+  <!-- Warm decorative element -->
   <div class="absolute inset-0 pointer-events-none">
-    <div class="absolute -right-1/4 top-1/4 w-[800px] h-[400px] bg-gradient-to-br from-brand-navy/[0.04] to-transparent rotate-[-25deg] rounded-[100px]"></div>
+    <div class="absolute -right-1/4 top-1/4 w-[800px] h-[400px] bg-gradient-to-br from-brand-navy/[0.03] via-amber-500/[0.02] to-transparent rotate-[-25deg] rounded-[100px]"></div>
   </div>
 
-  <div class="max-w-4xl mx-auto relative z-10">
-    <h2 class="text-h2 font-semibold text-brand-navy mb-8 text-center">
+  <div class="max-w-3xl mx-auto relative z-10">
+    <h2 class="text-h2 font-semibold text-brand-navy mb-12 text-center">
       {title}
     </h2>
 
-    <div class="text-lg text-neutral-600 space-y-6 mb-16 max-w-3xl mx-auto text-center">
-      <p>{description}</p>
-      <p class="text-base text-neutral-500">{subtitle}</p>
+    <!-- Hvorfor FYRK -->
+    <div class="mb-12">
+      <h3 class="text-h4 font-semibold text-brand-navy mb-4">
+        {whyFyrk.heading}
+      </h3>
+      <div class="text-lg text-neutral-600 space-y-4">
+        {whyFyrk.paragraphs.map((paragraph) => (
+          <p>{paragraph}</p>
+        ))}
+      </div>
     </div>
 
-    <!-- Kjernekompetanser -->
-    <h3 class="text-h4 font-semibold text-brand-navy mb-8 text-center">
-      {competencyTitle}
-    </h3>
+    <!-- Carl Johnson, grunnlegger -->
+    <div class="bg-white rounded-xl p-8 border border-neutral-100 shadow-sm">
+      <div class="flex flex-col md:flex-row gap-6 mb-6">
+        {founder.image && (
+          <div class="flex-shrink-0">
+            <img
+              src={founder.image}
+              alt={founder.heading}
+              class="w-24 h-24 md:w-32 md:h-32 rounded-xl object-cover grayscale"
+              loading="lazy"
+            />
+          </div>
+        )}
+        <div class="flex-1">
+          <h3 class="text-h4 font-semibold text-brand-navy mb-4">
+            {founder.heading}
+          </h3>
+          <div class="text-lg text-neutral-600 space-y-4">
+            {founder.paragraphs.map((paragraph) => (
+              <p>{paragraph}</p>
+            ))}
+          </div>
+        </div>
+      </div>
 
-    <div class="grid md:grid-cols-3 gap-6">
-      {competencies.map((competency) => (
-        <CompetencyCard
-          title={competency.title}
-          description={competency.description}
-          iconPath={competency.iconPath}
-        />
-      ))}
+      <!-- Komprimert erfaring -->
+      <div class="border-t border-neutral-100 pt-6 mb-6">
+        <p class="text-neutral-600">
+          <span class="font-semibold text-brand-navy">15+ års erfaring</span> med produktledelse, prosessforbedring og kvalitetsarbeid i bank, fintech og offentlig sektor. Har jobbet i og med miljøer som <span class="font-semibold text-brand-navy">SpareBank 1, Vipps, Varner og Domstolsadministrasjonen</span>, ofte i komplekse og regulerte domener.
+        </p>
+      </div>
+
+      <!-- Testimonial -->
+      <div class="bg-neutral-50 rounded-lg p-6 mb-6 relative">
+        <svg class="absolute top-4 left-4 w-6 h-6 text-brand-navy/10" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+        </svg>
+        <blockquote class="pt-4">
+          <p class="text-neutral-600 italic mb-3">
+            "{founder.testimonial.quote}"
+          </p>
+          <footer class="text-sm text-neutral-500">
+            <span class="font-medium text-brand-navy">{founder.testimonial.role}</span>, {founder.testimonial.company}
+          </footer>
+        </blockquote>
+      </div>
+
+      <!-- LinkedIn CTA -->
+      <div class="text-center">
+        <a
+          href={founder.linkedinCta.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-outline no-underline inline-flex items-center gap-2"
+        >
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M19 3A2 2 0 0 1 21 5V19A2 2 0 0 1 19 21H5A2 2 0 0 1 3 19V5A2 2 0 0 1 5 3H19M18.5 18.5V13.2A3.26 3.26 0 0 0 15.24 9.94C14.39 9.94 13.4 10.46 12.92 11.24V10.13H10.13V18.5H12.92V13.57C12.92 12.8 13.54 12.17 14.31 12.17A1.4 1.4 0 0 1 15.71 13.57V18.5H18.5M6.88 8.56A1.68 1.68 0 0 0 8.56 6.88C8.56 5.95 7.81 5.19 6.88 5.19A1.69 1.69 0 0 0 5.19 6.88C5.19 7.81 5.95 8.56 6.88 8.56M8.27 18.5V10.13H5.5V18.5H8.27Z"/>
+          </svg>
+          {founder.linkedinCta.text}
+        </a>
+      </div>
     </div>
   </div>
 </section>

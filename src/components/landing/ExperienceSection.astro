@@ -1,0 +1,99 @@
+---
+/**
+ * Experience section with expandable content
+ * Shows a summary with a "Les mer" button that reveals detailed experience
+ */
+
+interface Experience {
+  company: string;
+  description: string;
+}
+
+interface Props {
+  title: string;
+  summary: string;
+  expandButtonText: string;
+  collapseButtonText: string;
+  experiences: Experience[];
+}
+
+const { title, summary, expandButtonText, collapseButtonText, experiences } = Astro.props;
+---
+
+<section id="erfaring" class="py-20 md:py-28 px-6 bg-neutral-50 border-y border-neutral-200">
+  <div class="max-w-3xl mx-auto">
+    <h2 class="text-h2 font-semibold text-brand-navy mb-8 text-center">
+      {title}
+    </h2>
+
+    <p class="text-lg text-neutral-600 text-center mb-8">
+      {summary}
+    </p>
+
+    <div class="experience-expandable">
+      <button
+        type="button"
+        class="experience-toggle mx-auto flex items-center gap-2 text-brand-navy font-medium hover:text-brand-navy/80 transition-colors"
+        aria-expanded="false"
+        aria-controls="experience-details"
+      >
+        <span class="toggle-text">{expandButtonText}</span>
+        <svg class="toggle-icon w-5 h-5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+
+      <div
+        id="experience-details"
+        class="experience-details mt-8 space-y-6 hidden"
+        data-expand-text={expandButtonText}
+        data-collapse-text={collapseButtonText}
+      >
+        {experiences.map((experience) => (
+          <div class="bg-white rounded-xl p-6 border border-neutral-100 shadow-sm">
+            <h3 class="text-h5 font-semibold text-brand-navy mb-3">{experience.company}</h3>
+            <p class="text-neutral-600 mb-0">{experience.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  function initExperienceToggle() {
+    const toggle = document.querySelector('.experience-toggle') as HTMLButtonElement;
+    const details = document.getElementById('experience-details') as HTMLDivElement;
+    const toggleText = toggle?.querySelector('.toggle-text') as HTMLSpanElement;
+    const toggleIcon = toggle?.querySelector('.toggle-icon') as SVGElement;
+
+    if (!toggle || !details || !toggleText || !toggleIcon) return;
+
+    const expandText = details.dataset.expandText || 'Les mer';
+    const collapseText = details.dataset.collapseText || 'Vis mindre';
+
+    toggle.addEventListener('click', () => {
+      const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+
+      if (isExpanded) {
+        // Collapse
+        details.classList.add('hidden');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggleText.textContent = expandText;
+        toggleIcon.classList.remove('rotate-180');
+      } else {
+        // Expand
+        details.classList.remove('hidden');
+        toggle.setAttribute('aria-expanded', 'true');
+        toggleText.textContent = collapseText;
+        toggleIcon.classList.add('rotate-180');
+      }
+    });
+  }
+
+  // Initialize on page load
+  initExperienceToggle();
+
+  // Re-initialize on Astro page transitions
+  document.addEventListener('astro:page-load', initExperienceToggle);
+</script>

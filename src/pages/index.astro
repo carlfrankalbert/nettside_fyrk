@@ -12,6 +12,7 @@ import { ELEMENT_IDS } from '../utils/constants';
 import LandingHeader from '../components/landing/LandingHeader.astro';
 import HeroSection from '../components/landing/HeroSection.astro';
 import SituationsSection from '../components/landing/SituationsSection.astro';
+import CompetenciesSection from '../components/landing/CompetenciesSection.astro';
 import AboutSection from '../components/landing/AboutSection.astro';
 import ToolsSection from '../components/landing/ToolsSection.astro';
 import ContactSection from '../components/landing/ContactSection.astro';
@@ -22,6 +23,7 @@ import {
   navLinks,
   heroContent,
   situationsContent,
+  competenciesContent,
   aboutContent,
   toolsContent,
   contactContent,
@@ -52,17 +54,21 @@ import {
         situations={[...situationsContent.situations]}
       />
 
+      <CompetenciesSection
+        title={competenciesContent.title}
+        competencies={[...competenciesContent.competencies]}
+      />
+
       <AboutSection
         title={aboutContent.title}
-        description={aboutContent.description}
-        subtitle={aboutContent.subtitle}
-        competencyTitle={aboutContent.competencyTitle}
-        competencies={[...aboutContent.competencies]}
+        whyFyrk={aboutContent.whyFyrk}
+        founder={aboutContent.founder}
       />
 
       <ToolsSection
         title={toolsContent.title}
         description={toolsContent.description}
+        intro={toolsContent.intro}
         tools={[...toolsContent.tools]}
         comingSoonText={toolsContent.comingSoonText}
       />

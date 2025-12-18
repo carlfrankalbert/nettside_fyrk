@@ -8,11 +8,12 @@ interface Props {
   tagline: string;
   headline: string;
   description: string;
+  subDescription?: string;
   ctaText: string;
   ctaHref: string;
 }
 
-const { tagline, headline, description, ctaText, ctaHref } = Astro.props;
+const { tagline, headline, description, subDescription, ctaText, ctaHref } = Astro.props;
 ---
 
 <section class="pt-32 pb-20 md:pt-40 md:pb-28 px-6 relative overflow-hidden bg-gradient-to-br from-neutral-50 via-white to-neutral-100">
@@ -32,9 +33,17 @@ const { tagline, headline, description, ctaText, ctaHref } = Astro.props;
       {headline}
     </h1>
 
-    <p class="text-lg md:text-xl text-neutral-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+    <p class="text-lg md:text-xl text-neutral-600 mb-4 max-w-2xl mx-auto leading-relaxed">
       {description}
     </p>
+
+    {subDescription && (
+      <p class="text-base text-neutral-500 mb-10 max-w-2xl mx-auto">
+        {subDescription}
+      </p>
+    )}
+
+    {!subDescription && <div class="mb-10"></div>}
 
     <a href={ctaHref} class="btn btn-primary no-underline">
       {ctaText}
