@@ -78,7 +78,7 @@ export const aboutContent = {
   },
   founder: {
     heading: 'Carl Johnson, grunnlegger',
-    image: '/images/carl-johnson.jpg',
+    image: '/images/carl-johnson.png',
     paragraphs: [
       'Jeg hjelper team med å gå fra friksjon til flyt. Det betyr færre overleveringer, mindre rapportering, og mer synlighet – slik at folk kan bruke tiden på det som skaper verdi.',
       'Blir ofte brukt når det trengs tydelige prioriteringer uten å skape unødvendig uro.',
