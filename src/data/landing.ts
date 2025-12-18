@@ -83,7 +83,7 @@ export const aboutContent = {
       'Jeg hjelper team med å gå fra friksjon til flyt. Det betyr færre overleveringer, mindre rapportering, og mer synlighet – slik at folk kan bruke tiden på det som skaper verdi.',
       'Blir ofte brukt når det trengs tydelige prioriteringer uten å skape unødvendig uro.',
     ],
-    experience: '15+ års erfaring med produktledelse, prosessforbedring og kvalitetsarbeid i bank, fintech og offentlig sektor. Har jobbet i og med miljøer som SpareBank 1, Vipps, Varner og Domstolsadministrasjonen, ofte i komplekse og regulerte domener.',
+    experience: 'Med bakgrunn fra produktutvikling, smidig arbeid og testledelse i komplekse og regulerte miljøer, har jeg lang erfaring med å skape struktur som tåler endring – og samtidig sikre kontinuerlig læring og fremdrift.',
     testimonial: {
       quote: 'Det har vært en fornøyelse å samarbeide med Carl. Han er tydelig, konkret, robust og god til å kommunisere med utviklingsteamet og interessenter rundt teamet. Som produktleder har han vist vei i en reorganisering av et stort team til to mindre team som dekker et komplekst og tungt domene (Betaling). Med høyt arbeidspress, krevende systemavhengigheter kombinert med mange interessenter ute i bank har Carl ledet an skyreisen på en solid måte.',
       role: 'Utviklingsleder',
