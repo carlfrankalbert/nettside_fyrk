@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { reviewOKRStreaming } from '../services/okr-service';
 import OKRResultDisplay from './OKRResultDisplay';
 import { CheckIcon, ErrorIcon, SpinnerIcon, ChevronRightIcon } from './ui/Icon';
@@ -88,6 +88,25 @@ export default function OKRReviewer() {
   const abortControllerRef = useRef<AbortController | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  /**
+   * Auto-resize textarea to fit content
+   * Resets height to auto first to properly calculate scrollHeight
+   */
+  const autoResizeTextarea = useCallback(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    // Reset height to auto to get accurate scrollHeight
+    textarea.style.height = 'auto';
+    // Set height to scrollHeight to fit all content
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  }, []);
+
+  // Auto-resize textarea when input changes
+  useEffect(() => {
+    autoResizeTextarea();
+  }, [input, autoResizeTextarea]);
 
   /**
    * Handle paste events to decode URL-encoded text
@@ -248,13 +267,12 @@ Key Results:
 1. Første målbare resultat
 2. Andre målbare resultat
 3. Tredje målbare resultat"
-          rows={8}
           maxLength={MAX_INPUT_LENGTH}
           aria-describedby={error ? 'okr-error okr-help okr-char-count' : 'okr-help okr-char-count'}
           aria-invalid={error ? 'true' : undefined}
           className={cn(
             'w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 rounded-lg',
-            'resize-y min-h-[220px] placeholder:text-neutral-500',
+            'resize-none min-h-[220px] overflow-hidden placeholder:text-neutral-500',
             'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker',
             'disabled:opacity-60 disabled:cursor-not-allowed',
             'aria-[invalid=true]:border-feedback-error transition-all duration-300',
