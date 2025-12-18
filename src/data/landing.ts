@@ -11,7 +11,6 @@ import { PAGE_ROUTES } from '../utils/constants';
  */
 export const navLinks = [
   { href: '#om', label: 'Om' },
-  { href: '#erfaring', label: 'Erfaring' },
   { href: '#verktoy', label: 'Verktøy' },
   { href: '#kontakt', label: 'Kontakt' },
 ] as const;
@@ -66,35 +65,7 @@ export const competenciesContent = {
 } as const;
 
 /**
- * Experience section content
- */
-export const experienceContent = {
-  title: 'Erfaring',
-  summary: '15+ års erfaring fra produktledelse, prosessledelse og kvalitetsledelse i bank, fintech og regulerte bransjer. Tidligere roller inkluderer SpareBank 1, Vipps, Varner og Domstolsadministrasjonen.',
-  expandButtonText: 'Les mer',
-  collapseButtonText: 'Vis mindre',
-  experiences: [
-    {
-      company: 'SpareBank 1 – Mobilbank Bedrift',
-      description: 'Tok over som produktleder januar 2024. Innførte tydeligere OKR-er, skjermet teamet fra forstyrrelser, og prioriterte ned parallelle initiativer. Teamet leverte biometrisk signering av betalinger – en nøkkelfunksjon som bidro til nær dobling av aktive brukere på halvannet år.',
-    },
-    {
-      company: 'Varner',
-      description: 'Bygget opp testpraksis på tvers av fire team uten dedikerte testressurser. Etablerte felles rammeverk og filosofi, men lot hvert team tilpasse til sin kontekst. Resultatet var parallell testing uten flaskehalser.',
-    },
-    {
-      company: 'Vipps',
-      description: 'Strømlinjeformet testprosessen for mobilplattformene. Flyttet testing fra overlevering til kontinuerlig samarbeid mellom utviklere og testere på samme PR – kortere feedback-loop og bedre flyt.',
-    },
-    {
-      company: 'Domstolsadministrasjonen',
-      description: 'Testleder for akseptansetesting av saksbehandlingssystem. Rådga om teststrategi for kontinuerlig deployment i offentlig sektor.',
-    },
-  ],
-} as const;
-
-/**
- * About section content (Hvem står bak)
+ * About section content (Hvem står bak) - consolidated with experience and testimonials
  */
 export const aboutContent = {
   title: 'Hvem står bak',
@@ -107,32 +78,22 @@ export const aboutContent = {
   },
   founder: {
     heading: 'Carl Johnson, grunnlegger',
+    image: '/images/carl-johnson.jpg',
     paragraphs: [
       'Jeg hjelper team med å gå fra friksjon til flyt. Det betyr færre overleveringer, mindre rapportering, og mer synlighet – slik at folk kan bruke tiden på det som skaper verdi.',
-      'Med 15+ års erfaring fra bank, fintech og regulerte bransjer har jeg sett hva som bremser team. Jeg jobber for det motsatte – transparens, korte feedback-loops, og fokus på det som faktisk betyr noe.',
-      'Jeg elsker å jobbe med forskjellige team og løse problemer.',
       'Blir ofte brukt når det trengs tydelige prioriteringer uten å skape unødvendig uro.',
     ],
-  },
-} as const;
-
-/**
- * Testimonials section content
- */
-export const testimonialsContent = {
-  title: 'Hva tidligere kollegaer sier',
-  testimonials: [
-    {
-      quote: 'Han er tydelig, konkret, robust og god til å kommunisere med utviklingsteamet og interessenter rundt teamet. Etter at han tok over ble det mye enklere å vite hva vi faktisk skulle prioritere.',
+    experience: '15+ års erfaring med produktledelse, prosessforbedring og kvalitetsarbeid i bank, fintech og offentlig sektor. Har jobbet i og med miljøer som SpareBank 1, Vipps, Varner og Domstolsadministrasjonen, ofte i komplekse og regulerte domener.',
+    testimonial: {
+      quote: 'Det har vært en fornøyelse å samarbeide med Carl. Han er tydelig, konkret, robust og god til å kommunisere med utviklingsteamet og interessenter rundt teamet. Som produktleder har han vist vei i en reorganisering av et stort team til to mindre team som dekker et komplekst og tungt domene (Betaling). Med høyt arbeidspress, krevende systemavhengigheter kombinert med mange interessenter ute i bank har Carl ledet an skyreisen på en solid måte.',
       role: 'Utviklingsleder',
       company: 'SpareBank 1',
     },
-    {
-      quote: 'Han har god forretningsforståelse og teft, i tillegg til sterk intuisjon og forståelse av smidige prosesser.',
-      role: 'Teamleder',
-      company: 'SpareBank 1',
+    linkedinCta: {
+      text: 'Se LinkedIn for mer erfaring og anbefalinger',
+      href: EXTERNAL_LINKS.linkedinPersonal,
     },
-  ],
+  },
 } as const;
 
 /**

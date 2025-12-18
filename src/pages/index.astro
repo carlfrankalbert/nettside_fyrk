@@ -14,8 +14,6 @@ import HeroSection from '../components/landing/HeroSection.astro';
 import SituationsSection from '../components/landing/SituationsSection.astro';
 import CompetenciesSection from '../components/landing/CompetenciesSection.astro';
 import AboutSection from '../components/landing/AboutSection.astro';
-import ExperienceSection from '../components/landing/ExperienceSection.astro';
-import TestimonialsSection from '../components/landing/TestimonialsSection.astro';
 import ToolsSection from '../components/landing/ToolsSection.astro';
 import ContactSection from '../components/landing/ContactSection.astro';
 import LandingFooter from '../components/landing/LandingFooter.astro';
@@ -27,8 +25,6 @@ import {
   situationsContent,
   competenciesContent,
   aboutContent,
-  experienceContent,
-  testimonialsContent,
   toolsContent,
   contactContent,
   footerContent,
@@ -61,19 +57,6 @@ import {
       <CompetenciesSection
         title={competenciesContent.title}
         competencies={[...competenciesContent.competencies]}
-      />
-
-      <ExperienceSection
-        title={experienceContent.title}
-        summary={experienceContent.summary}
-        expandButtonText={experienceContent.expandButtonText}
-        collapseButtonText={experienceContent.collapseButtonText}
-        experiences={[...experienceContent.experiences]}
-      />
-
-      <TestimonialsSection
-        title={testimonialsContent.title}
-        testimonials={[...testimonialsContent.testimonials]}
       />
 
       <AboutSection
