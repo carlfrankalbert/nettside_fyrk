@@ -157,8 +157,8 @@ export const contactContent = {
  * Footer content
  */
 export const footerContent = {
-  address: 'c/o MSM, Møllergata 6, 0179 Oslo',
-  orgNumber: '930 630 898',
+  address: 'Mesh Youngstorget, Møllergata 6, 8, 0179 Oslo',
+  orgNumber: '936 630 898',
   emailHref: EXTERNAL_LINKS.email,
   emailLabel: 'Kontakt',
   linkedinHref: EXTERNAL_LINKS.linkedin,
