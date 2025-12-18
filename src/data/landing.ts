@@ -157,7 +157,7 @@ export const contactContent = {
  * Footer content
  */
 export const footerContent = {
-  address: 'Mesh Youngstorget, Møllergata 6, 8, 0179 Oslo',
+  address: 'c/o Mesh Youngstorget, Møllergata 6, 8, 0179 Oslo',
   orgNumber: '936 630 898',
   emailHref: EXTERNAL_LINKS.email,
   emailLabel: 'Kontakt',
