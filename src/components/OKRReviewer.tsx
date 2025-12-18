@@ -230,7 +230,13 @@ export default function OKRReviewer() {
           id="okr-input"
           value={input}
           onChange={(e) => {
-            setInput(e.target.value);
+            let newValue = e.target.value;
+            // Fallback: decode URL-encoded text on change
+            // This handles cases where paste event prevention doesn't work (iOS Safari/Chrome)
+            if (isUrlEncoded(newValue)) {
+              newValue = safeDecodeURIComponent(newValue);
+            }
+            setInput(newValue);
             if (error) setError(null);
           }}
           onPaste={handlePaste}
