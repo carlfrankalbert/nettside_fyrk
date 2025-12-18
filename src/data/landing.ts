@@ -23,7 +23,7 @@ export const heroContent = {
   headline: 'Produktledelse som gjør strategi til handling',
   description: 'FYRK hjelper team som vil levere, ikke bare planlegge. Med struktur som tåler endringer uten å miste fart.',
   subDescription: 'Ofte brukt når strategi er vedtatt, men prioriteringer og leveranse fortsatt spriker.',
-  ctaText: 'Ta en uforpliktende prat',
+  ctaText: 'Kontakt FYRK',
   ctaHref: '#kontakt',
 } as const;
 
@@ -90,7 +90,7 @@ export const aboutContent = {
       company: 'SpareBank 1',
     },
     linkedinCta: {
-      text: 'Se LinkedIn for mer erfaring og anbefalinger',
+      text: 'Se komplett CV på LinkedIn',
       href: EXTERNAL_LINKS.linkedinPersonal,
     },
   },
