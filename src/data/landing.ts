@@ -93,15 +93,25 @@ export const experienceContent = {
 } as const;
 
 /**
- * About section content (Carl Johnson)
+ * About section content (Hvem står bak)
  */
 export const aboutContent = {
-  title: 'Om Carl Johnson',
-  paragraphs: [
-    'Jeg hjelper team med å gå fra friksjon til flyt. Det betyr færre overleveringer, mindre rapportering, og mer synlighet – slik at folk kan bruke tiden på det som skaper verdi.',
-    'Med 15+ års erfaring fra bank, fintech og regulerte bransjer har jeg sett hva som bremser team: uklare prioriteringer, tunge prosesser, og informasjon som sitter fast hos enkeltpersoner. Jeg jobber for det motsatte – transparens, korte feedback-loops, og fokus på det som faktisk betyr noe.',
-  ],
-  aiNote: 'AI brukes aktivt som verktøy for research, idétesting og raskere problemløsning.',
+  title: 'Hvem står bak',
+  whyFyrk: {
+    heading: 'Hvorfor FYRK?',
+    paragraphs: [
+      'Jeg startet FYRK fordi jeg vil drive forandring og forenkling. For mange team sitter fast i tunge prosesser, uklare prioriteringer og kvalitet som kommer for sent. Det trenger ikke være sånn.',
+      'FYRK skal bli et kompetansesenter for smidig produktutvikling med kvalitetsfokus – et sted der erfaring fra komplekse miljøer møter praktisk gjennomføringskraft.',
+    ],
+  },
+  founder: {
+    heading: 'Carl Johnson, grunnlegger',
+    paragraphs: [
+      'Jeg hjelper team med å gå fra friksjon til flyt. Det betyr færre overleveringer, mindre rapportering, og mer synlighet – slik at folk kan bruke tiden på det som skaper verdi.',
+      'Med 15+ års erfaring fra bank, fintech og regulerte bransjer har jeg sett hva som bremser team. Jeg jobber for det motsatte – transparens, korte feedback-loops, og fokus på det som faktisk betyr noe.',
+      'Jeg elsker å jobbe med forskjellige team og løse problemer.',
+    ],
+  },
 } as const;
 
 /**

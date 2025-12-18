@@ -1,29 +1,56 @@
 ---
 /**
  * About section for the landing page
- * Displays information about Carl Johnson
+ * "Hvem står bak" - A warmer, more personal section
  */
+
+interface ContentBlock {
+  heading: string;
+  paragraphs: string[];
+}
 
 interface Props {
   title: string;
-  paragraphs: string[];
-  aiNote: string;
+  whyFyrk: ContentBlock;
+  founder: ContentBlock;
 }
 
-const { title, paragraphs, aiNote } = Astro.props;
+const { title, whyFyrk, founder } = Astro.props;
 ---
 
-<section id="om" class="py-20 md:py-28 px-6 bg-neutral-50 border-y border-neutral-200">
-  <div class="max-w-3xl mx-auto">
-    <h2 class="text-h2 font-semibold text-brand-navy mb-8 text-center">
+<section id="om" class="py-20 md:py-28 px-6 bg-gradient-to-b from-neutral-50 to-white relative overflow-hidden">
+  <!-- Warm decorative element -->
+  <div class="absolute inset-0 pointer-events-none">
+    <div class="absolute -right-1/4 top-1/4 w-[800px] h-[400px] bg-gradient-to-br from-brand-navy/[0.03] via-amber-500/[0.02] to-transparent rotate-[-25deg] rounded-[100px]"></div>
+  </div>
+
+  <div class="max-w-3xl mx-auto relative z-10">
+    <h2 class="text-h2 font-semibold text-brand-navy mb-12 text-center">
       {title}
     </h2>
 
-    <div class="text-lg text-neutral-600 space-y-6 text-center">
-      {paragraphs.map((paragraph) => (
-        <p>{paragraph}</p>
-      ))}
-      <p class="text-base text-neutral-500 pt-4">{aiNote}</p>
+    <!-- Hvorfor FYRK -->
+    <div class="mb-12">
+      <h3 class="text-h4 font-semibold text-brand-navy mb-4">
+        {whyFyrk.heading}
+      </h3>
+      <div class="text-lg text-neutral-600 space-y-4">
+        {whyFyrk.paragraphs.map((paragraph) => (
+          <p>{paragraph}</p>
+        ))}
+      </div>
+    </div>
+
+    <!-- Carl Johnson, grunnlegger -->
+    <div class="bg-white rounded-xl p-8 border border-neutral-100 shadow-sm">
+      <h3 class="text-h4 font-semibold text-brand-navy mb-4">
+        {founder.heading}
+      </h3>
+      <div class="text-lg text-neutral-600 space-y-4">
+        {founder.paragraphs.map((paragraph) => (
+          <p>{paragraph}</p>
+        ))}
+      </div>
     </div>
   </div>
 </section>
