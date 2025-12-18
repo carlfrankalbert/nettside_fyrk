@@ -1,0 +1,43 @@
+---
+/**
+ * Competencies section for the landing page
+ * Displays core competencies in a grid
+ */
+import CompetencyCard from './CompetencyCard.astro';
+
+interface Competency {
+  title: string;
+  description: string;
+  iconPath: string;
+}
+
+interface Props {
+  title: string;
+  competencies: Competency[];
+}
+
+const { title, competencies } = Astro.props;
+---
+
+<section class="py-20 md:py-28 px-6 bg-white relative overflow-hidden">
+  <!-- Subtle diagonal FYRK signature element -->
+  <div class="absolute inset-0 pointer-events-none">
+    <div class="absolute -right-1/4 top-1/4 w-[800px] h-[400px] bg-gradient-to-br from-brand-navy/[0.04] to-transparent rotate-[-25deg] rounded-[100px]"></div>
+  </div>
+
+  <div class="max-w-4xl mx-auto relative z-10">
+    <h2 class="text-h2 font-semibold text-brand-navy mb-12 text-center">
+      {title}
+    </h2>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      {competencies.map((competency) => (
+        <CompetencyCard
+          title={competency.title}
+          description={competency.description}
+          iconPath={competency.iconPath}
+        />
+      ))}
+    </div>
+  </div>
+</section>
