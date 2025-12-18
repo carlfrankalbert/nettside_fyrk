@@ -140,6 +140,7 @@ export default function OKRReviewer() {
   const handleClearResult = () => {
     setResult(null);
     setError(null);
+    setInput('');
   };
 
   const handleSubmit = async () => {
