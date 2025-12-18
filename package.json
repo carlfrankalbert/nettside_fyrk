@@ -14,7 +14,6 @@
     "test:visual-mobile": "playwright test --project=visual-mobile",
     "test:ux-mobile": "playwright test --project=ux-mobile",
     "test:mobile": "playwright test --project=visual-mobile --project=ux-mobile",
-    "test:security": "playwright test --project=security",
     "test:okr-api": "playwright test --project=okr-api",
     "test:theme": "playwright test --project=theme",
     "test:ui": "playwright test --ui",

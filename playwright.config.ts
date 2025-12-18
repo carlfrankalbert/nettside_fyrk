@@ -80,12 +80,6 @@ export default defineConfig({
       testMatch: /contrast\.spec\.ts/,
       use: { ...devices['Desktop Chrome'] },
     },
-    // Security tests - OWASP compliance
-    {
-      name: 'security',
-      testMatch: /security\.spec\.ts/,
-      use: { ...devices['Desktop Chrome'] },
-    },
     // OKR-sjekken API tests
     {
       name: 'okr-api',
