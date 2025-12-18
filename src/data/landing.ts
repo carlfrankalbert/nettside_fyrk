@@ -22,7 +22,6 @@ export const heroContent = {
   tagline: 'Når hverdagen er kompleks og kravene mange',
   headline: 'Produktledelse som gjør strategi til handling',
   description: 'FYRK hjelper team som vil levere, ikke bare planlegge. Med struktur som tåler endringer uten å miste fart.',
-  subDescription: 'Ofte brukt når strategi er vedtatt, men prioriteringer og leveranse fortsatt spriker.',
   ctaText: 'Kontakt FYRK',
   ctaHref: '#kontakt',
 } as const;
