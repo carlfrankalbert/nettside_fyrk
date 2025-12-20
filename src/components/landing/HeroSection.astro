@@ -45,7 +45,7 @@ const { tagline, headline, description, subDescription, ctaText, ctaHref } = Ast
 
     {!subDescription && <div class="mb-10"></div>}
 
-    <a href={ctaHref} class="btn btn-primary no-underline">
+    <a href={ctaHref} class="btn btn-primary no-underline" data-track-button="hero_cta">
       {ctaText}
     </a>
   </div>

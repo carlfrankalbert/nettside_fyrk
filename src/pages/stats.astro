@@ -1,6 +1,9 @@
 ---
 export const prerender = false;
 
+import { TRACKED_BUTTONS } from './api/track';
+import { TRACKED_PAGES } from './api/pageview';
+
 // Get the secret token from environment
 const cloudflareEnv = Astro.locals.runtime?.env;
 const expectedToken = cloudflareEnv?.STATS_TOKEN;
@@ -12,15 +15,62 @@ const providedToken = url.searchParams.get('token');
 // Validate access
 const hasAccess = expectedToken && providedToken === expectedToken;
 
-// Get click count if authorized
-let clickCount: number | null = null;
+// Get all click counts if authorized
+type ButtonCounts = Record<string, { count: number; label: string }>;
+type PageStats = Record<string, { label: string; totalViews: number; totalVisitors: number; todayVisitors: number }>;
+
+let buttonCounts: ButtonCounts | null = null;
+let pageStats: PageStats | null = null;
+let totalClicks = 0;
+
 if (hasAccess) {
   const kv = cloudflareEnv?.ANALYTICS_KV;
   if (kv) {
-    const count = await kv.get('okr_button_clicks');
-    clickCount = parseInt(count || '0', 10) || 0;
+    // Get button click counts
+    buttonCounts = {};
+    for (const [id, config] of Object.entries(TRACKED_BUTTONS)) {
+      const currentCount = await kv.get(config.key);
+      const count = parseInt(currentCount || '0', 10) || 0;
+      buttonCounts[id] = {
+        count,
+        label: config.label,
+      };
+      totalClicks += count;
+    }
+
+    // Get page view stats
+    pageStats = {};
+    const today = new Date().toISOString().split('T')[0];
+    for (const [id, config] of Object.entries(TRACKED_PAGES)) {
+      const totalViewsKey = config.key;
+      const totalVisitorsKey = `visitors_total:${id}`;
+      const todayVisitorsKey = `visitors:${id}:${today}`;
+
+      const totalViews = await kv.get(totalViewsKey);
+      const totalVisitors = await kv.get(totalVisitorsKey);
+      const todayVisitorsJson = await kv.get(todayVisitorsKey);
+
+      let todayVisitors = 0;
+      try {
+        const visitors = todayVisitorsJson ? JSON.parse(todayVisitorsJson) : [];
+        todayVisitors = visitors.length;
+      } catch {
+        todayVisitors = 0;
+      }
+
+      pageStats[id] = {
+        label: config.label,
+        totalViews: parseInt(totalViews || '0', 10) || 0,
+        totalVisitors: parseInt(totalVisitors || '0', 10) || 0,
+        todayVisitors,
+      };
+    }
   }
 }
+
+// Group buttons by page
+const okrButtons = ['okr_submit', 'okr_example', 'okr_reset', 'okr_privacy_toggle', 'okr_copy_suggestion', 'okr_read_more'];
+const landingButtons = ['hero_cta', 'tools_okr_cta', 'contact_email', 'contact_linkedin', 'about_linkedin'];
 ---
 
 <!DOCTYPE html>
@@ -36,32 +86,200 @@ if (hasAccess) {
       font-family: system-ui, -apple-system, sans-serif;
       background: #f5f5f5;
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       padding: 20px;
     }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    h1 { color: #1e3a5f; margin-bottom: 8px; font-size: 1.75rem; }
+    .subtitle { color: #666; font-size: 0.9rem; }
     .card {
       background: white;
       border-radius: 12px;
-      padding: 40px;
+      padding: 24px;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      text-align: center;
-      max-width: 400px;
-      width: 100%;
+      margin-bottom: 24px;
     }
     .error-card {
       border: 2px solid #ef4444;
+      text-align: center;
+      max-width: 400px;
+      margin: 100px auto;
     }
-    h1 { color: #1e3a5f; margin-bottom: 8px; font-size: 1.5rem; }
-    .subtitle { color: #666; margin-bottom: 32px; font-size: 0.9rem; }
-    .count { font-size: 4rem; font-weight: bold; color: #1e3a5f; }
-    .label { color: #666; margin-top: 8px; }
-    .error { color: #ef4444; }
+    .section-title {
+      color: #1e3a5f;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    .stats-grid {
+      display: grid;
+      gap: 12px;
+    }
+    .stat-row {
+      background: #f9fafb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      transition: background 0.2s;
+    }
+    .stat-header:hover {
+      background: #f3f4f6;
+    }
+    .stat-label {
+      color: #374151;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .stat-count {
+      font-weight: 600;
+      color: #1e3a5f;
+      font-size: 1.1rem;
+      min-width: 60px;
+      text-align: right;
+    }
+    .chart-toggle {
+      background: none;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .chart-toggle:hover {
+      background: #e5e7eb;
+    }
+    .chart-toggle.active {
+      background: #1e3a5f;
+      color: white;
+      border-color: #1e3a5f;
+    }
+    .chart-container {
+      padding: 16px;
+      background: #fff;
+      border-top: 1px solid #e5e7eb;
+      display: none;
+    }
+    .chart-container.visible {
+      display: block;
+    }
+    .mini-chart {
+      height: 80px;
+      width: 100%;
+      display: block;
+    }
+    .period-selector {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+    .period-btn {
+      background: #f3f4f6;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .period-btn:hover {
+      background: #e5e7eb;
+    }
+    .period-btn.active {
+      background: #1e3a5f;
+      color: white;
+    }
+    .total-section {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+      color: white;
+    }
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+    }
+    .total-label {
+      font-size: 1.1rem;
+    }
+    .total-count {
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+    .visitors-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .visitor-card {
+      background: #f9fafb;
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .visitor-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .visitor-page-label {
+      font-size: 0.9rem;
+      color: #374151;
+      font-weight: 600;
+    }
+    .visitor-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      text-align: center;
+    }
+    .visitor-stat {
+      padding: 10px 8px;
+      background: white;
+      border-radius: 6px;
+    }
+    .visitor-stat-value {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #1e3a5f;
+    }
+    .visitor-stat-label {
+      font-size: 0.7rem;
+      color: #9ca3af;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+    .visitor-chart-container {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #e5e7eb;
+      display: none;
+    }
+    .visitor-chart-container.visible {
+      display: block;
+    }
     .refresh {
-      margin-top: 24px;
+      text-align: center;
       color: #666;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
+      margin-top: 16px;
     }
     .refresh a {
       color: #1e3a5f;
@@ -70,6 +288,44 @@ if (hasAccess) {
     .not-configured {
       color: #f59e0b;
       font-size: 0.9rem;
+      text-align: center;
+      padding: 40px;
+    }
+    .error { color: #ef4444; }
+    .zero-count {
+      color: #9ca3af;
+    }
+    .chart-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 80px;
+      color: #9ca3af;
+      font-size: 0.85rem;
+    }
+    .chart-area {
+      fill: rgba(30, 58, 95, 0.1);
+    }
+    .chart-line {
+      fill: none;
+      stroke: #1e3a5f;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .chart-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.65rem;
+      color: #9ca3af;
+      margin-top: 4px;
+      padding: 0 4px;
+    }
+    .no-data {
+      text-align: center;
+      padding: 20px;
+      color: #9ca3af;
+      font-size: 0.85rem;
     }
   </style>
 </head>
@@ -80,23 +336,276 @@ if (hasAccess) {
       <p>Ugyldig eller manglende token.</p>
     </div>
   ) : (
-    <div class="card">
-      <h1>OKR-sjekker statistikk</h1>
-      <p class="subtitle">Antall klikk på "Sjekk OKR-settet ditt"</p>
+    <div class="container">
+      <div class="header">
+        <h1>FYRK Statistikk</h1>
+        <p class="subtitle">Klikkstatistikk og besøkende</p>
+      </div>
 
-      {clickCount !== null ? (
+      {buttonCounts !== null && pageStats !== null ? (
         <>
-          <div class="count">{clickCount}</div>
-          <p class="label">totalt antall klikk</p>
+          <!-- Total summary -->
+          <div class="card total-section">
+            <div class="total-row">
+              <span class="total-label">Totalt antall knappeklikk</span>
+              <span class="total-count">{totalClicks}</span>
+            </div>
+          </div>
+
+          <!-- Page visitors -->
+          <div class="card">
+            <h2 class="section-title">Sidevisninger og besøkende</h2>
+            <div class="visitors-grid">
+              {Object.entries(pageStats).map(([id, stats]) => (
+                <div class="visitor-card">
+                  <div class="visitor-card-header">
+                    <span class="visitor-page-label">{stats.label}</span>
+                    <button class="chart-toggle" data-chart-page={id}>📊</button>
+                  </div>
+                  <div class="visitor-stats">
+                    <div class="visitor-stat">
+                      <div class="visitor-stat-value">{stats.totalViews}</div>
+                      <div class="visitor-stat-label">Visninger</div>
+                    </div>
+                    <div class="visitor-stat">
+                      <div class="visitor-stat-value">{stats.totalVisitors}</div>
+                      <div class="visitor-stat-label">Unike</div>
+                    </div>
+                    <div class="visitor-stat">
+                      <div class="visitor-stat-value">{stats.todayVisitors}</div>
+                      <div class="visitor-stat-label">I dag</div>
+                    </div>
+                  </div>
+                  <div class="visitor-chart-container" id={`page-chart-${id}`}>
+                    <div class="period-selector">
+                      <button class="period-btn active" data-period="24h">24t</button>
+                      <button class="period-btn" data-period="week">Uke</button>
+                      <button class="period-btn" data-period="month">Måned</button>
+                      <button class="period-btn" data-period="year">År</button>
+                    </div>
+                    <div class="chart-content">
+                      <div class="chart-loading">Laster...</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <!-- OKR-sjekken page -->
+          <div class="card">
+            <h2 class="section-title">OKR-sjekken</h2>
+            <div class="stats-grid">
+              {okrButtons.map((id) => (
+                <div class="stat-row">
+                  <div class="stat-header">
+                    <span class="stat-label">
+                      {buttonCounts[id]?.label || id}
+                      <button class="chart-toggle" data-chart-btn={id}>📊</button>
+                    </span>
+                    <span class={`stat-count ${buttonCounts[id]?.count === 0 ? 'zero-count' : ''}`}>
+                      {buttonCounts[id]?.count || 0}
+                    </span>
+                  </div>
+                  <div class="chart-container" id={`btn-chart-${id}`}>
+                    <div class="period-selector">
+                      <button class="period-btn active" data-period="24h">24t</button>
+                      <button class="period-btn" data-period="week">Uke</button>
+                      <button class="period-btn" data-period="month">Måned</button>
+                      <button class="period-btn" data-period="year">År</button>
+                    </div>
+                    <div class="chart-content">
+                      <div class="chart-loading">Laster...</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <!-- Landing page -->
+          <div class="card">
+            <h2 class="section-title">Landingsside</h2>
+            <div class="stats-grid">
+              {landingButtons.map((id) => (
+                <div class="stat-row">
+                  <div class="stat-header">
+                    <span class="stat-label">
+                      {buttonCounts[id]?.label || id}
+                      <button class="chart-toggle" data-chart-btn={id}>📊</button>
+                    </span>
+                    <span class={`stat-count ${buttonCounts[id]?.count === 0 ? 'zero-count' : ''}`}>
+                      {buttonCounts[id]?.count || 0}
+                    </span>
+                  </div>
+                  <div class="chart-container" id={`btn-chart-${id}`}>
+                    <div class="period-selector">
+                      <button class="period-btn active" data-period="24h">24t</button>
+                      <button class="period-btn" data-period="week">Uke</button>
+                      <button class="period-btn" data-period="month">Måned</button>
+                      <button class="period-btn" data-period="year">År</button>
+                    </div>
+                    <div class="chart-content">
+                      <div class="chart-loading">Laster...</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <p class="refresh">
+            <a href={`/stats?token=${providedToken}`}>Oppdater</a> · Sist oppdatert: {new Date().toLocaleString('no-NO')}
+          </p>
         </>
       ) : (
-        <p class="not-configured">KV ikke konfigurert</p>
+        <div class="card">
+          <p class="not-configured">KV ikke konfigurert</p>
+        </div>
       )}
-
-      <p class="refresh">
-        <a href={`/stats?token=${providedToken}`}>Oppdater</a>
-      </p>
     </div>
   )}
+
+  <script>
+    // Chart rendering utility
+    function renderMiniChart(container: HTMLElement, data: {label: string, value: number}[]) {
+      if (!data || data.length === 0) {
+        container.innerHTML = '<div class="no-data">Ingen data ennå</div>';
+        return;
+      }
+
+      const width = container.clientWidth || 300;
+      const height = 80;
+      const padding = { top: 10, right: 10, bottom: 10, left: 10 };
+
+      const values = data.map(d => d.value);
+      const maxValue = Math.max(...values, 1);
+
+      const chartWidth = width - padding.left - padding.right;
+      const chartHeight = height - padding.top - padding.bottom;
+
+      // Calculate points
+      const points = data.map((d, i) => {
+        const x = padding.left + (i / (data.length - 1 || 1)) * chartWidth;
+        const y = padding.top + chartHeight - (d.value / maxValue) * chartHeight;
+        return { x, y, label: d.label, value: d.value };
+      });
+
+      // Create SVG path for line
+      const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+
+      // Create SVG path for area
+      const areaPath = `${linePath} L ${points[points.length - 1].x} ${padding.top + chartHeight} L ${points[0].x} ${padding.top + chartHeight} Z`;
+
+      // Get labels for x-axis
+      const firstLabel = data[0].label;
+      const lastLabel = data[data.length - 1].label;
+
+      container.innerHTML = `
+        <svg class="mini-chart" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">
+          <path class="chart-area" d="${areaPath}" />
+          <path class="chart-line" d="${linePath}" />
+        </svg>
+        <div class="chart-labels">
+          <span>${firstLabel}</span>
+          <span>${lastLabel}</span>
+        </div>
+      `;
+    }
+
+    // Fetch and render chart data
+    async function loadChartData(type: string, id: string, period: string, container: HTMLElement) {
+      const chartContent = container.querySelector('.chart-content') as HTMLElement;
+      if (!chartContent) return;
+
+      chartContent.innerHTML = '<div class="chart-loading">Laster...</div>';
+
+      try {
+        let url: string;
+        if (type === 'button') {
+          url = `/api/track?timeseries=true&buttonId=${id}&period=${period}`;
+        } else {
+          url = `/api/pageview?timeseries=true&pageId=${id}&period=${period}`;
+        }
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.timeseries && data.timeseries.length > 0) {
+          renderMiniChart(chartContent, data.timeseries);
+        } else {
+          chartContent.innerHTML = '<div class="no-data">Ingen data ennå</div>';
+        }
+      } catch (error) {
+        console.error('Error loading chart:', error);
+        chartContent.innerHTML = '<div class="no-data">Kunne ikke laste data</div>';
+      }
+    }
+
+    // Initialize button chart toggles
+    document.querySelectorAll<HTMLButtonElement>('.chart-toggle[data-chart-btn]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const buttonId = btn.dataset.chartBtn!;
+        const container = document.getElementById(`btn-chart-${buttonId}`);
+        if (!container) return;
+
+        if (container.classList.contains('visible')) {
+          container.classList.remove('visible');
+          btn.classList.remove('active');
+        } else {
+          container.classList.add('visible');
+          btn.classList.add('active');
+          const activePeriod = container.querySelector<HTMLButtonElement>('.period-btn.active')?.dataset.period || '24h';
+          loadChartData('button', buttonId, activePeriod, container);
+        }
+      });
+    });
+
+    // Initialize page chart toggles
+    document.querySelectorAll<HTMLButtonElement>('.chart-toggle[data-chart-page]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const pageId = btn.dataset.chartPage!;
+        const container = document.getElementById(`page-chart-${pageId}`);
+        if (!container) return;
+
+        if (container.classList.contains('visible')) {
+          container.classList.remove('visible');
+          btn.classList.remove('active');
+        } else {
+          container.classList.add('visible');
+          btn.classList.add('active');
+          const activePeriod = container.querySelector<HTMLButtonElement>('.period-btn.active')?.dataset.period || '24h';
+          loadChartData('page', pageId, activePeriod, container);
+        }
+      });
+    });
+
+    // Initialize period selectors
+    document.querySelectorAll('.period-selector').forEach(selector => {
+      selector.querySelectorAll<HTMLButtonElement>('.period-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          // Update active state
+          selector.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          const period = btn.dataset.period!;
+          const container = selector.parentElement as HTMLElement;
+          if (!container) return;
+
+          // Determine if this is a button or page chart
+          const containerId = container.id;
+          if (containerId.startsWith('btn-chart-')) {
+            const buttonId = containerId.replace('btn-chart-', '');
+            loadChartData('button', buttonId, period, container);
+          } else if (containerId.startsWith('page-chart-')) {
+            const pageId = containerId.replace('page-chart-', '');
+            loadChartData('page', pageId, period, container);
+          }
+        });
+      });
+    });
+  </script>
 </body>
 </html>

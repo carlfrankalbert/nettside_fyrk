@@ -53,7 +53,7 @@ const { title, description, intro, tools, comingSoonText } = Astro.props;
             <div class="flex-1">
               <h3 class="text-h4 font-semibold text-brand-navy mb-2">{tool.title}</h3>
               <p class="text-neutral-600 mb-4">{tool.description}</p>
-              <a href={tool.href} class="btn btn-primary no-underline inline-flex">
+              <a href={tool.href} class="btn btn-primary no-underline inline-flex" data-track-button="tools_okr_cta">
                 {tool.buttonText}
               </a>
             </div>
