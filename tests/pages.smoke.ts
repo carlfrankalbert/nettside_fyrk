@@ -14,7 +14,7 @@ test.describe('All Pages Smoke Tests', () => {
       await expect(page).toHaveTitle(pageInfo.title);
       await expect(page.locator('main')).toBeVisible();
       await expect(page.locator('nav')).toBeVisible();
-      await expect(page.locator('footer')).toBeVisible();
+      await expect(page.getByRole('contentinfo')).toBeVisible();
     });
   }
 
