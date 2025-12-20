@@ -1,0 +1,102 @@
+---
+export const prerender = false;
+
+// Get the secret token from environment
+const cloudflareEnv = Astro.locals.runtime?.env;
+const expectedToken = cloudflareEnv?.STATS_TOKEN;
+
+// Check token from URL
+const url = new URL(Astro.request.url);
+const providedToken = url.searchParams.get('token');
+
+// Validate access
+const hasAccess = expectedToken && providedToken === expectedToken;
+
+// Get click count if authorized
+let clickCount: number | null = null;
+if (hasAccess) {
+  const kv = cloudflareEnv?.ANALYTICS_KV;
+  if (kv) {
+    const count = await kv.get('okr_button_clicks');
+    clickCount = parseInt(count || '0', 10) || 0;
+  }
+}
+---
+
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Stats - FYRK</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f5f5f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+    }
+    .error-card {
+      border: 2px solid #ef4444;
+    }
+    h1 { color: #1e3a5f; margin-bottom: 8px; font-size: 1.5rem; }
+    .subtitle { color: #666; margin-bottom: 32px; font-size: 0.9rem; }
+    .count { font-size: 4rem; font-weight: bold; color: #1e3a5f; }
+    .label { color: #666; margin-top: 8px; }
+    .error { color: #ef4444; }
+    .refresh {
+      margin-top: 24px;
+      color: #666;
+      font-size: 0.8rem;
+    }
+    .refresh a {
+      color: #1e3a5f;
+      text-decoration: underline;
+    }
+    .not-configured {
+      color: #f59e0b;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  {!hasAccess ? (
+    <div class="card error-card">
+      <h1 class="error">Ingen tilgang</h1>
+      <p>Ugyldig eller manglende token.</p>
+    </div>
+  ) : (
+    <div class="card">
+      <h1>OKR-sjekker statistikk</h1>
+      <p class="subtitle">Antall klikk på "Sjekk OKR-settet ditt"</p>
+
+      {clickCount !== null ? (
+        <>
+          <div class="count">{clickCount}</div>
+          <p class="label">totalt antall klikk</p>
+        </>
+      ) : (
+        <p class="not-configured">KV ikke konfigurert</p>
+      )}
+
+      <p class="refresh">
+        <a href={`/stats?token=${providedToken}`}>Oppdater</a>
+      </p>
+    </div>
+  )}
+</body>
+</html>
