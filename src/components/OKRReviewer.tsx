@@ -173,6 +173,11 @@ export default function OKRReviewer() {
       return;
     }
 
+    // Track button click (fire and forget - don't block the user)
+    fetch('/api/track', { method: 'POST' }).catch(() => {
+      // Silently ignore tracking errors
+    });
+
     setLoading(true);
     setIsStreaming(true);
     setError(null);

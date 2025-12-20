@@ -13,6 +13,7 @@ interface ImportMeta {
 type Runtime = import('@astrojs/cloudflare').Runtime<{
   ANTHROPIC_API_KEY: string;
   ANTHROPIC_MODEL?: string;
+  ANALYTICS_KV?: KVNamespace;
 }>;
 
 declare namespace App {
