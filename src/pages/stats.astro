@@ -1,6 +1,8 @@
 ---
 export const prerender = false;
 
+import { TRACKED_BUTTONS } from './api/track';
+
 // Get the secret token from environment
 const cloudflareEnv = Astro.locals.runtime?.env;
 const expectedToken = cloudflareEnv?.STATS_TOKEN;
@@ -12,15 +14,30 @@ const providedToken = url.searchParams.get('token');
 // Validate access
 const hasAccess = expectedToken && providedToken === expectedToken;
 
-// Get click count if authorized
-let clickCount: number | null = null;
+// Get all click counts if authorized
+type ButtonCounts = Record<string, { count: number; label: string }>;
+let buttonCounts: ButtonCounts | null = null;
+let totalClicks = 0;
+
 if (hasAccess) {
   const kv = cloudflareEnv?.ANALYTICS_KV;
   if (kv) {
-    const count = await kv.get('okr_button_clicks');
-    clickCount = parseInt(count || '0', 10) || 0;
+    buttonCounts = {};
+    for (const [id, config] of Object.entries(TRACKED_BUTTONS)) {
+      const currentCount = await kv.get(config.key);
+      const count = parseInt(currentCount || '0', 10) || 0;
+      buttonCounts[id] = {
+        count,
+        label: config.label,
+      };
+      totalClicks += count;
+    }
   }
 }
+
+// Group buttons by page
+const okrButtons = ['okr_submit', 'okr_example', 'okr_reset', 'okr_privacy_toggle', 'okr_copy_suggestion', 'okr_read_more'];
+const landingButtons = ['hero_cta', 'tools_okr_cta', 'contact_email', 'contact_linkedin', 'about_linkedin'];
 ---
 
 <!DOCTYPE html>
@@ -36,32 +53,92 @@ if (hasAccess) {
       font-family: system-ui, -apple-system, sans-serif;
       background: #f5f5f5;
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       padding: 20px;
     }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    h1 { color: #1e3a5f; margin-bottom: 8px; font-size: 1.75rem; }
+    .subtitle { color: #666; font-size: 0.9rem; }
     .card {
       background: white;
       border-radius: 12px;
-      padding: 40px;
+      padding: 24px;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      text-align: center;
-      max-width: 400px;
-      width: 100%;
+      margin-bottom: 24px;
     }
     .error-card {
       border: 2px solid #ef4444;
+      text-align: center;
+      max-width: 400px;
+      margin: 100px auto;
     }
-    h1 { color: #1e3a5f; margin-bottom: 8px; font-size: 1.5rem; }
-    .subtitle { color: #666; margin-bottom: 32px; font-size: 0.9rem; }
-    .count { font-size: 4rem; font-weight: bold; color: #1e3a5f; }
-    .label { color: #666; margin-top: 8px; }
-    .error { color: #ef4444; }
+    .section-title {
+      color: #1e3a5f;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    .stats-grid {
+      display: grid;
+      gap: 12px;
+    }
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background: #f9fafb;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    .stat-row:hover {
+      background: #f3f4f6;
+    }
+    .stat-label {
+      color: #374151;
+      font-size: 0.95rem;
+    }
+    .stat-count {
+      font-weight: 600;
+      color: #1e3a5f;
+      font-size: 1.1rem;
+      min-width: 60px;
+      text-align: right;
+    }
+    .total-section {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+      color: white;
+    }
+    .total-section .section-title {
+      color: white;
+      border-bottom-color: rgba(255,255,255,0.2);
+    }
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+    }
+    .total-label {
+      font-size: 1.1rem;
+    }
+    .total-count {
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
     .refresh {
-      margin-top: 24px;
+      text-align: center;
       color: #666;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
+      margin-top: 16px;
     }
     .refresh a {
       color: #1e3a5f;
@@ -70,6 +147,12 @@ if (hasAccess) {
     .not-configured {
       color: #f59e0b;
       font-size: 0.9rem;
+      text-align: center;
+      padding: 40px;
+    }
+    .error { color: #ef4444; }
+    .zero-count {
+      color: #9ca3af;
     }
   </style>
 </head>
@@ -80,22 +163,61 @@ if (hasAccess) {
       <p>Ugyldig eller manglende token.</p>
     </div>
   ) : (
-    <div class="card">
-      <h1>OKR-sjekker statistikk</h1>
-      <p class="subtitle">Antall klikk på "Sjekk OKR-settet ditt"</p>
+    <div class="container">
+      <div class="header">
+        <h1>FYRK Statistikk</h1>
+        <p class="subtitle">Klikkstatistikk for alle knapper</p>
+      </div>
 
-      {clickCount !== null ? (
+      {buttonCounts !== null ? (
         <>
-          <div class="count">{clickCount}</div>
-          <p class="label">totalt antall klikk</p>
+          <!-- Total summary -->
+          <div class="card total-section">
+            <div class="total-row">
+              <span class="total-label">Totalt antall klikk</span>
+              <span class="total-count">{totalClicks}</span>
+            </div>
+          </div>
+
+          <!-- OKR-sjekken page -->
+          <div class="card">
+            <h2 class="section-title">OKR-sjekken</h2>
+            <div class="stats-grid">
+              {okrButtons.map((id) => (
+                <div class="stat-row">
+                  <span class="stat-label">{buttonCounts[id]?.label || id}</span>
+                  <span class={`stat-count ${buttonCounts[id]?.count === 0 ? 'zero-count' : ''}`}>
+                    {buttonCounts[id]?.count || 0}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <!-- Landing page -->
+          <div class="card">
+            <h2 class="section-title">Landingsside</h2>
+            <div class="stats-grid">
+              {landingButtons.map((id) => (
+                <div class="stat-row">
+                  <span class="stat-label">{buttonCounts[id]?.label || id}</span>
+                  <span class={`stat-count ${buttonCounts[id]?.count === 0 ? 'zero-count' : ''}`}>
+                    {buttonCounts[id]?.count || 0}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <p class="refresh">
+            <a href={`/stats?token=${providedToken}`}>Oppdater</a> &middot; Sist oppdatert: {new Date().toLocaleString('no-NO')}
+          </p>
         </>
       ) : (
-        <p class="not-configured">KV ikke konfigurert</p>
+        <div class="card">
+          <p class="not-configured">KV ikke konfigurert</p>
+        </div>
       )}
-
-      <p class="refresh">
-        <a href={`/stats?token=${providedToken}`}>Oppdater</a>
-      </p>
     </div>
   )}
 </body>

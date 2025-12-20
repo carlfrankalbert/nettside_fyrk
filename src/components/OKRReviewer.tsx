@@ -139,7 +139,23 @@ export default function OKRReviewer() {
     }
   };
 
+  /**
+   * Track button click (fire and forget)
+   */
+  const trackClick = (buttonId: string) => {
+    fetch('/api/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ buttonId }),
+    }).catch(() => {
+      // Silently ignore tracking errors
+    });
+  };
+
   const handleFillExample = () => {
+    // Track button click
+    trackClick('okr_example');
+
     // Trigger animation
     setIsExampleAnimating(true);
     setInput(EXAMPLE_OKR);
@@ -157,6 +173,9 @@ export default function OKRReviewer() {
   };
 
   const handleClearResult = () => {
+    // Track button click
+    trackClick('okr_reset');
+
     setResult(null);
     setError(null);
     setInput('');
@@ -174,9 +193,7 @@ export default function OKRReviewer() {
     }
 
     // Track button click (fire and forget - don't block the user)
-    fetch('/api/track', { method: 'POST' }).catch(() => {
-      // Silently ignore tracking errors
-    });
+    trackClick('okr_submit');
 
     setLoading(true);
     setIsStreaming(true);
@@ -364,7 +381,13 @@ Key Results:
         </p>
         <button
           type="button"
-          onClick={() => setIsPrivacyOpen(!isPrivacyOpen)}
+          onClick={() => {
+            if (!isPrivacyOpen) {
+              // Only track when opening (not closing)
+              trackClick('okr_privacy_toggle');
+            }
+            setIsPrivacyOpen(!isPrivacyOpen);
+          }}
           aria-expanded={isPrivacyOpen}
           aria-controls="privacy-content"
           className="flex items-center gap-2 text-sm text-brand-navy hover:text-brand-cyan-darker focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded py-2"

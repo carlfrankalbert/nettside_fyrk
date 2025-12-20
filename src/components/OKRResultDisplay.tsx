@@ -3,6 +3,19 @@ import { parseOKRResult, getScoreColor, type ParsedOKRResult } from '../utils/ok
 import { CheckIcon, WarningIcon, LightbulbIcon, CopyIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
 
+/**
+ * Track button click (fire and forget)
+ */
+const trackClick = (buttonId: string) => {
+  fetch('/api/track', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ buttonId }),
+  }).catch(() => {
+    // Silently ignore tracking errors
+  });
+};
+
 interface OKRResultDisplayProps {
   result: string;
   isStreaming: boolean;
@@ -128,6 +141,9 @@ function SuggestionBox({ suggestion, isStreaming }: { suggestion: string; isStre
   const handleCopy = async () => {
     if (!suggestion) return;
 
+    // Track copy button click
+    trackClick('okr_copy_suggestion');
+
     try {
       await navigator.clipboard.writeText(suggestion);
       setCopied(true);
@@ -224,7 +240,13 @@ function SummarySection({ summary, isStreaming }: { summary: string; isStreaming
       </div>
       {isLong && (
         <button
-          onClick={() => setIsExpanded(!isExpanded)}
+          onClick={() => {
+            if (!isExpanded) {
+              // Only track when expanding (not collapsing)
+              trackClick('okr_read_more');
+            }
+            setIsExpanded(!isExpanded);
+          }}
           className="mt-2 text-sm text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded"
         >
           {isExpanded ? 'Vis mindre' : 'Les mer'}
