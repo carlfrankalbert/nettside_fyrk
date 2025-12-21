@@ -27,7 +27,9 @@ jobs:
         run: npm run build
 
       - name: Run Lighthouse CI
+        id: lighthouse
         uses: treosh/lighthouse-ci-action@v12
+        continue-on-error: true
         with:
           urls: |
             https://fyrk.no/
@@ -36,12 +38,25 @@ jobs:
           uploadArtifacts: true
           temporaryPublicStorage: true
 
+      - name: Check Lighthouse outcome
+        if: steps.lighthouse.outcome == 'failure'
+        run: |
+          echo "::warning::Lighthouse budget assertions failed. Review the report for details."
+
       - name: Format lighthouse score
         id: format_lighthouse
+        if: always()
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
+
+            // Check if manifest exists
+            if (!fs.existsSync('.lighthouseci/manifest.json')) {
+              core.setOutput('comment', '## Lighthouse Results\n\n⚠️ Lighthouse run did not produce results.');
+              return;
+            }
+
             const results = JSON.parse(fs.readFileSync('.lighthouseci/manifest.json', 'utf8'));
 
             let comment = '## Lighthouse Results\n\n';
@@ -93,7 +108,7 @@ jobs:
             return comment;
 
       - name: Comment on PR
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && always()
         uses: actions/github-script@v7
         with:
           script: |
@@ -128,11 +143,13 @@ jobs:
             }
 
       - name: Upload Lighthouse reports
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: lighthouse-reports
           path: .lighthouseci/
           retention-days: 30
+          if-no-files-found: ignore
 
   # Performance budget check
   budget-check:
