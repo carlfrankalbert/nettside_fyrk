@@ -173,9 +173,13 @@ Nettsiden er deployet på **Cloudflare Pages** med custom domain.
 
 Følgende miljøvariabler må settes i Cloudflare Pages:
 
-| Variabel | Beskrivelse |
-|----------|-------------|
-| `ANTHROPIC_API_KEY` | API-nøkkel for Claude (OKR-sjekken) |
+| Variabel | Beskrivelse | Påkrevd |
+|----------|-------------|---------|
+| `ANTHROPIC_API_KEY` | API-nøkkel for Claude (OKR-sjekken) | Ja |
+| `PUBLIC_SENTRY_DSN` | Sentry DSN for error tracking | Nei |
+| `PUBLIC_SENTRY_ENVIRONMENT` | Miljønavn (production/staging) | Nei |
+| `PUBLIC_SENTRY_RELEASE` | Release-versjon for tracking | Nei |
+| `STATS_TOKEN` | Token for å beskytte /stats og /api/vitals | Nei |
 
 Se [docs/deployment/](./docs/deployment/) for detaljerte instruksjoner.
 
@@ -192,9 +196,15 @@ Se [docs/deployment/](./docs/deployment/) for detaljerte instruksjoner.
 - **[Playwright](https://playwright.dev)** v1.57 - E2E og visual testing
 - **[Vitest](https://vitest.dev)** v4.0 - Unit testing
 - **[happy-dom](https://github.com/nicubarbaros/happy-dom)** - DOM-simulering for tester
+- **[k6](https://k6.io)** - Load testing
 
 ### Integrasjoner
 - **[Anthropic Claude API](https://anthropic.com)** - AI for OKR-evaluering
+
+### Monitoring
+- **[Sentry](https://sentry.io)** - Error tracking og performance monitoring
+- **[Lighthouse CI](https://github.com/GoogleChrome/lighthouse-ci)** - Automatisert performance testing
+- **Web Vitals RUM** - Real User Monitoring for Core Web Vitals
 
 ## 📜 NPM Scripts
 
@@ -219,6 +229,12 @@ npm run test:unit        # Unit tests (Vitest)
 npm run test:unit:watch  # Unit tests i watch-mode
 npm run test:unit:coverage # Unit tests med coverage
 npm run test:ui          # Playwright UI mode
+
+# Load testing (krever k6)
+npm run test:load            # Smoke test
+npm run test:load:sustained  # Vedvarende last (10 brukere)
+npm run test:load:stress     # Stresstest
+npm run test:load:spike      # Spike-test
 ```
 
 ## 📚 Dokumentasjon
@@ -228,6 +244,8 @@ npm run test:ui          # Playwright UI mode
 - **Development:** [docs/development/](./docs/development/)
 - **Design:** [docs/design/](./docs/design/)
 - **Testing:** [docs/development/TESTING.md](./docs/development/TESTING.md)
+- **Monitoring:** [docs/development/MONITORING.md](./docs/development/MONITORING.md)
+- **Load Testing:** [load-tests/README.md](./load-tests/README.md)
 
 ## 🔒 Sikkerhet
 

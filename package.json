@@ -19,7 +19,11 @@
     "test:ui": "playwright test --ui",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
-    "test:unit:coverage": "vitest run --coverage"
+    "test:unit:coverage": "vitest run --coverage",
+    "test:load": "k6 run load-tests/okr-api.js",
+    "test:load:sustained": "k6 run --env SCENARIO=load load-tests/okr-api.js",
+    "test:load:stress": "k6 run --env SCENARIO=stress load-tests/okr-api.js",
+    "test:load:spike": "k6 run --env SCENARIO=spike load-tests/okr-api.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.2",

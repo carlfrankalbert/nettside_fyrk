@@ -1,0 +1,160 @@
+name: Lighthouse CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 7 * * 1'  # Every Monday at 07:00 UTC
+  workflow_dispatch:  # Manual trigger
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site
+        run: npm run build
+
+      - name: Run Lighthouse CI
+        id: lighthouse
+        uses: treosh/lighthouse-ci-action@v12
+        continue-on-error: true
+        with:
+          urls: |
+            https://fyrk.no/
+            https://fyrk.no/okr-sjekken
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+      - name: Check Lighthouse outcome
+        if: steps.lighthouse.outcome == 'failure'
+        run: |
+          echo "::warning::Lighthouse run had issues. Review the report for details."
+
+      - name: Format lighthouse score
+        id: format_lighthouse
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            // Check if manifest exists
+            if (!fs.existsSync('.lighthouseci/manifest.json')) {
+              core.setOutput('comment', '## Lighthouse Results\n\n⚠️ Lighthouse run did not produce results.');
+              return;
+            }
+
+            const results = JSON.parse(fs.readFileSync('.lighthouseci/manifest.json', 'utf8'));
+
+            let comment = '## Lighthouse Results\n\n';
+
+            for (const result of results) {
+              const lhr = JSON.parse(fs.readFileSync(result.jsonPath, 'utf8'));
+              const url = new URL(lhr.finalUrl).pathname || '/';
+
+              const scores = {
+                performance: Math.round(lhr.categories.performance.score * 100),
+                accessibility: Math.round(lhr.categories.accessibility.score * 100),
+                bestPractices: Math.round(lhr.categories['best-practices'].score * 100),
+                seo: Math.round(lhr.categories.seo.score * 100),
+              };
+
+              const getEmoji = (score) => {
+                if (score >= 90) return '🟢';
+                if (score >= 50) return '🟠';
+                return '🔴';
+              };
+
+              comment += `### ${url}\n\n`;
+              comment += `| Category | Score |\n`;
+              comment += `|----------|-------|\n`;
+              comment += `| ${getEmoji(scores.performance)} Performance | ${scores.performance} |\n`;
+              comment += `| ${getEmoji(scores.accessibility)} Accessibility | ${scores.accessibility} |\n`;
+              comment += `| ${getEmoji(scores.bestPractices)} Best Practices | ${scores.bestPractices} |\n`;
+              comment += `| ${getEmoji(scores.seo)} SEO | ${scores.seo} |\n\n`;
+
+              // Add Core Web Vitals
+              const lcp = lhr.audits['largest-contentful-paint']?.numericValue;
+              const fid = lhr.audits['max-potential-fid']?.numericValue;
+              const cls = lhr.audits['cumulative-layout-shift']?.numericValue;
+              const fcp = lhr.audits['first-contentful-paint']?.numericValue;
+              const ttfb = lhr.audits['server-response-time']?.numericValue;
+              const tbt = lhr.audits['total-blocking-time']?.numericValue;
+
+              comment += `**Core Web Vitals:**\n`;
+              if (lcp) comment += `- LCP: ${(lcp/1000).toFixed(2)}s\n`;
+              if (fcp) comment += `- FCP: ${(fcp/1000).toFixed(2)}s\n`;
+              if (tbt) comment += `- TBT: ${Math.round(tbt)}ms\n`;
+              if (cls !== undefined) comment += `- CLS: ${cls.toFixed(3)}\n`;
+              if (ttfb) comment += `- TTFB: ${Math.round(ttfb)}ms\n`;
+              comment += '\n';
+            }
+
+            core.setOutput('comment', comment);
+            return comment;
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = `${{ steps.format_lighthouse.outputs.comment }}`;
+
+            if (!comment || comment.trim() === '') {
+              console.log('No comment to post');
+              return;
+            }
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existingComment = comments.find(c =>
+              c.user.login === 'github-actions[bot]' &&
+              c.body.includes('## Lighthouse Results')
+            );
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: comment,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment,
+              });
+            }
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci/
+          retention-days: 30
+          if-no-files-found: ignore
