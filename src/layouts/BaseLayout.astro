@@ -12,26 +12,35 @@ interface Props {
   type?: 'website' | 'article';
 }
 
-const { 
-  title, 
+const {
+  title,
   description,
   image,
   type = 'website'
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+// Get Sentry config from environment
+const sentryDsn = import.meta.env.PUBLIC_SENTRY_DSN;
+const sentryEnvironment = import.meta.env.PUBLIC_SENTRY_ENVIRONMENT || 'production';
+const sentryRelease = import.meta.env.PUBLIC_SENTRY_RELEASE;
 ---
 
 <!doctype html>
 <html lang="no">
   <head>
-    <SEOHead 
+    <SEOHead
       title={title}
       description={description}
       image={image}
       type={type}
       canonicalUrl={canonicalURL}
     />
+    {/* Sentry configuration meta tags */}
+    {sentryDsn && <meta name="sentry-dsn" content={sentryDsn} />}
+    <meta name="sentry-environment" content={sentryEnvironment} />
+    {sentryRelease && <meta name="sentry-release" content={sentryRelease} />}
   </head>
   <body>
     <a href="#main-content" class="skip-link">Hopp til hovedinnhold</a>
@@ -41,6 +50,10 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       <slot />
     </main>
     <Footer />
+
+    {/* Error tracking and Web Vitals monitoring */}
+    <script src="../scripts/error-tracking.ts"></script>
+    <script src="../scripts/web-vitals.ts"></script>
   </body>
 </html>
 
