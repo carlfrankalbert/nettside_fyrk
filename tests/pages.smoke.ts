@@ -20,12 +20,18 @@ test.describe('All Pages Smoke Tests', () => {
   test('homepage has accessible navigation', async ({ page }) => {
     await page.goto('/');
     const skipLink = page.getByRole('link', { name: /Hopp til hovedinnhold/i });
+    // Skip link uses sr-only class - hidden until focused, so check it exists and becomes visible on focus
+    await expect(skipLink).toBeAttached();
+    await skipLink.focus();
     await expect(skipLink).toBeVisible();
   });
 
   test('OKR-sjekken has accessible navigation', async ({ page }) => {
     await page.goto('/okr-sjekken');
     const skipLink = page.getByRole('link', { name: /Hopp til hovedinnhold/i });
+    // Skip link uses sr-only class - hidden until focused, so check it exists and becomes visible on focus
+    await expect(skipLink).toBeAttached();
+    await skipLink.focus();
     await expect(skipLink).toBeVisible();
   });
 });
