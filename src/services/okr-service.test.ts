@@ -73,11 +73,15 @@ describe('okr-service', () => {
       if (result.success) {
         expect(result.output).toBe('API OKR review');
       }
-      expect(fetchMock).toHaveBeenCalledWith('/api/okr-sjekken', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input: 'Test OKR' }),
-      });
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/okr-sjekken',
+        expect.objectContaining({
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ input: 'Test OKR' }),
+          signal: expect.any(AbortSignal),
+        })
+      );
     });
 
     it('should handle rate limit (429) error', async () => {
@@ -261,6 +265,8 @@ describe('okr-service', () => {
             value: new TextEncoder().encode('data: [DONE]\n\n'),
           })
           .mockResolvedValueOnce({ done: true, value: undefined }),
+        releaseLock: vi.fn(),
+        cancel: vi.fn(),
       };
 
       fetchMock.mockResolvedValue({
@@ -281,6 +287,7 @@ describe('okr-service', () => {
       expect(onChunk).toHaveBeenCalledWith('World');
       expect(onComplete).toHaveBeenCalled();
       expect(onError).not.toHaveBeenCalled();
+      expect(mockReader.releaseLock).toHaveBeenCalled();
     });
 
     it('should handle stream errors', async () => {
@@ -304,6 +311,8 @@ describe('okr-service', () => {
             value: new TextEncoder().encode('data: {"error":true,"message":"API error"}\n\n'),
           })
           .mockResolvedValueOnce({ done: true, value: undefined }),
+        releaseLock: vi.fn(),
+        cancel: vi.fn(),
       };
 
       fetchMock.mockResolvedValue({
@@ -320,6 +329,7 @@ describe('okr-service', () => {
       await reviewOKRStreaming('Test OKR', onChunk, onComplete, onError);
 
       expect(onError).toHaveBeenCalledWith('API error');
+      expect(mockReader.releaseLock).toHaveBeenCalled();
     });
   });
 });

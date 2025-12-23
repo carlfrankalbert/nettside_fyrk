@@ -3,6 +3,8 @@ import { reviewOKRStreaming } from '../services/okr-service';
 import OKRResultDisplay from './OKRResultDisplay';
 import { CheckIcon, ErrorIcon, SpinnerIcon, ChevronRightIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
+import { INPUT_VALIDATION } from '../utils/constants';
+import { trackClick } from '../utils/tracking';
 
 const EXAMPLE_OKR = `Objective:
 Gjøre det enkelt og trygt for brukere å komme i gang med produktet.
@@ -39,9 +41,9 @@ function safeDecodeURIComponent(text: string): string {
   }
 }
 
-// Input validation constants
-const MIN_INPUT_LENGTH = 20;
-const MAX_INPUT_LENGTH = 2000;
+// Input validation constants (from shared config)
+const MIN_INPUT_LENGTH = INPUT_VALIDATION.MIN_LENGTH;
+const MAX_INPUT_LENGTH = INPUT_VALIDATION.MAX_LENGTH;
 
 /**
  * Validates OKR input for basic structure and length
@@ -139,18 +141,12 @@ export default function OKRReviewer() {
     }
   };
 
-  /**
-   * Track button click (fire and forget)
-   */
-  const trackClick = (buttonId: string) => {
-    fetch('/api/track', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ buttonId }),
-    }).catch(() => {
-      // Silently ignore tracking errors
-    });
-  };
+  // Cleanup abort controller on unmount
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
 
   const handleFillExample = () => {
     // Track button click
@@ -200,7 +196,8 @@ export default function OKRReviewer() {
     setError(null);
     setResult('');
 
-    // Create abort controller for cancellation
+    // Cancel any existing request and create new abort controller
+    abortControllerRef.current?.abort();
     abortControllerRef.current = new AbortController();
 
     await reviewOKRStreaming(
@@ -213,6 +210,7 @@ export default function OKRReviewer() {
         // Streaming complete
         setLoading(false);
         setIsStreaming(false);
+        abortControllerRef.current = null;
         // Scroll to result
         setTimeout(() => {
           resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -224,7 +222,9 @@ export default function OKRReviewer() {
         setLoading(false);
         setIsStreaming(false);
         setResult(null);
-      }
+        abortControllerRef.current = null;
+      },
+      abortControllerRef.current.signal
     );
   };
 

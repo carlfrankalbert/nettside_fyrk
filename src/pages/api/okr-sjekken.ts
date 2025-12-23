@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import type { AnthropicResponse, AnthropicStreamEvent, AnthropicErrorResponse } from '../../types';
 import { hashInput, createServerCacheManager, createRateLimiter } from '../../utils/cache';
-import { ERROR_MESSAGES, ANTHROPIC_CONFIG, HTTP_HEADERS, CACHE_HEADERS } from '../../utils/constants';
+import { ERROR_MESSAGES, ANTHROPIC_CONFIG, HTTP_HEADERS, CACHE_HEADERS, INPUT_VALIDATION } from '../../utils/constants';
 
 export const prerender = false;
 
@@ -105,11 +105,38 @@ function createAnthropicHeaders(apiKey: string) {
 
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
+    // Validate Content-Type header
+    const contentType = request.headers.get('content-type');
+    if (!contentType?.includes('application/json')) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid Content-Type. Expected application/json' }),
+        { status: 415, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
+      );
+    }
+
     const { input, stream = false } = await request.json();
 
+    // Basic presence check
     if (!input?.trim()) {
       return new Response(
         JSON.stringify({ error: ERROR_MESSAGES.MISSING_INPUT_API }),
+        { status: 400, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
+      );
+    }
+
+    const trimmedInput = input.trim();
+
+    // Server-side input length validation (defense in depth)
+    if (trimmedInput.length < INPUT_VALIDATION.MIN_LENGTH) {
+      return new Response(
+        JSON.stringify({ error: `Input must be at least ${INPUT_VALIDATION.MIN_LENGTH} characters` }),
+        { status: 400, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
+      );
+    }
+
+    if (trimmedInput.length > INPUT_VALIDATION.MAX_LENGTH) {
+      return new Response(
+        JSON.stringify({ error: `Input cannot exceed ${INPUT_VALIDATION.MAX_LENGTH} characters` }),
         { status: 400, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
       );
     }

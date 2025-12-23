@@ -66,6 +66,16 @@ export const PAGE_ROUTES = {
 } as const;
 
 /**
+ * Input validation constants
+ */
+export const INPUT_VALIDATION = {
+  /** Minimum input length in characters */
+  MIN_LENGTH: 20,
+  /** Maximum input length in characters */
+  MAX_LENGTH: 2000,
+} as const;
+
+/**
  * Anthropic API configuration
  */
 export const ANTHROPIC_CONFIG = {
@@ -77,6 +87,8 @@ export const ANTHROPIC_CONFIG = {
   DEFAULT_MODEL: 'claude-sonnet-4-5-20250929',
   /** Max tokens for response */
   MAX_TOKENS: 1500,
+  /** Request timeout in milliseconds */
+  REQUEST_TIMEOUT_MS: 30000,
 } as const;
 
 /**

@@ -80,29 +80,32 @@ export const POST: APIRoute = async ({ locals, request }) => {
     const dateKey = getDateKey(timestamp);
     const hourKey = getHourKey(timestamp);
 
-    // Update total count (legacy)
-    const currentCount = await kv.get(kvKey);
-    const newCount = (parseInt(currentCount || '0', 10) || 0) + 1;
-    await kv.put(kvKey, String(newCount));
-
-    // Store hourly click data for time-series charts
-    // Key format: clicks:{buttonId}:{YYYY-MM-DD-HH}
+    // Keys for all counters
     const hourlyKey = `clicks:${buttonId}:${hourKey}`;
-    const hourlyCount = await kv.get(hourlyKey);
-    const newHourlyCount = (parseInt(hourlyCount || '0', 10) || 0) + 1;
-    await kv.put(hourlyKey, String(newHourlyCount), {
-      // Expire after 400 days to keep storage manageable
-      expirationTtl: 400 * 24 * 60 * 60,
-    });
-
-    // Store daily click data (for faster queries on longer time ranges)
-    // Key format: clicks_daily:{buttonId}:{YYYY-MM-DD}
     const dailyKey = `clicks_daily:${buttonId}:${dateKey}`;
-    const dailyCount = await kv.get(dailyKey);
+
+    // Fetch all current counts in parallel for better performance
+    const [currentCount, hourlyCount, dailyCount] = await Promise.all([
+      kv.get(kvKey),
+      kv.get(hourlyKey),
+      kv.get(dailyKey),
+    ]);
+
+    // Calculate new counts
+    const newCount = (parseInt(currentCount || '0', 10) || 0) + 1;
+    const newHourlyCount = (parseInt(hourlyCount || '0', 10) || 0) + 1;
     const newDailyCount = (parseInt(dailyCount || '0', 10) || 0) + 1;
-    await kv.put(dailyKey, String(newDailyCount), {
-      expirationTtl: 400 * 24 * 60 * 60,
-    });
+
+    // Write all updates in parallel for better performance
+    await Promise.all([
+      kv.put(kvKey, String(newCount)),
+      kv.put(hourlyKey, String(newHourlyCount), {
+        expirationTtl: 400 * 24 * 60 * 60,
+      }),
+      kv.put(dailyKey, String(newDailyCount), {
+        expirationTtl: 400 * 24 * 60 * 60,
+      }),
+    ]);
 
     return new Response(
       JSON.stringify({ success: true, buttonId, count: newCount }),
@@ -179,17 +182,19 @@ export const GET: APIRoute = async ({ locals, url }) => {
       );
     }
 
-    // Get all button counts
+    // Get all button counts (in parallel for better performance)
     if (getAll) {
-      const counts: Record<string, { count: number; label: string }> = {};
+      const buttonEntries = Object.entries(TRACKED_BUTTONS);
+      const countPromises = buttonEntries.map(([, config]) => kv.get(config.key));
+      const countResults = await Promise.all(countPromises);
 
-      for (const [id, config] of Object.entries(TRACKED_BUTTONS)) {
-        const currentCount = await kv.get(config.key);
+      const counts: Record<string, { count: number; label: string }> = {};
+      buttonEntries.forEach(([id, config], index) => {
         counts[id] = {
-          count: parseInt(currentCount || '0', 10) || 0,
+          count: parseInt(countResults[index] || '0', 10) || 0,
           label: config.label,
         };
-      }
+      });
 
       return new Response(
         JSON.stringify({ counts }),
@@ -215,7 +220,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
 };
 
 /**
- * Fetch time-series data for a button
+ * Fetch time-series data for a button (optimized with parallel fetches)
  */
 async function getTimeseriesData(
   kv: KVNamespace,
@@ -224,62 +229,89 @@ async function getTimeseriesData(
 ): Promise<{ label: string; value: number }[]> {
   const config = TIME_PERIODS[period];
   const now = Date.now();
-  const startTime = now - config.hours * 60 * 60 * 1000;
-  const data: { label: string; value: number }[] = [];
 
   if (config.granularity === 'hourly') {
-    // Get hourly data for the last 24 hours
+    // Prepare keys and labels for hourly data
+    const entries: { key: string; label: string }[] = [];
     for (let i = 0; i < 24; i++) {
       const time = now - (23 - i) * 60 * 60 * 1000;
       const hourKey = getHourKey(time);
-      const key = `clicks:${buttonId}:${hourKey}`;
-      const count = await kv.get(key);
       const date = new Date(time);
-      data.push({
+      entries.push({
+        key: `clicks:${buttonId}:${hourKey}`,
         label: `${String(date.getHours()).padStart(2, '0')}:00`,
-        value: parseInt(count || '0', 10) || 0,
       });
     }
-  } else if (config.granularity === 'daily') {
-    // Get daily data
+
+    // Fetch all in parallel
+    const counts = await Promise.all(entries.map(e => kv.get(e.key)));
+
+    return entries.map((entry, i) => ({
+      label: entry.label,
+      value: parseInt(counts[i] || '0', 10) || 0,
+    }));
+  }
+
+  if (config.granularity === 'daily') {
+    // Prepare keys and labels for daily data
     const days = period === 'week' ? 7 : 30;
+    const entries: { key: string; label: string }[] = [];
     for (let i = 0; i < days; i++) {
       const time = now - (days - 1 - i) * 24 * 60 * 60 * 1000;
       const dateKey = getDateKey(time);
-      const key = `clicks_daily:${buttonId}:${dateKey}`;
-      const count = await kv.get(key);
       const date = new Date(time);
-      data.push({
+      entries.push({
+        key: `clicks_daily:${buttonId}:${dateKey}`,
         label: `${date.getDate()}/${date.getMonth() + 1}`,
-        value: parseInt(count || '0', 10) || 0,
       });
     }
-  } else if (config.granularity === 'monthly') {
-    // Get monthly data (aggregate daily data)
-    const months = period === 'year' ? 12 : 24;
-    for (let i = 0; i < months; i++) {
-      const monthDate = new Date(now);
-      monthDate.setMonth(monthDate.getMonth() - (months - 1 - i));
-      const year = monthDate.getFullYear();
-      const month = monthDate.getMonth();
 
-      // Sum up all daily counts for this month
-      let monthTotal = 0;
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const key = `clicks_daily:${buttonId}:${dateKey}`;
-        const count = await kv.get(key);
-        monthTotal += parseInt(count || '0', 10) || 0;
-      }
+    // Fetch all in parallel
+    const counts = await Promise.all(entries.map(e => kv.get(e.key)));
 
-      const monthNames = ['jan', 'feb', 'mar', 'apr', 'mai', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'des'];
-      data.push({
-        label: `${monthNames[month]} ${year.toString().slice(2)}`,
-        value: monthTotal,
+    return entries.map((entry, i) => ({
+      label: entry.label,
+      value: parseInt(counts[i] || '0', 10) || 0,
+    }));
+  }
+
+  // Monthly granularity - need to aggregate daily data
+  const months = period === 'year' ? 12 : 24;
+  const monthNames = ['jan', 'feb', 'mar', 'apr', 'mai', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'des'];
+
+  // Collect all daily keys needed for all months
+  const allDayKeys: { monthIndex: number; key: string }[] = [];
+  const monthLabels: string[] = [];
+
+  for (let i = 0; i < months; i++) {
+    const monthDate = new Date(now);
+    monthDate.setMonth(monthDate.getMonth() - (months - 1 - i));
+    const year = monthDate.getFullYear();
+    const month = monthDate.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    monthLabels.push(`${monthNames[month]} ${year.toString().slice(2)}`);
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      allDayKeys.push({
+        monthIndex: i,
+        key: `clicks_daily:${buttonId}:${dateKey}`,
       });
     }
   }
 
-  return data;
+  // Fetch all daily counts in parallel
+  const dailyCounts = await Promise.all(allDayKeys.map(d => kv.get(d.key)));
+
+  // Aggregate by month
+  const monthTotals = new Array(months).fill(0);
+  dailyCounts.forEach((count, i) => {
+    monthTotals[allDayKeys[i].monthIndex] += parseInt(count || '0', 10) || 0;
+  });
+
+  return monthLabels.map((label, i) => ({
+    label,
+    value: monthTotals[i],
+  }));
 }
