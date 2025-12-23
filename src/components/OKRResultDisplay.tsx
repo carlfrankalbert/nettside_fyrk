@@ -2,19 +2,7 @@ import { useState } from 'react';
 import { parseOKRResult, getScoreColor, type ParsedOKRResult } from '../utils/okr-parser';
 import { CheckIcon, WarningIcon, LightbulbIcon, CopyIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
-
-/**
- * Track button click (fire and forget)
- */
-const trackClick = (buttonId: string) => {
-  fetch('/api/track', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ buttonId }),
-  }).catch(() => {
-    // Silently ignore tracking errors
-  });
-};
+import { trackClick } from '../utils/tracking';
 
 interface OKRResultDisplayProps {
   result: string;

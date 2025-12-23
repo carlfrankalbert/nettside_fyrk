@@ -29,6 +29,10 @@ const canonical = canonicalUrl || new URL(Astro.url.pathname, site);
 <meta name="generator" content={Astro.generator} />
 <title>{fullTitle}</title>
 
+<!-- Resource hints for improved performance -->
+<link rel="dns-prefetch" href="https://api.anthropic.com" />
+<link rel="preconnect" href="https://api.anthropic.com" crossorigin />
+
 <!-- Open Graph -->
 <meta property="og:title" content={fullTitle} />
 <meta property="og:description" content={metaDescription} />

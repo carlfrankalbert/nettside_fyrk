@@ -15,6 +15,10 @@ export const CACHE_CONFIG = {
   RATE_LIMIT_WINDOW_MS: 60 * 1000,
   /** Maximum requests per rate limit window */
   RATE_LIMIT_MAX_REQUESTS: 10,
+  /** Maximum number of cache entries (prevents memory issues) */
+  MAX_CACHE_ENTRIES: 500,
+  /** Maximum rate limit entries to track */
+  MAX_RATE_LIMIT_ENTRIES: 1000,
 } as const;
 
 /**
@@ -62,9 +66,28 @@ export function isCacheExpired(timestamp: number, ttlMs: number = CACHE_CONFIG.T
 
 /**
  * Create a cache manager for server-side in-memory caching
+ * Includes size limits to prevent memory issues
  */
 export function createServerCacheManager() {
   const cache = new Map<string, CacheEntry>();
+
+  /**
+   * Evict oldest entries when cache exceeds max size
+   */
+  function evictOldestEntries(): void {
+    if (cache.size <= CACHE_CONFIG.MAX_CACHE_ENTRIES) return;
+
+    // Convert to array and sort by timestamp (oldest first)
+    const entries = Array.from(cache.entries()).sort(
+      ([, a], [, b]) => a.timestamp - b.timestamp
+    );
+
+    // Remove oldest entries until we're under the limit
+    const toRemove = cache.size - CACHE_CONFIG.MAX_CACHE_ENTRIES;
+    for (let i = 0; i < toRemove; i++) {
+      cache.delete(entries[i][0]);
+    }
+  }
 
   return {
     /**
@@ -83,9 +106,12 @@ export function createServerCacheManager() {
     },
 
     /**
-     * Set a cache entry
+     * Set a cache entry (with size limit enforcement)
      */
     set(key: string, output: string): void {
+      // Evict old entries before adding new one
+      evictOldestEntries();
+
       cache.set(key, {
         output,
         timestamp: Date.now(),
@@ -103,14 +129,47 @@ export function createServerCacheManager() {
         }
       }
     },
+
+    /**
+     * Get current cache size (for monitoring)
+     */
+    size(): number {
+      return cache.size;
+    },
   };
 }
 
 /**
  * Create a rate limiter for server-side request limiting
+ * Includes size limits to prevent memory issues
  */
 export function createRateLimiter() {
   const limits = new Map<string, RateLimitEntry>();
+
+  /**
+   * Clean up expired rate limit entries and enforce size limit
+   */
+  function cleanup(): void {
+    const now = Date.now();
+
+    // Remove expired entries first
+    for (const [key, entry] of limits.entries()) {
+      if (now > entry.resetTime) {
+        limits.delete(key);
+      }
+    }
+
+    // If still over limit, remove oldest entries
+    if (limits.size > CACHE_CONFIG.MAX_RATE_LIMIT_ENTRIES) {
+      const entries = Array.from(limits.entries()).sort(
+        ([, a], [, b]) => a.resetTime - b.resetTime
+      );
+      const toRemove = limits.size - CACHE_CONFIG.MAX_RATE_LIMIT_ENTRIES;
+      for (let i = 0; i < toRemove; i++) {
+        limits.delete(entries[i][0]);
+      }
+    }
+  }
 
   return {
     /**
@@ -122,6 +181,11 @@ export function createRateLimiter() {
       const limit = limits.get(identifier);
 
       if (!limit || now > limit.resetTime) {
+        // Cleanup periodically when creating new entries
+        if (limits.size > CACHE_CONFIG.MAX_RATE_LIMIT_ENTRIES * 0.9) {
+          cleanup();
+        }
+
         // Create new rate limit window
         limits.set(identifier, {
           count: 1,
@@ -136,6 +200,13 @@ export function createRateLimiter() {
 
       limit.count++;
       return true;
+    },
+
+    /**
+     * Get current number of tracked IPs (for monitoring)
+     */
+    size(): number {
+      return limits.size;
     },
   };
 }

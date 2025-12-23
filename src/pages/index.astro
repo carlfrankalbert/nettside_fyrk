@@ -44,19 +44,19 @@ import {
     <!-- Skip link for accessibility -->
     <a href={`#${ELEMENT_IDS.MAIN}`} class="skip-link">Hopp til hovedinnhold</a>
 
-    <LandingHeader navLinks={[...navLinks]} />
+    <LandingHeader navLinks={navLinks} />
 
     <main id={ELEMENT_IDS.MAIN}>
       <HeroSection {...heroContent} />
 
       <SituationsSection
         title={situationsContent.title}
-        situations={[...situationsContent.situations]}
+        situations={situationsContent.situations}
       />
 
       <CompetenciesSection
         title={competenciesContent.title}
-        competencies={[...competenciesContent.competencies]}
+        competencies={competenciesContent.competencies}
       />
 
       <AboutSection
@@ -69,7 +69,7 @@ import {
         title={toolsContent.title}
         description={toolsContent.description}
         intro={toolsContent.intro}
-        tools={[...toolsContent.tools]}
+        tools={toolsContent.tools}
         comingSoonText={toolsContent.comingSoonText}
       />
 
