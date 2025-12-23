@@ -60,8 +60,8 @@ test.describe('Contrast Tests - Light Mode', () => {
   });
 
   test('input fields have white background in light mode', async ({ page }) => {
-    await page.goto('/kontakt');
-    const input = page.locator('.input').first();
+    await page.goto('/okr-sjekken');
+    const input = page.locator('textarea, .input').first();
     if (await input.count() > 0) {
       const bgColor = await input.evaluate((el) => {
         return window.getComputedStyle(el).backgroundColor;
@@ -131,8 +131,8 @@ test.describe('Contrast Tests - Light Mode', () => {
   });
 
   test('input fields have sufficient contrast', async ({ page }) => {
-    await page.goto('/kontakt');
-    const input = page.locator('.input').first();
+    await page.goto('/okr-sjekken');
+    const input = page.locator('textarea, .input').first();
     if (await input.count() > 0) {
       const bgColor = await input.evaluate((el) => {
         return window.getComputedStyle(el).backgroundColor;
@@ -236,8 +236,8 @@ test.describe('Contrast Tests - Dark Mode', () => {
   });
 
   test('input fields have dark background in dark mode', async ({ page }) => {
-    await page.goto('/kontakt');
-    const input = page.locator('.input').first();
+    await page.goto('/okr-sjekken');
+    const input = page.locator('textarea, .input').first();
     if (await input.count() > 0) {
       // Wait longer for dark mode CSS to apply (including injected CSS)
       await page.waitForTimeout(500);
@@ -281,8 +281,8 @@ test.describe('Contrast Tests - Dark Mode', () => {
   });
 
   test('input fields have sufficient contrast in dark mode', async ({ page }) => {
-    await page.goto('/kontakt');
-    const input = page.locator('.input').first();
+    await page.goto('/okr-sjekken');
+    const input = page.locator('textarea, .input').first();
     if (await input.count() > 0) {
       const contrastFn = await page.evaluate(calculateElementContrast);
       const contrast = await input.evaluate(contrastFn);
