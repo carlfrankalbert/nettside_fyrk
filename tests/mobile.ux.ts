@@ -88,7 +88,7 @@ test.describe('Mobile UX Validation - Designer Perspective', () => {
   });
 
   test('form inputs are properly sized for mobile', async ({ page }) => {
-    await page.goto('/kontakt');
+    await page.goto('/okr-sjekken');
     
     // Check text inputs and textareas (not checkboxes)
     const textInputs = page.locator('input[type="text"], input[type="email"], textarea');
