@@ -230,6 +230,45 @@ Når du gjør tilsiktede visuelle endringer:
 
 **Viktig**: Oppdater aldri baselines uten å gjennomgå de visuelle forskjellene først.
 
+## Vedlikehold av Smoke Tests
+
+### Sjekkliste ved sideendringer
+
+Når du endrer en side, oppdater tilhørende smoke tests:
+
+#### Ved endring av sidestruktur:
+- [ ] **Sjekk at sideruter eksisterer** - Tester må peke til faktiske sider, ikke fjernede/omdøpte ruter
+- [ ] **Oppdater selektorer** - Hvis du endrer CSS-klasser eller HTML-struktur, oppdater testselektorer
+- [ ] **Verifiser tilgjengelighet** - Sjekk at skip-link, lang-attributt og ARIA-roller er på plass
+
+#### Ved endring av navigasjon:
+- [ ] **Oppdater lenketester** - Sjekk at alle lenker i navigasjonen peker til riktige sider
+- [ ] **Verifiser ankerpunkter** - Sjekk at `#kontakt`, `#tjenester` osv. fortsatt eksisterer
+
+#### Ved endring av skjema/input:
+- [ ] **Oppdater input-selektorer** - Tester bruker `textarea, .input` for å finne skjemaelementer
+- [ ] **Verifiser kontrasttester** - Input-felter testes for WCAG AA-kontrast
+
+#### Testfiler og deres avhengigheter:
+
+| Testfil | Tester disse sidene | Nøkkelelementer |
+|---------|---------------------|-----------------|
+| `pages.smoke.ts` | `/`, `/okr-sjekken` | `main`, `nav`, `h1`, skip-link |
+| `contact.smoke.ts` | `/#kontakt` | `h2`, e-postlenke, LinkedIn-lenke |
+| `error-pages.smoke.ts` | 404/500-sider | `lang="no"`, dark mode, redirect |
+| `mobile.ux.ts` | `/`, `/okr-sjekken` | Touch targets (48px), tekststr., `textarea` |
+| `contrast.spec.ts` | `/`, `/okr-sjekken` | `.card`, `textarea`, `.btn-primary` |
+
+### Kjør smoke tests lokalt før push
+
+```bash
+# Kjør alle smoke tests
+npm run test:smoke
+
+# Kjør spesifikk testfil
+npx playwright test tests/pages.smoke.ts --project=smoke
+```
+
 ## Legge til Nye Tester
 
 ### Ny Smoke Test
