@@ -98,7 +98,15 @@ test.describe('Error Pages Smoke Tests', () => {
     });
   });
 
+  // Skip API tests when running against production (GitHub Pages)
+  // since API routes are only available on Cloudflare Workers
+  const isProduction = process.env.PLAYWRIGHT_TEST_BASE_URL?.includes('fyrk.no');
+
   test.describe('API Error Handling', () => {
+    test.beforeEach(async ({}, testInfo) => {
+      testInfo.skip(isProduction === true, 'API routes not available on GitHub Pages');
+    });
+
     test('should return JSON error for invalid API request', async ({ request }) => {
       const response = await request.post('/api/okr-sjekken', {
         data: {},

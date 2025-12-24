@@ -255,9 +255,11 @@ Når du endrer en side, oppdater tilhørende smoke tests:
 |---------|---------------------|-----------------|
 | `pages.smoke.ts` | `/`, `/okr-sjekken` | `main`, `nav`, `h1`, skip-link |
 | `contact.smoke.ts` | `/#kontakt` | `h2`, e-postlenke, LinkedIn-lenke |
-| `error-pages.smoke.ts` | 404/500-sider | `lang="no"`, dark mode, redirect |
+| `error-pages.smoke.ts` | 404/500-sider | `lang="no"`, dark mode, redirect, API* |
 | `mobile.ux.ts` | `/`, `/okr-sjekken` | Touch targets (48px), tekststr., `textarea` |
 | `contrast.spec.ts` | `/`, `/okr-sjekken` | `.card`, `textarea`, `.btn-primary` |
+
+\* **Merk:** API-tester i `error-pages.smoke.ts` hoppes over når testene kjøres mot produksjon (fyrk.no) siden API-rutene kun er tilgjengelige via Cloudflare Workers, ikke GitHub Pages.
 
 ### Kjør smoke tests lokalt før push
 
