@@ -36,10 +36,10 @@ export const BETA_COOKIE_MAX_AGE = 30 * 24 * 60 * 60;
  */
 export const DEFAULT_FEATURES: FeatureToggle[] = [
   {
-    id: 'strategi-sjekken',
-    name: 'Strategi-sjekken',
-    description: 'Nytt verktøy for å evaluere og forbedre strategidokumenter',
-    status: 'off',
+    id: 'konseptspeilet',
+    name: 'Konseptspeilet',
+    description: 'Refleksjonsverktøy for produktkonsepter – hjelper brukere å se antakelser og modenhet i idéer',
+    status: 'beta',
   },
 ];
 
