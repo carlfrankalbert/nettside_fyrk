@@ -97,6 +97,7 @@ UARTIKULERT-SMERTE: Løsning beskrives uten at noen spesifikk smerte er navngitt
 - List eksplisitt hva som ikke lot seg vurdere pga. manglende informasjon
 
 ## OUTPUT-FORMAT (OBLIGATORISK JSON)
+VIKTIG: Returner KUN ren JSON - ALDRI bruk markdown code blocks (\`\`\`), aldri inkluder tekst før eller etter JSON-objektet.
 Returner ALLTID gyldig JSON som følger dette schemaet:
 
 {
@@ -166,7 +167,7 @@ function createAnthropicRequestBody(input: string, model: string, stream: boolea
 ${input.trim()}
 </konsept_input>
 
-Speile konseptet over. Returner gyldig JSON som følger schemaet i system-prompten.`;
+Speile konseptet over. Returner KUN ren JSON (ingen markdown, ingen code blocks, ingen tekst før/etter). Start svaret med { og avslutt med }.`;
 
   return {
     model,
