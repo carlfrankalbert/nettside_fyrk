@@ -1,7 +1,7 @@
 ---
-import Logo from './Logo.astro';
-import NavigationLink from './NavigationLink.astro';
-import { mainNavigation } from '../data/navigation';
+import Logo from '../ui/Logo.astro';
+import NavigationLink from '../ui/NavigationLink.astro';
+import { mainNavigation } from '../../data/navigation';
 ---
 
 <header class="sticky top-0 z-50 bg-white dark:bg-neutral-900 shadow-sm border-b border-neutral-200 dark:border-neutral-800 transition-colors duration-normal" role="banner">
@@ -49,7 +49,7 @@ import { mainNavigation } from '../data/navigation';
 </header>
 
 <script>
-  import { initLegacyMobileMenu } from '../scripts/mobile-menu';
+  import { initLegacyMobileMenu } from '../../scripts/mobile-menu';
   initLegacyMobileMenu();
 </script>
 

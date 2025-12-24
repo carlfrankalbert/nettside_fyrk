@@ -12,7 +12,7 @@ interface NavLink {
 }
 
 interface Props {
-  navLinks: NavLink[];
+  navLinks: readonly NavLink[];
 }
 
 const { navLinks } = Astro.props;
