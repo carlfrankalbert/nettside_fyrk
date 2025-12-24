@@ -97,14 +97,21 @@ UARTIKULERT-SMERTE: Løsning beskrives uten at noen spesifikk smerte er navngitt
 - List eksplisitt hva som ikke lot seg vurdere pga. manglende informasjon
 
 ## OUTPUT-FORMAT (OBLIGATORISK JSON)
-VIKTIG: Returner KUN ren JSON - ALDRI bruk markdown code blocks (\`\`\`), aldri inkluder tekst før eller etter JSON-objektet.
-Returner ALLTID gyldig JSON som følger dette schemaet:
+KRITISK: Returner KUN ren JSON - ALDRI bruk markdown code blocks (\`\`\`), aldri inkluder tekst før eller etter JSON-objektet.
+
+ALLE felter i JSON-strukturen under er OBLIGATORISKE og MÅ inkluderes i svaret:
+- fase.status, fase.begrunnelse, fase.fokusområde - ALLE TRE er påkrevd
+- observasjoner med alle fire dimensjoner (bruker, brukbarhet, gjennomførbarhet, levedyktighet)
+- refleksjon.kjernespørsmål er ALLTID påkrevd
+- meta.dekningsgrad er ALLTID påkrevd
+
+Returner ALLTID komplett JSON som følger dette schemaet:
 
 {
   "fase": {
     "status": "utforskning" | "forming" | "forpliktelse",
-    "begrunnelse": "Kort forklaring på hvorfor denne fasen ble valgt",
-    "fokusområde": "Hva som er naturlig å dvele ved i denne fasen"
+    "begrunnelse": "Kort forklaring på hvorfor denne fasen ble valgt (PÅKREVD)",
+    "fokusområde": "Hva som er naturlig å dvele ved i denne fasen (PÅKREVD)"
   },
   "observasjoner": {
     "bruker": null | {
@@ -126,7 +133,7 @@ Returner ALLTID gyldig JSON som følger dette schemaet:
     "kommentar": "En kontekstualiserende bemerkning" | null
   },
   "refleksjon": {
-    "kjernespørsmål": "Det viktigste spørsmålet å sitte med nå",
+    "kjernespørsmål": "Det viktigste spørsmålet å sitte med nå (PÅKREVD - alltid inkluder dette)",
     "hypoteser_å_teste": null | ["Hypotese 1", "Hypotese 2"],
     "neste_læring": "Hva som ville vært verdifullt å lære først" | null
   },
@@ -136,8 +143,11 @@ Returner ALLTID gyldig JSON som følger dette schemaet:
   }
 }
 
-Bruk null eksplisitt der informasjon ikke er tilgjengelig eller relevant.
-Aldri fyll inn med antagelser – fravær er verdifull informasjon.`;
+VIKTIG:
+- Bruk null eksplisitt der informasjon ikke er tilgjengelig eller relevant
+- fase.begrunnelse og refleksjon.kjernespørsmål MÅ ALLTID ha verdier (aldri tomme strenger)
+- Aldri fyll inn med antagelser – fravær er verdifull informasjon
+- Sørg for at JSON er komplett og gyldig før du avslutter svaret`;
 
 // Create shared cache and rate limiter instances
 const cacheManager = createServerCacheManager();
