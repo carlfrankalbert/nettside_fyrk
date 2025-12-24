@@ -19,6 +19,9 @@ type Runtime = import('@astrojs/cloudflare').Runtime<{
   ANTHROPIC_MODEL?: string;
   ANALYTICS_KV?: KVNamespace;
   STATS_TOKEN?: string;
+  // Feature toggle configuration
+  FEATURE_TOGGLE_TOKEN?: string;
+  BETA_TOKEN?: string;
   // Sentry configuration
   PUBLIC_SENTRY_DSN?: string;
   PUBLIC_SENTRY_ENVIRONMENT?: string;
