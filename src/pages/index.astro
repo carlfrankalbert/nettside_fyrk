@@ -3,6 +3,8 @@
  * Landing page for FYRK
  * Product management consulting website
  */
+export const prerender = false;
+
 import '../styles/global.css';
 import SEOHead from '../components/seo/SEOHead.astro';
 import { SITE_CONFIG } from '../config/site';
@@ -18,6 +20,9 @@ import ToolsSection from '../components/landing/ToolsSection.astro';
 import ContactSection from '../components/landing/ContactSection.astro';
 import LandingFooter from '../components/landing/LandingFooter.astro';
 
+// Feature toggles
+import { getFeatureToggles, hasBetaAccess } from '../utils/feature-toggles';
+
 // Content data
 import {
   navLinks,
@@ -28,7 +33,30 @@ import {
   toolsContent,
   contactContent,
   footerContent,
+  type ToolDefinition,
 } from '../data/landing';
+
+// Filter tools based on feature toggles
+const cloudflareEnv = Astro.locals.runtime?.env;
+const kv = cloudflareEnv?.ANALYTICS_KV;
+
+let enabledFeatures: Set<string> = new Set();
+const userHasBeta = hasBetaAccess(Astro.cookies);
+
+if (kv) {
+  const togglesData = await getFeatureToggles(kv);
+  for (const feature of togglesData.features) {
+    if (feature.status === 'on' || (feature.status === 'beta' && userHasBeta)) {
+      enabledFeatures.add(feature.id);
+    }
+  }
+}
+
+// Filter tools: show if no featureId OR if feature is enabled
+const visibleTools = toolsContent.tools.filter((tool: ToolDefinition) => {
+  if (!tool.featureId) return true;
+  return enabledFeatures.has(tool.featureId);
+});
 ---
 
 <!doctype html>
@@ -69,7 +97,7 @@ import {
         title={toolsContent.title}
         description={toolsContent.description}
         intro={toolsContent.intro}
-        tools={toolsContent.tools}
+        tools={visibleTools}
         comingSoonText={toolsContent.comingSoonText}
       />
 

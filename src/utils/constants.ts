@@ -54,6 +54,8 @@ export const ELEMENT_IDS = {
 export const API_ROUTES = {
   /** OKR review API endpoint */
   OKR_REVIEW: '/api/okr-sjekken',
+  /** Konseptspeil API endpoint */
+  KONSEPTSPEIL: '/api/konseptspeilet',
 } as const;
 
 /**
@@ -62,6 +64,7 @@ export const API_ROUTES = {
 export const PAGE_ROUTES = {
   HOME: '/',
   OKR_REVIEWER: '/okr-sjekken',
+  KONSEPTSPEIL: '/konseptspeilet',
   SPLASH: '/splash',
 } as const;
 

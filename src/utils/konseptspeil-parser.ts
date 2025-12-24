@@ -1,0 +1,412 @@
+/**
+ * Types and utilities for parsing KonseptSpeil results
+ */
+
+export type FaseStatus = 'utforskning' | 'forming' | 'forpliktelse';
+export type Modenhet = 'antakelse' | 'hypotese' | 'tidlig-signal' | 'validert';
+export type Dekningsgrad = 'tynn' | 'delvis' | 'fyldig';
+export type StyringsmønsterType =
+  | 'aktivitet-som-fremskritt'
+  | 'løsning-før-problem'
+  | 'falsk-presisjon'
+  | 'styringsmål-som-læringsmål'
+  | 'suksesskriterier-uten-baseline'
+  | 'uartikulert-smerte';
+
+export interface Observasjon {
+  tilstede: string | null;
+  uutforsket: string | null;
+  modenhet: Modenhet;
+}
+
+export interface Styringsmønster {
+  mønster: StyringsmønsterType;
+  signal: string;
+}
+
+export interface ParsedKonseptSpeilResult {
+  fase: {
+    status: FaseStatus;
+    begrunnelse: string;
+    fokusområde: string;
+  };
+  observasjoner: {
+    bruker: Observasjon | null;
+    brukbarhet: Observasjon | null;
+    gjennomførbarhet: Observasjon | null;
+    levedyktighet: Observasjon | null;
+  };
+  styringsmønstre: {
+    observerte: Styringsmønster[];
+    kommentar: string | null;
+  } | null;
+  refleksjon: {
+    kjernespørsmål: string;
+    hypoteser_å_teste: string[] | null;
+    neste_læring: string | null;
+  };
+  meta: {
+    dekningsgrad: Dekningsgrad;
+    usikkerheter: string[] | null;
+  };
+  isComplete: boolean;
+  parseError: string | null;
+}
+
+/**
+ * Labels for display in Norwegian
+ */
+export const FASE_LABELS: Record<FaseStatus, string> = {
+  utforskning: 'Utforskning',
+  forming: 'Forming',
+  forpliktelse: 'Forpliktelse',
+};
+
+export const MODENHET_LABELS: Record<Modenhet, string> = {
+  antakelse: 'Antakelse',
+  hypotese: 'Hypotese',
+  'tidlig-signal': 'Tidlig signal',
+  validert: 'Validert',
+};
+
+export const DEKNINGSGRAD_LABELS: Record<Dekningsgrad, string> = {
+  tynn: 'Tynn',
+  delvis: 'Delvis',
+  fyldig: 'Fyldig',
+};
+
+export const STYRINGSMØNSTER_LABELS: Record<StyringsmønsterType, string> = {
+  'aktivitet-som-fremskritt': 'Aktivitet som fremskritt',
+  'løsning-før-problem': 'Løsning før problem',
+  'falsk-presisjon': 'Falsk presisjon',
+  'styringsmål-som-læringsmål': 'Styringsmål som læringsmål',
+  'suksesskriterier-uten-baseline': 'Suksesskriterier uten baseline',
+  'uartikulert-smerte': 'Uartikulert smerte',
+};
+
+export const OBSERVASJON_LABELS: Record<string, string> = {
+  bruker: 'Bruker',
+  brukbarhet: 'Brukbarhet',
+  gjennomførbarhet: 'Gjennomførbarhet',
+  levedyktighet: 'Levedyktighet',
+};
+
+/**
+ * Get color classes for modenhet level
+ */
+export function getModenhetColor(modenhet: Modenhet): {
+  bg: string;
+  text: string;
+  border: string;
+} {
+  switch (modenhet) {
+    case 'validert':
+      return {
+        bg: 'bg-feedback-success/10',
+        text: 'text-feedback-success',
+        border: 'border-feedback-success/30',
+      };
+    case 'tidlig-signal':
+      return {
+        bg: 'bg-feedback-info/10',
+        text: 'text-feedback-info',
+        border: 'border-feedback-info/30',
+      };
+    case 'hypotese':
+      return {
+        bg: 'bg-feedback-warning/10',
+        text: 'text-feedback-warning',
+        border: 'border-feedback-warning/30',
+      };
+    case 'antakelse':
+    default:
+      return {
+        bg: 'bg-neutral-100',
+        text: 'text-neutral-600',
+        border: 'border-neutral-300',
+      };
+  }
+}
+
+/**
+ * Get color classes for fase status
+ */
+export function getFaseColor(status: FaseStatus): {
+  bg: string;
+  text: string;
+  border: string;
+} {
+  switch (status) {
+    case 'forpliktelse':
+      return {
+        bg: 'bg-feedback-success/10',
+        text: 'text-feedback-success',
+        border: 'border-feedback-success/30',
+      };
+    case 'forming':
+      return {
+        bg: 'bg-feedback-info/10',
+        text: 'text-feedback-info',
+        border: 'border-feedback-info/30',
+      };
+    case 'utforskning':
+    default:
+      return {
+        bg: 'bg-brand-cyan-lightest/50',
+        text: 'text-brand-cyan-darker',
+        border: 'border-brand-cyan/30',
+      };
+  }
+}
+
+/**
+ * Get color for dekningsgrad
+ */
+export function getDekningsgradColor(dekningsgrad: Dekningsgrad): {
+  bg: string;
+  text: string;
+} {
+  switch (dekningsgrad) {
+    case 'fyldig':
+      return {
+        bg: 'bg-feedback-success/10',
+        text: 'text-feedback-success',
+      };
+    case 'delvis':
+      return {
+        bg: 'bg-feedback-info/10',
+        text: 'text-feedback-info',
+      };
+    case 'tynn':
+    default:
+      return {
+        bg: 'bg-neutral-100',
+        text: 'text-neutral-600',
+      };
+  }
+}
+
+/**
+ * Extract JSON from a string that might contain markdown code blocks
+ */
+function extractJSON(text: string): string {
+  // Remove markdown code blocks if present
+  const jsonBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (jsonBlockMatch) {
+    return jsonBlockMatch[1].trim();
+  }
+
+  // Try to find JSON object directly
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    return jsonMatch[0];
+  }
+
+  return text.trim();
+}
+
+/**
+ * Create an empty/default result for incomplete parsing
+ */
+function createEmptyResult(parseError: string | null = null): ParsedKonseptSpeilResult {
+  return {
+    fase: {
+      status: 'utforskning',
+      begrunnelse: '',
+      fokusområde: '',
+    },
+    observasjoner: {
+      bruker: null,
+      brukbarhet: null,
+      gjennomførbarhet: null,
+      levedyktighet: null,
+    },
+    styringsmønstre: null,
+    refleksjon: {
+      kjernespørsmål: '',
+      hypoteser_å_teste: null,
+      neste_læring: null,
+    },
+    meta: {
+      dekningsgrad: 'tynn',
+      usikkerheter: null,
+    },
+    isComplete: false,
+    parseError,
+  };
+}
+
+/**
+ * Validate and type-check parsed JSON against expected schema
+ */
+function validateParsedResult(data: unknown): ParsedKonseptSpeilResult {
+  if (!data || typeof data !== 'object') {
+    return createEmptyResult('Ugyldig JSON-struktur');
+  }
+
+  const obj = data as Record<string, unknown>;
+
+  // Validate fase
+  const fase = obj.fase as Record<string, unknown> | undefined;
+  if (!fase || typeof fase !== 'object') {
+    return createEmptyResult('Mangler fase-objekt');
+  }
+
+  const validFaseStatuses: FaseStatus[] = ['utforskning', 'forming', 'forpliktelse'];
+  const faseStatus = validFaseStatuses.includes(fase.status as FaseStatus)
+    ? (fase.status as FaseStatus)
+    : 'utforskning';
+
+  // Validate observasjoner
+  const observasjoner = obj.observasjoner as Record<string, unknown> | undefined;
+  const validModenhet: Modenhet[] = ['antakelse', 'hypotese', 'tidlig-signal', 'validert'];
+
+  function parseObservasjon(obs: unknown): Observasjon | null {
+    if (!obs || typeof obs !== 'object') return null;
+    const o = obs as Record<string, unknown>;
+    return {
+      tilstede: typeof o.tilstede === 'string' ? o.tilstede : null,
+      uutforsket: typeof o.uutforsket === 'string' ? o.uutforsket : null,
+      modenhet: validModenhet.includes(o.modenhet as Modenhet)
+        ? (o.modenhet as Modenhet)
+        : 'antakelse',
+    };
+  }
+
+  // Validate styringsmønstre
+  const styringsmønstre = obj.styringsmønstre as Record<string, unknown> | null | undefined;
+  let parsedStyringsmønstre: ParsedKonseptSpeilResult['styringsmønstre'] = null;
+
+  if (styringsmønstre && typeof styringsmønstre === 'object') {
+    const observerte = styringsmønstre.observerte;
+    if (Array.isArray(observerte)) {
+      const validMønstre: StyringsmønsterType[] = [
+        'aktivitet-som-fremskritt',
+        'løsning-før-problem',
+        'falsk-presisjon',
+        'styringsmål-som-læringsmål',
+        'suksesskriterier-uten-baseline',
+        'uartikulert-smerte',
+      ];
+
+      const parsedObserverte = observerte
+        .filter((m): m is Record<string, unknown> => m && typeof m === 'object')
+        .filter((m) => validMønstre.includes(m.mønster as StyringsmønsterType))
+        .map((m) => ({
+          mønster: m.mønster as StyringsmønsterType,
+          signal: typeof m.signal === 'string' ? m.signal : '',
+        }));
+
+      if (parsedObserverte.length > 0) {
+        parsedStyringsmønstre = {
+          observerte: parsedObserverte,
+          kommentar: typeof styringsmønstre.kommentar === 'string' ? styringsmønstre.kommentar : null,
+        };
+      }
+    }
+  }
+
+  // Validate refleksjon
+  const refleksjon = obj.refleksjon as Record<string, unknown> | undefined;
+  const parsedRefleksjon = {
+    kjernespørsmål: '',
+    hypoteser_å_teste: null as string[] | null,
+    neste_læring: null as string | null,
+  };
+
+  if (refleksjon && typeof refleksjon === 'object') {
+    parsedRefleksjon.kjernespørsmål = typeof refleksjon.kjernespørsmål === 'string'
+      ? refleksjon.kjernespørsmål
+      : '';
+
+    if (Array.isArray(refleksjon.hypoteser_å_teste)) {
+      parsedRefleksjon.hypoteser_å_teste = refleksjon.hypoteser_å_teste
+        .filter((h): h is string => typeof h === 'string');
+    }
+
+    if (typeof refleksjon.neste_læring === 'string') {
+      parsedRefleksjon.neste_læring = refleksjon.neste_læring;
+    }
+  }
+
+  // Validate meta
+  const meta = obj.meta as Record<string, unknown> | undefined;
+  const validDekningsgrad: Dekningsgrad[] = ['tynn', 'delvis', 'fyldig'];
+  const parsedMeta = {
+    dekningsgrad: 'tynn' as Dekningsgrad,
+    usikkerheter: null as string[] | null,
+  };
+
+  if (meta && typeof meta === 'object') {
+    if (validDekningsgrad.includes(meta.dekningsgrad as Dekningsgrad)) {
+      parsedMeta.dekningsgrad = meta.dekningsgrad as Dekningsgrad;
+    }
+    if (Array.isArray(meta.usikkerheter)) {
+      parsedMeta.usikkerheter = meta.usikkerheter
+        .filter((u): u is string => typeof u === 'string');
+    }
+  }
+
+  // Check completeness
+  const isComplete = Boolean(
+    fase.begrunnelse &&
+    parsedRefleksjon.kjernespørsmål
+  );
+
+  return {
+    fase: {
+      status: faseStatus,
+      begrunnelse: typeof fase.begrunnelse === 'string' ? fase.begrunnelse : '',
+      fokusområde: typeof fase.fokusområde === 'string' ? fase.fokusområde : '',
+    },
+    observasjoner: {
+      bruker: observasjoner ? parseObservasjon(observasjoner.bruker) : null,
+      brukbarhet: observasjoner ? parseObservasjon(observasjoner.brukbarhet) : null,
+      gjennomførbarhet: observasjoner ? parseObservasjon(observasjoner.gjennomførbarhet) : null,
+      levedyktighet: observasjoner ? parseObservasjon(observasjoner.levedyktighet) : null,
+    },
+    styringsmønstre: parsedStyringsmønstre,
+    refleksjon: parsedRefleksjon,
+    meta: parsedMeta,
+    isComplete,
+    parseError: null,
+  };
+}
+
+/**
+ * Parse the full KonseptSpeil result from raw API output
+ */
+export function parseKonseptSpeilResult(text: string): ParsedKonseptSpeilResult {
+  if (!text || text.trim().length === 0) {
+    return createEmptyResult();
+  }
+
+  try {
+    const jsonString = extractJSON(text);
+    const parsed = JSON.parse(jsonString);
+    return validateParsedResult(parsed);
+  } catch (error) {
+    // For streaming, we might get partial JSON - that's okay
+    if (text.includes('{') && !text.includes('}')) {
+      // Incomplete JSON during streaming
+      return createEmptyResult();
+    }
+
+    console.error('Failed to parse KonseptSpeil result:', error);
+    return createEmptyResult('Kunne ikke tolke svaret fra AI');
+  }
+}
+
+/**
+ * Count non-null observasjoner
+ */
+export function countObservasjoner(
+  observasjoner: ParsedKonseptSpeilResult['observasjoner']
+): number {
+  return [
+    observasjoner.bruker,
+    observasjoner.brukbarhet,
+    observasjoner.gjennomførbarhet,
+    observasjoner.levedyktighet,
+  ].filter(Boolean).length;
+}

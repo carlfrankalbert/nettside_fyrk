@@ -35,13 +35,12 @@ export const BETA_COOKIE_MAX_AGE = 30 * 24 * 60 * 60;
  * Add new features here with their initial state
  */
 export const DEFAULT_FEATURES: FeatureToggle[] = [
-  // Add your features here, for example:
-  // {
-  //   id: 'new-tool',
-  //   name: 'Nytt verktøy',
-  //   description: 'Et nytt verktøy lignende OKR-sjekken',
-  //   status: 'off',
-  // },
+  {
+    id: 'konseptspeilet',
+    name: 'Konseptspeilet',
+    description: 'Refleksjonsverktøy for produktkonsepter – hjelper brukere å se antakelser og modenhet i idéer',
+    status: 'beta',
+  },
 ];
 
 /**
