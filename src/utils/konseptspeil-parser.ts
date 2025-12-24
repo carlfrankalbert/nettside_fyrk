@@ -187,22 +187,80 @@ export function getDekningsgradColor(dekningsgrad: Dekningsgrad): {
 }
 
 /**
+ * Check if text appears to be incomplete streaming JSON
+ */
+function isIncompleteStreamingJSON(text: string): boolean {
+  const trimmed = text.trim();
+
+  // Check for incomplete markdown code blocks
+  if (trimmed.startsWith('```') && !trimmed.includes('```', 3)) {
+    return true;
+  }
+
+  // Count braces to detect incomplete JSON
+  let braceCount = 0;
+  let bracketCount = 0;
+  let inString = false;
+  let escaped = false;
+
+  for (const char of trimmed) {
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (char === '\\' && inString) {
+      escaped = true;
+      continue;
+    }
+    if (char === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString) continue;
+
+    if (char === '{') braceCount++;
+    else if (char === '}') braceCount--;
+    else if (char === '[') bracketCount++;
+    else if (char === ']') bracketCount--;
+  }
+
+  // If braces/brackets are unbalanced, JSON is incomplete
+  return braceCount !== 0 || bracketCount !== 0;
+}
+
+/**
  * Extract JSON from a string that might contain markdown code blocks
  */
 function extractJSON(text: string): string {
-  // Remove markdown code blocks if present
-  const jsonBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (jsonBlockMatch) {
-    return jsonBlockMatch[1].trim();
+  let cleaned = text.trim();
+
+  // Remove markdown code blocks if present (handle both complete and incomplete)
+  // First try to match a complete code block
+  const completeBlockMatch = cleaned.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (completeBlockMatch) {
+    return completeBlockMatch[1].trim();
   }
 
+  // Handle incomplete code block at the start (streaming case)
+  if (cleaned.startsWith('```json')) {
+    cleaned = cleaned.slice(7).trim();
+  } else if (cleaned.startsWith('```')) {
+    cleaned = cleaned.slice(3).trim();
+  }
+
+  // Handle incomplete code block at the end (streaming case)
+  // Remove trailing backticks that might be incomplete closing block
+  cleaned = cleaned.replace(/`{1,3}$/, '').trim();
+
   // Try to find JSON object directly
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
   if (jsonMatch) {
     return jsonMatch[0];
   }
 
-  return text.trim();
+  // Return cleaned text even if we couldn't find complete JSON
+  // (might be partial during streaming)
+  return cleaned;
 }
 
 /**
@@ -381,19 +439,37 @@ export function parseKonseptSpeilResult(text: string): ParsedKonseptSpeilResult 
     return createEmptyResult();
   }
 
+  // Check if this looks like incomplete streaming data
+  // Don't attempt to parse and don't log errors for incomplete data
+  if (isIncompleteStreamingJSON(text)) {
+    return createEmptyResult();
+  }
+
   try {
     const jsonString = extractJSON(text);
-    const parsed = JSON.parse(jsonString);
-    return validateParsedResult(parsed);
-  } catch (error) {
-    // For streaming, we might get partial JSON - that's okay
-    if (text.includes('{') && !text.includes('}')) {
-      // Incomplete JSON during streaming
+
+    // Don't try to parse if we didn't get valid JSON content
+    if (!jsonString || !jsonString.startsWith('{')) {
       return createEmptyResult();
     }
 
-    console.error('Failed to parse KonseptSpeil result:', error);
-    return createEmptyResult('Kunne ikke tolke svaret fra AI');
+    const parsed = JSON.parse(jsonString);
+    return validateParsedResult(parsed);
+  } catch (error) {
+    // Only log errors for what appears to be complete but invalid JSON
+    // This reduces console noise during streaming
+    const trimmed = text.trim();
+    const hasCompleteCodeBlock = /```(?:json)?\s*[\s\S]*```/.test(trimmed);
+    const looksComplete = hasCompleteCodeBlock ||
+      (trimmed.includes('{') && trimmed.endsWith('}'));
+
+    if (looksComplete) {
+      console.error('Failed to parse KonseptSpeil result:', error);
+      return createEmptyResult('Kunne ikke tolke svaret fra AI');
+    }
+
+    // Incomplete data during streaming - return empty without error
+    return createEmptyResult();
   }
 }
 
