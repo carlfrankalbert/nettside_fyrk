@@ -1,7 +1,6 @@
 import { cn } from '../utils/classes';
 import {
   parseKonseptSpeilResult,
-  type ParsedKonseptSpeilResult,
   type Observasjon,
   FASE_LABELS,
   MODENHET_LABELS,

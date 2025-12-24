@@ -18,23 +18,8 @@
 import { test, expect } from '@playwright/test';
 import { getContrastRatio, setupTheme, calculateElementContrast } from './contrast-helpers';
 
-// Known color values from design system
-const colors = {
-  'brand-navy': '#001F3F',
-  'brand-cyan': '#5AB9D3',
-  'brand-cyan-darker': '#2A7A92',
-  'brand-cyan-dark': '#3A97B7',
-  'brand-cyan-light': '#7CC8DD',
-  'white': '#FFFFFF',
-  'neutral-700': '#333333',
-  'neutral-600': '#717182',
-  'neutral-500': '#717182',
-  'neutral-400': '#9CA3AF',
-  'neutral-300': '#D1D5DB',
-  'neutral-200': '#E0E0E0',
-  'neutral-900': '#0F1419',
-  'neutral-800': '#1F2937',
-};
+// Type for the contrast calculation function returned by calculateElementContrast
+type ContrastFn = (el: Element) => number;
 
 test.describe('Contrast Tests - Light Mode', () => {
   test.beforeEach(async ({ page }) => {
@@ -99,14 +84,14 @@ test.describe('Contrast Tests - Light Mode', () => {
   test('body text has sufficient contrast on white background', async ({ page }) => {
     // Ensure we're in light mode
     await setupTheme(page, 'light');
-    
+
     const bodyText = page.locator('main p, section p').filter({ hasText: /./ }).first();
     if (await bodyText.count() > 0) {
-      const contrastFn = await page.evaluate(calculateElementContrast);
+      const contrastFn = await page.evaluate(calculateElementContrast) as ContrastFn;
       const contrast = await bodyText.evaluate(contrastFn);
-      
+
       // If contrast is 0, it means we couldn't find a background - skip this test
-      if (contrast > 0) {
+      if (typeof contrast === 'number' && contrast > 0) {
         expect(contrast).toBeGreaterThanOrEqual(4.5);
       }
     }
@@ -188,7 +173,7 @@ test.describe('Contrast Tests - Light Mode', () => {
   test('links have sufficient contrast', async ({ page }) => {
     const link = page.locator('main a:not(.btn), section a:not(.btn)').filter({ hasText: /./ }).first();
     if (await link.count() > 0) {
-      const contrastFn = await page.evaluate(calculateElementContrast);
+      const contrastFn = await page.evaluate(calculateElementContrast) as ContrastFn;
       const contrast = await link.evaluate(contrastFn);
 
       // If contrast is 0 or undefined, it means we couldn't calculate it - skip
@@ -270,11 +255,11 @@ test.describe('Contrast Tests - Dark Mode', () => {
   test('body text has sufficient contrast on dark background', async ({ page }) => {
     const bodyText = page.locator('main p, section p').filter({ hasText: /./ }).first();
     if (await bodyText.count() > 0) {
-      const contrastFn = await page.evaluate(calculateElementContrast);
+      const contrastFn = await page.evaluate(calculateElementContrast) as ContrastFn;
       const contrast = await bodyText.evaluate(contrastFn);
-      
+
       // If contrast is 0 or undefined, it means we couldn't calculate it - skip
-      if (contrast && contrast > 0) {
+      if (typeof contrast === 'number' && contrast > 0) {
         expect(contrast).toBeGreaterThanOrEqual(4.5);
       }
     }
@@ -284,11 +269,11 @@ test.describe('Contrast Tests - Dark Mode', () => {
     await page.goto('/okr-sjekken');
     const input = page.locator('textarea, .input').first();
     if (await input.count() > 0) {
-      const contrastFn = await page.evaluate(calculateElementContrast);
+      const contrastFn = await page.evaluate(calculateElementContrast) as ContrastFn;
       const contrast = await input.evaluate(contrastFn);
-      
+
       // If contrast is 0 or undefined, it means we couldn't calculate it - skip
-      if (contrast && contrast > 0) {
+      if (typeof contrast === 'number' && contrast > 0) {
         expect(contrast).toBeGreaterThanOrEqual(4.5);
       }
     }
@@ -299,11 +284,11 @@ test.describe('Contrast Tests - Dark Mode', () => {
     if (await serviceCard.count() > 0) {
       const cardText = serviceCard.locator('p').first();
       if (await cardText.count() > 0) {
-        const contrastFn = await page.evaluate(calculateElementContrast);
+        const contrastFn = await page.evaluate(calculateElementContrast) as ContrastFn;
         const contrast = await cardText.evaluate(contrastFn);
-        
+
         // If contrast is 0 or undefined, it means we couldn't calculate it - skip
-        if (contrast && contrast > 0) {
+        if (typeof contrast === 'number' && contrast > 0) {
           expect(contrast).toBeGreaterThanOrEqual(4.5);
         }
       }
@@ -313,7 +298,7 @@ test.describe('Contrast Tests - Dark Mode', () => {
   test('links have sufficient contrast in dark mode', async ({ page }) => {
     const link = page.locator('main a:not(.btn), section a:not(.btn)').filter({ hasText: /./ }).first();
     if (await link.count() > 0) {
-      const contrastFn = await page.evaluate(calculateElementContrast);
+      const contrastFn = await page.evaluate(calculateElementContrast) as ContrastFn;
       const contrast = await link.evaluate(contrastFn);
 
       // If contrast is 0 or undefined, it means we couldn't calculate it - skip

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { parseOKRResult, getScoreColor, type ParsedOKRResult } from '../utils/okr-parser';
+import { parseOKRResult, getScoreColor } from '../utils/okr-parser';
 import { CheckIcon, WarningIcon, LightbulbIcon, CopyIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
 import { trackClick } from '../utils/tracking';

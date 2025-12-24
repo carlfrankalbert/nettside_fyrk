@@ -3,7 +3,7 @@
  * Tracks page views and unique visitors automatically on page load
  */
 
-type PageId = 'home' | 'okr';
+type PageId = 'home' | 'okr' | 'konseptspeil';
 
 /**
  * Track a page view (fire and forget)
