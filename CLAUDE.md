@@ -34,3 +34,15 @@ When asked to "check" or "refactor" the code:
 - Build: `npm run build`
 - Type Check: `npx astro check`
 - Lint: `npm run lint`
+
+## 🧪 Testing Strategy
+- **Unit Testing:** Use **Vitest** for all logic in `src/lib` or `src/utils`.
+- **E2E Testing:** Use **Playwright** for critical user flows and visual regression.
+- **A11y Testing:** Use `playwright-axe` to automatically check for accessibility violations during E2E runs.
+- **Rule:** Every new bug fix must include a regression test. Every new library/utility must have 80%+ test coverage.
+
+## 🛠 Test Commands
+- Run all tests: `npm test`
+- Run unit tests: `npm run test:unit`
+- Run E2E tests: `npm run test:e2e`
+- Open Playwright UI: `npx playwright show-report`
