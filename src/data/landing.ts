@@ -96,6 +96,20 @@ export const aboutContent = {
 } as const;
 
 /**
+ * Tool definition with optional feature toggle
+ */
+export interface ToolDefinition {
+  title: string;
+  description: string;
+  href: string;
+  buttonText: string;
+  /** If set, tool is only shown when this feature is enabled */
+  featureId?: string;
+  /** If true, shows a beta badge */
+  isBeta?: boolean;
+}
+
+/**
  * Tools section content
  */
 export const toolsContent = {
@@ -109,7 +123,15 @@ export const toolsContent = {
       href: PAGE_ROUTES.OKR_REVIEWER,
       buttonText: 'Prøv OKR-sjekken',
     },
-  ],
+    {
+      title: 'Konseptspeilet',
+      description: 'Et rolig refleksjonsverktøy for produktkonsepter – hjelper deg se hva du vet, hva du antar, og hva du kanskje vil utforske først.',
+      href: PAGE_ROUTES.KONSEPTSPEIL,
+      buttonText: 'Prøv konseptspeilet',
+      featureId: 'konseptspeilet',
+      isBeta: true,
+    },
+  ] as ToolDefinition[],
   comingSoonText: 'Flere verktøy er på vei. Følg med.',
 } as const;
 
