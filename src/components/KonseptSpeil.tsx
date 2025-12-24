@@ -319,7 +319,11 @@ Uferdige tanker er velkommen – dette er et refleksjonsverktøy."
 
         {result && (
           <div className="mt-8 p-6 bg-white border-2 border-neutral-200 rounded-lg shadow-sm">
-            <KonseptSpeilResultDisplay result={result} isStreaming={isStreaming} />
+            <KonseptSpeilResultDisplay
+              result={result}
+              isStreaming={isStreaming}
+              onRetry={handleSubmit}
+            />
           </div>
         )}
       </div>

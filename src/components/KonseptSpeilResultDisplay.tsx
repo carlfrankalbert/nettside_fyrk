@@ -81,12 +81,25 @@ function StyringsmønsterCard({
 }
 
 /**
+ * Check if the parsed result has meaningful content
+ */
+function hasMinimalContent(parsed: ReturnType<typeof parseKonseptSpeilResult>): boolean {
+  return Boolean(
+    parsed.fase.begrunnelse ||
+    parsed.fase.fokusområde ||
+    parsed.refleksjon.kjernespørsmål ||
+    countObservasjoner(parsed.observasjoner) > 0
+  );
+}
+
+/**
  * Main result display component
  */
 export default function KonseptSpeilResultDisplay({
   result,
   isStreaming,
-}: KonseptSpeilResultDisplayProps) {
+  onRetry,
+}: KonseptSpeilResultDisplayProps & { onRetry?: () => void }) {
   const parsed = parseKonseptSpeilResult(result);
 
   // During streaming, show loading state if we don't have enough content yet
@@ -105,6 +118,45 @@ export default function KonseptSpeilResultDisplay({
       <div className="p-4 bg-feedback-error/10 border border-feedback-error/20 rounded-lg">
         <p className="text-feedback-error text-sm">{parsed.parseError}</p>
         <details className="mt-2">
+          <summary className="text-xs text-neutral-500 cursor-pointer">Vis rådata</summary>
+          <pre className="mt-2 text-xs text-neutral-600 whitespace-pre-wrap overflow-auto max-h-48">
+            {result}
+          </pre>
+        </details>
+        {onRetry && (
+          <button
+            type="button"
+            onClick={onRetry}
+            className="mt-3 text-sm text-brand-navy hover:text-brand-cyan-darker underline"
+          >
+            Prøv igjen
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  // Show warning if response is incomplete (missing key fields)
+  const isIncomplete = !isStreaming && !hasMinimalContent(parsed);
+  if (isIncomplete) {
+    return (
+      <div className="p-4 bg-feedback-warning/10 border border-feedback-warning/20 rounded-lg">
+        <p className="text-feedback-warning text-sm font-medium mb-2">
+          Responsen ser ut til å være ufullstendig
+        </p>
+        <p className="text-neutral-600 text-sm mb-3">
+          AI-en returnerte ikke alle forventede felter. Dette kan skyldes et midlertidig problem.
+        </p>
+        {onRetry && (
+          <button
+            type="button"
+            onClick={onRetry}
+            className="text-sm text-brand-navy hover:text-brand-cyan-darker underline"
+          >
+            Prøv igjen
+          </button>
+        )}
+        <details className="mt-3">
           <summary className="text-xs text-neutral-500 cursor-pointer">Vis rådata</summary>
           <pre className="mt-2 text-xs text-neutral-600 whitespace-pre-wrap overflow-auto max-h-48">
             {result}

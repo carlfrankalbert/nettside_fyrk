@@ -252,4 +252,15 @@ export const localStorageCache = {
       console.warn('Failed to cache result:', e);
     }
   },
+
+  /**
+   * Remove a specific entry from localStorage cache
+   */
+  remove(cacheKey: string): void {
+    try {
+      localStorage.removeItem(CACHE_CONFIG.KEY_PREFIX + cacheKey);
+    } catch (e) {
+      console.warn('Failed to remove cache entry:', e);
+    }
+  },
 };
