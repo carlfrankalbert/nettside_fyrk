@@ -89,7 +89,7 @@ export const ANTHROPIC_CONFIG = {
   /** Default model */
   DEFAULT_MODEL: 'claude-sonnet-4-5-20250929',
   /** Max tokens for response */
-  MAX_TOKENS: 1500,
+  MAX_TOKENS: 4096,
   /** Request timeout in milliseconds */
   REQUEST_TIMEOUT_MS: 30000,
 } as const;
