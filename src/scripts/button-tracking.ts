@@ -4,10 +4,17 @@
  * and sends tracking data to the /api/track endpoint
  */
 
+import { shouldExcludeFromTracking } from './tracking-exclusion';
+
 /**
  * Track a button click (fire and forget)
  */
 function trackClick(buttonId: string): void {
+  // Skip tracking for excluded visitors (developer, tests)
+  if (shouldExcludeFromTracking()) {
+    return;
+  }
+
   fetch('/api/track', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
