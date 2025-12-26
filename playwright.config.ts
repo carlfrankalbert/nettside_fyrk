@@ -1,5 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 
+// Check if we're testing against an external URL (not localhost)
+const testBaseUrl = process.env.PLAYWRIGHT_TEST_BASE_URL;
+const isExternalUrl = testBaseUrl && !testBaseUrl.includes('localhost');
+
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
@@ -95,11 +99,14 @@ export default defineConfig({
     // Add more configurations as needed based on analytics
   ],
 
-  webServer: {
-    command: 'npm run preview',
-    url: 'http://localhost:4321',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
-  },
+  // Only start local server when not testing against an external URL
+  webServer: isExternalUrl
+    ? undefined
+    : {
+        command: 'npm run preview',
+        url: 'http://localhost:4321',
+        reuseExistingServer: !process.env.CI,
+        timeout: 120 * 1000,
+      },
 });
 
