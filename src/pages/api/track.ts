@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { shouldExcludeRequest } from '../../utils/tracking-exclusion';
 
 export const prerender = false;
 
@@ -53,6 +54,14 @@ function getHourKey(timestamp: number): string {
  */
 export const POST: APIRoute = async ({ locals, request }) => {
   try {
+    // Exclude automated browsers and test traffic
+    if (shouldExcludeRequest(request)) {
+      return new Response(
+        JSON.stringify({ success: true, message: 'Excluded from tracking' }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
     const cloudflareEnv = (locals as App.Locals).runtime?.env;
     const kv = cloudflareEnv?.ANALYTICS_KV;
 

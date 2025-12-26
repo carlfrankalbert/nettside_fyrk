@@ -3,12 +3,19 @@
  * Tracks page views and unique visitors automatically on page load
  */
 
+import { shouldExcludeFromTracking } from './tracking-exclusion';
+
 type PageId = 'home' | 'okr' | 'konseptspeil';
 
 /**
  * Track a page view (fire and forget)
  */
 function trackPageView(pageId: PageId): void {
+  // Skip tracking for excluded visitors (developer, tests)
+  if (shouldExcludeFromTracking()) {
+    return;
+  }
+
   fetch('/api/pageview', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

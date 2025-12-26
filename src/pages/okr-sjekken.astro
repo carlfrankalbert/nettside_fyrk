@@ -42,6 +42,8 @@ export const prerender = false;
 
   <script>
     import { initPageViewTracking } from '../scripts/pageview-tracking';
+    import { initTrackingHelpers } from '../scripts/tracking-exclusion';
     initPageViewTracking('okr');
+    initTrackingHelpers();
   </script>
 </MinimalLayout>

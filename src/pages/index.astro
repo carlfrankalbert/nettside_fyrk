@@ -110,9 +110,11 @@ const visibleTools = toolsContent.tools.filter((tool: ToolDefinition) => {
       import { initMobileMenu } from '../scripts/mobile-menu';
       import { initButtonTracking } from '../scripts/button-tracking';
       import { initPageViewTracking } from '../scripts/pageview-tracking';
+      import { initTrackingHelpers } from '../scripts/tracking-exclusion';
       initMobileMenu({ updateIcon: false });
       initButtonTracking();
       initPageViewTracking('home');
+      initTrackingHelpers();
     </script>
   </body>
 </html>
