@@ -73,11 +73,16 @@ export function isExcluded(): boolean {
   return excluded;
 }
 
-// Expose helper functions on window for easy console access
-if (typeof window !== 'undefined') {
-  (window as Window & { fyrk?: Record<string, unknown> }).fyrk = {
-    excludeFromStats,
-    includeInStats,
-    isExcluded,
-  };
+/**
+ * Initialize window.fyrk helpers for console access
+ * Must be called from page scripts to expose the helper functions
+ */
+export function initTrackingHelpers(): void {
+  if (typeof window !== 'undefined') {
+    (window as Window & { fyrk?: Record<string, unknown> }).fyrk = {
+      excludeFromStats,
+      includeInStats,
+      isExcluded,
+    };
+  }
 }

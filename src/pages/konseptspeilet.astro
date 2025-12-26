@@ -47,6 +47,8 @@ export const prerender = false;
 
   <script>
     import { initPageViewTracking } from '../scripts/pageview-tracking';
+    import { initTrackingHelpers } from '../scripts/tracking-exclusion';
     initPageViewTracking('konseptspeil');
+    initTrackingHelpers();
   </script>
 </MinimalLayout>
