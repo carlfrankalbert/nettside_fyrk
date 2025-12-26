@@ -20,13 +20,18 @@ src/
 │   ├── landing/    # Landing page sections
 │   ├── layout/     # Header, Footer, ThemeToggle
 │   ├── ui/         # Reusable UI primitives
-│   └── forms/      # Form components
+│   ├── forms/      # Form components
+│   ├── seo/        # SEO components (SEOHead)
+│   └── content/    # Content components (FeatureList, CTASection)
 ├── pages/          # Routes and API endpoints
 │   └── api/        # Serverless API routes
 ├── services/       # Business logic (API clients, data fetching)
 ├── utils/          # Pure utility functions
 ├── lib/            # Third-party integrations (Sentry)
 ├── data/           # Static data and content
+├── content/        # Content Collections (blog posts)
+├── config/         # App configuration (site.ts)
+├── scripts/        # Client-side scripts (tracking, analytics)
 ├── layouts/        # Page layout templates
 ├── styles/         # Global CSS
 └── types/          # TypeScript type definitions
@@ -85,8 +90,17 @@ When asked to "check" or "refactor" the code:
 |---------|-------------|
 | `npm test` | Run all Playwright tests |
 | `npm run test:unit` | Run Vitest unit tests |
+| `npm run test:unit:watch` | Unit tests in watch mode |
 | `npm run test:unit:coverage` | Unit tests with coverage report |
 | `npm run test:smoke` | Smoke tests (desktop, mobile, tablet) |
-| `npm run test:visual` | Visual regression tests |
+| `npm run test:visual` | Visual regression tests (desktop) |
+| `npm run test:visual-mobile` | Mobile visual regression tests |
+| `npm run test:ux-mobile` | Mobile UX tests |
+| `npm run test:mobile` | All mobile tests (visual + UX) |
+| `npm run test:okr-api` | OKR API endpoint tests |
+| `npm run test:theme` | Theme toggle tests |
 | `npm run test:ui` | Open Playwright interactive UI |
-| `npm run test:load` | Run k6 load tests |
+| `npm run test:load` | Run k6 load tests (smoke) |
+| `npm run test:load:sustained` | Sustained load test (10 users) |
+| `npm run test:load:stress` | Stress test |
+| `npm run test:load:spike` | Spike test |

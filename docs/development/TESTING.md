@@ -57,9 +57,9 @@ npm run test:unit
 | Visual Mobile | `npm run test:visual-mobile` | Mobil visual regression |
 | UX Mobile | `npm run test:ux-mobile` | Mobil brukeropplevelse |
 | Mobile (alle) | `npm run test:mobile` | Visual + UX mobile kombinert |
-| Security | `npm run test:security` | OWASP sikkerhetstester |
 | OKR API | `npm run test:okr-api` | OKR-sjekken API-tester |
 | Theme | `npm run test:theme` | Dark/light mode testing |
+| Contrast | `npx playwright test --project=contrast` | WCAG kontrast-tester |
 
 ### Smoke Tests
 
@@ -86,19 +86,6 @@ Kjører på:
 - Desktop Chrome, Firefox, Safari
 - iPhone 14, Pixel 7
 - iPad Pro
-
-### Security Tests
-
-OWASP-baserte sikkerhetstester:
-
-```bash
-npm run test:security
-```
-
-Tester inkluderer:
-- XSS-beskyttelse
-- Input-validering
-- Headers-sikkerhet
 
 ### OKR API Tests
 
@@ -190,11 +177,12 @@ describe('myFunction', () => {
 ```
 tests/
 ├── pages.smoke.ts          # Alle sider smoke tests
+├── contact.smoke.ts        # Kontaktskjema smoke tests
+├── error-pages.smoke.ts    # Error pages smoke tests
 ├── pages.visual.ts         # Desktop visual regression
 ├── mobile.visual.ts        # Mobile visual regression
 ├── mobile.ux.ts            # Mobile UX tests
 ├── contrast.spec.ts        # WCAG kontrast-tester
-├── security.spec.ts        # Sikkerhetstester
 ├── okr-sjekken.spec.ts     # OKR API tests
 ├── theme-toggle.spec.ts    # Theme toggle tests
 └── *-snapshots/            # Visual regression baselines

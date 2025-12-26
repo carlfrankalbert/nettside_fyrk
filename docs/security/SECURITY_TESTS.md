@@ -2,9 +2,11 @@
 
 This document describes the security testing strategy for the Fyrk website, aligned with OWASP Top 10 2024 and the OWASP Web Security Testing Guide (WSTG).
 
+> **Note:** A dedicated `test:security` script is planned but not yet implemented. Security testing is currently handled through existing test suites (see Current Implementation below).
+
 ## Overview
 
-The security test suite covers all major OWASP Top 10 2024 categories:
+The security test suite aims to cover major OWASP Top 10 2024 categories:
 
 1. **A01:2024 - Broken Access Control** - Testing authentication and authorization
 2. **A02:2024 - Cryptographic Failures** - Testing HTTPS, secure headers, and data encryption
@@ -16,31 +18,23 @@ The security test suite covers all major OWASP Top 10 2024 categories:
 8. **A09:2024 - Security Logging and Monitoring Failures** - Testing logging capabilities
 9. **A10:2024 - Server-Side Request Forgery (SSRF)** - Testing SSRF prevention
 
-## Running Security Tests
+## Current Implementation
 
-### Run all security tests
-```bash
-npm run test:security
-```
+Security testing is currently performed through:
 
-### Run specific test categories
-```bash
-# Test security headers
-npx playwright test --project=security --grep "Security Misconfiguration"
+### OKR API Tests (`npm run test:okr-api`)
+- Input validation
+- Prompt injection prevention
+- Rate limiting
+- Response format validation
 
-# Test XSS prevention
-npx playwright test --project=security --grep "Injection"
+### Contrast Tests (`npx playwright test --project=contrast`)
+- WCAG accessibility compliance
+- Form field validation
 
-# Test access control
-npx playwright test --project=security --grep "Access Control"
-```
-
-### Run in CI/CD
-Security tests run automatically:
-- On every push to `main` or `develop` branches
-- On pull requests to `main`
-- Weekly via scheduled cron job
-- Manually via workflow_dispatch
+### Smoke Tests (`npm run test:smoke`)
+- Core functionality verification
+- Error page handling
 
 ## Test Coverage
 

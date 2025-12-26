@@ -121,9 +121,6 @@ npm run test:visual
 # Mobile-spesifikke tester
 npm run test:mobile
 
-# Security tests (OWASP)
-npm run test:security
-
 # OKR API tests
 npm run test:okr-api
 
@@ -148,9 +145,9 @@ npm run test:ui
 | `visual` | Visuell regresjonstesting |
 | `visual-mobile` | Mobil visuell testing |
 | `ux-mobile` | Mobil UX-testing |
-| `security` | OWASP sikkerhetstester |
 | `okr-api` | OKR API endpoint-testing |
 | `theme` | Dark/light mode testing |
+| `contrast` | WCAG kontrast-tester |
 
 Se [docs/development/TESTING.md](./docs/development/TESTING.md) for mer informasjon.
 
@@ -222,7 +219,6 @@ npm test                 # Alle Playwright-tester
 npm run test:smoke       # Smoke tests
 npm run test:visual      # Visual regression
 npm run test:mobile      # Mobile tester
-npm run test:security    # Security tests
 npm run test:okr-api     # OKR API tests
 npm run test:theme       # Theme toggle tests
 npm run test:unit        # Unit tests (Vitest)
