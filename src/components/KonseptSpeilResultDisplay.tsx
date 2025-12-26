@@ -4,12 +4,10 @@ import {
   type Observasjon,
   FASE_LABELS,
   MODENHET_LABELS,
-  DEKNINGSGRAD_LABELS,
   STYRINGSMØNSTER_LABELS,
   OBSERVASJON_LABELS,
   getModenhetColor,
   getFaseColor,
-  getDekningsgradColor,
   countObservasjoner,
 } from '../utils/konseptspeil-parser';
 import { SpinnerIcon } from './ui/Icon';
@@ -37,9 +35,12 @@ function ObservasjonCard({
     <div className={cn('p-4 rounded-lg border', colors.border, colors.bg)}>
       <div className="flex items-center justify-between mb-2">
         <h4 className="font-medium text-neutral-700">{label}</h4>
-        <span className={cn('text-xs px-2 py-0.5 rounded-full', colors.bg, colors.text)}>
-          {MODENHET_LABELS[observasjon.modenhet]}
-        </span>
+        {/* Vis kun badge for modenhetsnivåer over "antakelse" - antakelse er default og trenger ikke merkes */}
+        {observasjon.modenhet !== 'antakelse' && (
+          <span className={cn('text-xs px-2 py-0.5 rounded-full', colors.bg, colors.text)}>
+            {MODENHET_LABELS[observasjon.modenhet]}
+          </span>
+        )}
       </div>
       {observasjon.tilstede && (
         <p className="text-sm text-neutral-700 mb-2">
@@ -167,13 +168,15 @@ export default function KonseptSpeilResultDisplay({
   }
 
   const faseColors = getFaseColor(parsed.fase.status);
-  const dekningColors = getDekningsgradColor(parsed.meta.dekningsgrad);
   const obsCount = countObservasjoner(parsed.observasjoner);
 
   return (
     <div className="space-y-6">
-      {/* Fase og fokusområde */}
-      <div className={cn('p-5 rounded-lg border-2', faseColors.border, faseColors.bg)}>
+      {/* Fase og fokusområde - hovedrammen for analysen */}
+      <div className="p-5 rounded-lg border-2 border-brand-navy/20 bg-brand-navy/8">
+        <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-3">
+          Slik leser speilet konseptet ditt
+        </p>
         <div className="flex items-center gap-3 mb-3">
           <span className={cn('text-sm font-medium px-3 py-1 rounded-full', faseColors.bg, faseColors.text)}>
             {FASE_LABELS[parsed.fase.status]}
@@ -184,9 +187,9 @@ export default function KonseptSpeilResultDisplay({
           <p className="text-neutral-700 mb-3">{parsed.fase.begrunnelse}</p>
         )}
         {parsed.fase.fokusområde && (
-          <div className="pt-3 border-t border-neutral-200">
+          <div className="pt-3 border-t border-brand-navy/10">
             <p className="text-sm font-medium text-neutral-600 mb-1">Fokusområde:</p>
-            <p className={cn('text-base', faseColors.text)}>{parsed.fase.fokusområde}</p>
+            <p className="text-base text-brand-navy">{parsed.fase.fokusområde}</p>
           </div>
         )}
       </div>
@@ -268,25 +271,46 @@ export default function KonseptSpeilResultDisplay({
       )}
 
       {/* Meta-informasjon */}
-      <div className="flex items-center justify-between pt-4 border-t border-neutral-200">
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-neutral-500">Dekningsgrad:</span>
-          <span className={cn('text-xs px-2 py-0.5 rounded-full', dekningColors.bg, dekningColors.text)}>
-            {DEKNINGSGRAD_LABELS[parsed.meta.dekningsgrad]}
-          </span>
+      <div className="pt-4 border-t border-neutral-200">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          {/* Dekningsgrad-indikator */}
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-1">
+              <span className="text-xs text-neutral-500 shrink-0">Dekningsgrad:</span>
+              <div className="flex items-center gap-2 flex-1 max-w-48">
+                <span className="text-xs text-neutral-400">Tynn</span>
+                <div className="relative flex-1 h-1 bg-neutral-200 rounded-full">
+                  <div
+                    className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-brand-navy rounded-full border-2 border-white shadow-sm"
+                    style={{
+                      left: parsed.meta.dekningsgrad === 'tynn' ? '0%' :
+                            parsed.meta.dekningsgrad === 'delvis' ? '50%' : '100%',
+                      transform: `translate(-50%, -50%)`,
+                    }}
+                  />
+                </div>
+                <span className="text-xs text-neutral-400">Fyldig</span>
+              </div>
+            </div>
+            <p className="text-xs text-neutral-400 italic">
+              Hvor mye kontekst konseptet gir speilet å arbeide med.
+            </p>
+          </div>
+
+          {/* Usikkerheter */}
+          {parsed.meta.usikkerheter && parsed.meta.usikkerheter.length > 0 && (
+            <details className="text-xs shrink-0">
+              <summary className="text-neutral-500 cursor-pointer hover:text-neutral-700">
+                {parsed.meta.usikkerheter.length} usikkerhet{parsed.meta.usikkerheter.length > 1 ? 'er' : ''}
+              </summary>
+              <ul className="mt-2 text-neutral-600 space-y-1">
+                {parsed.meta.usikkerheter.map((u, i) => (
+                  <li key={i}>- {u}</li>
+                ))}
+              </ul>
+            </details>
+          )}
         </div>
-        {parsed.meta.usikkerheter && parsed.meta.usikkerheter.length > 0 && (
-          <details className="text-xs">
-            <summary className="text-neutral-500 cursor-pointer hover:text-neutral-700">
-              {parsed.meta.usikkerheter.length} usikkerhet{parsed.meta.usikkerheter.length > 1 ? 'er' : ''}
-            </summary>
-            <ul className="mt-2 text-neutral-600 space-y-1">
-              {parsed.meta.usikkerheter.map((u, i) => (
-                <li key={i}>- {u}</li>
-              ))}
-            </ul>
-          </details>
-        )}
       </div>
     </div>
   );
