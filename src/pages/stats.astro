@@ -79,6 +79,7 @@ const landingButtons = ['hero_cta', 'tools_okr_cta', 'contact_email', 'contact_l
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="/fyrk-monogram-primary-navy.svg" />
   <title>Stats - FYRK</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -542,70 +543,83 @@ const landingButtons = ['hero_cta', 'tools_okr_cta', 'contact_email', 'contact_l
       }
     }
 
-    // Initialize button chart toggles
-    document.querySelectorAll<HTMLButtonElement>('.chart-toggle[data-chart-btn]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const buttonId = btn.dataset.chartBtn!;
-        const container = document.getElementById(`btn-chart-${buttonId}`);
-        if (!container) return;
-
-        if (container.classList.contains('visible')) {
-          container.classList.remove('visible');
-          btn.classList.remove('active');
-        } else {
-          container.classList.add('visible');
-          btn.classList.add('active');
-          const activePeriod = container.querySelector<HTMLButtonElement>('.period-btn.active')?.dataset.period || '24h';
-          loadChartData('button', buttonId, activePeriod, container);
-        }
-      });
-    });
-
-    // Initialize page chart toggles
-    document.querySelectorAll<HTMLButtonElement>('.chart-toggle[data-chart-page]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const pageId = btn.dataset.chartPage!;
-        const container = document.getElementById(`page-chart-${pageId}`);
-        if (!container) return;
-
-        if (container.classList.contains('visible')) {
-          container.classList.remove('visible');
-          btn.classList.remove('active');
-        } else {
-          container.classList.add('visible');
-          btn.classList.add('active');
-          const activePeriod = container.querySelector<HTMLButtonElement>('.period-btn.active')?.dataset.period || '24h';
-          loadChartData('page', pageId, activePeriod, container);
-        }
-      });
-    });
-
-    // Initialize period selectors
-    document.querySelectorAll('.period-selector').forEach(selector => {
-      selector.querySelectorAll<HTMLButtonElement>('.period-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          // Update active state
-          selector.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-
-          const period = btn.dataset.period!;
-          const container = selector.parentElement as HTMLElement;
+    // Initialize all event listeners when DOM is ready
+    function initializeStats() {
+      // Initialize button chart toggles
+      document.querySelectorAll<HTMLButtonElement>('.chart-toggle[data-chart-btn]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const buttonId = btn.dataset.chartBtn;
+          if (!buttonId) return;
+          const container = document.getElementById(`btn-chart-${buttonId}`);
           if (!container) return;
 
-          // Determine if this is a button or page chart
-          const containerId = container.id;
-          if (containerId.startsWith('btn-chart-')) {
-            const buttonId = containerId.replace('btn-chart-', '');
-            loadChartData('button', buttonId, period, container);
-          } else if (containerId.startsWith('page-chart-')) {
-            const pageId = containerId.replace('page-chart-', '');
-            loadChartData('page', pageId, period, container);
+          if (container.classList.contains('visible')) {
+            container.classList.remove('visible');
+            btn.classList.remove('active');
+          } else {
+            container.classList.add('visible');
+            btn.classList.add('active');
+            const activePeriod = container.querySelector<HTMLButtonElement>('.period-btn.active')?.dataset.period || '24h';
+            loadChartData('button', buttonId, activePeriod, container);
           }
         });
       });
-    });
+
+      // Initialize page chart toggles
+      document.querySelectorAll<HTMLButtonElement>('.chart-toggle[data-chart-page]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const pageId = btn.dataset.chartPage;
+          if (!pageId) return;
+          const container = document.getElementById(`page-chart-${pageId}`);
+          if (!container) return;
+
+          if (container.classList.contains('visible')) {
+            container.classList.remove('visible');
+            btn.classList.remove('active');
+          } else {
+            container.classList.add('visible');
+            btn.classList.add('active');
+            const activePeriod = container.querySelector<HTMLButtonElement>('.period-btn.active')?.dataset.period || '24h';
+            loadChartData('page', pageId, activePeriod, container);
+          }
+        });
+      });
+
+      // Initialize period selectors
+      document.querySelectorAll('.period-selector').forEach(selector => {
+        selector.querySelectorAll<HTMLButtonElement>('.period-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            // Update active state
+            selector.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const period = btn.dataset.period;
+            if (!period) return;
+            const container = selector.parentElement as HTMLElement;
+            if (!container) return;
+
+            // Determine if this is a button or page chart
+            const containerId = container.id;
+            if (containerId.startsWith('btn-chart-')) {
+              const buttonId = containerId.replace('btn-chart-', '');
+              loadChartData('button', buttonId, period, container);
+            } else if (containerId.startsWith('page-chart-')) {
+              const pageId = containerId.replace('page-chart-', '');
+              loadChartData('page', pageId, period, container);
+            }
+          });
+        });
+      });
+    }
+
+    // Run initialization when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeStats);
+    } else {
+      initializeStats();
+    }
   </script>
 </body>
 </html>
