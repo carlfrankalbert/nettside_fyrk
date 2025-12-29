@@ -1,4 +1,4 @@
-import { MousePointer, Eye, Zap, BarChart3, ExternalLink, Sparkles } from 'lucide-react';
+import { MousePointer, Eye, Zap, BarChart3, ExternalLink, Sparkles, ThumbsUp, Activity } from 'lucide-react';
 import { KPICard } from './KPICard';
 import { TrafficChart } from './TrafficChart';
 import { ButtonClickList } from './ButtonClickList';
@@ -24,6 +24,7 @@ interface AnalyticsDashboardProps {
 
 const OKR_BUTTONS = ['okr_submit', 'okr_example', 'okr_reset', 'okr_privacy_toggle', 'okr_copy_suggestion', 'okr_read_more'];
 const LANDING_BUTTONS = ['hero_cta', 'tools_okr_cta', 'contact_email', 'contact_linkedin', 'about_linkedin'];
+const FUNNEL_EVENTS = ['check_success', 'feedback_up', 'feedback_down'];
 
 export function AnalyticsDashboard({ buttonCounts, pageStats, totalClicks, refreshToken }: AnalyticsDashboardProps) {
   const totalViews = Object.values(pageStats).reduce((sum, p) => sum + p.totalViews, 0);
@@ -41,6 +42,18 @@ export function AnalyticsDashboard({ buttonCounts, pageStats, totalClicks, refre
     label: buttonCounts[id]?.label || id,
     count: buttonCounts[id]?.count || 0,
   }));
+
+  const funnelData = FUNNEL_EVENTS.map(id => ({
+    id,
+    label: buttonCounts[id]?.label || id,
+    count: buttonCounts[id]?.count || 0,
+  }));
+
+  // Calculate satisfaction rate
+  const feedbackUp = buttonCounts['feedback_up']?.count || 0;
+  const feedbackDown = buttonCounts['feedback_down']?.count || 0;
+  const totalFeedback = feedbackUp + feedbackDown;
+  const satisfactionRate = totalFeedback > 0 ? Math.round((feedbackUp / totalFeedback) * 100) : null;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -93,6 +106,15 @@ export function AnalyticsDashboard({ buttonCounts, pageStats, totalClicks, refre
               value={todayVisitors}
               icon={<Sparkles className="w-5 h-5" />}
             />
+            {satisfactionRate !== null && (
+              <KPICard
+                title="Tilfredshet"
+                value={`${satisfactionRate}%`}
+                subtitle={`${totalFeedback} svar`}
+                icon={<ThumbsUp className="w-5 h-5" />}
+                variant={satisfactionRate >= 70 ? 'success' : satisfactionRate >= 50 ? 'warning' : 'danger'}
+              />
+            )}
           </div>
         </section>
 
@@ -125,6 +147,21 @@ export function AnalyticsDashboard({ buttonCounts, pageStats, totalClicks, refre
               title="Landingsside"
               buttons={landingButtonData}
               icon={<ExternalLink className="w-5 h-5" />}
+            />
+          </div>
+        </section>
+
+        {/* Funnel & Feedback */}
+        <section>
+          <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+            <Activity className="w-5 h-5 text-slate-400" />
+            Funnel & Tilbakemeldinger
+          </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ButtonClickList
+              title="OKR-sjekk funnel"
+              buttons={funnelData}
+              icon={<ThumbsUp className="w-5 h-5" />}
             />
           </div>
         </section>
