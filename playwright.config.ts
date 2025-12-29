@@ -4,6 +4,9 @@ import { defineConfig, devices } from '@playwright/test';
 const testBaseUrl = process.env.PLAYWRIGHT_TEST_BASE_URL;
 const isExternalUrl = testBaseUrl && !testBaseUrl.includes('localhost');
 
+// Smoke tests run against production only (CI or explicit URL)
+const smokeTestBaseUrl = process.env.PLAYWRIGHT_TEST_BASE_URL || (process.env.CI ? 'https://fyrk.no' : undefined);
+
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
@@ -11,28 +14,37 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
-  
+
   use: {
     baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || (process.env.CI ? 'https://fyrk.no' : 'http://localhost:4321'),
     trace: 'on-first-retry',
   },
 
   projects: [
-    // Smoke tests - daily
+    // Smoke tests - CI only (run against production URL)
     {
       name: 'smoke',
       testMatch: /.*\.smoke\.ts/,
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: smokeTestBaseUrl,
+      },
     },
     {
       name: 'smoke-mobile',
       testMatch: /.*\.smoke\.ts/,
-      use: { ...devices['iPhone 14'] },
+      use: {
+        ...devices['iPhone 14'],
+        baseURL: smokeTestBaseUrl,
+      },
     },
     {
       name: 'smoke-tablet',
       testMatch: /.*\.smoke\.ts/,
-      use: { ...devices['iPad Pro'] },
+      use: {
+        ...devices['iPad Pro'],
+        baseURL: smokeTestBaseUrl,
+      },
     },
 
     // Visual regression - monthly, top configurations
