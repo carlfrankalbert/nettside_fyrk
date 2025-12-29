@@ -4,7 +4,7 @@ import OKRResultDisplay from './OKRResultDisplay';
 import { CheckIcon, ErrorIcon, SpinnerIcon, ChevronRightIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
 import { INPUT_VALIDATION } from '../utils/constants';
-import { trackClick } from '../utils/tracking';
+import { trackClick, logEvent } from '../utils/tracking';
 
 const EXAMPLE_OKR = `Objective:
 Gjøre det enkelt og trygt for brukere å komme i gang med produktet.
@@ -90,6 +90,7 @@ export default function OKRReviewer() {
   const abortControllerRef = useRef<AbortController | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const checkStartTimeRef = useRef<number>(0);
 
   /**
    * Auto-resize textarea to fit content
@@ -191,6 +192,9 @@ export default function OKRReviewer() {
     // Track button click (fire and forget - don't block the user)
     trackClick('okr_submit');
 
+    // Record start time for processing duration tracking
+    checkStartTimeRef.current = Date.now();
+
     setLoading(true);
     setIsStreaming(true);
     setError(null);
@@ -211,6 +215,14 @@ export default function OKRReviewer() {
         setLoading(false);
         setIsStreaming(false);
         abortControllerRef.current = null;
+
+        // Track successful completion with metadata
+        const processingTimeMs = Date.now() - checkStartTimeRef.current;
+        logEvent('check_success', {
+          charCount: input.trim().length,
+          processingTimeMs,
+        });
+
         // Scroll to result
         setTimeout(() => {
           resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });

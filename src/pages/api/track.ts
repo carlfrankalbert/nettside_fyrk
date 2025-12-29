@@ -16,6 +16,11 @@ export const TRACKED_BUTTONS = {
   okr_copy_suggestion: { key: 'okr_copy_suggestion_clicks', label: 'Kopier til utklippstavle' },
   okr_read_more: { key: 'okr_read_more_clicks', label: 'Les mer (vurdering)' },
 
+  // OKR-sjekken funnel events
+  check_success: { key: 'okr_check_success', label: 'OKR-sjekk fullført' },
+  feedback_up: { key: 'okr_feedback_up', label: 'Tilbakemelding: Nyttig' },
+  feedback_down: { key: 'okr_feedback_down', label: 'Tilbakemelding: Ikke nyttig' },
+
   // Landing page buttons
   hero_cta: { key: 'hero_cta_clicks', label: 'Kontakt FYRK (hero)' },
   tools_okr_cta: { key: 'tools_okr_cta_clicks', label: 'Prøv OKR-sjekken' },
@@ -45,11 +50,19 @@ function getHourKey(timestamp: number): string {
 }
 
 /**
+ * Metadata for check_success events (no PII)
+ */
+interface CheckSuccessMetadata {
+  charCount?: number;
+  processingTimeMs?: number;
+}
+
+/**
  * POST /api/track
  * Increments the click counter for a specific button and stores timestamp.
  * Uses Cloudflare KV for storage - no cookies, no personal data.
  *
- * Request body: { buttonId: string }
+ * Request body: { buttonId: string, metadata?: { charCount?: number, processingTimeMs?: number } }
  * If no buttonId provided, defaults to 'okr_submit' for backwards compatibility
  */
 export const POST: APIRoute = async ({ locals, request }) => {
@@ -73,12 +86,20 @@ export const POST: APIRoute = async ({ locals, request }) => {
       );
     }
 
-    // Parse request body to get buttonId
+    // Parse request body to get buttonId and optional metadata
     let buttonId: ButtonId = 'okr_submit'; // default for backwards compatibility
+    let metadata: CheckSuccessMetadata | undefined;
     try {
       const body = await request.json();
       if (body.buttonId && body.buttonId in TRACKED_BUTTONS) {
         buttonId = body.buttonId as ButtonId;
+      }
+      // Extract metadata for check_success events (sanitized, no PII)
+      if (body.metadata && buttonId === 'check_success') {
+        metadata = {
+          charCount: typeof body.metadata.charCount === 'number' ? Math.round(body.metadata.charCount) : undefined,
+          processingTimeMs: typeof body.metadata.processingTimeMs === 'number' ? Math.round(body.metadata.processingTimeMs) : undefined,
+        };
       }
     } catch {
       // No body or invalid JSON - use default
@@ -106,7 +127,7 @@ export const POST: APIRoute = async ({ locals, request }) => {
     const newDailyCount = (parseInt(dailyCount || '0', 10) || 0) + 1;
 
     // Write all updates in parallel for better performance
-    await Promise.all([
+    const writePromises: Promise<void>[] = [
       kv.put(kvKey, String(newCount)),
       kv.put(hourlyKey, String(newHourlyCount), {
         expirationTtl: 400 * 24 * 60 * 60,
@@ -114,7 +135,37 @@ export const POST: APIRoute = async ({ locals, request }) => {
       kv.put(dailyKey, String(newDailyCount), {
         expirationTtl: 400 * 24 * 60 * 60,
       }),
-    ]);
+    ];
+
+    // Store aggregated metadata for check_success events
+    if (buttonId === 'check_success' && metadata) {
+      const metricsKey = `metrics:check_success:${dateKey}`;
+      const existingMetricsJson = await kv.get(metricsKey);
+      let metrics = { count: 0, totalCharCount: 0, totalProcessingTimeMs: 0 };
+      try {
+        if (existingMetricsJson) {
+          metrics = JSON.parse(existingMetricsJson);
+        }
+      } catch {
+        // Reset if parsing fails
+      }
+
+      metrics.count += 1;
+      if (metadata.charCount) {
+        metrics.totalCharCount += metadata.charCount;
+      }
+      if (metadata.processingTimeMs) {
+        metrics.totalProcessingTimeMs += metadata.processingTimeMs;
+      }
+
+      writePromises.push(
+        kv.put(metricsKey, JSON.stringify(metrics), {
+          expirationTtl: 400 * 24 * 60 * 60,
+        })
+      );
+    }
+
+    await Promise.all(writePromises);
 
     return new Response(
       JSON.stringify({ success: true, buttonId, count: newCount }),
