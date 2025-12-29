@@ -3,6 +3,8 @@
  * Centralized module for button click tracking and event logging
  */
 
+import { shouldExcludeFromTracking } from '../scripts/tracking-exclusion';
+
 /**
  * Metadata for check_success events (no PII)
  */
@@ -16,6 +18,11 @@ export interface EventMetadata {
  * Sends tracking data to the API without blocking the user
  */
 export function trackClick(buttonId: string): void {
+  // Skip tracking for excluded visitors (developer, tests)
+  if (shouldExcludeFromTracking()) {
+    return;
+  }
+
   fetch('/api/track', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -33,6 +40,11 @@ export function trackClick(buttonId: string): void {
  * @param metadata - Optional metadata (charCount, processingTimeMs) - NO PII
  */
 export function logEvent(eventType: string, metadata?: EventMetadata): void {
+  // Skip tracking for excluded visitors (developer, tests)
+  if (shouldExcludeFromTracking()) {
+    return;
+  }
+
   const payload: { buttonId: string; metadata?: EventMetadata } = { buttonId: eventType };
 
   if (metadata) {
