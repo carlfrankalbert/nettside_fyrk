@@ -6,7 +6,14 @@
 
 import { test, expect } from '@playwright/test';
 
+// Smoke tests require a baseURL (CI or explicit PLAYWRIGHT_TEST_BASE_URL)
+const hasBaseUrl = !!process.env.PLAYWRIGHT_TEST_BASE_URL || !!process.env.CI;
+
 test.describe('Error Pages Smoke Tests', () => {
+  test.beforeEach(({ }, testInfo) => {
+    testInfo.skip(!hasBaseUrl, 'Smoke tests only run in CI or with PLAYWRIGHT_TEST_BASE_URL set');
+  });
+
   test.describe('404 Not Found', () => {
     test('should return 404 status for non-existent page', async ({ page }) => {
       const response = await page.goto('/this-page-does-not-exist-12345');
