@@ -153,17 +153,17 @@ test.describe('Mobile UX Validation - Designer Perspective', () => {
 
   test('CTA buttons are prominent and accessible', async ({ page }) => {
     await page.goto('/');
-    
-    // Check buttons with btn class (actual buttons, not just links)
-    const ctaButtons = page.locator('.btn, button, a.btn');
+
+    // Check CTA buttons with btn class (excludes icon-only buttons like hamburger menu)
+    const ctaButtons = page.locator('.btn, a.btn');
     const count = await ctaButtons.count();
-    
+
     expect(count).toBeGreaterThan(0);
-    
+
     for (let i = 0; i < count; i++) {
       const button = ctaButtons.nth(i);
       await expect(button).toBeVisible();
-      
+
       const box = await button.boundingBox();
       if (box) {
         // CTA buttons should be at least 48px tall
