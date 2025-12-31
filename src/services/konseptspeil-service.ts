@@ -4,9 +4,10 @@
  */
 
 import { hashInput, localStorageCache } from '../utils/cache';
+import { parseSSEStream, simulateCachedStreaming } from '../utils/streaming';
 
 const API_ENDPOINT = '/api/konseptspeilet';
-const MAX_RETRIES = 1; // Number of automatic retries for incomplete responses
+const MAX_RETRIES = 1;
 
 /**
  * Error messages for the konseptspeil service
@@ -34,7 +35,8 @@ function isResponseComplete(output: string): boolean {
 
     // Check for required fields that indicate a complete response
     const hasBegrunnelse = parsed.fase?.begrunnelse && parsed.fase.begrunnelse.trim().length > 0;
-    const hasKjernespørsmål = parsed.refleksjon?.kjernespørsmål && parsed.refleksjon.kjernespørsmål.trim().length > 0;
+    const hasKjernespørsmål =
+      parsed.refleksjon?.kjernespørsmål && parsed.refleksjon.kjernespørsmål.trim().length > 0;
     const hasFokusområde = parsed.fase?.fokusområde && parsed.fase.fokusområde.trim().length > 0;
 
     // Response is complete if it has at least begrunnelse or kjernespørsmål
@@ -73,49 +75,8 @@ async function performStreamingRequest(
     throw new Error(errorData.error || ERROR_MESSAGES.DEFAULT);
   }
 
-  const reader = response.body?.getReader();
-  if (!reader) {
-    throw new Error(ERROR_MESSAGES.DEFAULT);
-  }
-
-  const decoder = new TextDecoder();
-  let buffer = '';
-  let fullOutput = '';
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split('\n');
-    buffer = lines.pop() || '';
-
-    for (const line of lines) {
-      if (line.startsWith('data: ')) {
-        const data = line.slice(6);
-        if (data === '[DONE]') continue;
-
-        try {
-          const event = JSON.parse(data);
-          if (event.error) {
-            throw new Error(event.message || ERROR_MESSAGES.DEFAULT);
-          }
-          if (event.text) {
-            fullOutput += event.text;
-            onChunk(event.text);
-          }
-        } catch (e) {
-          if (e instanceof SyntaxError) {
-            // Skip invalid JSON lines
-            continue;
-          }
-          throw e;
-        }
-      }
-    }
-  }
-
-  return fullOutput;
+  // Use shared streaming parser
+  return parseSSEStream(response, { signal, onChunk });
 }
 
 /**
@@ -134,17 +95,15 @@ export async function speileKonseptStreaming(
   // Check local cache first (only if complete)
   const cachedResult = localStorageCache.get(cacheKey);
   if (cachedResult && isResponseComplete(cachedResult)) {
-    // Simulate streaming for cached results (better UX)
-    const chunks = cachedResult.match(/.{1,50}/g) || [cachedResult];
-    for (const chunk of chunks) {
-      if (signal?.aborted) {
+    try {
+      // Use shared cache streaming utility
+      await simulateCachedStreaming(cachedResult, onChunk, signal);
+      onComplete();
+    } catch (e) {
+      if (e instanceof Error && e.name === 'AbortError') {
         onError(ERROR_MESSAGES.ABORTED);
-        return;
       }
-      onChunk(chunk);
-      await new Promise((resolve) => setTimeout(resolve, 10));
     }
-    onComplete();
     return;
   }
 
@@ -179,7 +138,6 @@ export async function speileKonseptStreaming(
 
         // Clear previous output if retrying
         if (retryCount > 0) {
-          // Reset the output display for retry
           onChunk('\n[Automatisk retry...]\n');
         }
 
@@ -195,14 +153,14 @@ export async function speileKonseptStreaming(
         // Response is incomplete, retry if we haven't exceeded max retries
         retryCount++;
         if (retryCount <= MAX_RETRIES) {
-          console.warn(`Incomplete response detected, retrying (attempt ${retryCount}/${MAX_RETRIES})...`);
-          // Short delay before retry
+          console.warn(
+            `Incomplete response detected, retrying (attempt ${retryCount}/${MAX_RETRIES})...`
+          );
           await new Promise((resolve) => setTimeout(resolve, 500));
         }
       }
 
       // All retries exhausted, return what we have (even if incomplete)
-      // Don't cache incomplete responses
       console.warn('Max retries reached, returning incomplete response');
       return lastOutput;
     } finally {

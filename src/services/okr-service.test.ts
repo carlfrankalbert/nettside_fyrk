@@ -245,7 +245,8 @@ describe('okr-service', () => {
 
       await reviewOKRStreaming('Test OKR', onChunk, onComplete, onError);
 
-      expect(onError).toHaveBeenCalledWith('Noe gikk galt under vurderingen. Prøv igjen om litt.');
+      // Now propagates the actual error message for better debugging
+      expect(onError).toHaveBeenCalledWith('No response body available');
     });
 
     it('should process SSE stream correctly', async () => {
@@ -299,7 +300,8 @@ describe('okr-service', () => {
 
       await reviewOKRStreaming('Test OKR', onChunk, onComplete, onError);
 
-      expect(onError).toHaveBeenCalledWith('Noe gikk galt under vurderingen. Prøv igjen om litt.');
+      // Now propagates the actual error message for better debugging
+      expect(onError).toHaveBeenCalledWith('Stream error');
     });
 
     it('should handle SSE error events', async () => {

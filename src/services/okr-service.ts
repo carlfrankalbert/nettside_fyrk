@@ -6,6 +6,7 @@
 import type { OKRReviewResponse, OKRReviewError, OKRReviewResult, OKRStreamEvent } from '../types';
 import { hashInput, localStorageCache } from '../utils/cache';
 import { ERROR_MESSAGES, API_ROUTES, ANTHROPIC_CONFIG } from '../utils/constants';
+import { parseSSEStream, simulateCachedStreaming } from '../utils/streaming';
 
 // In-memory cache for request deduplication
 const pendingRequests = new Map<string, Promise<OKRReviewResult>>();
@@ -14,7 +15,11 @@ const pendingRequests = new Map<string, Promise<OKRReviewResult>>();
  * Create a fetch request with timeout support
  * Returns an abort controller that can be used to cancel the request
  */
-function createFetchWithTimeout(url: string, options: RequestInit, timeoutMs: number): { promise: Promise<Response>; abort: () => void } {
+function createFetchWithTimeout(
+  url: string,
+  options: RequestInit,
+  timeoutMs: number
+): { promise: Promise<Response>; abort: () => void } {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -141,18 +146,18 @@ export async function reviewOKRStreaming(
   // Check localStorage cache first
   const cachedOutput = localStorageCache.get(cacheKey);
   if (cachedOutput) {
-    // Simulate streaming for cached results
-    const words = cachedOutput.split(' ');
-    for (let i = 0; i < words.length; i++) {
-      // Check if cancelled during cached streaming
-      if (signal?.aborted) return;
-      setTimeout(() => {
+    try {
+      // Simulate streaming for cached results (word-by-word for OKR)
+      const words = cachedOutput.split(' ');
+      for (let i = 0; i < words.length; i++) {
+        if (signal?.aborted) return;
+        await new Promise((resolve) => setTimeout(resolve, 10));
         if (signal?.aborted) return;
         onChunk(words[i] + (i < words.length - 1 ? ' ' : ''));
-        if (i === words.length - 1) {
-          onComplete();
-        }
-      }, i * 10); // 10ms delay between words
+      }
+      onComplete();
+    } catch {
+      // Aborted during cache streaming, ignore
     }
     return;
   }
@@ -174,68 +179,21 @@ export async function reviewOKRStreaming(
       return;
     }
 
-    const reader = response.body?.getReader();
-    if (!reader) {
-      onError(ERROR_MESSAGES.OKR_REVIEW_DEFAULT);
-      return;
-    }
+    // Use shared streaming parser
+    const fullOutput = await parseSSEStream(response, { signal, onChunk });
 
-    const decoder = new TextDecoder();
-    let buffer = '';
-    let fullOutput = '';
-
-    try {
-      while (true) {
-        // Check if cancelled
-        if (signal?.aborted) {
-          await reader.cancel();
-          return;
-        }
-
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
-            if (data === '[DONE]') {
-              // Cache the complete output
-              localStorageCache.set(cacheKey, fullOutput);
-              onComplete();
-              return;
-            }
-
-            try {
-              const event: OKRStreamEvent = JSON.parse(data);
-              if (event.error) {
-                onError(event.message || ERROR_MESSAGES.OKR_REVIEW_DEFAULT);
-                return;
-              }
-              if (event.text) {
-                fullOutput += event.text;
-                onChunk(event.text);
-              }
-            } catch (e) {
-              console.error('Error parsing SSE data:', e);
-            }
-          }
-        }
-      }
-    } finally {
-      // Ensure reader is released
-      reader.releaseLock();
-    }
+    // Cache the complete output
+    localStorageCache.set(cacheKey, fullOutput);
+    onComplete();
   } catch (error) {
     // Don't report errors for intentional cancellation
     if (error instanceof Error && error.name === 'AbortError') {
       return;
     }
     console.error('Streaming error:', error);
-    onError(ERROR_MESSAGES.OKR_REVIEW_DEFAULT);
+    // Propagate the error message from the stream if available
+    const errorMessage = error instanceof Error ? error.message : ERROR_MESSAGES.OKR_REVIEW_DEFAULT;
+    onError(errorMessage);
   }
 }
 
