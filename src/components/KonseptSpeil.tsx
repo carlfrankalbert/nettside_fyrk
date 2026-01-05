@@ -232,21 +232,13 @@ export default function KonseptSpeil() {
             if (error) setError(null);
           }}
           onPaste={handlePaste}
-          placeholder="Forklar ideen slik du ville gjort til en kollega på et par minutter.
-
-Uferdige tanker, stikkord og halve setninger er mer enn nok.
-
-Du trenger ikke dekke alt – dette er bare støtte om du står fast:
-• Hva problemet eller muligheten handler om
-• Hvem som har dette problemet
-• Hvordan du tenker å løse det
-• Hva du allerede vet – og hva du antar"
+          placeholder="Forklar ideen slik du ville gjort til en kollega på et par minutter."
           maxLength={MAX_INPUT_LENGTH}
           aria-describedby={error ? 'konsept-error konsept-help konsept-char-count' : 'konsept-help konsept-char-count'}
           aria-invalid={error ? 'true' : undefined}
           className={cn(
             'w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 rounded-lg',
-            'resize-none min-h-[280px] overflow-hidden placeholder:text-neutral-500',
+            'resize-none min-h-[200px] overflow-hidden placeholder:text-neutral-500',
             'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker',
             'disabled:opacity-60 disabled:cursor-not-allowed',
             'aria-[invalid=true]:border-feedback-error transition-all duration-300',
@@ -256,10 +248,22 @@ Du trenger ikke dekke alt – dette er bare støtte om du står fast:
           )}
           disabled={loading}
         />
-        <div className="mt-2 flex items-center justify-between text-xs text-neutral-500">
+        <div id="konsept-help" className="mt-3 text-sm text-neutral-500 space-y-2">
+          <p>Uferdige tanker, stikkord og halve setninger er mer enn nok.</p>
+          <p className="text-neutral-400">
+            Du trenger ikke dekke alt – dette er bare støtte om du står fast:
+          </p>
+          <ul className="text-neutral-400 space-y-0.5 ml-4">
+            <li>• Hva problemet eller muligheten handler om</li>
+            <li>• Hvem som har dette problemet</li>
+            <li>• Hvordan du tenker å løse det</li>
+            <li>• Hva du allerede vet – og hva du antar</li>
+          </ul>
+        </div>
+        <div className="mt-3 flex items-center justify-between text-xs text-neutral-500">
           <span className="flex items-center gap-1">
             <span aria-hidden="true">🔒</span>
-            <span>Personvern: Teksten brukes kun til å generere refleksjonen. Ingenting lagres eller brukes videre.</span>
+            <span>Teksten brukes kun til å generere refleksjonen. Ingenting lagres.</span>
           </span>
           <span id="konsept-char-count">
             <span className={cn(input.length > MAX_INPUT_LENGTH * 0.9 && 'text-feedback-warning')}>
@@ -366,9 +370,9 @@ Du trenger ikke dekke alt – dette er bare støtte om du står fast:
             <p>
               <strong>Hvordan fungerer det?</strong>
               <br />
-              Refleksjonen genereres av Claude (Anthropic), en AI-modell som analyserer
-              konseptbeskrivelsen din og speiler tilbake observasjoner basert på etablerte
-              prinsipper for produktutvikling.
+              Refleksjonen bygger på etablerte prinsipper for produktutvikling og tidlig fase-tenkning.
+              En AI-modell (Claude fra Anthropic) brukes til å speile konseptbeskrivelsen din strukturert
+              og gi deg observasjoner tilbake.
             </p>
             <p>
               <strong>Hva skjer med dataene?</strong>
