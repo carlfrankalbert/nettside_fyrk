@@ -81,10 +81,15 @@ export default function KonseptSpeil() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isValueBoxOpen, setIsValueBoxOpen] = useState(true);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isExampleAnimating, setIsExampleAnimating] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Character count thresholds
+  const charCountWarning = MAX_INPUT_LENGTH * 0.9; // 1800
+  const charCountDanger = MAX_INPUT_LENGTH * 0.975; // 1950
 
   // Collapse value box on mobile by default, open on desktop
   useEffect(() => {
@@ -294,17 +299,26 @@ export default function KonseptSpeil() {
             </button>
           )}
         </div>
-        <div id="konsept-help" className="mt-3 text-sm text-neutral-500 space-y-2">
+        <div id="konsept-help" className="mt-3 text-sm text-neutral-500">
           <p>Uferdige tanker, stikkord og halve setninger er mer enn nok.</p>
-          <p className="text-neutral-400">
-            Du trenger ikke dekke alt – dette er bare støtte om du står fast:
-          </p>
-          <ul className="text-neutral-400 space-y-0.5 ml-4">
-            <li>• Hva problemet eller muligheten handler om</li>
-            <li>• Hvem som har dette problemet</li>
-            <li>• Hvordan du tenker å løse det</li>
-            <li>• Hva du allerede vet – og hva du antar</li>
-          </ul>
+          <button
+            type="button"
+            onClick={() => setIsHelpOpen(!isHelpOpen)}
+            aria-expanded={isHelpOpen}
+            aria-controls="help-tips"
+            className="mt-2 flex items-center gap-1 text-neutral-400 hover:text-neutral-600 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded"
+          >
+            <ChevronRightIcon className={cn('w-4 h-4 transition-transform', isHelpOpen && 'rotate-90')} />
+            <span>Trenger du hjelp til å komme i gang?</span>
+          </button>
+          {isHelpOpen && (
+            <ul id="help-tips" className="mt-2 text-neutral-400 space-y-0.5 ml-5">
+              <li>• Hva problemet eller muligheten handler om</li>
+              <li>• Hvem som har dette problemet</li>
+              <li>• Hvordan du tenker å løse det</li>
+              <li>• Hva du allerede vet – og hva du antar</li>
+            </ul>
+          )}
         </div>
         <div className="mt-3 flex items-center justify-between text-xs text-neutral-500">
           <span className="flex items-center gap-1">
@@ -312,7 +326,10 @@ export default function KonseptSpeil() {
             <span>Teksten brukes kun til å generere refleksjonen. Ingenting lagres.</span>
           </span>
           <span id="konsept-char-count">
-            <span className={cn(input.length > MAX_INPUT_LENGTH * 0.9 && 'text-feedback-warning')}>
+            <span className={cn(
+              input.length > charCountDanger && 'text-feedback-error font-medium',
+              input.length > charCountWarning && input.length <= charCountDanger && 'text-feedback-warning'
+            )}>
               {input.length}
             </span>
             {' / '}
