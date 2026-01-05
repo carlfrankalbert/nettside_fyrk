@@ -1,26 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { speileKonseptStreaming } from '../services/konseptspeil-service';
 import KonseptSpeilResultDisplay from './KonseptSpeilResultDisplay';
-import { CheckIcon, ErrorIcon, SpinnerIcon, ChevronRightIcon } from './ui/Icon';
+import { ErrorIcon, SpinnerIcon, ChevronRightIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
 import { INPUT_VALIDATION } from '../utils/constants';
 import { trackClick } from '../utils/tracking';
-
-/**
- * Hook to detect if viewport is mobile-sized
- */
-function useIsMobile(breakpoint = 768) {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < breakpoint);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, [breakpoint]);
-
-  return isMobile;
-}
 
 const EXAMPLE_KONSEPT = `Vi vil lage en app som hjelper produktledere med å holde oversikt over discovery-arbeidet sitt.
 
@@ -73,15 +57,12 @@ function validateKonseptInput(input: string): string | null {
 }
 
 export default function KonseptSpeil() {
-  const isMobile = useIsMobile();
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
-  const [isValueBoxOpen, setIsValueBoxOpen] = useState(true);
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isExampleAnimating, setIsExampleAnimating] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
@@ -90,11 +71,6 @@ export default function KonseptSpeil() {
   // Character count thresholds
   const charCountWarning = MAX_INPUT_LENGTH * 0.9; // 1800
   const charCountDanger = MAX_INPUT_LENGTH * 0.975; // 1950
-
-  // Collapse value box on mobile by default, open on desktop
-  useEffect(() => {
-    setIsValueBoxOpen(!isMobile);
-  }, [isMobile]);
 
   /**
    * Auto-resize textarea to fit content
@@ -211,46 +187,6 @@ export default function KonseptSpeil() {
 
   return (
     <div className="space-y-6" aria-busy={loading}>
-      {/* Value box - collapsible on mobile */}
-      <div className="bg-neutral-100 rounded-lg overflow-hidden">
-        <button
-          type="button"
-          onClick={() => setIsValueBoxOpen(!isValueBoxOpen)}
-          aria-expanded={isValueBoxOpen}
-          aria-controls="value-box-content"
-          className="md:hidden w-full p-4 flex items-center justify-between text-left focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-cyan-darker"
-        >
-          <h2 className="text-base font-semibold text-brand-navy">Hva får du igjen?</h2>
-          <ChevronRightIcon className={cn('w-5 h-5 text-neutral-500 transition-transform', isValueBoxOpen && 'rotate-90')} />
-        </button>
-        <h2 className="hidden md:block p-4 pb-0 text-base font-semibold text-brand-navy">Hva får du igjen?</h2>
-        <div
-          id="value-box-content"
-          className={cn(
-            'transition-all duration-200 ease-in-out',
-            isValueBoxOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 md:max-h-96 md:opacity-100'
-          )}
-        >
-          <div className="px-4 pb-4 pt-3">
-            <ul className="space-y-2.5 text-sm text-neutral-700" role="list">
-              <li className="flex items-start gap-2">
-                <CheckIcon className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" />
-                <span><strong className="text-neutral-800">Klarhet</strong> – En tydelig refleksjon på hva som er klart, uklart og antatt.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckIcon className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" />
-                <span><strong className="text-neutral-800">Innsikt</strong> – Oversikt over hvilke antakelser du lener deg på.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckIcon className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" />
-                <span><strong className="text-neutral-800">Fremdrift</strong> – Forslag til naturlige neste steg å utforske.</span>
-              </li>
-            </ul>
-            <p className="mt-3 text-sm text-neutral-500 italic">Dette er et speil – ikke en dom. Du beholder eierskap til ideen.</p>
-          </div>
-        </div>
-      </div>
-
       {/* Input section */}
       <div>
         <label htmlFor="konsept-input" className="block text-base font-medium text-neutral-700 mb-2">
@@ -299,33 +235,21 @@ export default function KonseptSpeil() {
             </button>
           )}
         </div>
-        <div id="konsept-help" className="mt-3 text-sm text-neutral-500">
-          <p>Uferdige tanker, stikkord og halve setninger er mer enn nok.</p>
-          <button
-            type="button"
-            onClick={() => setIsHelpOpen(!isHelpOpen)}
-            aria-expanded={isHelpOpen}
-            aria-controls="help-tips"
-            className="mt-2 flex items-center gap-1 text-neutral-400 hover:text-neutral-600 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded"
-          >
-            <ChevronRightIcon className={cn('w-4 h-4 transition-transform', isHelpOpen && 'rotate-90')} />
-            <span>Trenger du hjelp til å komme i gang?</span>
-          </button>
-          {isHelpOpen && (
-            <ul id="help-tips" className="mt-2 text-neutral-400 space-y-0.5 ml-5">
-              <li>• Hva problemet eller muligheten handler om</li>
-              <li>• Hvem som har dette problemet</li>
-              <li>• Hvordan du tenker å løse det</li>
-              <li>• Hva du allerede vet – og hva du antar</li>
-            </ul>
-          )}
-        </div>
-        <div className="mt-3 flex items-center justify-between text-xs text-neutral-500">
+        {/* Trust signals directly under input - reduces doubt before action */}
+        <div id="konsept-help" className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-500">
           <span className="flex items-center gap-1">
             <span aria-hidden="true">🔒</span>
-            <span>Teksten brukes kun til å generere refleksjonen. Ingenting lagres.</span>
+            <span>Lagres ikke</span>
           </span>
-          <span id="konsept-char-count">
+          <span className="flex items-center gap-1">
+            <span aria-hidden="true">⏱</span>
+            <span>Ca. 30 sekunder</span>
+          </span>
+          <span className="flex items-center gap-1">
+            <span aria-hidden="true">💡</span>
+            <span>Refleksjon, ikke dom</span>
+          </span>
+          <span id="konsept-char-count" className="ml-auto">
             <span className={cn(
               input.length > charCountDanger && 'text-feedback-error font-medium',
               input.length > charCountWarning && input.length <= charCountDanger && 'text-feedback-warning'
@@ -336,25 +260,40 @@ export default function KonseptSpeil() {
             {MAX_INPUT_LENGTH}
           </span>
         </div>
+        <p className="mt-2 text-sm text-neutral-400">
+          Skriv fritt – uferdige tanker og stikkord fungerer fint.
+        </p>
       </div>
 
       {/* Action buttons */}
-      <div className="space-y-2">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+      <div className="space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || input.trim().length < 50}
             aria-busy={loading}
-            className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+            className={cn(
+              'w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 text-base font-semibold rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2',
+              loading
+                ? 'bg-brand-navy/80 text-white cursor-wait'
+                : input.trim().length >= 50
+                  ? 'bg-brand-navy text-white hover:bg-brand-navy/90 hover:scale-[1.02] active:scale-100'
+                  : 'bg-neutral-200 text-neutral-400 cursor-not-allowed'
+            )}
           >
             {loading ? (
               <>
                 <SpinnerIcon className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
-                <span>Speiler konseptet...</span>
+                <span>Genererer refleksjon...</span>
               </>
             ) : (
-              'Speile konseptet'
+              <>
+                <span>Få min refleksjon</span>
+                <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </>
             )}
           </button>
 
@@ -364,19 +303,16 @@ export default function KonseptSpeil() {
               onClick={handleClearResult}
               className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
             >
-              Nullstill
+              Start på nytt
             </button>
           )}
-
-          {error && (
-            <p id="konsept-error" role="alert" className="text-feedback-error text-sm flex items-center gap-2">
-              <ErrorIcon className="w-4 h-4 flex-shrink-0" />
-              {error}
-            </p>
-          )}
         </div>
-        {!loading && !result && (
-          <p className="text-xs text-neutral-500">Tar vanligvis under 1 minutt.</p>
+
+        {error && (
+          <p id="konsept-error" role="alert" className="text-feedback-error text-sm flex items-center gap-2">
+            <ErrorIcon className="w-4 h-4 flex-shrink-0" />
+            {error}
+          </p>
         )}
       </div>
 
