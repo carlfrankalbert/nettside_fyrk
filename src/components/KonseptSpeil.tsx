@@ -183,22 +183,24 @@ export default function KonseptSpeil() {
 
   return (
     <div className="space-y-6" aria-busy={loading}>
-      {/* Info box */}
+      {/* Value box */}
       <div className="p-4 bg-neutral-100 rounded-lg">
-        <ul className="space-y-1.5 text-sm text-neutral-700" role="list">
+        <h2 className="text-base font-semibold text-brand-navy mb-3">Hva får du igjen?</h2>
+        <ul className="space-y-2.5 text-sm text-neutral-700" role="list">
           <li className="flex items-start gap-2">
             <CheckIcon className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" />
-            <span>Beskriv et produktkonsept, en idé eller et initiativ</span>
+            <span><strong className="text-neutral-800">Klarhet</strong> – En tydelig refleksjon på hva som er klart, uklart og antatt.</span>
           </li>
           <li className="flex items-start gap-2">
             <CheckIcon className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" />
-            <span>Få refleksjon på modenhet, antakelser og neste steg</span>
+            <span><strong className="text-neutral-800">Innsikt</strong> – Oversikt over hvilke antakelser du lener deg på.</span>
           </li>
           <li className="flex items-start gap-2">
             <CheckIcon className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" />
-            <span>Ingen lagring · Designet for tidlig fase</span>
+            <span><strong className="text-neutral-800">Fremdrift</strong> – Forslag til naturlige neste steg å utforske.</span>
           </li>
         </ul>
+        <p className="mt-3 text-sm text-neutral-500 italic">Dette er et speil – ikke en dom. Du beholder eierskap til ideen.</p>
       </div>
 
       {/* Input section */}
@@ -230,15 +232,15 @@ export default function KonseptSpeil() {
             if (error) setError(null);
           }}
           onPaste={handlePaste}
-          placeholder="Beskriv produktkonseptet, idéen eller initiativet du jobber med.
+          placeholder="Forklar ideen slik du ville gjort til en kollega på et par minutter.
 
-Inkluder gjerne:
-- Hva problemet eller muligheten handler om
-- Hvem som har dette problemet
-- Hvordan du tenker å løse det
-- Hva du allerede vet eller har lært
+Uferdige tanker, stikkord og halve setninger er mer enn nok.
 
-Uferdige tanker er velkommen – dette er et refleksjonsverktøy."
+Du trenger ikke dekke alt – dette er bare støtte om du står fast:
+• Hva problemet eller muligheten handler om
+• Hvem som har dette problemet
+• Hvordan du tenker å løse det
+• Hva du allerede vet – og hva du antar"
           maxLength={MAX_INPUT_LENGTH}
           aria-describedby={error ? 'konsept-error konsept-help konsept-char-count' : 'konsept-help konsept-char-count'}
           aria-invalid={error ? 'true' : undefined}
@@ -254,49 +256,60 @@ Uferdige tanker er velkommen – dette er et refleksjonsverktøy."
           )}
           disabled={loading}
         />
-        <div id="konsept-char-count" className="mt-1 text-xs text-neutral-500 text-right">
-          <span className={cn(input.length > MAX_INPUT_LENGTH * 0.9 && 'text-feedback-warning')}>
-            {input.length}
+        <div className="mt-2 flex items-center justify-between text-xs text-neutral-500">
+          <span className="flex items-center gap-1">
+            <span aria-hidden="true">🔒</span>
+            <span>Personvern: Teksten brukes kun til å generere refleksjonen. Ingenting lagres eller brukes videre.</span>
           </span>
-          {' / '}
-          {MAX_INPUT_LENGTH} tegn
+          <span id="konsept-char-count">
+            <span className={cn(input.length > MAX_INPUT_LENGTH * 0.9 && 'text-feedback-warning')}>
+              {input.length}
+            </span>
+            {' / '}
+            {MAX_INPUT_LENGTH}
+          </span>
         </div>
       </div>
 
       {/* Action buttons */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={loading}
-          aria-busy={loading}
-          className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-        >
-          {loading ? (
-            <>
-              <SpinnerIcon className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
-              <span>Speiler konseptet...</span>
-            </>
-          ) : (
-            'Speile konseptet'
-          )}
-        </button>
-
-        {result && !loading && (
+      <div className="space-y-2">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <button
             type="button"
-            onClick={handleClearResult}
-            className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
+            onClick={handleSubmit}
+            disabled={loading}
+            aria-busy={loading}
+            className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
           >
-            Nullstill
+            {loading ? (
+              <>
+                <SpinnerIcon className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
+                <span>Speiler konseptet...</span>
+              </>
+            ) : (
+              'Speile konseptet'
+            )}
           </button>
-        )}
 
-        {error && (
-          <p id="konsept-error" role="alert" className="text-feedback-error text-sm flex items-center gap-2">
-            <ErrorIcon className="w-4 h-4 flex-shrink-0" />
-            {error}
-          </p>
+          {result && !loading && (
+            <button
+              type="button"
+              onClick={handleClearResult}
+              className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
+            >
+              Nullstill
+            </button>
+          )}
+
+          {error && (
+            <p id="konsept-error" role="alert" className="text-feedback-error text-sm flex items-center gap-2">
+              <ErrorIcon className="w-4 h-4 flex-shrink-0" />
+              {error}
+            </p>
+          )}
+        </div>
+        {!loading && !result && (
+          <p className="text-xs text-neutral-500">Tar vanligvis under 1 minutt.</p>
         )}
       </div>
 
@@ -330,9 +343,6 @@ Uferdige tanker er velkommen – dette er et refleksjonsverktøy."
 
       {/* AI og personvern accordion */}
       <div className="border-t border-neutral-200 pt-6">
-        <p className="text-sm text-neutral-500 mb-3">
-          Konseptbeskrivelsen brukes kun til å generere refleksjonen.
-        </p>
         <button
           type="button"
           onClick={() => {

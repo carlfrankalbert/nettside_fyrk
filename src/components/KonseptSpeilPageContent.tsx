@@ -19,24 +19,24 @@ export default function KonseptSpeilPageContent() {
         <ul className="text-neutral-600 space-y-1.5 text-sm mb-6" role="list">
           <li className="flex items-start gap-2">
             <span className="text-neutral-500" aria-hidden="true">•</span>
-            <span>Tidlig i utforskning, når du vil tenke høyt uten å forplikte deg</span>
+            <span>Før du presenterer en idé, for å forstå hvilke kritiske spørsmål som kan komme</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-neutral-500" aria-hidden="true">•</span>
-            <span>Før du presenterer en idé, for å se hvilke antakelser du lener deg på</span>
+            <span>Når du vil tenke høyt i en tidlig fase uten å forplikte deg</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-neutral-500" aria-hidden="true">•</span>
-            <span>Når du vil ha et strukturert blikk på hva du vet vs. hva du tror</span>
+            <span>Når du vil skille tydeligere mellom det du faktisk vet og det du tror</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-neutral-500" aria-hidden="true">•</span>
-            <span>Som forberedelse til samtaler med interessenter</span>
+            <span>Som forberedelse til samtaler med kolleger, ledere eller interessenter</span>
           </li>
         </ul>
 
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-4 border-t border-neutral-100">
-          <span className="text-sm text-neutral-600">Vil du gå dypere med en erfaren produktleder?</span>
+          <span className="text-sm text-neutral-600">Vil du gå dypere sammen med en erfaren produktleder?</span>
           <a
             href="mailto:hei@fyrk.no"
             className="inline-flex items-center gap-2 px-4 py-2 text-sm text-brand-navy hover:text-white hover:bg-brand-navy border-2 border-brand-navy rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
@@ -48,7 +48,7 @@ export default function KonseptSpeilPageContent() {
           </a>
         </div>
         <p className="text-xs text-neutral-500 mt-4">
-          Konseptspeilet er laget av FYRK som supplement til rådgivning.
+          Konseptspeilet er laget av FYRK som et supplement til rådgivning.
         </p>
       </section>
     </>
