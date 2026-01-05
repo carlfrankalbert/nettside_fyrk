@@ -326,7 +326,7 @@ export default function KonseptSpeil() {
           {/* CTA support text - Level 4 microcopy */}
           {!result && !loading && (
             <p className="text-xs text-neutral-500 leading-[1.4]">
-              Basert på det du har skrevet – ingen evaluering, bare struktur.
+              Basert på det du har skrevet. Ingen evaluering – kun en strukturert refleksjon.
             </p>
           )}
 
