@@ -35,16 +35,18 @@ export default function KonseptSpeilPageContent() {
           </li>
         </ul>
 
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-4 border-t border-neutral-100">
-          <span className="text-sm text-neutral-600">Vil du gå dypere sammen med en erfaren produktleder?</span>
+        <div className="mt-6 p-4 bg-brand-cyan-lightest/30 border border-brand-cyan/20 rounded-lg">
+          <p className="text-sm font-medium text-brand-navy mb-3">
+            Vil du ha hjelp til å ta konseptet videre?
+          </p>
           <a
             href="mailto:hei@fyrk.no"
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm text-brand-navy hover:text-white hover:bg-brand-navy border-2 border-brand-navy rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-brand-navy hover:bg-brand-navy/90 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
           >
             <svg className="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
-            Ta kontakt
+            Ta kontakt med FYRK
           </a>
         </div>
         <p className="text-xs text-neutral-500 mt-4">

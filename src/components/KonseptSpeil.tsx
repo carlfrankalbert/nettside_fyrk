@@ -6,6 +6,22 @@ import { cn } from '../utils/classes';
 import { INPUT_VALIDATION } from '../utils/constants';
 import { trackClick } from '../utils/tracking';
 
+/**
+ * Hook to detect if viewport is mobile-sized
+ */
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < breakpoint);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, [breakpoint]);
+
+  return isMobile;
+}
+
 const EXAMPLE_KONSEPT = `Vi vil lage en app som hjelper produktledere med å holde oversikt over discovery-arbeidet sitt.
 
 Idéen er at man kan logge samtaler med brukere, tagge dem med temaer, og se mønstre over tid.
@@ -57,16 +73,23 @@ function validateKonseptInput(input: string): string | null {
 }
 
 export default function KonseptSpeil() {
+  const isMobile = useIsMobile();
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+  const [isValueBoxOpen, setIsValueBoxOpen] = useState(true);
   const [isExampleAnimating, setIsExampleAnimating] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Collapse value box on mobile by default, open on desktop
+  useEffect(() => {
+    setIsValueBoxOpen(!isMobile);
+  }, [isMobile]);
 
   /**
    * Auto-resize textarea to fit content
@@ -183,71 +206,94 @@ export default function KonseptSpeil() {
 
   return (
     <div className="space-y-6" aria-busy={loading}>
-      {/* Value box */}
-      <div className="p-4 bg-neutral-100 rounded-lg">
-        <h2 className="text-base font-semibold text-brand-navy mb-3">Hva får du igjen?</h2>
-        <ul className="space-y-2.5 text-sm text-neutral-700" role="list">
-          <li className="flex items-start gap-2">
-            <CheckIcon className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" />
-            <span><strong className="text-neutral-800">Klarhet</strong> – En tydelig refleksjon på hva som er klart, uklart og antatt.</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <CheckIcon className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" />
-            <span><strong className="text-neutral-800">Innsikt</strong> – Oversikt over hvilke antakelser du lener deg på.</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <CheckIcon className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" />
-            <span><strong className="text-neutral-800">Fremdrift</strong> – Forslag til naturlige neste steg å utforske.</span>
-          </li>
-        </ul>
-        <p className="mt-3 text-sm text-neutral-500 italic">Dette er et speil – ikke en dom. Du beholder eierskap til ideen.</p>
+      {/* Value box - collapsible on mobile */}
+      <div className="bg-neutral-100 rounded-lg overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setIsValueBoxOpen(!isValueBoxOpen)}
+          aria-expanded={isValueBoxOpen}
+          aria-controls="value-box-content"
+          className="md:hidden w-full p-4 flex items-center justify-between text-left focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-cyan-darker"
+        >
+          <h2 className="text-base font-semibold text-brand-navy">Hva får du igjen?</h2>
+          <ChevronRightIcon className={cn('w-5 h-5 text-neutral-500 transition-transform', isValueBoxOpen && 'rotate-90')} />
+        </button>
+        <h2 className="hidden md:block p-4 pb-0 text-base font-semibold text-brand-navy">Hva får du igjen?</h2>
+        <div
+          id="value-box-content"
+          className={cn(
+            'transition-all duration-200 ease-in-out',
+            isValueBoxOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 md:max-h-96 md:opacity-100'
+          )}
+        >
+          <div className="px-4 pb-4 pt-3">
+            <ul className="space-y-2.5 text-sm text-neutral-700" role="list">
+              <li className="flex items-start gap-2">
+                <CheckIcon className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" />
+                <span><strong className="text-neutral-800">Klarhet</strong> – En tydelig refleksjon på hva som er klart, uklart og antatt.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckIcon className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" />
+                <span><strong className="text-neutral-800">Innsikt</strong> – Oversikt over hvilke antakelser du lener deg på.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckIcon className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" />
+                <span><strong className="text-neutral-800">Fremdrift</strong> – Forslag til naturlige neste steg å utforske.</span>
+              </li>
+            </ul>
+            <p className="mt-3 text-sm text-neutral-500 italic">Dette er et speil – ikke en dom. Du beholder eierskap til ideen.</p>
+          </div>
+        </div>
       </div>
 
       {/* Input section */}
       <div>
-        <div className="flex items-center justify-between mb-2">
-          <label htmlFor="konsept-input" className="block text-base font-medium text-neutral-700">
-            Beskriv konseptet ditt
-          </label>
-          <button
-            type="button"
-            onClick={handleFillExample}
-            disabled={loading}
-            className="text-sm text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 focus:bg-neutral-100 focus:px-2 focus:-mx-2 rounded transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            Prøv med eksempel
-          </button>
-        </div>
+        <label htmlFor="konsept-input" className="block text-base font-medium text-neutral-700 mb-2">
+          Beskriv konseptet ditt
+        </label>
 
-        <textarea
-          ref={textareaRef}
-          id="konsept-input"
-          value={input}
-          onChange={(e) => {
-            let newValue = e.target.value;
-            if (isUrlEncoded(newValue)) {
-              newValue = safeDecodeURIComponent(newValue);
-            }
-            setInput(newValue);
-            if (error) setError(null);
-          }}
-          onPaste={handlePaste}
-          placeholder="Forklar ideen slik du ville gjort til en kollega på et par minutter."
-          maxLength={MAX_INPUT_LENGTH}
-          aria-describedby={error ? 'konsept-error konsept-help konsept-char-count' : 'konsept-help konsept-char-count'}
-          aria-invalid={error ? 'true' : undefined}
-          className={cn(
-            'w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 rounded-lg',
-            'resize-none min-h-[200px] overflow-hidden placeholder:text-neutral-500',
-            'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker',
-            'disabled:opacity-60 disabled:cursor-not-allowed',
-            'aria-[invalid=true]:border-feedback-error transition-all duration-300',
-            isExampleAnimating
-              ? 'border-brand-cyan bg-brand-cyan-lightest/50 ring-2 ring-brand-cyan shadow-brand-cyan scale-[1.01]'
-              : 'border-neutral-300'
+        <div className="relative">
+          <textarea
+            ref={textareaRef}
+            id="konsept-input"
+            value={input}
+            onChange={(e) => {
+              let newValue = e.target.value;
+              if (isUrlEncoded(newValue)) {
+                newValue = safeDecodeURIComponent(newValue);
+              }
+              setInput(newValue);
+              if (error) setError(null);
+            }}
+            onPaste={handlePaste}
+            maxLength={MAX_INPUT_LENGTH}
+            aria-describedby={error ? 'konsept-error konsept-help konsept-char-count' : 'konsept-help konsept-char-count'}
+            aria-invalid={error ? 'true' : undefined}
+            className={cn(
+              'w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 rounded-lg',
+              'resize-none min-h-[180px] overflow-hidden',
+              'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker',
+              'disabled:opacity-60 disabled:cursor-not-allowed',
+              'aria-[invalid=true]:border-feedback-error transition-all duration-300',
+              isExampleAnimating
+                ? 'border-brand-cyan bg-brand-cyan-lightest/50 ring-2 ring-brand-cyan shadow-brand-cyan scale-[1.01]'
+                : 'border-neutral-300'
+            )}
+            disabled={loading}
+          />
+          {!input && !loading && (
+            <button
+              type="button"
+              onClick={handleFillExample}
+              className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-brand-navy bg-brand-cyan-lightest/70 hover:bg-brand-cyan-lightest border border-brand-cyan/30 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              Prøv med eksempel
+            </button>
           )}
-          disabled={loading}
-        />
+        </div>
         <div id="konsept-help" className="mt-3 text-sm text-neutral-500 space-y-2">
           <p>Uferdige tanker, stikkord og halve setninger er mer enn nok.</p>
           <p className="text-neutral-400">
