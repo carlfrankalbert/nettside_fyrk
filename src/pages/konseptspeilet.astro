@@ -9,34 +9,6 @@ export const prerender = false;
   title="Konseptspeilet | FYRK"
   description="Få klarhet i konseptet ditt på 30 sekunder. Skriv fritt – få strukturert refleksjon tilbake."
 >
-  <!-- Sticky mini-nav (desktop only) -->
-  <nav class="hidden md:block sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-neutral-200" aria-label="Sidenavigasjon">
-    <div class="max-w-2xl mx-auto px-6">
-      <ul class="flex items-center gap-6 h-12 text-sm font-medium">
-        <li>
-          <a href="#skriv" class="text-neutral-600 hover:text-brand-navy transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded">
-            Skriv
-          </a>
-        </li>
-        <li>
-          <a href="#hva-du-far" class="text-neutral-600 hover:text-brand-navy transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded">
-            Hva du får
-          </a>
-        </li>
-        <li>
-          <a href="#trygghet" class="text-neutral-600 hover:text-brand-navy transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded">
-            Trygghet
-          </a>
-        </li>
-        <li class="ml-auto">
-          <span class="text-xs font-medium text-brand-cyan-darker bg-brand-cyan-lightest/50 px-2 py-1 rounded-full">
-            Beta
-          </span>
-        </li>
-      </ul>
-    </div>
-  </nav>
-
   <main id="main-content" class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
     <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-8 md:py-12 w-full pb-24 md:pb-12">
 
@@ -47,11 +19,11 @@ export const prerender = false;
             Beta
           </span>
         </div>
-        <h1 class="text-2xl md:text-3xl font-bold text-brand-navy mb-2 leading-tight">
+        <h1 class="text-[28px] md:text-[34px] font-semibold text-brand-navy mb-4 leading-[1.2]">
           Få klarhet i konseptet ditt
         </h1>
-        <p class="text-lg text-neutral-700 leading-relaxed">
-          Skriv fritt om ideen din – få strukturert refleksjon tilbake på <strong class="text-brand-navy">30 sekunder</strong>.
+        <p class="text-[15px] text-neutral-700 leading-[1.5]">
+          Skriv fritt om ideen din – få strukturert refleksjon tilbake på <span class="font-medium text-brand-navy">30 sekunder</span>.
         </p>
       </header>
 
@@ -60,7 +32,7 @@ export const prerender = false;
 
     </div>
 
-    <footer class="py-6 border-t border-neutral-200 text-center text-sm text-neutral-600">
+    <footer class="py-6 border-t border-neutral-200 text-center text-xs text-neutral-500 leading-[1.4]">
       <p>
         Laget av{' '}
         <a href="https://fyrk.no" class="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 font-medium focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded">
@@ -134,16 +106,6 @@ export const prerender = false;
       });
     }
 
-    // Smooth scroll for nav links
-    document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', (e) => {
-        e.preventDefault();
-        const target = document.querySelector((anchor as HTMLAnchorElement).getAttribute('href') || '');
-        if (target) {
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      });
-    });
   </script>
 
   <style>

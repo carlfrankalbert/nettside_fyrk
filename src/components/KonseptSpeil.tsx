@@ -211,7 +211,7 @@ export default function KonseptSpeil() {
     <div className="space-y-8" aria-busy={loading}>
       {/* Input section */}
       <section>
-        <label htmlFor="konsept-input" className="block text-lg font-semibold text-neutral-800 mb-3">
+        <label htmlFor="konsept-input" className="block text-[18px] font-semibold text-neutral-800 mb-3 leading-[1.3]">
           Beskriv konseptet ditt
         </label>
 
@@ -260,33 +260,33 @@ export default function KonseptSpeil() {
           )}
         </div>
 
-        {/* Trust signals - high contrast, always visible */}
-        <div id="konsept-help" className="mt-4 flex flex-wrap items-center gap-3">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-neutral-100 rounded-full text-sm font-medium text-neutral-700">
+        {/* Trust signals - Level 4 microcopy */}
+        <div id="konsept-help" className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-neutral-100 rounded-full text-xs text-neutral-500">
             <span aria-hidden="true">🔒</span>
             <span>Lagres ikke</span>
           </span>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-neutral-100 rounded-full text-sm font-medium text-neutral-700">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-neutral-100 rounded-full text-xs text-neutral-500">
             <span aria-hidden="true">⏱</span>
             <span>~30 sekunder</span>
           </span>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-neutral-100 rounded-full text-sm font-medium text-neutral-700">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-neutral-100 rounded-full text-xs text-neutral-500">
             <span aria-hidden="true">💡</span>
             <span>Refleksjon, ikke dom</span>
           </span>
-          <span className="ml-auto text-sm font-medium text-neutral-600">
+          <span className="ml-auto text-xs text-neutral-500">
             <span className={cn(
               input.length > charCountDanger && 'text-feedback-error',
               input.length > charCountWarning && input.length <= charCountDanger && 'text-feedback-warning'
             )}>
               {input.length}
             </span>
-            <span className="text-neutral-500"> / {MAX_INPUT_LENGTH}</span>
+            <span> / {MAX_INPUT_LENGTH}</span>
           </span>
         </div>
 
-        {/* Helper text - readable contrast */}
-        <p className="mt-3 text-base text-neutral-600">
+        {/* Helper text - Level 4 microcopy */}
+        <p className="mt-3 text-xs text-neutral-500 leading-[1.4]">
           Skriv fritt – uferdige tanker og stikkord fungerer fint.
         </p>
       </section>
@@ -300,7 +300,7 @@ export default function KonseptSpeil() {
             disabled={!isButtonEnabled}
             aria-busy={loading}
             className={cn(
-              'inline-flex items-center justify-center px-8 py-4 text-lg font-bold rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2',
+              'inline-flex items-center justify-center px-8 py-4 text-base font-semibold rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2',
               loading
                 ? 'bg-brand-navy/80 text-white cursor-wait'
                 : isButtonEnabled
@@ -310,22 +310,22 @@ export default function KonseptSpeil() {
           >
             {loading ? (
               <>
-                <SpinnerIcon className="animate-spin -ml-1 mr-3 h-6 w-6 text-white" />
+                <SpinnerIcon className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
                 <span>Speiler tankene dine…</span>
               </>
             ) : (
               <>
                 <span>Få en strukturert refleksjon</span>
-                <svg className="ml-2 w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </>
             )}
           </button>
 
-          {/* Support text - always visible with CTA */}
+          {/* CTA support text - Level 4 microcopy */}
           {!result && !loading && (
-            <p className="text-base text-neutral-700">
+            <p className="text-xs text-neutral-500 leading-[1.4]">
               Basert på det du har skrevet – ingen evaluering, bare struktur.
             </p>
           )}
@@ -374,8 +374,8 @@ export default function KonseptSpeil() {
                 <SpinnerIcon className="animate-spin h-5 w-5 text-brand-cyan-darker" />
               </div>
               <div>
-                <p className="text-base font-semibold text-neutral-800">Speiler tankene dine…</p>
-                <p className="text-sm text-neutral-600">Dette tar vanligvis 15-30 sekunder</p>
+                <p className="text-[15px] font-medium text-neutral-800 leading-[1.5]">Speiler tankene dine…</p>
+                <p className="text-xs text-neutral-500 leading-[1.4]">Dette tar vanligvis 15-30 sekunder</p>
               </div>
             </div>
           </div>
@@ -407,27 +407,27 @@ export default function KonseptSpeil() {
       {/* "Hva du får" section - moved below input */}
       {!result && (
         <section id="hva-du-far" className="pt-6 border-t border-neutral-200">
-          <h2 className="text-lg font-bold text-neutral-800 mb-4">Hva du får tilbake</h2>
+          <h2 className="text-[18px] font-semibold text-neutral-800 mb-4 leading-[1.3]">Hva du får tilbake</h2>
           <div className="grid gap-3">
             <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-neutral-200">
-              <span className="text-brand-cyan-darker text-lg" aria-hidden="true">→</span>
+              <span className="text-brand-cyan-darker text-[15px]" aria-hidden="true">→</span>
               <div>
-                <p className="font-semibold text-neutral-800">Antakelser du lener deg på</p>
-                <p className="text-sm text-neutral-600">Hva tar du for gitt uten å ha validert det?</p>
+                <p className="text-[15px] font-medium text-neutral-800 leading-[1.5]">Antakelser du lener deg på</p>
+                <p className="text-[15px] text-neutral-700 leading-[1.5]">Hva tar du for gitt uten å ha validert det?</p>
               </div>
             </div>
             <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-neutral-200">
-              <span className="text-brand-cyan-darker text-lg" aria-hidden="true">→</span>
+              <span className="text-brand-cyan-darker text-[15px]" aria-hidden="true">→</span>
               <div>
-                <p className="font-semibold text-neutral-800">Uklarheter å utforske</p>
-                <p className="text-sm text-neutral-600">Hva kan skape friksjon eller forvirring?</p>
+                <p className="text-[15px] font-medium text-neutral-800 leading-[1.5]">Uklarheter å utforske</p>
+                <p className="text-[15px] text-neutral-700 leading-[1.5]">Hva kan skape friksjon eller forvirring?</p>
               </div>
             </div>
             <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-neutral-200">
-              <span className="text-brand-cyan-darker text-lg" aria-hidden="true">→</span>
+              <span className="text-brand-cyan-darker text-[15px]" aria-hidden="true">→</span>
               <div>
-                <p className="font-semibold text-neutral-800">Naturlige neste steg</p>
-                <p className="text-sm text-neutral-600">Hva kan være lurt å undersøke først?</p>
+                <p className="text-[15px] font-medium text-neutral-800 leading-[1.5]">Naturlige neste steg</p>
+                <p className="text-[15px] text-neutral-700 leading-[1.5]">Hva kan være lurt å undersøke først?</p>
               </div>
             </div>
           </div>
@@ -448,7 +448,7 @@ export default function KonseptSpeil() {
           aria-controls="privacy-content"
           className="w-full flex items-center justify-between py-3 text-left focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded-lg"
         >
-          <span className="text-lg font-bold text-neutral-800">Trygghet og personvern</span>
+          <span className="text-[18px] font-semibold text-neutral-800 leading-[1.3]">Trygghet og personvern</span>
           <ChevronRightIcon className={cn('w-5 h-5 text-neutral-600 transition-transform', isPrivacyOpen && 'rotate-90')} />
         </button>
 
@@ -458,22 +458,22 @@ export default function KonseptSpeil() {
             className="mt-4 p-5 bg-white rounded-xl border border-neutral-200 space-y-4"
           >
             <div>
-              <h3 className="font-semibold text-neutral-800 mb-1">Hvordan fungerer det?</h3>
-              <p className="text-base text-neutral-600">
+              <h3 className="text-[15px] font-medium text-neutral-800 mb-1 leading-[1.5]">Hvordan fungerer det?</h3>
+              <p className="text-[15px] text-neutral-700 leading-[1.5]">
                 Refleksjonen bygger på prinsipper for produktutvikling og tidlig fase-tenkning.
                 En AI-modell (Claude fra Anthropic) speiler konseptbeskrivelsen din strukturert.
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-neutral-800 mb-1">Hva skjer med teksten?</h3>
-              <p className="text-base text-neutral-600">
+              <h3 className="text-[15px] font-medium text-neutral-800 mb-1 leading-[1.5]">Hva skjer med teksten?</h3>
+              <p className="text-[15px] text-neutral-700 leading-[1.5]">
                 Konseptbeskrivelsen sendes til Anthropics API for å generere refleksjonen.
                 Vi lagrer ikke innholdet, og det brukes ikke til å trene AI-modeller.
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-neutral-800 mb-1">Er det trygt?</h3>
-              <p className="text-base text-neutral-600">
+              <h3 className="text-[15px] font-medium text-neutral-800 mb-1 leading-[1.5]">Er det trygt?</h3>
+              <p className="text-[15px] text-neutral-700 leading-[1.5]">
                 Ja. Du trenger ikke logge inn, og vi samler ikke personopplysninger.
                 For sensitive konsepter anbefaler vi å anonymisere innholdet først.
               </p>

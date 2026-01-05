@@ -12,10 +12,10 @@ export default function KonseptSpeilPageContent() {
 
       {/* Contact CTA - visible after scrolling */}
       <section className="mt-12 p-6 bg-brand-cyan-lightest/40 border border-brand-cyan/20 rounded-xl">
-        <h2 className="text-lg font-bold text-brand-navy mb-2">
+        <h2 className="text-[18px] font-semibold text-brand-navy mb-2 leading-[1.3]">
           Vil du gå dypere?
         </h2>
-        <p className="text-base text-neutral-700 mb-4">
+        <p className="text-[15px] text-neutral-700 mb-4 leading-[1.5]">
           Konseptspeilet er et første steg. For å utforske videre med en erfaren produktleder:
         </p>
         <a
