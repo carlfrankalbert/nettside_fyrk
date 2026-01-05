@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { speileKonseptStreaming } from '../services/konseptspeil-service';
 import KonseptSpeilResultDisplay from './KonseptSpeilResultDisplay';
-import { CheckIcon, ErrorIcon, SpinnerIcon, ChevronRightIcon } from './ui/Icon';
+import { ErrorIcon, SpinnerIcon, ChevronRightIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
 import { INPUT_VALIDATION } from '../utils/constants';
 import { trackClick } from '../utils/tracking';
@@ -46,7 +46,7 @@ function validateKonseptInput(input: string): string | null {
   const trimmedInput = input.trim();
 
   if (trimmedInput.length < MIN_INPUT_LENGTH) {
-    return `Beskriv konseptet med minst ${MIN_INPUT_LENGTH} tegn.`;
+    return `Beskriv konseptet med minst ${MIN_INPUT_LENGTH} tegn for å få en god refleksjon.`;
   }
 
   if (trimmedInput.length > MAX_INPUT_LENGTH) {
@@ -67,6 +67,30 @@ export default function KonseptSpeil() {
   const abortControllerRef = useRef<AbortController | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Character count thresholds
+  const charCountWarning = MAX_INPUT_LENGTH * 0.9;
+  const charCountDanger = MAX_INPUT_LENGTH * 0.975;
+
+  // Dispatch events for mobile CTA sync
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('konseptspeil:inputChange', {
+      detail: {
+        length: input.trim().length,
+        isLoading: loading,
+        hasResult: !!result,
+      }
+    }));
+  }, [input, loading, result]);
+
+  // Listen for mobile submit trigger
+  useEffect(() => {
+    const handleMobileSubmit = () => {
+      handleSubmit();
+    };
+    window.addEventListener('konseptspeil:submit', handleMobileSubmit);
+    return () => window.removeEventListener('konseptspeil:submit', handleMobileSubmit);
+  }, [input, loading]);
 
   /**
    * Auto-resize textarea to fit content
@@ -181,122 +205,157 @@ export default function KonseptSpeil() {
     );
   };
 
+  const isButtonEnabled = input.trim().length >= 50 && !loading;
+
   return (
-    <div className="space-y-6" aria-busy={loading}>
-      {/* Info box */}
-      <div className="p-4 bg-neutral-100 rounded-lg">
-        <ul className="space-y-1.5 text-sm text-neutral-700" role="list">
-          <li className="flex items-start gap-2">
-            <CheckIcon className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" />
-            <span>Beskriv et produktkonsept, en idé eller et initiativ</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <CheckIcon className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" />
-            <span>Få refleksjon på modenhet, antakelser og neste steg</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <CheckIcon className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" />
-            <span>Ingen lagring · Designet for tidlig fase</span>
-          </li>
-        </ul>
-      </div>
-
+    <div className="space-y-8" aria-busy={loading}>
       {/* Input section */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <label htmlFor="konsept-input" className="block text-base font-medium text-neutral-700">
-            Beskriv konseptet ditt
-          </label>
-          <button
-            type="button"
-            onClick={handleFillExample}
+      <section>
+        <label htmlFor="konsept-input" className="block text-[18px] font-semibold text-neutral-800 mb-3 leading-[1.3]">
+          Beskriv konseptet ditt
+        </label>
+
+        <div className="relative">
+          <textarea
+            ref={textareaRef}
+            id="konsept-input"
+            value={input}
+            onChange={(e) => {
+              let newValue = e.target.value;
+              if (isUrlEncoded(newValue)) {
+                newValue = safeDecodeURIComponent(newValue);
+              }
+              setInput(newValue);
+              if (error) setError(null);
+            }}
+            onPaste={handlePaste}
+            placeholder="Hva handler ideen om? Hvem er det for? Hvordan tenker du å løse det?"
+            maxLength={MAX_INPUT_LENGTH}
+            aria-describedby={error ? 'konsept-error konsept-help' : 'konsept-help'}
+            aria-invalid={error ? 'true' : undefined}
+            className={cn(
+              'w-full px-4 py-4 text-base text-neutral-800 bg-white border-2 rounded-xl',
+              'resize-none min-h-[160px] overflow-hidden',
+              'placeholder:text-neutral-500',
+              'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker',
+              'disabled:opacity-60 disabled:cursor-not-allowed',
+              'aria-[invalid=true]:border-feedback-error transition-all duration-300',
+              isExampleAnimating
+                ? 'border-brand-cyan bg-brand-cyan-lightest/50 ring-2 ring-brand-cyan scale-[1.01]'
+                : 'border-neutral-300'
+            )}
             disabled={loading}
-            className="text-sm text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 focus:bg-neutral-100 focus:px-2 focus:-mx-2 rounded transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            Prøv med eksempel
-          </button>
+          />
+          {!input && !loading && (
+            <button
+              type="button"
+              onClick={handleFillExample}
+              className="absolute bottom-4 left-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-brand-navy bg-brand-cyan-lightest hover:bg-brand-cyan-light border border-brand-cyan/40 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 hover:scale-105"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              Fyll inn eksempel
+            </button>
+          )}
         </div>
 
-        <textarea
-          ref={textareaRef}
-          id="konsept-input"
-          value={input}
-          onChange={(e) => {
-            let newValue = e.target.value;
-            if (isUrlEncoded(newValue)) {
-              newValue = safeDecodeURIComponent(newValue);
-            }
-            setInput(newValue);
-            if (error) setError(null);
-          }}
-          onPaste={handlePaste}
-          placeholder="Beskriv produktkonseptet, idéen eller initiativet du jobber med.
-
-Inkluder gjerne:
-- Hva problemet eller muligheten handler om
-- Hvem som har dette problemet
-- Hvordan du tenker å løse det
-- Hva du allerede vet eller har lært
-
-Uferdige tanker er velkommen – dette er et refleksjonsverktøy."
-          maxLength={MAX_INPUT_LENGTH}
-          aria-describedby={error ? 'konsept-error konsept-help konsept-char-count' : 'konsept-help konsept-char-count'}
-          aria-invalid={error ? 'true' : undefined}
-          className={cn(
-            'w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 rounded-lg',
-            'resize-none min-h-[280px] overflow-hidden placeholder:text-neutral-500',
-            'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker',
-            'disabled:opacity-60 disabled:cursor-not-allowed',
-            'aria-[invalid=true]:border-feedback-error transition-all duration-300',
-            isExampleAnimating
-              ? 'border-brand-cyan bg-brand-cyan-lightest/50 ring-2 ring-brand-cyan shadow-brand-cyan scale-[1.01]'
-              : 'border-neutral-300'
-          )}
-          disabled={loading}
-        />
-        <div id="konsept-char-count" className="mt-1 text-xs text-neutral-500 text-right">
-          <span className={cn(input.length > MAX_INPUT_LENGTH * 0.9 && 'text-feedback-warning')}>
-            {input.length}
+        {/* Trust signals - Level 4 microcopy */}
+        <div id="konsept-help" className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-neutral-100 rounded-full text-xs text-neutral-500">
+            <span aria-hidden="true">🔒</span>
+            <span>Lagres ikke</span>
           </span>
-          {' / '}
-          {MAX_INPUT_LENGTH} tegn
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-neutral-100 rounded-full text-xs text-neutral-500">
+            <span aria-hidden="true">⏱</span>
+            <span>~30 sekunder</span>
+          </span>
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-neutral-100 rounded-full text-xs text-neutral-500">
+            <span aria-hidden="true">💡</span>
+            <span>Refleksjon, ikke dom</span>
+          </span>
+          <span className="ml-auto text-xs text-neutral-500">
+            <span className={cn(
+              input.length > charCountDanger && 'text-feedback-error',
+              input.length > charCountWarning && input.length <= charCountDanger && 'text-feedback-warning'
+            )}>
+              {input.length}
+            </span>
+            <span> / {MAX_INPUT_LENGTH}</span>
+          </span>
         </div>
-      </div>
 
-      {/* Action buttons */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={loading}
-          aria-busy={loading}
-          className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-        >
-          {loading ? (
-            <>
-              <SpinnerIcon className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
-              <span>Speiler konseptet...</span>
-            </>
-          ) : (
-            'Speile konseptet'
-          )}
-        </button>
+        {/* Helper text - Level 4 microcopy */}
+        <p className="mt-3 text-xs text-neutral-500 leading-[1.4]">
+          Skriv fritt – uferdige tanker og stikkord fungerer fint.
+        </p>
+      </section>
 
-        {result && !loading && (
+      {/* Action buttons - desktop only (mobile uses sticky bar) */}
+      <div className="hidden md:block space-y-3">
+        <div className="flex flex-col gap-3">
           <button
             type="button"
-            onClick={handleClearResult}
-            className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
+            onClick={handleSubmit}
+            disabled={!isButtonEnabled}
+            aria-busy={loading}
+            className={cn(
+              'inline-flex items-center justify-center px-8 py-4 text-base font-semibold rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2',
+              loading
+                ? 'bg-brand-navy/80 text-white cursor-wait'
+                : isButtonEnabled
+                  ? 'bg-brand-navy text-white hover:bg-brand-navy/90 hover:scale-[1.02] active:scale-100 shadow-lg hover:shadow-xl'
+                  : 'bg-neutral-200 text-neutral-500 cursor-not-allowed'
+            )}
           >
-            Nullstill
+            {loading ? (
+              <>
+                <SpinnerIcon className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
+                <span>Speiler tankene dine…</span>
+              </>
+            ) : (
+              <>
+                <span>Få en strukturert refleksjon</span>
+                <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </>
+            )}
           </button>
-        )}
+
+          {/* CTA support text - Level 4 microcopy */}
+          {!result && !loading && (
+            <p className="text-xs text-neutral-500 leading-[1.4]">
+              Basert på det du har skrevet. Ingen evaluering – kun en strukturert refleksjon.
+            </p>
+          )}
+
+          {result && !loading && (
+            <button
+              type="button"
+              onClick={handleClearResult}
+              className="self-start inline-flex items-center justify-center px-5 py-3 text-base font-semibold text-neutral-700 bg-neutral-100 hover:bg-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
+            >
+              Start på nytt
+            </button>
+          )}
+        </div>
 
         {error && (
-          <p id="konsept-error" role="alert" className="text-feedback-error text-sm flex items-center gap-2">
-            <ErrorIcon className="w-4 h-4 flex-shrink-0" />
-            {error}
-          </p>
+          <div id="konsept-error" role="alert" className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+            <ErrorIcon className="w-5 h-5 text-feedback-error flex-shrink-0 mt-0.5" />
+            <p className="text-base text-red-800">{error}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Mobile: Show error inline */}
+      <div className="md:hidden">
+        {error && (
+          <div id="konsept-error" role="alert" className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+            <ErrorIcon className="w-5 h-5 text-feedback-error flex-shrink-0 mt-0.5" />
+            <p className="text-base text-red-800">{error}</p>
+          </div>
         )}
       </div>
 
@@ -309,30 +368,74 @@ Uferdige tanker er velkommen – dette er et refleksjonsverktøy."
         aria-label="Refleksjonsresultat"
       >
         {loading && !result && (
-          <div className="mt-8 p-6 bg-white border-2 border-neutral-200 rounded-lg">
-            <div className="flex items-center gap-3 text-neutral-500">
-              <SpinnerIcon className="animate-spin h-5 w-5" />
-              <span>Speiler konseptet ditt – dette tar vanligvis 10-15 sekunder...</span>
+          <div className="p-6 bg-white border-2 border-brand-cyan/30 rounded-xl">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-brand-cyan-lightest flex items-center justify-center">
+                <SpinnerIcon className="animate-spin h-5 w-5 text-brand-cyan-darker" />
+              </div>
+              <div>
+                <p className="text-[15px] font-medium text-neutral-800 leading-[1.5]">Speiler tankene dine…</p>
+                <p className="text-xs text-neutral-500 leading-[1.4]">Dette tar vanligvis 15-30 sekunder</p>
+              </div>
             </div>
           </div>
         )}
 
         {result && (
-          <div className="mt-8 p-6 bg-white border-2 border-neutral-200 rounded-lg shadow-sm">
+          <div className="p-6 bg-white border-2 border-neutral-200 rounded-xl shadow-sm">
             <KonseptSpeilResultDisplay
               result={result}
               isStreaming={isStreaming}
               onRetry={handleSubmit}
             />
+            {/* Mobile: Show reset button here */}
+            {!loading && (
+              <div className="mt-6 pt-6 border-t border-neutral-200 md:hidden">
+                <button
+                  type="button"
+                  onClick={handleClearResult}
+                  className="w-full inline-flex items-center justify-center px-4 py-3 text-base font-semibold text-neutral-700 bg-neutral-100 hover:bg-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
+                >
+                  Skriv nytt konsept
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      {/* AI og personvern accordion */}
-      <div className="border-t border-neutral-200 pt-6">
-        <p className="text-sm text-neutral-500 mb-3">
-          Konseptbeskrivelsen brukes kun til å generere refleksjonen.
-        </p>
+      {/* "Hva du får" section - moved below input */}
+      {!result && (
+        <section id="hva-du-far" className="pt-6 border-t border-neutral-200">
+          <h2 className="text-[18px] font-semibold text-neutral-800 mb-4 leading-[1.3]">Hva du får tilbake</h2>
+          <div className="grid gap-3">
+            <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-neutral-200">
+              <span className="text-brand-cyan-darker text-[15px]" aria-hidden="true">→</span>
+              <div>
+                <p className="text-[15px] font-medium text-neutral-800 leading-[1.5]">Antakelser du lener deg på</p>
+                <p className="text-[15px] text-neutral-700 leading-[1.5]">Hva tar du for gitt uten å ha validert det?</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-neutral-200">
+              <span className="text-brand-cyan-darker text-[15px]" aria-hidden="true">→</span>
+              <div>
+                <p className="text-[15px] font-medium text-neutral-800 leading-[1.5]">Uklarheter å utforske</p>
+                <p className="text-[15px] text-neutral-700 leading-[1.5]">Hva kan skape friksjon eller forvirring?</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-neutral-200">
+              <span className="text-brand-cyan-darker text-[15px]" aria-hidden="true">→</span>
+              <div>
+                <p className="text-[15px] font-medium text-neutral-800 leading-[1.5]">Naturlige neste steg</p>
+                <p className="text-[15px] text-neutral-700 leading-[1.5]">Hva kan være lurt å undersøke først?</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Trygghet og personvern */}
+      <section id="trygghet" className="pt-6 border-t border-neutral-200">
         <button
           type="button"
           onClick={() => {
@@ -343,45 +446,41 @@ Uferdige tanker er velkommen – dette er et refleksjonsverktøy."
           }}
           aria-expanded={isPrivacyOpen}
           aria-controls="privacy-content"
-          className="flex items-center gap-2 text-sm text-brand-navy hover:text-brand-cyan-darker focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded py-2"
+          className="w-full flex items-center justify-between py-3 text-left focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded-lg"
         >
-          <ChevronRightIcon className={cn('w-4 h-4 transition-transform', isPrivacyOpen && 'rotate-90')} />
-          Les mer om AI og personvern
+          <span className="text-[18px] font-semibold text-neutral-800 leading-[1.3]">Trygghet og personvern</span>
+          <ChevronRightIcon className={cn('w-5 h-5 text-neutral-600 transition-transform', isPrivacyOpen && 'rotate-90')} />
         </button>
+
         {isPrivacyOpen && (
           <div
             id="privacy-content"
-            className="mt-3 p-4 bg-neutral-100 rounded-lg text-sm text-neutral-700 space-y-3"
+            className="mt-4 p-5 bg-white rounded-xl border border-neutral-200 space-y-4"
           >
-            <p>
-              <strong>Hvordan fungerer det?</strong>
-              <br />
-              Refleksjonen genereres av Claude (Anthropic), en AI-modell som analyserer
-              konseptbeskrivelsen din og speiler tilbake observasjoner basert på etablerte
-              prinsipper for produktutvikling.
-            </p>
-            <p>
-              <strong>Hva skjer med dataene?</strong>
-              <br />
-              Konseptbeskrivelsen sendes til Anthropics API for å generere refleksjonen. Vi
-              lagrer ikke innholdet du sender inn, og det brukes ikke til å trene AI-modeller.
-            </p>
-            <p>
-              <strong>Er det trygt?</strong>
-              <br />
-              Ja. Du trenger ikke logge inn, og vi samler ikke inn personopplysninger. Hvis du
-              jobber med sensitive konsepter, anbefaler vi å anonymisere innholdet først.
-            </p>
-            <p>
-              <strong>Hva er dette designet for?</strong>
-              <br />
-              Konseptspeilet er et refleksjonsverktøy – ikke en evaluering. Det hjelper deg å
-              se konseptet ditt tydeligere, identifisere antakelser, og tenke gjennom hva som
-              kan være verdifullt å utforske videre.
-            </p>
+            <div>
+              <h3 className="text-[15px] font-medium text-neutral-800 mb-1 leading-[1.5]">Hvordan fungerer det?</h3>
+              <p className="text-[15px] text-neutral-700 leading-[1.5]">
+                Refleksjonen bygger på prinsipper for produktutvikling og tidlig fase-tenkning.
+                En AI-modell (Claude fra Anthropic) speiler konseptbeskrivelsen din strukturert.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-[15px] font-medium text-neutral-800 mb-1 leading-[1.5]">Hva skjer med teksten?</h3>
+              <p className="text-[15px] text-neutral-700 leading-[1.5]">
+                Konseptbeskrivelsen sendes til Anthropics API for å generere refleksjonen.
+                Vi lagrer ikke innholdet, og det brukes ikke til å trene AI-modeller.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-[15px] font-medium text-neutral-800 mb-1 leading-[1.5]">Er det trygt?</h3>
+              <p className="text-[15px] text-neutral-700 leading-[1.5]">
+                Ja. Du trenger ikke logge inn, og vi samler ikke personopplysninger.
+                For sensitive konsepter anbefaler vi å anonymisere innholdet først.
+              </p>
+            </div>
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }

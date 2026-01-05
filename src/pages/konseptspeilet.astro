@@ -7,37 +7,35 @@ export const prerender = false;
 
 <MinimalLayout
   title="Konseptspeilet | FYRK"
-  description="Et refleksjonsverktøy for produktkonsepter. Se konseptet ditt tydeligere – hvilke antakelser du lener deg på, og hva som kan være verdt å utforske."
+  description="Få klarhet i konseptet ditt på 30 sekunder. Skriv fritt – få strukturert refleksjon tilbake."
 >
   <main id="main-content" class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
-    <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-12 md:py-16 w-full">
+    <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-8 md:py-12 w-full pb-24 md:pb-12">
 
-      <!-- Hero -->
-      <header class="mb-8">
-        <div class="flex items-center gap-2 mb-3">
+      <!-- Hero: Kort og tydelig -->
+      <header class="mb-6" id="skriv">
+        <div class="flex items-center gap-2 mb-3 md:hidden">
           <span class="text-xs font-medium text-brand-cyan-darker bg-brand-cyan-lightest/50 px-2 py-1 rounded-full">
             Beta
           </span>
         </div>
-        <h1 class="text-h3 md:text-h2 font-semibold text-brand-navy mb-3 leading-tight">
-          Hva vet du egentlig om konseptet ditt?
+        <h1 class="text-[28px] md:text-[34px] font-semibold text-brand-navy mb-4 leading-[1.2]">
+          Få klarhet i konseptet ditt
         </h1>
-        <p class="text-base md:text-lg text-neutral-600 leading-relaxed">
-          Beskriv en idé, et initiativ eller et konsept – og få et rolig speil tilbake.
-        </p>
-        <p class="text-sm md:text-base text-neutral-500 italic mt-1">
-          Designet for tidlig fase. Ingen evaluering, bare refleksjon.
+        <p class="text-[15px] text-neutral-700 leading-[1.5]">
+          Skriv fritt om ideen din – få strukturert refleksjon tilbake på <span class="font-medium text-brand-navy">30 sekunder</span>.
         </p>
       </header>
 
-      <!-- Dynamic content -->
+      <!-- Dynamic content (input, CTA, result) -->
       <KonseptSpeilPageContent client:load />
+
     </div>
 
-    <footer class="py-6 border-t border-neutral-200 text-center text-sm text-neutral-500">
+    <footer class="py-6 border-t border-neutral-200 text-center text-xs text-neutral-500 leading-[1.4]">
       <p>
         Laget av{' '}
-        <a href="https://fyrk.no" class="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2">
+        <a href="https://fyrk.no" class="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 font-medium focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded">
           FYRK
         </a>
         {' '}· Drevet av Claude Sonnet
@@ -45,10 +43,80 @@ export const prerender = false;
     </footer>
   </main>
 
+  <!-- Mobile sticky bottom bar -->
+  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-neutral-200 px-4 py-3 safe-area-inset-bottom" id="mobile-cta-bar">
+    <button
+      type="button"
+      id="mobile-submit-btn"
+      class="w-full inline-flex items-center justify-center px-6 py-3.5 text-base font-semibold text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 disabled:bg-neutral-200 disabled:text-neutral-400 disabled:cursor-not-allowed transition-all"
+      disabled
+    >
+      <span>Få en strukturert refleksjon</span>
+      <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+      </svg>
+    </button>
+  </div>
+
   <script>
     import { initPageViewTracking } from '../scripts/pageview-tracking';
     import { initTrackingHelpers } from '../scripts/tracking-exclusion';
     initPageViewTracking('konseptspeil');
     initTrackingHelpers();
+
+    // Sync mobile CTA with main form
+    const mobileBtn = document.getElementById('mobile-submit-btn');
+    const mobileCTABar = document.getElementById('mobile-cta-bar');
+
+    if (mobileBtn && mobileCTABar) {
+      // Listen for custom events from React component
+      window.addEventListener('konseptspeil:inputChange', ((e: CustomEvent) => {
+        const { length, isLoading, hasResult } = e.detail;
+        mobileBtn.disabled = isLoading || length < 50;
+
+        // Hide bar when result is shown
+        if (hasResult) {
+          mobileCTABar.classList.add('translate-y-full');
+        } else {
+          mobileCTABar.classList.remove('translate-y-full');
+        }
+
+        // Update button text for loading state
+        if (isLoading) {
+          mobileBtn.innerHTML = `
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Speiler tankene dine…</span>
+          `;
+        } else {
+          mobileBtn.innerHTML = `
+            <span>Få en strukturert refleksjon</span>
+            <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          `;
+        }
+      }) as EventListener);
+
+      // Forward click to main form
+      mobileBtn.addEventListener('click', () => {
+        window.dispatchEvent(new CustomEvent('konseptspeil:submit'));
+      });
+    }
+
   </script>
+
+  <style>
+    /* Safe area for mobile devices with home indicator */
+    .safe-area-inset-bottom {
+      padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    }
+
+    /* Smooth transition for mobile bar */
+    #mobile-cta-bar {
+      transition: transform 0.3s ease-out;
+    }
+  </style>
 </MinimalLayout>
