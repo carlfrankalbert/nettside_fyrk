@@ -293,7 +293,7 @@ export default function KonseptSpeil() {
 
       {/* Action buttons - desktop only (mobile uses sticky bar) */}
       <div className="hidden md:block space-y-3">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-3">
           <button
             type="button"
             onClick={handleSubmit}
@@ -311,11 +311,11 @@ export default function KonseptSpeil() {
             {loading ? (
               <>
                 <SpinnerIcon className="animate-spin -ml-1 mr-3 h-6 w-6 text-white" />
-                <span>Genererer refleksjon...</span>
+                <span>Speiler tankene dine…</span>
               </>
             ) : (
               <>
-                <span>Få min refleksjon</span>
+                <span>Få en strukturert refleksjon</span>
                 <svg className="ml-2 w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
@@ -323,11 +323,18 @@ export default function KonseptSpeil() {
             )}
           </button>
 
+          {/* Support text - always visible with CTA */}
+          {!result && !loading && (
+            <p className="text-base text-neutral-700">
+              Basert på det du har skrevet – ingen evaluering, bare struktur.
+            </p>
+          )}
+
           {result && !loading && (
             <button
               type="button"
               onClick={handleClearResult}
-              className="inline-flex items-center justify-center px-5 py-3 text-base font-semibold text-neutral-700 bg-neutral-100 hover:bg-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
+              className="self-start inline-flex items-center justify-center px-5 py-3 text-base font-semibold text-neutral-700 bg-neutral-100 hover:bg-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
             >
               Start på nytt
             </button>
@@ -367,7 +374,7 @@ export default function KonseptSpeil() {
                 <SpinnerIcon className="animate-spin h-5 w-5 text-brand-cyan-darker" />
               </div>
               <div>
-                <p className="text-base font-semibold text-neutral-800">Genererer refleksjon...</p>
+                <p className="text-base font-semibold text-neutral-800">Speiler tankene dine…</p>
                 <p className="text-sm text-neutral-600">Dette tar vanligvis 15-30 sekunder</p>
               </div>
             </div>
