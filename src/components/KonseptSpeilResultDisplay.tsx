@@ -1,4 +1,3 @@
-import { cn } from '../utils/classes';
 import {
   parseKonseptSpeilResult,
   type Observasjon,
@@ -6,8 +5,6 @@ import {
   MODENHET_LABELS,
   STYRINGSMØNSTER_LABELS,
   OBSERVASJON_LABELS,
-  getModenhetColor,
-  getFaseColor,
   countObservasjoner,
 } from '../utils/konseptspeil-parser';
 import { SpinnerIcon } from './ui/Icon';
@@ -18,7 +15,24 @@ interface KonseptSpeilResultDisplayProps {
 }
 
 /**
+ * Section step indicator for visual progression
+ */
+function SectionStep({ step, label }: { step: number; label: string }) {
+  return (
+    <div className="flex items-center gap-2 mb-3">
+      <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-cyan/15 text-brand-cyan-darker text-xs font-medium">
+        {step}
+      </span>
+      <span className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
+        {label}
+      </span>
+    </div>
+  );
+}
+
+/**
  * Display component for a single observation dimension
+ * Uses neutral styling with subtle brand-cyan accent for orientation
  */
 function ObservasjonCard({
   label,
@@ -29,15 +43,13 @@ function ObservasjonCard({
 }) {
   if (!observasjon) return null;
 
-  const colors = getModenhetColor(observasjon.modenhet);
-
   return (
-    <div className={cn('p-4 rounded-lg border', colors.border, colors.bg)}>
+    <div className="p-4 rounded-lg border border-neutral-200 bg-neutral-50/50">
       <div className="flex items-center justify-between mb-2">
         <h4 className="font-medium text-neutral-700">{label}</h4>
         {/* Vis kun badge for modenhetsnivåer over "antakelse" - antakelse er default og trenger ikke merkes */}
         {observasjon.modenhet !== 'antakelse' && (
-          <span className={cn('text-xs px-2 py-0.5 rounded-full', colors.bg, colors.text)}>
+          <span className="text-xs px-2 py-0.5 rounded-full bg-brand-cyan/10 text-brand-cyan-darker">
             {MODENHET_LABELS[observasjon.modenhet]}
           </span>
         )}
@@ -58,6 +70,7 @@ function ObservasjonCard({
 
 /**
  * Display component for styringsmønster
+ * Uses neutral styling to avoid judgmental connotations
  */
 function StyringsmønsterCard({
   mønster,
@@ -69,9 +82,9 @@ function StyringsmønsterCard({
   const label = STYRINGSMØNSTER_LABELS[mønster as keyof typeof STYRINGSMØNSTER_LABELS] || mønster;
 
   return (
-    <div className="p-3 bg-feedback-warning/5 border border-feedback-warning/20 rounded-lg">
+    <div className="p-3 bg-neutral-50 border border-neutral-200 rounded-lg">
       <div className="flex items-start gap-2">
-        <span className="text-feedback-warning text-lg leading-none">!</span>
+        <span className="text-brand-cyan-darker text-sm leading-none mt-0.5">●</span>
         <div>
           <p className="font-medium text-neutral-700 text-sm">{label}</p>
           <p className="text-sm text-neutral-600 mt-1">{signal}</p>
@@ -167,37 +180,36 @@ export default function KonseptSpeilResultDisplay({
     );
   }
 
-  const faseColors = getFaseColor(parsed.fase.status);
   const obsCount = countObservasjoner(parsed.observasjoner);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Fase og fokusområde - hovedrammen for analysen */}
-      <div className="p-5 rounded-lg border-2 border-brand-navy/20 bg-brand-navy/8">
-        <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-3">
-          Slik leser speilet konseptet ditt
-        </p>
-        <div className="flex items-center gap-3 mb-3">
-          <span className={cn('text-sm font-medium px-3 py-1 rounded-full', faseColors.bg, faseColors.text)}>
-            {FASE_LABELS[parsed.fase.status]}
-          </span>
-          {isStreaming && <SpinnerIcon className="animate-spin h-4 w-4 text-neutral-400" />}
-        </div>
-        {parsed.fase.begrunnelse && (
-          <p className="text-neutral-700 mb-3">{parsed.fase.begrunnelse}</p>
-        )}
-        {parsed.fase.fokusområde && (
-          <div className="pt-3 border-t border-brand-navy/10">
-            <p className="text-sm font-medium text-neutral-600 mb-1">Fokusområde:</p>
-            <p className="text-base text-brand-navy">{parsed.fase.fokusområde}</p>
+      <section>
+        <SectionStep step={1} label="Forståelse" />
+        <div className="p-5 rounded-lg bg-neutral-50/70 border border-neutral-200">
+          <div className="flex items-center gap-3 mb-3">
+            <span className="text-sm font-medium px-3 py-1 rounded-full bg-brand-cyan/15 text-brand-cyan-darker">
+              {FASE_LABELS[parsed.fase.status]}
+            </span>
+            {isStreaming && <SpinnerIcon className="animate-spin h-4 w-4 text-neutral-400" />}
           </div>
-        )}
-      </div>
+          {parsed.fase.begrunnelse && (
+            <p className="text-neutral-700 mb-3">{parsed.fase.begrunnelse}</p>
+          )}
+          {parsed.fase.fokusområde && (
+            <div className="pt-3 border-t border-neutral-200">
+              <p className="text-sm font-medium text-neutral-600 mb-1">Fokusområde:</p>
+              <p className="text-base text-neutral-800">{parsed.fase.fokusområde}</p>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* Observasjoner */}
       {obsCount > 0 && (
-        <div>
-          <h3 className="text-lg font-semibold text-neutral-800 mb-3">Observasjoner</h3>
+        <section>
+          <SectionStep step={2} label="Observasjoner" />
           <div className="grid gap-3 sm:grid-cols-2">
             <ObservasjonCard
               label={OBSERVASJON_LABELS.bruker}
@@ -216,13 +228,13 @@ export default function KonseptSpeilResultDisplay({
               observasjon={parsed.observasjoner.levedyktighet}
             />
           </div>
-        </div>
+        </section>
       )}
 
       {/* Styringsmønstre */}
       {parsed.styringsmønstre && parsed.styringsmønstre.observerte.length > 0 && (
-        <div>
-          <h3 className="text-lg font-semibold text-neutral-800 mb-3">Observerte mønstre</h3>
+        <section>
+          <SectionStep step={3} label="Mønstre" />
           <div className="space-y-2">
             {parsed.styringsmønstre.observerte.map((m, i) => (
               <StyringsmønsterCard key={i} mønster={m.mønster} signal={m.signal} />
@@ -233,45 +245,47 @@ export default function KonseptSpeilResultDisplay({
               {parsed.styringsmønstre.kommentar}
             </p>
           )}
-        </div>
+        </section>
       )}
 
       {/* Refleksjon */}
       {parsed.refleksjon.kjernespørsmål && (
-        <div className="p-5 bg-brand-navy/5 border border-brand-navy/10 rounded-lg">
-          <h3 className="text-lg font-semibold text-brand-navy mb-3">Refleksjon</h3>
-          <div className="space-y-4">
-            <div>
-              <p className="text-sm font-medium text-neutral-600 mb-1">Kjernespørsmål:</p>
-              <p className="text-brand-navy text-lg">{parsed.refleksjon.kjernespørsmål}</p>
+        <section>
+          <SectionStep step={parsed.styringsmønstre && parsed.styringsmønstre.observerte.length > 0 ? 4 : 3} label="Refleksjon" />
+          <div className="p-5 bg-neutral-50/70 border border-neutral-200 rounded-lg">
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm font-medium text-neutral-600 mb-1">Kjernespørsmål:</p>
+                <p className="text-neutral-800 text-lg">{parsed.refleksjon.kjernespørsmål}</p>
+              </div>
+
+              {parsed.refleksjon.hypoteser_å_teste && parsed.refleksjon.hypoteser_å_teste.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium text-neutral-600 mb-2">Hypoteser å teste:</p>
+                  <ul className="space-y-1.5">
+                    {parsed.refleksjon.hypoteser_å_teste.map((h, i) => (
+                      <li key={i} className="flex items-start gap-2 text-neutral-700">
+                        <span className="text-brand-cyan-darker mt-0.5">?</span>
+                        <span>{h}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {parsed.refleksjon.neste_læring && (
+                <div>
+                  <p className="text-sm font-medium text-neutral-600 mb-1">Neste læring:</p>
+                  <p className="text-neutral-700">{parsed.refleksjon.neste_læring}</p>
+                </div>
+              )}
             </div>
-
-            {parsed.refleksjon.hypoteser_å_teste && parsed.refleksjon.hypoteser_å_teste.length > 0 && (
-              <div>
-                <p className="text-sm font-medium text-neutral-600 mb-2">Hypoteser å teste:</p>
-                <ul className="space-y-1">
-                  {parsed.refleksjon.hypoteser_å_teste.map((h, i) => (
-                    <li key={i} className="flex items-start gap-2 text-neutral-700">
-                      <span className="text-brand-cyan mt-0.5">?</span>
-                      <span>{h}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {parsed.refleksjon.neste_læring && (
-              <div>
-                <p className="text-sm font-medium text-neutral-600 mb-1">Neste læring:</p>
-                <p className="text-neutral-700">{parsed.refleksjon.neste_læring}</p>
-              </div>
-            )}
           </div>
-        </div>
+        </section>
       )}
 
       {/* Meta-informasjon */}
-      <div className="pt-4 border-t border-neutral-200">
+      <div className="pt-6 mt-2 border-t border-neutral-200">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           {/* Dekningsgrad-indikator */}
           <div className="flex-1">
@@ -281,7 +295,7 @@ export default function KonseptSpeilResultDisplay({
                 <span className="text-xs text-neutral-400">Tynn</span>
                 <div className="relative flex-1 h-1 bg-neutral-200 rounded-full">
                   <div
-                    className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-brand-navy rounded-full border-2 border-white shadow-sm"
+                    className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-brand-cyan-darker rounded-full border-2 border-white shadow-sm"
                     style={{
                       left: parsed.meta.dekningsgrad === 'tynn' ? '0%' :
                             parsed.meta.dekningsgrad === 'delvis' ? '50%' : '100%',
