@@ -128,3 +128,58 @@
   @apply bg-brand-navy text-white px-6 py-3 rounded-lg font-medium;
 }
 
+/* Konseptspeilet result list styling for improved readability */
+.konseptspeil-result {
+  /* Subtle separator between sections */
+  @apply space-y-10;
+}
+
+.konseptspeil-result > section:not(:first-child) {
+  @apply pt-6 border-t border-neutral-100;
+}
+
+.konseptspeil-result-list {
+  /* Increased spacing between items */
+  @apply space-y-4;
+}
+
+.konseptspeil-result-list > li {
+  /* Smooth transition for visual hierarchy */
+  transition: opacity 0.15s ease;
+}
+
+/* Visual pause after 2nd item - subtle breathing room */
+.konseptspeil-result-list > li:nth-child(2) {
+  @apply mb-6;
+}
+
+/* Subtle de-emphasis of items after the first two */
+.konseptspeil-result-list > li:nth-child(n+3) {
+  @apply opacity-85;
+}
+
+/* Quieter bullet markers */
+.konseptspeil-bullet {
+  @apply w-1 h-1 opacity-60;
+  margin-top: 0.55rem;
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .konseptspeil-result {
+    @apply space-y-8;
+  }
+
+  .konseptspeil-result > section:not(:first-child) {
+    @apply pt-5;
+  }
+
+  .konseptspeil-result-list {
+    @apply space-y-3;
+  }
+
+  .konseptspeil-result-list > li:nth-child(2) {
+    @apply mb-4;
+  }
+}
+
