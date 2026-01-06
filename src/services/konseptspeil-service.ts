@@ -21,28 +21,22 @@ const ERROR_MESSAGES = {
 /**
  * Check if a response has minimal required content
  * This helps detect truncated or incomplete AI responses
+ *
+ * For the MVP format, we check for:
+ * - "Antagelser i teksten" section with at least one bullet point
+ * - "Åpne spørsmål" section with at least one bullet point
  */
 function isResponseComplete(output: string): boolean {
   if (!output || output.trim().length === 0) return false;
 
-  try {
-    // Try to extract and parse JSON
-    const jsonMatch = output.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return false;
+  const content = output.trim();
 
-    const parsed = JSON.parse(jsonMatch[0]);
+  // Check for the two required Markdown sections
+  const hasAntagelser = /##\s*Antagelser i teksten[\s\S]*?-\s+\S/.test(content);
+  const hasSporsmal = /##\s*Åpne spørsmål[\s\S]*?-\s+\S/.test(content);
 
-    // Check for required fields that indicate a complete response
-    const hasBegrunnelse = parsed.fase?.begrunnelse && parsed.fase.begrunnelse.trim().length > 0;
-    const hasKjernespørsmål = parsed.refleksjon?.kjernespørsmål && parsed.refleksjon.kjernespørsmål.trim().length > 0;
-    const hasFokusområde = parsed.fase?.fokusområde && parsed.fase.fokusområde.trim().length > 0;
-
-    // Response is complete if it has at least begrunnelse or kjernespørsmål
-    return hasBegrunnelse || hasKjernespørsmål || hasFokusområde;
-  } catch {
-    // If JSON parsing fails, consider it incomplete
-    return false;
-  }
+  // Response is complete if it has at least one bullet in each section
+  return hasAntagelser && hasSporsmal;
 }
 
 // Track pending requests to prevent duplicates

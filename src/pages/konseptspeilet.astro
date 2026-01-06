@@ -1,6 +1,6 @@
 ---
 import MinimalLayout from '../layouts/MinimalLayout.astro';
-import KonseptSpeilPageContent from '../components/KonseptSpeilPageContent';
+import KonseptSpeil from '../components/KonseptSpeil';
 
 export const prerender = false;
 ---
@@ -28,7 +28,7 @@ export const prerender = false;
       </header>
 
       <!-- Dynamic content (input, CTA, result) -->
-      <KonseptSpeilPageContent client:load />
+      <KonseptSpeil client:load />
 
     </div>
 
