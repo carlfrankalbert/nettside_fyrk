@@ -211,7 +211,7 @@ export default function KonseptSpeil() {
     <div className="space-y-8" aria-busy={loading}>
       {/* Input section */}
       <section>
-        <label htmlFor="konsept-input" className="block text-[18px] font-semibold text-neutral-800 mb-3 leading-[1.3]">
+        <label htmlFor="konsept-input" className="sr-only">
           Beskriv konseptet ditt
         </label>
 
@@ -229,7 +229,7 @@ export default function KonseptSpeil() {
               if (error) setError(null);
             }}
             onPaste={handlePaste}
-            placeholder="Hva handler ideen om? Hvem er det for? Hvordan tenker du å løse det?"
+            placeholder="Hva vurderer du å bygge – og hvorfor?"
             maxLength={MAX_INPUT_LENGTH}
             aria-describedby={error ? 'konsept-error konsept-help' : 'konsept-help'}
             aria-invalid={error ? 'true' : undefined}
@@ -260,17 +260,9 @@ export default function KonseptSpeil() {
           )}
         </div>
 
-        {/* Trust signals - Level 4 microcopy */}
-        <div id="konsept-help" className="mt-4 flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-neutral-100 rounded-full text-xs text-neutral-500">
-            <span aria-hidden="true">⏱</span>
-            <span>~30 sekunder</span>
-          </span>
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-neutral-100 rounded-full text-xs text-neutral-500">
-            <span aria-hidden="true">💡</span>
-            <span>Refleksjon, ikke dom</span>
-          </span>
-          <span className="ml-auto text-xs text-neutral-500">
+        {/* Character count */}
+        <div id="konsept-help" className="mt-3 flex items-center justify-end">
+          <span className="text-xs text-neutral-500">
             <span className={cn(
               input.length > charCountDanger && 'text-feedback-error',
               input.length > charCountWarning && input.length <= charCountDanger && 'text-feedback-warning'
@@ -280,11 +272,6 @@ export default function KonseptSpeil() {
             <span> / {MAX_INPUT_LENGTH}</span>
           </span>
         </div>
-
-        {/* Helper text - Level 4 microcopy */}
-        <p className="mt-3 text-xs text-neutral-500 leading-[1.4]">
-          Skriv fritt – uferdige tanker og stikkord fungerer fint.
-        </p>
       </section>
 
       {/* Action buttons - desktop only (mobile uses sticky bar) */}
@@ -307,11 +294,11 @@ export default function KonseptSpeil() {
             {loading ? (
               <>
                 <SpinnerIcon className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
-                <span>Speiler tankene dine…</span>
+                <span>Speiler konseptet…</span>
               </>
             ) : (
               <>
-                <span>Få en strukturert refleksjon</span>
+                <span>Speil konseptet</span>
                 <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
@@ -319,10 +306,10 @@ export default function KonseptSpeil() {
             )}
           </button>
 
-          {/* CTA support text - Level 4 microcopy */}
+          {/* CTA support text */}
           {!result && !loading && (
             <p className="text-xs text-neutral-500 leading-[1.4]">
-              Basert på det du har skrevet. Ingen evaluering – kun en strukturert refleksjon.
+              Du får tilbake antakelser og åpne spørsmål – ingen evaluering.
             </p>
           )}
 
@@ -399,36 +386,6 @@ export default function KonseptSpeil() {
           </div>
         )}
       </div>
-
-      {/* "Hva du får" section - moved below input */}
-      {!result && (
-        <section id="hva-du-far" className="pt-6 border-t border-neutral-200">
-          <h2 className="text-[18px] font-semibold text-neutral-800 mb-4 leading-[1.3]">Hva du får tilbake</h2>
-          <div className="grid gap-3">
-            <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-neutral-200">
-              <span className="text-brand-cyan-darker text-[15px]" aria-hidden="true">→</span>
-              <div>
-                <p className="text-[15px] font-medium text-neutral-800 leading-[1.5]">Antakelser du lener deg på</p>
-                <p className="text-[15px] text-neutral-700 leading-[1.5]">Hva tar du for gitt uten å ha validert det?</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-neutral-200">
-              <span className="text-brand-cyan-darker text-[15px]" aria-hidden="true">→</span>
-              <div>
-                <p className="text-[15px] font-medium text-neutral-800 leading-[1.5]">Uklarheter å utforske</p>
-                <p className="text-[15px] text-neutral-700 leading-[1.5]">Hva kan skape friksjon eller forvirring?</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-neutral-200">
-              <span className="text-brand-cyan-darker text-[15px]" aria-hidden="true">→</span>
-              <div>
-                <p className="text-[15px] font-medium text-neutral-800 leading-[1.5]">Naturlige neste steg</p>
-                <p className="text-[15px] text-neutral-700 leading-[1.5]">Hva kan være lurt å undersøke først?</p>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Trygghet og personvern */}
       <section id="trygghet" className="pt-6 border-t border-neutral-200">
