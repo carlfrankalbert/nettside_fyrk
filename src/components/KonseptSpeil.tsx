@@ -159,10 +159,11 @@ export default function KonseptSpeil() {
     setResult(null);
     setError(null);
     setInput('');
-    // Return focus to textarea
+    // Scroll to top and focus textarea for clear "start fresh" signal
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     setTimeout(() => {
       textareaRef.current?.focus();
-    }, 50);
+    }, 100);
   };
 
   const handleSubmit = async () => {

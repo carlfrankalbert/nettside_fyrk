@@ -69,21 +69,21 @@ export default function KonseptSpeilResultDisplay({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Antagelser i teksten */}
       {parsed.antagelser.length > 0 && (
         <section>
-          <h3 className="text-base font-semibold text-neutral-800 mb-3">
+          <h3 className="text-lg font-semibold text-neutral-900 mb-4 tracking-tight">
             Antagelser i teksten
           </h3>
-          <ul className="space-y-2">
+          <ul className="space-y-3">
             {parsed.antagelser.map((antagelse, i) => (
               <li
                 key={i}
-                className="flex items-start gap-3 text-[15px] text-neutral-700 leading-relaxed"
+                className="flex items-start gap-3 text-[15px] text-neutral-700 leading-[1.7]"
               >
                 <span
-                  className="mt-2 w-1.5 h-1.5 rounded-full bg-brand-cyan-darker shrink-0"
+                  className="mt-[0.45rem] w-1.5 h-1.5 rounded-full bg-brand-cyan-darker shrink-0"
                   aria-hidden="true"
                 />
                 <span>{antagelse}</span>
@@ -91,7 +91,7 @@ export default function KonseptSpeilResultDisplay({
             ))}
           </ul>
           {isStreaming && parsed.sporsmal.length === 0 && (
-            <SpinnerIcon className="animate-spin h-4 w-4 text-neutral-400 mt-3" />
+            <SpinnerIcon className="animate-spin h-4 w-4 text-neutral-400 mt-4" />
           )}
         </section>
       )}
@@ -99,17 +99,17 @@ export default function KonseptSpeilResultDisplay({
       {/* Åpne spørsmål teksten reiser */}
       {parsed.sporsmal.length > 0 && (
         <section>
-          <h3 className="text-base font-semibold text-neutral-800 mb-3">
+          <h3 className="text-lg font-semibold text-neutral-900 mb-4 tracking-tight">
             Åpne spørsmål teksten reiser
           </h3>
-          <ul className="space-y-2">
+          <ul className="space-y-3">
             {parsed.sporsmal.map((sporsmal, i) => (
               <li
                 key={i}
-                className="flex items-start gap-3 text-[15px] text-neutral-700 leading-relaxed"
+                className="flex items-start gap-3 text-[15px] text-neutral-700 leading-[1.7]"
               >
                 <span
-                  className="mt-2 w-1.5 h-1.5 rounded-full bg-neutral-400 shrink-0"
+                  className="mt-[0.45rem] w-1.5 h-1.5 rounded-full bg-neutral-400 shrink-0"
                   aria-hidden="true"
                 />
                 <span>{sporsmal}</span>
@@ -117,7 +117,7 @@ export default function KonseptSpeilResultDisplay({
             ))}
           </ul>
           {isStreaming && (
-            <SpinnerIcon className="animate-spin h-4 w-4 text-neutral-400 mt-3" />
+            <SpinnerIcon className="animate-spin h-4 w-4 text-neutral-400 mt-4" />
           )}
         </section>
       )}
