@@ -69,21 +69,21 @@ export default function KonseptSpeilResultDisplay({
   }
 
   return (
-    <div className="space-y-8">
+    <div className="konseptspeil-result">
       {/* Antagelser i teksten */}
       {parsed.antagelser.length > 0 && (
         <section>
           <h3 className="text-lg font-semibold text-neutral-900 mb-4 tracking-tight">
             Antagelser i teksten
           </h3>
-          <ul className="space-y-3">
+          <ul className="konseptspeil-result-list">
             {parsed.antagelser.map((antagelse, i) => (
               <li
                 key={i}
-                className="flex items-start gap-3 text-[15px] text-neutral-700 leading-[1.7]"
+                className="flex items-start gap-3 text-[15px] text-neutral-700 leading-[1.85]"
               >
                 <span
-                  className="mt-[0.45rem] w-1.5 h-1.5 rounded-full bg-brand-cyan-darker shrink-0"
+                  className="konseptspeil-bullet rounded-full bg-brand-cyan-darker shrink-0"
                   aria-hidden="true"
                 />
                 <span>{antagelse}</span>
@@ -102,14 +102,14 @@ export default function KonseptSpeilResultDisplay({
           <h3 className="text-lg font-semibold text-neutral-900 mb-4 tracking-tight">
             Åpne spørsmål teksten reiser
           </h3>
-          <ul className="space-y-3">
+          <ul className="konseptspeil-result-list">
             {parsed.sporsmal.map((sporsmal, i) => (
               <li
                 key={i}
-                className="flex items-start gap-3 text-[15px] text-neutral-700 leading-[1.7]"
+                className="flex items-start gap-3 text-[15px] text-neutral-700 leading-[1.85]"
               >
                 <span
-                  className="mt-[0.45rem] w-1.5 h-1.5 rounded-full bg-neutral-400 shrink-0"
+                  className="konseptspeil-bullet rounded-full bg-neutral-400 shrink-0"
                   aria-hidden="true"
                 />
                 <span>{sporsmal}</span>

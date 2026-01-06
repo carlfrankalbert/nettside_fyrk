@@ -59,11 +59,13 @@ Returner KUN disse to seksjonene i ren Markdown. Ingen annen tekst før eller et
 
 ## Antagelser i teksten
 
-- [2–6 kulepunkter, formulert som observasjoner med reflekterende språk]
+- [2–6 korte, deklarative kulepunkter med reflekterende språk]
 
 ## Åpne spørsmål teksten reiser
 
 - [4–8 spørsmål, hvert avsluttet med ?]
+- FØRSTE spørsmål: konkret og forankret i en spesifikk detalj fra teksten
+- SISTE spørsmål: et stillhetsspørsmål som inviterer til pause og ettertanke
 
 Hold svaret kort – maks ~180 ord totalt slik at det kan leses på under 30 sekunder.`;
 
