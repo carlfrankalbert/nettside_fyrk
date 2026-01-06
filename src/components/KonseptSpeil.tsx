@@ -6,15 +6,20 @@ import { cn } from '../utils/classes';
 import { INPUT_VALIDATION } from '../utils/constants';
 import { trackClick } from '../utils/tracking';
 
+// ============================================================================
+// Constants
+// ============================================================================
+
 const EXAMPLE_KONSEPT = `Jeg vurderer å bygge et lite verktøy for team som sliter med prioritering. Vi har mange initiativer samtidig, og det er uklart hva som faktisk er viktig. Jeg tror det finnes et reelt problem, men vi har ikke testet det ordentlig. Målet er å få mer klarhet før vi bestemmer oss.`;
 
-// Input validation constants
-const MIN_INPUT_LENGTH = INPUT_VALIDATION.MIN_LENGTH;
-const MAX_INPUT_LENGTH = INPUT_VALIDATION.MAX_LENGTH;
+/** Minimum characters required for button to be enabled (higher than MIN_LENGTH for UX) */
+const SUBMIT_THRESHOLD = 50;
 
-/**
- * Check if text appears to be URL-encoded
- */
+// ============================================================================
+// Input Helpers
+// ============================================================================
+
+/** Check if text appears to be URL-encoded */
 function isUrlEncoded(text: string): boolean {
   const urlEncodedPattern = /%[0-9A-Fa-f]{2}/;
   if (!urlEncodedPattern.test(text)) return false;
@@ -22,9 +27,7 @@ function isUrlEncoded(text: string): boolean {
   return commonEncodings.some((enc) => text.includes(enc));
 }
 
-/**
- * Safely decode URL-encoded text
- */
+/** Safely decode URL-encoded text */
 function safeDecodeURIComponent(text: string): string {
   try {
     return decodeURIComponent(text);
@@ -33,24 +36,29 @@ function safeDecodeURIComponent(text: string): string {
   }
 }
 
-/**
- * Validates konsept input
- */
+/** Validates konsept input and returns an error message if invalid */
 function validateKonseptInput(input: string): string | null {
   const trimmedInput = input.trim();
 
-  if (trimmedInput.length < MIN_INPUT_LENGTH) {
-    return `Beskriv konseptet med minst ${MIN_INPUT_LENGTH} tegn for å få en god refleksjon.`;
+  if (trimmedInput.length < INPUT_VALIDATION.MIN_LENGTH) {
+    return `Beskriv konseptet med minst ${INPUT_VALIDATION.MIN_LENGTH} tegn for å få en god refleksjon.`;
   }
 
-  if (trimmedInput.length > MAX_INPUT_LENGTH) {
-    return `Konseptbeskrivelsen kan ikke være lengre enn ${MAX_INPUT_LENGTH} tegn.`;
+  if (trimmedInput.length > INPUT_VALIDATION.MAX_LENGTH) {
+    return `Konseptbeskrivelsen kan ikke være lengre enn ${INPUT_VALIDATION.MAX_LENGTH} tegn.`;
   }
 
   return null;
 }
 
+// ============================================================================
+// Component
+// ============================================================================
+
 export default function KonseptSpeil() {
+  // ---------------------------------------------------------------------------
+  // State
+  // ---------------------------------------------------------------------------
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,37 +66,26 @@ export default function KonseptSpeil() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isExampleAnimating, setIsExampleAnimating] = useState(false);
+
+  // ---------------------------------------------------------------------------
+  // Refs
+  // ---------------------------------------------------------------------------
   const abortControllerRef = useRef<AbortController | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Character count thresholds
-  const charCountWarning = MAX_INPUT_LENGTH * 0.9;
-  const charCountDanger = MAX_INPUT_LENGTH * 0.975;
+  // ---------------------------------------------------------------------------
+  // Derived Values
+  // ---------------------------------------------------------------------------
+  const charCountWarning = INPUT_VALIDATION.MAX_LENGTH * 0.9;
+  const charCountDanger = INPUT_VALIDATION.MAX_LENGTH * 0.975;
+  const isButtonEnabled = input.trim().length >= SUBMIT_THRESHOLD && !loading;
 
-  // Dispatch events for mobile CTA sync
-  useEffect(() => {
-    window.dispatchEvent(new CustomEvent('konseptspeil:inputChange', {
-      detail: {
-        length: input.trim().length,
-        isLoading: loading,
-        hasResult: !!result,
-      }
-    }));
-  }, [input, loading, result]);
+  // ---------------------------------------------------------------------------
+  // Callbacks (defined before effects that use them)
+  // ---------------------------------------------------------------------------
 
-  // Listen for mobile submit trigger
-  useEffect(() => {
-    const handleMobileSubmit = () => {
-      handleSubmit();
-    };
-    window.addEventListener('konseptspeil:submit', handleMobileSubmit);
-    return () => window.removeEventListener('konseptspeil:submit', handleMobileSubmit);
-  }, [input, loading]);
-
-  /**
-   * Auto-resize textarea to fit content
-   */
+  /** Auto-resize textarea to fit content */
   const autoResizeTextarea = useCallback(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
@@ -96,77 +93,8 @@ export default function KonseptSpeil() {
     textarea.style.height = `${textarea.scrollHeight}px`;
   }, []);
 
-  useEffect(() => {
-    autoResizeTextarea();
-  }, [input, autoResizeTextarea]);
-
-  /**
-   * Handle paste events to decode URL-encoded text
-   */
-  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    const pastedText = e.clipboardData.getData('text/plain');
-
-    if (isUrlEncoded(pastedText)) {
-      e.preventDefault();
-      const decodedText = safeDecodeURIComponent(pastedText);
-
-      const textarea = e.currentTarget;
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-
-      const newValue = input.substring(0, start) + decodedText + input.substring(end);
-      setInput(newValue);
-      if (error) setError(null);
-
-      setTimeout(() => {
-        if (textareaRef.current) {
-          const newPosition = start + decodedText.length;
-          textareaRef.current.setSelectionRange(newPosition, newPosition);
-        }
-      }, 0);
-    }
-  };
-
-  // Cleanup abort controller on unmount
-  useEffect(() => {
-    return () => {
-      abortControllerRef.current?.abort();
-    };
-  }, []);
-
-  const handleFillExample = () => {
-    trackClick('konseptspeil_example');
-    setIsExampleAnimating(true);
-    setInput(EXAMPLE_KONSEPT);
-    setError(null);
-
-    setTimeout(() => {
-      const textarea = textareaRef.current;
-      if (textarea) {
-        textarea.focus();
-        // Position cursor at the end
-        textarea.setSelectionRange(EXAMPLE_KONSEPT.length, EXAMPLE_KONSEPT.length);
-      }
-    }, 50);
-
-    setTimeout(() => {
-      setIsExampleAnimating(false);
-    }, 600);
-  };
-
-  const handleClearResult = () => {
-    trackClick('konseptspeil_reset');
-    setResult(null);
-    setError(null);
-    setInput('');
-    // Scroll to top and focus textarea for clear "start fresh" signal
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(() => {
-      textareaRef.current?.focus();
-    }, 100);
-  };
-
-  const handleSubmit = async () => {
+  /** Submit the konsept for AI reflection */
+  const handleSubmit = useCallback(async () => {
     if (loading) return;
 
     const validationError = validateKonseptInput(input);
@@ -207,13 +135,106 @@ export default function KonseptSpeil() {
       },
       abortControllerRef.current.signal
     );
+  }, [input, loading]);
+
+  // ---------------------------------------------------------------------------
+  // Effects
+  // ---------------------------------------------------------------------------
+
+  // Dispatch events for mobile CTA sync
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('konseptspeil:inputChange', {
+      detail: {
+        length: input.trim().length,
+        isLoading: loading,
+        hasResult: !!result,
+      }
+    }));
+  }, [input, loading, result]);
+
+  // Listen for mobile submit trigger
+  useEffect(() => {
+    const handleMobileSubmit = () => {
+      handleSubmit();
+    };
+    window.addEventListener('konseptspeil:submit', handleMobileSubmit);
+    return () => window.removeEventListener('konseptspeil:submit', handleMobileSubmit);
+  }, [handleSubmit]);
+
+  // Auto-resize textarea when input changes
+  useEffect(() => {
+    autoResizeTextarea();
+  }, [input, autoResizeTextarea]);
+
+  // Cleanup abort controller on unmount
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
+
+  // ---------------------------------------------------------------------------
+  // Event Handlers
+  // ---------------------------------------------------------------------------
+
+  /** Handle paste events to decode URL-encoded text */
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const pastedText = e.clipboardData.getData('text/plain');
+
+    if (isUrlEncoded(pastedText)) {
+      e.preventDefault();
+      const decodedText = safeDecodeURIComponent(pastedText);
+
+      const textarea = e.currentTarget;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+
+      const newValue = input.substring(0, start) + decodedText + input.substring(end);
+      setInput(newValue);
+      if (error) setError(null);
+
+      setTimeout(() => {
+        if (textareaRef.current) {
+          const newPosition = start + decodedText.length;
+          textareaRef.current.setSelectionRange(newPosition, newPosition);
+        }
+      }, 0);
+    }
   };
 
-  const isButtonEnabled = input.trim().length >= 50 && !loading;
+  /** Fill in example text */
+  const handleFillExample = () => {
+    trackClick('konseptspeil_example');
+    setIsExampleAnimating(true);
+    setInput(EXAMPLE_KONSEPT);
+    setError(null);
 
-  /**
-   * Handle keyboard shortcuts (Cmd/Ctrl+Enter to submit)
-   */
+    setTimeout(() => {
+      const textarea = textareaRef.current;
+      if (textarea) {
+        textarea.focus();
+        textarea.setSelectionRange(EXAMPLE_KONSEPT.length, EXAMPLE_KONSEPT.length);
+      }
+    }, 50);
+
+    setTimeout(() => {
+      setIsExampleAnimating(false);
+    }, 600);
+  };
+
+  /** Reset form and clear result */
+  const handleClearResult = () => {
+    trackClick('konseptspeil_reset');
+    setResult(null);
+    setError(null);
+    setInput('');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      textareaRef.current?.focus();
+    }, 100);
+  };
+
+  /** Handle keyboard shortcuts (Cmd/Ctrl+Enter to submit) */
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
       e.preventDefault();
@@ -222,6 +243,20 @@ export default function KonseptSpeil() {
       }
     }
   };
+
+  /** Handle input change with URL decoding */
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    let newValue = e.target.value;
+    if (isUrlEncoded(newValue)) {
+      newValue = safeDecodeURIComponent(newValue);
+    }
+    setInput(newValue);
+    if (error) setError(null);
+  };
+
+  // ---------------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------------
 
   return (
     <div className="space-y-6" aria-busy={loading}>
@@ -236,18 +271,11 @@ export default function KonseptSpeil() {
             ref={textareaRef}
             id="konsept-input"
             value={input}
-            onChange={(e) => {
-              let newValue = e.target.value;
-              if (isUrlEncoded(newValue)) {
-                newValue = safeDecodeURIComponent(newValue);
-              }
-              setInput(newValue);
-              if (error) setError(null);
-            }}
+            onChange={handleInputChange}
             onPaste={handlePaste}
             onKeyDown={handleKeyDown}
             placeholder="Hva vurderer du å bygge – og hvorfor?"
-            maxLength={MAX_INPUT_LENGTH}
+            maxLength={INPUT_VALIDATION.MAX_LENGTH}
             aria-describedby={error ? 'konsept-error konsept-help' : 'konsept-help'}
             aria-invalid={error ? 'true' : undefined}
             className={cn(
@@ -286,7 +314,7 @@ export default function KonseptSpeil() {
             )}>
               {input.length}
             </span>
-            <span> / {MAX_INPUT_LENGTH}</span>
+            <span> / {INPUT_VALIDATION.MAX_LENGTH}</span>
           </span>
         </div>
       </section>
