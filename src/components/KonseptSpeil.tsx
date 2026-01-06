@@ -6,13 +6,7 @@ import { cn } from '../utils/classes';
 import { INPUT_VALIDATION } from '../utils/constants';
 import { trackClick } from '../utils/tracking';
 
-const EXAMPLE_KONSEPT = `Vi vil lage en app som hjelper produktledere med å holde oversikt over discovery-arbeidet sitt.
-
-Idéen er at man kan logge samtaler med brukere, tagge dem med temaer, og se mønstre over tid.
-
-Vi tror dette er nyttig fordi mange produktledere sliter med å huske hva de har lært fra tidligere samtaler når de skal prioritere.
-
-Målgruppen er produktledere i mellomstore tech-selskaper.`;
+const EXAMPLE_KONSEPT = `Jeg vurderer å bygge et lite verktøy for team som sliter med prioritering. Vi har mange initiativer samtidig, og det er uklart hva som faktisk er viktig. Jeg tror det finnes et reelt problem, men vi har ikke testet det ordentlig. Målet er å få mer klarhet før vi bestemmer oss.`;
 
 // Input validation constants
 const MIN_INPUT_LENGTH = INPUT_VALIDATION.MIN_LENGTH;
@@ -147,7 +141,12 @@ export default function KonseptSpeil() {
     setError(null);
 
     setTimeout(() => {
-      textareaRef.current?.focus();
+      const textarea = textareaRef.current;
+      if (textarea) {
+        textarea.focus();
+        // Position cursor at the end
+        textarea.setSelectionRange(EXAMPLE_KONSEPT.length, EXAMPLE_KONSEPT.length);
+      }
     }, 50);
 
     setTimeout(() => {
@@ -160,6 +159,10 @@ export default function KonseptSpeil() {
     setResult(null);
     setError(null);
     setInput('');
+    // Return focus to textarea
+    setTimeout(() => {
+      textareaRef.current?.focus();
+    }, 50);
   };
 
   const handleSubmit = async () => {
@@ -207,8 +210,20 @@ export default function KonseptSpeil() {
 
   const isButtonEnabled = input.trim().length >= 50 && !loading;
 
+  /**
+   * Handle keyboard shortcuts (Cmd/Ctrl+Enter to submit)
+   */
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      e.preventDefault();
+      if (isButtonEnabled) {
+        handleSubmit();
+      }
+    }
+  };
+
   return (
-    <div className="space-y-8" aria-busy={loading}>
+    <div className="space-y-6" aria-busy={loading}>
       {/* Input section */}
       <section>
         <label htmlFor="konsept-input" className="sr-only">
@@ -229,6 +244,7 @@ export default function KonseptSpeil() {
               if (error) setError(null);
             }}
             onPaste={handlePaste}
+            onKeyDown={handleKeyDown}
             placeholder="Hva vurderer du å bygge – og hvorfor?"
             maxLength={MAX_INPUT_LENGTH}
             aria-describedby={error ? 'konsept-error konsept-help' : 'konsept-help'}
@@ -309,7 +325,7 @@ export default function KonseptSpeil() {
           {/* CTA support text */}
           {!result && !loading && (
             <p className="text-xs text-neutral-500 leading-[1.4]">
-              Du får tilbake antakelser og åpne spørsmål – ingen evaluering.
+              Du får tilbake antakelser og åpne spørsmål.
             </p>
           )}
 
@@ -357,7 +373,7 @@ export default function KonseptSpeil() {
                 <SpinnerIcon className="animate-spin h-5 w-5 text-brand-cyan-darker" />
               </div>
               <div>
-                <p className="text-[15px] font-medium text-neutral-800 leading-[1.5]">Speiler tankene dine…</p>
+                <p className="text-[15px] font-medium text-neutral-800 leading-[1.5]">Speiler konseptet…</p>
                 <p className="text-xs text-neutral-500 leading-[1.4]">Dette tar vanligvis 15-30 sekunder</p>
               </div>
             </div>
@@ -387,8 +403,8 @@ export default function KonseptSpeil() {
         )}
       </div>
 
-      {/* Trygghet og personvern */}
-      <section id="trygghet" className="pt-6 border-t border-neutral-200">
+      {/* Trygghet og personvern - secondary section */}
+      <section id="trygghet" className="pt-4">
         <button
           type="button"
           onClick={() => {
@@ -399,34 +415,34 @@ export default function KonseptSpeil() {
           }}
           aria-expanded={isPrivacyOpen}
           aria-controls="privacy-content"
-          className="w-full flex items-center justify-between py-3 text-left focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded-lg"
+          className="w-full flex items-center justify-between py-2 text-left focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded-lg"
         >
-          <span className="text-[18px] font-semibold text-neutral-800 leading-[1.3]">Trygghet og personvern</span>
-          <ChevronRightIcon className={cn('w-5 h-5 text-neutral-600 transition-transform', isPrivacyOpen && 'rotate-90')} />
+          <span className="text-sm font-medium text-neutral-500 leading-[1.3]">Trygghet og personvern</span>
+          <ChevronRightIcon className={cn('w-4 h-4 text-neutral-400 transition-transform', isPrivacyOpen && 'rotate-90')} />
         </button>
 
         {isPrivacyOpen && (
           <div
             id="privacy-content"
-            className="mt-4 p-5 bg-white rounded-xl border border-neutral-200 space-y-4"
+            className="mt-3 p-4 bg-neutral-50 rounded-lg border border-neutral-200 space-y-3 text-sm"
           >
             <div>
-              <h3 className="text-[15px] font-medium text-neutral-800 mb-1 leading-[1.5]">Hvordan fungerer det?</h3>
-              <p className="text-[15px] text-neutral-700 leading-[1.5]">
-                Refleksjonen bygger på prinsipper for produktutvikling og tidlig fase-tenkning.
-                En AI-modell (Claude fra Anthropic) speiler konseptbeskrivelsen din strukturert.
+              <h3 className="font-medium text-neutral-700 mb-1">Hvordan fungerer det?</h3>
+              <p className="text-neutral-600 leading-relaxed">
+                Verktøyet speiler teksten din – det evaluerer den ikke.
+                En AI-modell (Claude) identifiserer antakelser og reiser åpne spørsmål.
               </p>
             </div>
             <div>
-              <h3 className="text-[15px] font-medium text-neutral-800 mb-1 leading-[1.5]">Hva skjer med teksten?</h3>
-              <p className="text-[15px] text-neutral-700 leading-[1.5]">
-                Konseptbeskrivelsen sendes til Anthropics API for å generere refleksjonen.
+              <h3 className="font-medium text-neutral-700 mb-1">Hva skjer med teksten?</h3>
+              <p className="text-neutral-600 leading-relaxed">
+                Teksten sendes til Anthropics API for å generere refleksjonen.
                 Vi lagrer ikke innholdet, og det brukes ikke til å trene AI-modeller.
               </p>
             </div>
             <div>
-              <h3 className="text-[15px] font-medium text-neutral-800 mb-1 leading-[1.5]">Er det trygt?</h3>
-              <p className="text-[15px] text-neutral-700 leading-[1.5]">
+              <h3 className="font-medium text-neutral-700 mb-1">Er det trygt?</h3>
+              <p className="text-neutral-600 leading-relaxed">
                 Ja. Du trenger ikke logge inn, og vi samler ikke personopplysninger.
                 For sensitive konsepter anbefaler vi å anonymisere innholdet først.
               </p>
