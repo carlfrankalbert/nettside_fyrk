@@ -12,11 +12,15 @@ const MAX_RETRIES = 1; // Number of automatic retries for incomplete responses
  * Error messages for the konseptspeil service
  */
 const ERROR_MESSAGES = {
-  DEFAULT: 'Noe gikk galt under speilingen. Prøv igjen om litt.',
+  DEFAULT: 'Noe gikk galt. Prøv igjen.',
   RATE_LIMIT: 'For mange forespørsler. Vent litt før du prøver igjen.',
   NETWORK: 'Kunne ikke koble til serveren. Sjekk nettverksforbindelsen.',
   ABORTED: 'Forespørselen ble avbrutt.',
+  TIMEOUT: 'Det tok litt for lang tid. Prøv igjen.',
+  INVALID_OUTPUT: 'Jeg fikk ikke et tydelig speil denne gangen. Prøv igjen.',
 } as const;
+
+export { ERROR_MESSAGES };
 
 /**
  * Check if a response has minimal required content
@@ -37,6 +41,28 @@ function isResponseComplete(output: string): boolean {
 
   // Response is complete if it has at least one bullet in each section
   return hasAntagelser && hasSporsmal;
+}
+
+/**
+ * Validate that the output conforms to the expected format with ONLY the required sections.
+ * Returns true if valid, false if missing required sections or has extra content.
+ */
+export function isValidOutput(output: string): boolean {
+  if (!output || output.trim().length === 0) return false;
+
+  const content = output.trim();
+
+  // Must have both required sections
+  const hasAntagelser = /##\s*Antagelser i teksten/i.test(content);
+  const hasSporsmal = /##\s*Åpne spørsmål/i.test(content);
+
+  if (!hasAntagelser || !hasSporsmal) return false;
+
+  // Count the number of ## headings - should be exactly 2
+  const headingMatches = content.match(/^##\s+/gm);
+  if (!headingMatches || headingMatches.length !== 2) return false;
+
+  return true;
 }
 
 // Track pending requests to prevent duplicates
