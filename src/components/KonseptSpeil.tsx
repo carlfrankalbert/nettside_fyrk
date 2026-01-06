@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { speileKonseptStreaming } from '../services/konseptspeil-service';
+import { speileKonseptStreaming, ERROR_MESSAGES, isValidOutput } from '../services/konseptspeil-service';
 import KonseptSpeilResultDisplay from './KonseptSpeilResultDisplay';
-import { ErrorIcon, SpinnerIcon, ChevronRightIcon } from './ui/Icon';
+import { SpinnerIcon, ChevronRightIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
 import { INPUT_VALIDATION } from '../utils/constants';
 import { trackClick } from '../utils/tracking';
@@ -14,6 +14,13 @@ const EXAMPLE_KONSEPT = `Jeg vurderer å bygge et lite verktøy for team som sli
 
 /** Minimum characters required for button to be enabled (higher than MIN_LENGTH for UX) */
 const SUBMIT_THRESHOLD = 50;
+
+/** Timeout thresholds in milliseconds */
+const SLOW_TIMEOUT_MS = 8000;
+const HARD_TIMEOUT_MS = 20000;
+
+/** Error types for logging */
+type ErrorType = 'timeout' | 'network' | 'invalid_output' | 'validation' | null;
 
 // ============================================================================
 // Input Helpers
@@ -62,8 +69,10 @@ export default function KonseptSpeil() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorType, setErrorType] = useState<ErrorType>(null);
   const [result, setResult] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isSlow, setIsSlow] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isExampleAnimating, setIsExampleAnimating] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -74,6 +83,8 @@ export default function KonseptSpeil() {
   const abortControllerRef = useRef<AbortController | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const slowTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hardTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ---------------------------------------------------------------------------
   // Derived Values
@@ -97,32 +108,90 @@ export default function KonseptSpeil() {
     textarea.style.height = `${textarea.scrollHeight}px`;
   }, []);
 
+  /** Clear all pending timeouts */
+  const clearTimeouts = useCallback(() => {
+    if (slowTimeoutRef.current) {
+      clearTimeout(slowTimeoutRef.current);
+      slowTimeoutRef.current = null;
+    }
+    if (hardTimeoutRef.current) {
+      clearTimeout(hardTimeoutRef.current);
+      hardTimeoutRef.current = null;
+    }
+    setIsSlow(false);
+  }, []);
+
+  /** Set an error with type tracking for logging */
+  const setErrorWithType = useCallback((message: string, type: ErrorType) => {
+    setError(message);
+    setErrorType(type);
+    if (type) {
+      console.warn(`[Konseptspeil] Error: ${type}`);
+    }
+  }, []);
+
   /** Submit the konsept for AI reflection */
   const handleSubmit = useCallback(async () => {
     if (loading) return;
 
     const validationError = validateKonseptInput(input);
     if (validationError) {
-      setError(validationError);
+      setErrorWithType(validationError, 'validation');
       return;
     }
 
     trackClick('konseptspeil_submit');
 
+    // Clear previous state
     setLoading(true);
     setIsStreaming(true);
     setError(null);
+    setErrorType(null);
     setResult('');
+    setIsSlow(false);
+    clearTimeouts();
 
+    // Abort any previous request
     abortControllerRef.current?.abort();
     abortControllerRef.current = new AbortController();
+
+    // Set up slow timeout (8 seconds)
+    slowTimeoutRef.current = setTimeout(() => {
+      setIsSlow(true);
+    }, SLOW_TIMEOUT_MS);
+
+    // Set up hard timeout (20 seconds)
+    hardTimeoutRef.current = setTimeout(() => {
+      clearTimeouts();
+      abortControllerRef.current?.abort();
+      setErrorWithType(ERROR_MESSAGES.TIMEOUT, 'timeout');
+      setLoading(false);
+      setIsStreaming(false);
+      setResult(null);
+      abortControllerRef.current = null;
+    }, HARD_TIMEOUT_MS);
+
+    let finalResult = '';
 
     await speileKonseptStreaming(
       input.trim(),
       (chunk) => {
+        finalResult += chunk;
         setResult((prev) => (prev || '') + chunk);
       },
       () => {
+        clearTimeouts();
+
+        // Validate output format
+        if (!isValidOutput(finalResult)) {
+          setErrorWithType(ERROR_MESSAGES.INVALID_OUTPUT, 'invalid_output');
+          setLoading(false);
+          setIsStreaming(false);
+          setResult(null);
+          abortControllerRef.current = null;
+          return;
+        }
+
         setLoading(false);
         setIsStreaming(false);
         abortControllerRef.current = null;
@@ -131,7 +200,10 @@ export default function KonseptSpeil() {
         }, 100);
       },
       (errorMsg) => {
-        setError(errorMsg);
+        clearTimeouts();
+        // Determine error type based on message
+        const type: ErrorType = errorMsg.includes('koble til') ? 'network' : 'network';
+        setErrorWithType(errorMsg, type);
         setLoading(false);
         setIsStreaming(false);
         setResult(null);
@@ -139,7 +211,7 @@ export default function KonseptSpeil() {
       },
       abortControllerRef.current.signal
     );
-  }, [input, loading]);
+  }, [input, loading, clearTimeouts, setErrorWithType]);
 
   // ---------------------------------------------------------------------------
   // Effects
@@ -170,12 +242,13 @@ export default function KonseptSpeil() {
     autoResizeTextarea();
   }, [input, autoResizeTextarea]);
 
-  // Cleanup abort controller on unmount
+  // Cleanup abort controller and timeouts on unmount
   useEffect(() => {
     return () => {
       abortControllerRef.current?.abort();
+      clearTimeouts();
     };
-  }, []);
+  }, [clearTimeouts]);
 
   // ---------------------------------------------------------------------------
   // Event Handlers
@@ -393,20 +466,25 @@ export default function KonseptSpeil() {
           )}
         </div>
 
-        {error && (
-          <div id="konsept-error" role="alert" className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-            <ErrorIcon className="w-5 h-5 text-feedback-error flex-shrink-0 mt-0.5" />
-            <p className="text-base text-red-800">{error}</p>
+        {/* Validation errors (input length) shown inline near button */}
+        {error && errorType === 'validation' && (
+          <div id="konsept-error" role="alert" className="p-4 bg-neutral-50 border border-neutral-200 rounded-lg flex items-start gap-3">
+            <svg className="w-5 h-5 text-neutral-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-sm text-neutral-700">{error}</p>
           </div>
         )}
       </div>
 
-      {/* Mobile: Show error inline */}
+      {/* Mobile: Show validation error inline */}
       <div className="md:hidden">
-        {error && (
-          <div id="konsept-error" role="alert" className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-            <ErrorIcon className="w-5 h-5 text-feedback-error flex-shrink-0 mt-0.5" />
-            <p className="text-base text-red-800">{error}</p>
+        {error && errorType === 'validation' && (
+          <div id="konsept-error" role="alert" className="p-4 bg-neutral-50 border border-neutral-200 rounded-lg flex items-start gap-3">
+            <svg className="w-5 h-5 text-neutral-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-sm text-neutral-700">{error}</p>
           </div>
         )}
       </div>
@@ -419,6 +497,30 @@ export default function KonseptSpeil() {
         role="region"
         aria-label="Refleksjonsresultat"
       >
+        {/* Error display in results area */}
+        {error && !loading && !result && errorType !== 'validation' && (
+          <div className="p-6 bg-neutral-50 border border-neutral-200 rounded-xl">
+            <div className="flex flex-col items-center text-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-neutral-100 flex items-center justify-center">
+                <svg className="w-6 h-6 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-[15px] text-neutral-700 leading-[1.5] mb-4">{error}</p>
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-brand-navy bg-white border border-neutral-300 hover:bg-neutral-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
+                >
+                  Prøv igjen
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Loading state */}
         {loading && !result && (
           <div className="p-6 bg-white border-2 border-brand-cyan/30 rounded-xl">
             <div className="flex items-center gap-4">
@@ -427,7 +529,11 @@ export default function KonseptSpeil() {
               </div>
               <div>
                 <p className="text-[15px] font-medium text-neutral-800 leading-[1.5]">Speiler konseptet…</p>
-                <p className="text-xs text-neutral-500 leading-[1.4]">Dette tar vanligvis 15-30 sekunder</p>
+                {isSlow ? (
+                  <p className="text-xs text-neutral-500 leading-[1.4]">Dette tar litt lenger tid enn vanlig …</p>
+                ) : (
+                  <p className="text-xs text-neutral-500 leading-[1.4]">Dette tar vanligvis 15-30 sekunder</p>
+                )}
               </div>
             </div>
           </div>
