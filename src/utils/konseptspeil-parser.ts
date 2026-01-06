@@ -4,14 +4,6 @@
 
 export type FaseStatus = 'utforskning' | 'forming' | 'forpliktelse';
 export type Modenhet = 'antakelse' | 'hypotese' | 'tidlig-signal' | 'validert';
-export type Dekningsgrad = 'tynn' | 'delvis' | 'fyldig';
-export type StyringsmønsterType =
-  | 'aktivitet-som-fremskritt'
-  | 'løsning-før-problem'
-  | 'falsk-presisjon'
-  | 'styringsmål-som-læringsmål'
-  | 'suksesskriterier-uten-baseline'
-  | 'uartikulert-smerte';
 
 export interface Observasjon {
   tilstede: string | null;
@@ -19,16 +11,11 @@ export interface Observasjon {
   modenhet: Modenhet;
 }
 
-export interface Styringsmønster {
-  mønster: StyringsmønsterType;
-  signal: string;
-}
-
 export interface ParsedKonseptSpeilResult {
+  kort_vurdering: string;
   fase: {
     status: FaseStatus;
     begrunnelse: string;
-    fokusområde: string;
   };
   observasjoner: {
     bruker: Observasjon | null;
@@ -36,19 +23,8 @@ export interface ParsedKonseptSpeilResult {
     gjennomførbarhet: Observasjon | null;
     levedyktighet: Observasjon | null;
   };
-  styringsmønstre: {
-    observerte: Styringsmønster[];
-    kommentar: string | null;
-  } | null;
-  refleksjon: {
-    kjernespørsmål: string;
-    hypoteser_å_teste: string[] | null;
-    neste_læring: string | null;
-  };
-  meta: {
-    dekningsgrad: Dekningsgrad;
-    usikkerheter: string[] | null;
-  };
+  kjerneantagelse: string;
+  neste_steg: string[];
   isComplete: boolean;
   parseError: string | null;
 }
@@ -67,21 +43,6 @@ export const MODENHET_LABELS: Record<Modenhet, string> = {
   hypotese: 'Hypotese',
   'tidlig-signal': 'Tidlig signal',
   validert: 'Validert',
-};
-
-export const DEKNINGSGRAD_LABELS: Record<Dekningsgrad, string> = {
-  tynn: 'Tynn',
-  delvis: 'Delvis',
-  fyldig: 'Fyldig',
-};
-
-export const STYRINGSMØNSTER_LABELS: Record<StyringsmønsterType, string> = {
-  'aktivitet-som-fremskritt': 'Aktivitet som fremskritt',
-  'løsning-før-problem': 'Løsning før problem',
-  'falsk-presisjon': 'Falsk presisjon',
-  'styringsmål-som-læringsmål': 'Styringsmål som læringsmål',
-  'suksesskriterier-uten-baseline': 'Suksesskriterier uten baseline',
-  'uartikulert-smerte': 'Uartikulert smerte',
 };
 
 export const OBSERVASJON_LABELS: Record<string, string> = {
@@ -160,33 +121,6 @@ export function getFaseColor(status: FaseStatus): {
 }
 
 /**
- * Get color for dekningsgrad
- */
-export function getDekningsgradColor(dekningsgrad: Dekningsgrad): {
-  bg: string;
-  text: string;
-} {
-  switch (dekningsgrad) {
-    case 'fyldig':
-      return {
-        bg: 'bg-feedback-success/10',
-        text: 'text-feedback-success',
-      };
-    case 'delvis':
-      return {
-        bg: 'bg-feedback-info/10',
-        text: 'text-feedback-info',
-      };
-    case 'tynn':
-    default:
-      return {
-        bg: 'bg-neutral-100',
-        text: 'text-neutral-600',
-      };
-  }
-}
-
-/**
  * Check if text appears to be incomplete streaming JSON
  */
 function isIncompleteStreamingJSON(text: string): boolean {
@@ -235,7 +169,6 @@ function extractJSON(text: string): string {
   let cleaned = text.trim();
 
   // Remove markdown code blocks if present (handle both complete and incomplete)
-  // First try to match a complete code block
   const completeBlockMatch = cleaned.match(/```(?:json)?\s*([\s\S]*?)```/);
   if (completeBlockMatch) {
     return completeBlockMatch[1].trim();
@@ -249,7 +182,6 @@ function extractJSON(text: string): string {
   }
 
   // Handle incomplete code block at the end (streaming case)
-  // Remove trailing backticks that might be incomplete closing block
   cleaned = cleaned.replace(/`{1,3}$/, '').trim();
 
   // Try to find JSON object directly
@@ -258,8 +190,6 @@ function extractJSON(text: string): string {
     return jsonMatch[0];
   }
 
-  // Return cleaned text even if we couldn't find complete JSON
-  // (might be partial during streaming)
   return cleaned;
 }
 
@@ -268,10 +198,10 @@ function extractJSON(text: string): string {
  */
 function createEmptyResult(parseError: string | null = null): ParsedKonseptSpeilResult {
   return {
+    kort_vurdering: '',
     fase: {
       status: 'utforskning',
       begrunnelse: '',
-      fokusområde: '',
     },
     observasjoner: {
       bruker: null,
@@ -279,16 +209,8 @@ function createEmptyResult(parseError: string | null = null): ParsedKonseptSpeil
       gjennomførbarhet: null,
       levedyktighet: null,
     },
-    styringsmønstre: null,
-    refleksjon: {
-      kjernespørsmål: '',
-      hypoteser_å_teste: null,
-      neste_læring: null,
-    },
-    meta: {
-      dekningsgrad: 'tynn',
-      usikkerheter: null,
-    },
+    kjerneantagelse: '',
+    neste_steg: [],
     isComplete: false,
     parseError,
   };
@@ -303,6 +225,9 @@ function validateParsedResult(data: unknown): ParsedKonseptSpeilResult {
   }
 
   const obj = data as Record<string, unknown>;
+
+  // Extract kort_vurdering
+  const kortVurdering = typeof obj.kort_vurdering === 'string' ? obj.kort_vurdering : '';
 
   // Validate fase
   const fase = obj.fase as Record<string, unknown> | undefined;
@@ -331,91 +256,29 @@ function validateParsedResult(data: unknown): ParsedKonseptSpeilResult {
     };
   }
 
-  // Validate styringsmønstre
-  const styringsmønstre = obj.styringsmønstre as Record<string, unknown> | null | undefined;
-  let parsedStyringsmønstre: ParsedKonseptSpeilResult['styringsmønstre'] = null;
+  // Extract kjerneantagelse
+  const kjerneantagelse = typeof obj.kjerneantagelse === 'string' ? obj.kjerneantagelse : '';
 
-  if (styringsmønstre && typeof styringsmønstre === 'object') {
-    const observerte = styringsmønstre.observerte;
-    if (Array.isArray(observerte)) {
-      const validMønstre: StyringsmønsterType[] = [
-        'aktivitet-som-fremskritt',
-        'løsning-før-problem',
-        'falsk-presisjon',
-        'styringsmål-som-læringsmål',
-        'suksesskriterier-uten-baseline',
-        'uartikulert-smerte',
-      ];
-
-      const parsedObserverte = observerte
-        .filter((m): m is Record<string, unknown> => m && typeof m === 'object')
-        .filter((m) => validMønstre.includes(m.mønster as StyringsmønsterType))
-        .map((m) => ({
-          mønster: m.mønster as StyringsmønsterType,
-          signal: typeof m.signal === 'string' ? m.signal : '',
-        }));
-
-      if (parsedObserverte.length > 0) {
-        parsedStyringsmønstre = {
-          observerte: parsedObserverte,
-          kommentar: typeof styringsmønstre.kommentar === 'string' ? styringsmønstre.kommentar : null,
-        };
-      }
-    }
-  }
-
-  // Validate refleksjon
-  const refleksjon = obj.refleksjon as Record<string, unknown> | undefined;
-  const parsedRefleksjon = {
-    kjernespørsmål: '',
-    hypoteser_å_teste: null as string[] | null,
-    neste_læring: null as string | null,
-  };
-
-  if (refleksjon && typeof refleksjon === 'object') {
-    parsedRefleksjon.kjernespørsmål = typeof refleksjon.kjernespørsmål === 'string'
-      ? refleksjon.kjernespørsmål
-      : '';
-
-    if (Array.isArray(refleksjon.hypoteser_å_teste)) {
-      parsedRefleksjon.hypoteser_å_teste = refleksjon.hypoteser_å_teste
-        .filter((h): h is string => typeof h === 'string');
-    }
-
-    if (typeof refleksjon.neste_læring === 'string') {
-      parsedRefleksjon.neste_læring = refleksjon.neste_læring;
-    }
-  }
-
-  // Validate meta
-  const meta = obj.meta as Record<string, unknown> | undefined;
-  const validDekningsgrad: Dekningsgrad[] = ['tynn', 'delvis', 'fyldig'];
-  const parsedMeta = {
-    dekningsgrad: 'tynn' as Dekningsgrad,
-    usikkerheter: null as string[] | null,
-  };
-
-  if (meta && typeof meta === 'object') {
-    if (validDekningsgrad.includes(meta.dekningsgrad as Dekningsgrad)) {
-      parsedMeta.dekningsgrad = meta.dekningsgrad as Dekningsgrad;
-    }
-    if (Array.isArray(meta.usikkerheter)) {
-      parsedMeta.usikkerheter = meta.usikkerheter
-        .filter((u): u is string => typeof u === 'string');
-    }
+  // Extract neste_steg
+  let nesteSteg: string[] = [];
+  if (Array.isArray(obj.neste_steg)) {
+    nesteSteg = obj.neste_steg
+      .filter((s): s is string => typeof s === 'string')
+      .slice(0, 3); // Max 3 steps
   }
 
   // Check completeness
   const isComplete = Boolean(
+    kortVurdering &&
     fase.begrunnelse &&
-    parsedRefleksjon.kjernespørsmål
+    kjerneantagelse
   );
 
   return {
+    kort_vurdering: kortVurdering,
     fase: {
       status: faseStatus,
       begrunnelse: typeof fase.begrunnelse === 'string' ? fase.begrunnelse : '',
-      fokusområde: typeof fase.fokusområde === 'string' ? fase.fokusområde : '',
     },
     observasjoner: {
       bruker: observasjoner ? parseObservasjon(observasjoner.bruker) : null,
@@ -423,9 +286,8 @@ function validateParsedResult(data: unknown): ParsedKonseptSpeilResult {
       gjennomførbarhet: observasjoner ? parseObservasjon(observasjoner.gjennomførbarhet) : null,
       levedyktighet: observasjoner ? parseObservasjon(observasjoner.levedyktighet) : null,
     },
-    styringsmønstre: parsedStyringsmønstre,
-    refleksjon: parsedRefleksjon,
-    meta: parsedMeta,
+    kjerneantagelse,
+    neste_steg: nesteSteg,
     isComplete,
     parseError: null,
   };
@@ -440,7 +302,6 @@ export function parseKonseptSpeilResult(text: string): ParsedKonseptSpeilResult 
   }
 
   // Check if this looks like incomplete streaming data
-  // Don't attempt to parse and don't log errors for incomplete data
   if (isIncompleteStreamingJSON(text)) {
     return createEmptyResult();
   }
@@ -457,7 +318,6 @@ export function parseKonseptSpeilResult(text: string): ParsedKonseptSpeilResult 
     return validateParsedResult(parsed);
   } catch (error) {
     // Only log errors for what appears to be complete but invalid JSON
-    // This reduces console noise during streaming
     const trimmed = text.trim();
     const hasCompleteCodeBlock = /```(?:json)?\s*[\s\S]*```/.test(trimmed);
     const looksComplete = hasCompleteCodeBlock ||
