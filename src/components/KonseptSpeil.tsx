@@ -430,22 +430,19 @@ export default function KonseptSpeil() {
             <div>
               <h3 className="font-medium text-neutral-700 mb-1">Hvordan fungerer det?</h3>
               <p className="text-neutral-600 leading-relaxed">
-                Verktøyet speiler teksten din – det evaluerer den ikke.
-                En AI-modell (Claude) identifiserer antakelser og reiser åpne spørsmål.
+                Konseptspeilet speiler teksten du skriver inn. Det vurderer den ikke, men identifiserer antagelser og formulerer åpne spørsmål som kan hjelpe deg å se konseptet klarere.
               </p>
             </div>
             <div>
               <h3 className="font-medium text-neutral-700 mb-1">Hva skjer med teksten?</h3>
               <p className="text-neutral-600 leading-relaxed">
-                Teksten sendes til Anthropics API for å generere refleksjonen.
-                Vi lagrer ikke innholdet, og det brukes ikke til å trene AI-modeller.
+                Teksten sendes til en AI-modell for å generere refleksjonen. Innholdet lagres ikke og brukes ikke til å trene modeller.
               </p>
             </div>
             <div>
               <h3 className="font-medium text-neutral-700 mb-1">Er det trygt?</h3>
               <p className="text-neutral-600 leading-relaxed">
-                Ja. Du trenger ikke logge inn, og vi samler ikke personopplysninger.
-                For sensitive konsepter anbefaler vi å anonymisere innholdet først.
+                Ja. Du trenger ikke å logge inn, og vi samler ikke personopplysninger. For sensitive konsepter anbefaler vi å anonymisere innholdet før du bruker verktøyet.
               </p>
             </div>
           </div>
