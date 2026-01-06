@@ -2,179 +2,95 @@
  * Mock response data for local testing of Konseptspeilet
  *
  * This mock data is used when KONSEPTSPEILET_MOCK=true is set in the environment.
- * It provides realistic examples that match the simplified MVP output format.
+ * It provides realistic examples that match the simplified MVP Markdown format.
  *
  * To use: Set KONSEPTSPEILET_MOCK=true in your .env file or environment
  */
 
-export interface KonseptspeilMockResponse {
-  kort_vurdering: string;
-  fase: {
-    status: 'utforskning' | 'forming' | 'forpliktelse';
-    begrunnelse: string;
-  };
-  observasjoner: {
-    bruker: {
-      tilstede: string | null;
-      uutforsket: string | null;
-      modenhet: 'antakelse' | 'hypotese' | 'tidlig-signal' | 'validert';
-    } | null;
-    brukbarhet: {
-      tilstede: string | null;
-      uutforsket: string | null;
-      modenhet: 'antakelse' | 'hypotese' | 'tidlig-signal' | 'validert';
-    } | null;
-    gjennomførbarhet: {
-      tilstede: string | null;
-      uutforsket: string | null;
-      modenhet: 'antakelse' | 'hypotese' | 'tidlig-signal' | 'validert';
-    } | null;
-    levedyktighet: {
-      tilstede: string | null;
-      uutforsket: string | null;
-      modenhet: 'antakelse' | 'hypotese' | 'tidlig-signal' | 'validert';
-    } | null;
-  };
-  kjerneantagelse: string;
-  neste_steg: string[];
-}
+/**
+ * Mock response for a concept about a product management tool
+ */
+export const MOCK_RESPONSE_PRODUCT_TOOL = `## Antagelser i teksten
+
+- Teksten antyder at produktledere opplever det som utfordrende å holde oversikt over discovery-arbeid
+- Det kan ligge en antakelse om at logging av samtaler vil føre til bedre hukommelse av innsikt
+- Det virker som teksten forutsetter at produktledere i mellomstore tech-selskaper har tid til å tagge og organisere samtaler
+- Teksten antyder at mønstre over tid er nyttig informasjon for prioritering
+
+## Åpne spørsmål teksten reiser
+
+- Hvordan håndterer produktledere dette i dag, og hva er det som gjør det vanskelig?
+- Hva skal til for at en produktleder faktisk logger samtaler konsekvent over tid?
+- Hvilke mønstre er det interessant å se, og hvordan vil de informere prioritering?
+- Er tidsbruk på logging verdt innsikten man får tilbake?`;
 
 /**
- * Mock response for "forming" phase concept
+ * Mock response for an early-stage idea
  */
-export const MOCK_RESPONSE_FORMING: KonseptspeilMockResponse = {
-  kort_vurdering:
-    'Dette er en uklar antagelse om at småbedriftseiere vil bytte til en ny faktureringsapp. Hovedusikkerheten er om fakturering faktisk oppleves som en så stor smerte at de vil endre vaner.',
-  fase: {
-    status: 'forming',
-    begrunnelse:
-      'Konseptet har en identifisert løsning og målgruppe, men antagelsene om behovet er ikke testet.',
-  },
-  observasjoner: {
-    bruker: {
-      tilstede:
-        'Teksten nevner "småbedriftseiere som sliter med tidkrevende fakturering" som målgruppe.',
-      uutforsket:
-        'Hvordan disse brukerne håndterer fakturering i dag, og hvor stor smerten faktisk er.',
-      modenhet: 'antakelse',
-    },
-    brukbarhet: {
-      tilstede: 'En mobilapp med "ett-klikks fakturering" er nevnt som løsning.',
-      uutforsket: 'Hvordan brukeren vil oppdage, lære og ta i bruk løsningen.',
-      modenhet: 'antakelse',
-    },
-    gjennomførbarhet: null,
-    levedyktighet: null,
-  },
-  kjerneantagelse:
-    'Småbedriftseiere opplever fakturering som så tidkrevende at de vil bytte til en ny app for å spare tid.',
-  neste_steg: [
-    'Snakk med 5-10 småbedriftseiere om deres faktiske faktureringspraksis',
-    'Kartlegg hvilke verktøy de bruker i dag og hva som er mest frustrerende',
-    'Test om mobilapp er foretrukket format for denne oppgaven',
-  ],
-};
+export const MOCK_RESPONSE_EARLY_IDEA = `## Antagelser i teksten
+
+- Det kan ligge en antakelse om at det finnes mennesker som opplever dette som et problem
+- Teksten antyder at en løsning på dette vil være verdifull for noen
+- Det virker som teksten forutsetter at problemet er stort nok til at folk vil endre adferd
+
+## Åpne spørsmål teksten reiser
+
+- Hvem er det egentlig som opplever dette?
+- Hva gjør de i dag for å håndtere det?
+- Hvor viktig er dette sammenlignet med andre utfordringer de har?`;
 
 /**
- * Mock response for "utforskning" phase (early exploration)
+ * Mock response for a more defined concept
  */
-export const MOCK_RESPONSE_UTFORSKNING: KonseptspeilMockResponse = {
-  kort_vurdering:
-    'Dette er en tidlig idé hvor både hvem brukeren er og hva problemet handler om fortsatt er åpent. Den viktigste usikkerheten er om noen faktisk har dette problemet.',
-  fase: {
-    status: 'utforskning',
-    begrunnelse:
-      'En tidlig idé der tanker og muligheter utforskes. Ingen konkrete forpliktelser ennå.',
-  },
-  observasjoner: {
-    bruker: {
-      tilstede: 'Det antydes at "noen" sliter med noe, men dette er ikke spesifisert.',
-      uutforsket: 'Hvem disse menneskene er og hva de faktisk opplever.',
-      modenhet: 'antakelse',
-    },
-    brukbarhet: null,
-    gjennomførbarhet: null,
-    levedyktighet: null,
-  },
-  kjerneantagelse:
-    'Det finnes mennesker som opplever dette som et problem verdt å løse.',
-  neste_steg: [
-    'Definer hvem du ser for deg at dette kunne være verdifullt for',
-    'Snakk med 3-5 potensielle brukere om deres opplevelse av problemet',
-  ],
-};
+export const MOCK_RESPONSE_DEFINED_CONCEPT = `## Antagelser i teksten
 
-/**
- * Mock response for "forpliktelse" phase (commitment/execution)
- */
-export const MOCK_RESPONSE_FORPLIKTELSE: KonseptspeilMockResponse = {
-  kort_vurdering:
-    'Dette er en tydelig hypotese som har begynt å bli validert gjennom pilotering. Hovedusikkerheten nå er om resultatene vil holde seg ved skalering.',
-  fase: {
-    status: 'forpliktelse',
-    begrunnelse:
-      'Kjerneantagelser er validert og konseptet er nær beslutning om full skalering.',
-  },
-  observasjoner: {
-    bruker: {
-      tilstede:
-        'Pilotgruppe på 50 brukere har testet løsningen i 3 måneder med god tilbakemelding.',
-      uutforsket: 'Hvordan løsningen vil fungere for brukere utenfor pilotgruppen.',
-      modenhet: 'tidlig-signal',
-    },
-    brukbarhet: {
-      tilstede:
-        'Brukertester viser 85% oppgaveløsning uten hjelp. Onboarding-flyt er designet og testet.',
-      uutforsket: 'Langsiktig engasjement og retensjon.',
-      modenhet: 'tidlig-signal',
-    },
-    gjennomførbarhet: null,
-    levedyktighet: null,
-  },
-  kjerneantagelse:
-    'Pilotresultatene er representative for hvordan løsningen vil fungere i større skala.',
-  neste_steg: [
-    'Definer tydelige go/no-go kriterier for skalering',
-    'Test infrastruktur med 10x dagens volum',
-    'Følg opp retensjon etter 6 måneder i pilotgruppen',
-  ],
-};
+- Teksten antyder at småbedriftseiere opplever fakturering som tidkrevende
+- Det kan ligge en antakelse om at en mobilapp er riktig format for denne oppgaven
+- Det virker som teksten forutsetter at ett-klikks-fakturering er mulig å bygge
+- Teksten antyder at tidsbesparelse er det viktigste for denne målgruppen
+
+## Åpne spørsmål teksten reiser
+
+- Hvor mye tid bruker småbedriftseiere faktisk på fakturering i dag?
+- Hva bruker de nå, og hva er det som gjør det tidkrevende?
+- Er mobil det foretrukne formatet for denne typen oppgaver?
+- Hva skal til for at de vil bytte fra noe de allerede bruker?`;
 
 /**
  * Get mock response based on input content
  */
-export function getMockResponse(input: string): KonseptspeilMockResponse {
+export function getMockResponse(input: string): string {
   const lowerInput = input.toLowerCase();
 
-  // Keywords that suggest "forpliktelse" phase
+  // Keywords that suggest a product management tool concept
   if (
-    lowerInput.includes('pilot') ||
-    lowerInput.includes('validert') ||
-    lowerInput.includes('lansering') ||
-    lowerInput.includes('skalering')
+    lowerInput.includes('produktled') ||
+    lowerInput.includes('discovery') ||
+    lowerInput.includes('samtaler') ||
+    lowerInput.includes('brukersamtaler')
   ) {
-    return MOCK_RESPONSE_FORPLIKTELSE;
+    return MOCK_RESPONSE_PRODUCT_TOOL;
   }
 
-  // Keywords that suggest "forming" phase
+  // Keywords that suggest a more defined concept
   if (
     lowerInput.includes('løsning') ||
     lowerInput.includes('app') ||
     lowerInput.includes('funksjon') ||
     lowerInput.includes('feature') ||
-    lowerInput.includes('bruker') ||
     lowerInput.includes('målgruppe')
   ) {
-    return MOCK_RESPONSE_FORMING;
+    return MOCK_RESPONSE_DEFINED_CONCEPT;
   }
 
-  // Default to "utforskning" for simple/early ideas
-  return MOCK_RESPONSE_UTFORSKNING;
+  // Default to early idea response
+  return MOCK_RESPONSE_EARLY_IDEA;
 }
 
 /**
- * Get the mock response as a JSON string (as the API would return it)
+ * Get the mock response as returned by the API
+ * (Now returns Markdown string directly, not JSON)
  */
 export function getMockResponseJson(input: string): string {
-  return JSON.stringify(getMockResponse(input));
+  return getMockResponse(input);
 }
