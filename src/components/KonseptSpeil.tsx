@@ -66,6 +66,7 @@ export default function KonseptSpeil() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isExampleAnimating, setIsExampleAnimating] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   // ---------------------------------------------------------------------------
   // Refs
@@ -79,7 +80,10 @@ export default function KonseptSpeil() {
   // ---------------------------------------------------------------------------
   const charCountWarning = INPUT_VALIDATION.MAX_LENGTH * 0.9;
   const charCountDanger = INPUT_VALIDATION.MAX_LENGTH * 0.975;
-  const isButtonEnabled = input.trim().length >= SUBMIT_THRESHOLD && !loading;
+  const trimmedLength = input.trim().length;
+  const isButtonEnabled = trimmedLength >= SUBMIT_THRESHOLD && !loading;
+  const showMinimumHelper = isFocused && trimmedLength >= 1 && trimmedLength < SUBMIT_THRESHOLD;
+  const isNearingMinimum = trimmedLength >= 1 && trimmedLength < SUBMIT_THRESHOLD;
 
   // ---------------------------------------------------------------------------
   // Callbacks (defined before effects that use them)
@@ -145,12 +149,12 @@ export default function KonseptSpeil() {
   useEffect(() => {
     window.dispatchEvent(new CustomEvent('konseptspeil:inputChange', {
       detail: {
-        length: input.trim().length,
+        length: trimmedLength,
         isLoading: loading,
         hasResult: !!result,
       }
     }));
-  }, [input, loading, result]);
+  }, [trimmedLength, loading, result]);
 
   // Listen for mobile submit trigger
   useEffect(() => {
@@ -274,9 +278,11 @@ export default function KonseptSpeil() {
             onChange={handleInputChange}
             onPaste={handlePaste}
             onKeyDown={handleKeyDown}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
             placeholder="Hva vurderer du å bygge – og hvorfor?"
             maxLength={INPUT_VALIDATION.MAX_LENGTH}
-            aria-describedby={error ? 'konsept-error konsept-help' : 'konsept-help'}
+            aria-describedby={error ? 'konsept-error konsept-help konsept-helper' : 'konsept-help konsept-helper'}
             aria-invalid={error ? 'true' : undefined}
             className={cn(
               'w-full px-4 py-4 text-base text-neutral-800 bg-white border-2 rounded-xl',
@@ -305,9 +311,27 @@ export default function KonseptSpeil() {
           )}
         </div>
 
-        {/* Character count */}
-        <div id="konsept-help" className="mt-3 flex items-center justify-end">
-          <span className="text-xs text-neutral-500">
+        {/* Character count and helper */}
+        <div id="konsept-help" className="mt-3 flex items-center justify-between gap-4">
+          {/* Contextual helper message */}
+          <div
+            id="konsept-helper"
+            aria-live="polite"
+            aria-atomic="true"
+            className="min-h-[1.25rem]"
+          >
+            {showMinimumHelper && (
+              <span className="text-xs text-neutral-500 italic">
+                Skriv litt mer for å få en refleksjon.
+              </span>
+            )}
+          </div>
+
+          {/* Character counter */}
+          <span className={cn(
+            'text-xs transition-colors',
+            isNearingMinimum ? 'text-neutral-600 font-medium' : 'text-neutral-500'
+          )}>
             <span className={cn(
               input.length > charCountDanger && 'text-feedback-error',
               input.length > charCountWarning && input.length <= charCountDanger && 'text-feedback-warning'
