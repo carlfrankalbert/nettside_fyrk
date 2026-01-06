@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import type { AnthropicResponse, AnthropicStreamEvent, AnthropicErrorResponse } from '../../types';
 import { hashInput, createServerCacheManager, createRateLimiter } from '../../utils/cache';
 import { ERROR_MESSAGES, ANTHROPIC_CONFIG, HTTP_HEADERS, CACHE_HEADERS, INPUT_VALIDATION } from '../../utils/constants';
+import { getMockResponseJson } from '../../data/konseptspeil-mock';
 
 export const prerender = false;
 
@@ -260,6 +261,54 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
+    // Check for mock mode (for local testing)
+    const cloudflareEnv = (locals as App.Locals).runtime?.env;
+    const mockMode = cloudflareEnv?.KONSEPTSPEILET_MOCK || import.meta.env.KONSEPTSPEILET_MOCK;
+
+    if (mockMode === 'true' || mockMode === true) {
+      console.log('Konseptspeilet: Using mock response (KONSEPTSPEILET_MOCK=true)');
+      const mockOutput = getMockResponseJson(trimmedInput);
+
+      // Handle streaming mock response
+      if (stream) {
+        const encoder = new TextEncoder();
+        const mockChunks = mockOutput.match(/.{1,50}/g) || [mockOutput];
+
+        const mockStream = new ReadableStream({
+          async start(controller) {
+            for (const chunk of mockChunks) {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: chunk })}\n\n`));
+              // Small delay to simulate streaming
+              await new Promise((resolve) => setTimeout(resolve, 20));
+            }
+            controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+            controller.close();
+          },
+        });
+
+        return new Response(mockStream, {
+          headers: {
+            'Content-Type': HTTP_HEADERS.CONTENT_TYPE_SSE,
+            'Cache-Control': HTTP_HEADERS.CACHE_CONTROL_NO_CACHE,
+            'Connection': HTTP_HEADERS.CONNECTION_KEEP_ALIVE,
+            'X-Mock': 'true',
+          },
+        });
+      }
+
+      // Non-streaming mock response
+      return new Response(
+        JSON.stringify({ output: mockOutput, cached: false, mock: true }),
+        {
+          status: 200,
+          headers: {
+            'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
+            'X-Mock': 'true',
+          },
+        }
+      );
+    }
+
     // Check cache
     cacheManager.cleanup();
     const cacheKey = await hashInput('konseptspeil:' + input);
@@ -282,8 +331,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
-    // Access environment variables from Cloudflare runtime
-    const cloudflareEnv = (locals as App.Locals).runtime?.env;
+    // Access environment variables from Cloudflare runtime (cloudflareEnv declared above in mock check)
     const apiKey = cloudflareEnv?.ANTHROPIC_API_KEY || import.meta.env.ANTHROPIC_API_KEY;
     const model = cloudflareEnv?.ANTHROPIC_MODEL || import.meta.env.ANTHROPIC_MODEL || ANTHROPIC_CONFIG.DEFAULT_MODEL;
 
