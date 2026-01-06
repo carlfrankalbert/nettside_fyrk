@@ -3,7 +3,6 @@ import {
   type Observasjon,
   FASE_LABELS,
   MODENHET_LABELS,
-  STYRINGSMØNSTER_LABELS,
   OBSERVASJON_LABELS,
   countObservasjoner,
 } from '../utils/konseptspeil-parser';
@@ -12,27 +11,11 @@ import { SpinnerIcon } from './ui/Icon';
 interface KonseptSpeilResultDisplayProps {
   result: string;
   isStreaming: boolean;
-}
-
-/**
- * Section step indicator for visual progression
- */
-function SectionStep({ step, label }: { step: number; label: string }) {
-  return (
-    <div className="flex items-center gap-2 mb-3">
-      <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-cyan/15 text-brand-cyan-darker text-xs font-medium">
-        {step}
-      </span>
-      <span className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
-        {label}
-      </span>
-    </div>
-  );
+  onRetry?: () => void;
 }
 
 /**
  * Display component for a single observation dimension
- * Uses neutral styling with subtle brand-cyan accent for orientation
  */
 function ObservasjonCard({
   label,
@@ -47,7 +30,6 @@ function ObservasjonCard({
     <div className="p-4 rounded-lg border border-neutral-200 bg-neutral-50/50">
       <div className="flex items-center justify-between mb-2">
         <h4 className="font-medium text-neutral-700">{label}</h4>
-        {/* Vis kun badge for modenhetsnivåer over "antakelse" - antakelse er default og trenger ikke merkes */}
         {observasjon.modenhet !== 'antakelse' && (
           <span className="text-xs px-2 py-0.5 rounded-full bg-brand-cyan/10 text-brand-cyan-darker">
             {MODENHET_LABELS[observasjon.modenhet]}
@@ -69,55 +51,29 @@ function ObservasjonCard({
 }
 
 /**
- * Display component for styringsmønster
- * Uses neutral styling to avoid judgmental connotations
- */
-function StyringsmønsterCard({
-  mønster,
-  signal,
-}: {
-  mønster: string;
-  signal: string;
-}) {
-  const label = STYRINGSMØNSTER_LABELS[mønster as keyof typeof STYRINGSMØNSTER_LABELS] || mønster;
-
-  return (
-    <div className="p-3 bg-neutral-50 border border-neutral-200 rounded-lg">
-      <div className="flex items-start gap-2">
-        <span className="text-brand-cyan-darker text-sm leading-none mt-0.5">●</span>
-        <div>
-          <p className="font-medium text-neutral-700 text-sm">{label}</p>
-          <p className="text-sm text-neutral-600 mt-1">{signal}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/**
  * Check if the parsed result has meaningful content
  */
 function hasMinimalContent(parsed: ReturnType<typeof parseKonseptSpeilResult>): boolean {
   return Boolean(
+    parsed.kort_vurdering ||
     parsed.fase.begrunnelse ||
-    parsed.fase.fokusområde ||
-    parsed.refleksjon.kjernespørsmål ||
+    parsed.kjerneantagelse ||
     countObservasjoner(parsed.observasjoner) > 0
   );
 }
 
 /**
- * Main result display component
+ * Main result display component - simplified for MVP
  */
 export default function KonseptSpeilResultDisplay({
   result,
   isStreaming,
   onRetry,
-}: KonseptSpeilResultDisplayProps & { onRetry?: () => void }) {
+}: KonseptSpeilResultDisplayProps) {
   const parsed = parseKonseptSpeilResult(result);
 
   // During streaming, show loading state if we don't have enough content yet
-  if (isStreaming && !parsed.isComplete && !parsed.fase.begrunnelse) {
+  if (isStreaming && !parsed.isComplete && !parsed.kort_vurdering) {
     return (
       <div className="flex items-center gap-3 text-neutral-500 py-4">
         <SpinnerIcon className="animate-spin h-5 w-5" />
@@ -150,7 +106,7 @@ export default function KonseptSpeilResultDisplay({
     );
   }
 
-  // Show warning if response is incomplete (missing key fields)
+  // Show warning if response is incomplete
   const isIncomplete = !isStreaming && !hasMinimalContent(parsed);
   if (isIncomplete) {
     return (
@@ -170,12 +126,6 @@ export default function KonseptSpeilResultDisplay({
             Prøv igjen
           </button>
         )}
-        <details className="mt-3">
-          <summary className="text-xs text-neutral-500 cursor-pointer">Vis rådata</summary>
-          <pre className="mt-2 text-xs text-neutral-600 whitespace-pre-wrap overflow-auto max-h-48">
-            {result}
-          </pre>
-        </details>
       </div>
     );
   }
@@ -183,33 +133,39 @@ export default function KonseptSpeilResultDisplay({
   const obsCount = countObservasjoner(parsed.observasjoner);
 
   return (
-    <div className="space-y-8">
-      {/* Fase og fokusområde - hovedrammen for analysen */}
-      <section>
-        <SectionStep step={1} label="Forståelse" />
-        <div className="p-5 rounded-lg bg-neutral-50/70 border border-neutral-200">
-          <div className="flex items-center gap-3 mb-3">
-            <span className="text-sm font-medium px-3 py-1 rounded-full bg-brand-cyan/15 text-brand-cyan-darker">
-              {FASE_LABELS[parsed.fase.status]}
-            </span>
-            {isStreaming && <SpinnerIcon className="animate-spin h-4 w-4 text-neutral-400" />}
-          </div>
-          {parsed.fase.begrunnelse && (
-            <p className="text-neutral-700 mb-3">{parsed.fase.begrunnelse}</p>
-          )}
-          {parsed.fase.fokusområde && (
-            <div className="pt-3 border-t border-neutral-200">
-              <p className="text-sm font-medium text-neutral-600 mb-1">Fokusområde:</p>
-              <p className="text-base text-neutral-800">{parsed.fase.fokusområde}</p>
-            </div>
-          )}
-        </div>
-      </section>
+    <div className="space-y-6">
+      {/* Kort vurdering - the most important section, always at top */}
+      {parsed.kort_vurdering && (
+        <section className="p-5 rounded-lg bg-brand-cyan-lightest/30 border border-brand-cyan/20">
+          <h3 className="text-sm font-semibold text-brand-navy mb-2 uppercase tracking-wide">
+            Kort vurdering
+          </h3>
+          <p className="text-neutral-800 leading-relaxed">{parsed.kort_vurdering}</p>
+          {isStreaming && <SpinnerIcon className="animate-spin h-4 w-4 text-neutral-400 mt-2" />}
+        </section>
+      )}
 
-      {/* Observasjoner */}
+      {/* Fase badge - subtle context */}
+      {parsed.fase.begrunnelse && (
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium px-3 py-1 rounded-full bg-neutral-100 text-neutral-600">
+            {FASE_LABELS[parsed.fase.status]}
+          </span>
+          <span className="text-sm text-neutral-500">{parsed.fase.begrunnelse}</span>
+        </div>
+      )}
+
+      {/* Kjerneantagelse - explicit assumption */}
+      {parsed.kjerneantagelse && (
+        <section className="p-4 rounded-lg bg-neutral-50 border border-neutral-200">
+          <h3 className="text-sm font-semibold text-neutral-700 mb-2">Kjerneantagelse</h3>
+          <p className="text-neutral-800">{parsed.kjerneantagelse}</p>
+        </section>
+      )}
+
+      {/* Observasjoner - max 3, no section header */}
       {obsCount > 0 && (
         <section>
-          <SectionStep step={2} label="Observasjoner" />
           <div className="grid gap-3 sm:grid-cols-2">
             <ObservasjonCard
               label={OBSERVASJON_LABELS.bruker}
@@ -231,101 +187,22 @@ export default function KonseptSpeilResultDisplay({
         </section>
       )}
 
-      {/* Styringsmønstre */}
-      {parsed.styringsmønstre && parsed.styringsmønstre.observerte.length > 0 && (
-        <section>
-          <SectionStep step={3} label="Mønstre" />
-          <div className="space-y-2">
-            {parsed.styringsmønstre.observerte.map((m, i) => (
-              <StyringsmønsterCard key={i} mønster={m.mønster} signal={m.signal} />
+      {/* Neste steg - action-oriented */}
+      {parsed.neste_steg && parsed.neste_steg.length > 0 && (
+        <section className="p-5 rounded-lg bg-neutral-50/70 border border-neutral-200">
+          <h3 className="text-sm font-semibold text-neutral-700 mb-3">Neste steg</h3>
+          <ul className="space-y-2">
+            {parsed.neste_steg.map((steg, i) => (
+              <li key={i} className="flex items-start gap-3 text-neutral-700">
+                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-brand-cyan/15 text-brand-cyan-darker text-xs font-medium shrink-0 mt-0.5">
+                  {i + 1}
+                </span>
+                <span>{steg}</span>
+              </li>
             ))}
-          </div>
-          {parsed.styringsmønstre.kommentar && (
-            <p className="text-sm text-neutral-600 mt-3 italic">
-              {parsed.styringsmønstre.kommentar}
-            </p>
-          )}
+          </ul>
         </section>
       )}
-
-      {/* Refleksjon */}
-      {parsed.refleksjon.kjernespørsmål && (
-        <section>
-          <SectionStep step={parsed.styringsmønstre && parsed.styringsmønstre.observerte.length > 0 ? 4 : 3} label="Refleksjon" />
-          <div className="p-5 bg-neutral-50/70 border border-neutral-200 rounded-lg">
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm font-medium text-neutral-600 mb-1">Kjernespørsmål:</p>
-                <p className="text-neutral-800 text-lg">{parsed.refleksjon.kjernespørsmål}</p>
-              </div>
-
-              {parsed.refleksjon.hypoteser_å_teste && parsed.refleksjon.hypoteser_å_teste.length > 0 && (
-                <div>
-                  <p className="text-sm font-medium text-neutral-600 mb-2">Hypoteser å teste:</p>
-                  <ul className="space-y-1.5">
-                    {parsed.refleksjon.hypoteser_å_teste.map((h, i) => (
-                      <li key={i} className="flex items-start gap-2 text-neutral-700">
-                        <span className="text-brand-cyan-darker mt-0.5">?</span>
-                        <span>{h}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {parsed.refleksjon.neste_læring && (
-                <div>
-                  <p className="text-sm font-medium text-neutral-600 mb-1">Neste læring:</p>
-                  <p className="text-neutral-700">{parsed.refleksjon.neste_læring}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Meta-informasjon */}
-      <div className="pt-6 mt-2 border-t border-neutral-200">
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-          {/* Dekningsgrad-indikator */}
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-1">
-              <span className="text-xs text-neutral-500 shrink-0">Dekningsgrad:</span>
-              <div className="flex items-center gap-2 flex-1 max-w-48">
-                <span className="text-xs text-neutral-400">Tynn</span>
-                <div className="relative flex-1 h-1 bg-neutral-200 rounded-full">
-                  <div
-                    className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-brand-cyan-darker rounded-full border-2 border-white shadow-sm"
-                    style={{
-                      left: parsed.meta.dekningsgrad === 'tynn' ? '0%' :
-                            parsed.meta.dekningsgrad === 'delvis' ? '50%' : '100%',
-                      transform: `translate(-50%, -50%)`,
-                    }}
-                  />
-                </div>
-                <span className="text-xs text-neutral-400">Fyldig</span>
-              </div>
-            </div>
-            <p className="text-xs text-neutral-400 italic">
-              Hvor mye kontekst konseptet gir speilet å arbeide med.
-            </p>
-          </div>
-
-          {/* Usikkerheter */}
-          {parsed.meta.usikkerheter && parsed.meta.usikkerheter.length > 0 && (
-            <details className="text-xs shrink-0">
-              <summary className="text-neutral-500 cursor-pointer hover:text-neutral-700">
-                {parsed.meta.usikkerheter.length} usikkerhet{parsed.meta.usikkerheter.length > 1 ? 'er' : ''}
-              </summary>
-              <ul className="mt-2 text-neutral-600 space-y-1">
-                {parsed.meta.usikkerheter.map((u, i) => (
-                  <li key={i}>- {u}</li>
-                ))}
-              </ul>
-            </details>
-          )}
-        </div>
-      </div>
     </div>
   );
 }

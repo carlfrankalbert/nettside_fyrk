@@ -263,10 +263,6 @@ export default function KonseptSpeil() {
         {/* Trust signals - Level 4 microcopy */}
         <div id="konsept-help" className="mt-4 flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-neutral-100 rounded-full text-xs text-neutral-500">
-            <span aria-hidden="true">🔒</span>
-            <span>Lagres ikke</span>
-          </span>
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-neutral-100 rounded-full text-xs text-neutral-500">
             <span aria-hidden="true">⏱</span>
             <span>~30 sekunder</span>
           </span>

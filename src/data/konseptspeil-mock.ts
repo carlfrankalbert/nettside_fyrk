@@ -2,20 +2,16 @@
  * Mock response data for local testing of Konseptspeilet
  *
  * This mock data is used when KONSEPTSPEILET_MOCK=true is set in the environment.
- * It provides a realistic example that exercises all UI elements:
- * - All four observation dimensions
- * - Governance patterns (styringsmønstre)
- * - All reflection fields
- * - Meta information
+ * It provides realistic examples that match the simplified MVP output format.
  *
  * To use: Set KONSEPTSPEILET_MOCK=true in your .env file or environment
  */
 
 export interface KonseptspeilMockResponse {
+  kort_vurdering: string;
   fase: {
     status: 'utforskning' | 'forming' | 'forpliktelse';
     begrunnelse: string;
-    fokusområde: string;
   };
   observasjoner: {
     bruker: {
@@ -39,114 +35,56 @@ export interface KonseptspeilMockResponse {
       modenhet: 'antakelse' | 'hypotese' | 'tidlig-signal' | 'validert';
     } | null;
   };
-  styringsmønstre: {
-    observerte: Array<{
-      mønster: string;
-      signal: string;
-    }>;
-    kommentar: string | null;
-  } | null;
-  refleksjon: {
-    kjernespørsmål: string;
-    hypoteser_å_teste: string[] | null;
-    neste_læring: string | null;
-  };
-  meta: {
-    dekningsgrad: 'tynn' | 'delvis' | 'fyldig';
-    usikkerheter: string[] | null;
-  };
+  kjerneantagelse: string;
+  neste_steg: string[];
 }
 
 /**
- * A comprehensive mock response that exercises all UI elements.
- * Based on a "forming" phase concept to show governance patterns.
+ * Mock response for "forming" phase concept
  */
 export const MOCK_RESPONSE_FORMING: KonseptspeilMockResponse = {
+  kort_vurdering:
+    'Dette er en uklar antagelse om at småbedriftseiere vil bytte til en ny faktureringsapp. Hovedusikkerheten er om fakturering faktisk oppleves som en så stor smerte at de vil endre vaner.',
   fase: {
     status: 'forming',
     begrunnelse:
-      'Konseptet har identifisert en brukergruppe og en løsningsretning, men antagelsene om brukerens behov og løsningens effekt er ikke testet. Dette plasserer konseptet i forming-fasen der aktiv læring er sentralt.',
-    fokusområde:
-      'Å validere om de identifiserte brukerne faktisk opplever smerten som er antatt, og om den foreslåtte løsningen vil adressere den.',
+      'Konseptet har en identifisert løsning og målgruppe, men antagelsene om behovet er ikke testet.',
   },
   observasjoner: {
     bruker: {
       tilstede:
         'Teksten nevner "småbedriftseiere som sliter med tidkrevende fakturering" som målgruppe.',
       uutforsket:
-        'Det er ikke beskrevet hvordan disse brukerne håndterer fakturering i dag, eller hvor stor smerten faktisk er.',
+        'Hvordan disse brukerne håndterer fakturering i dag, og hvor stor smerten faktisk er.',
       modenhet: 'antakelse',
     },
     brukbarhet: {
-      tilstede:
-        'En mobilapp med "ett-klikks fakturering" er nevnt som løsning.',
-      uutforsket:
-        'Hvordan brukeren vil oppdage, lære og ta i bruk løsningen er ikke adressert.',
+      tilstede: 'En mobilapp med "ett-klikks fakturering" er nevnt som løsning.',
+      uutforsket: 'Hvordan brukeren vil oppdage, lære og ta i bruk løsningen.',
       modenhet: 'antakelse',
     },
-    gjennomførbarhet: {
-      tilstede:
-        'Teksten nevner integrasjon med eksisterende regnskapssystemer som en forutsetning.',
-      uutforsket:
-        'Hvilke spesifikke systemer, og kompleksiteten i slike integrasjoner, er ikke utforsket.',
-      modenhet: 'hypotese',
-    },
-    levedyktighet: {
-      tilstede:
-        'En freemium-modell med premium-funksjoner er skissert som forretningsmodell.',
-      uutforsket:
-        'Betalingsvillighet og konkurransesituasjonen er ikke omtalt.',
-      modenhet: 'antakelse',
-    },
+    gjennomførbarhet: null,
+    levedyktighet: null,
   },
-  styringsmønstre: {
-    observerte: [
-      {
-        mønster: 'løsning-før-problem',
-        signal:
-          'Mobilappen og dens funksjoner er beskrevet i detalj, mens brukerens faktiske problem kun er overfladisk nevnt.',
-      },
-      {
-        mønster: 'suksesskriterier-uten-baseline',
-        signal:
-          'Målet om "50% reduksjon i tid brukt på fakturering" er nevnt uten referanse til nåværende tidsbruk.',
-      },
-    ],
-    kommentar:
-      'Disse mønstrene er vanlige i tidlig produktutvikling og indikerer områder der det kan være verdifullt å stille utdypende spørsmål.',
-  },
-  refleksjon: {
-    kjernespørsmål:
-      'Hva ville det bety for konseptet om småbedriftseiere ikke opplever fakturering som en betydelig smerte?',
-    hypoteser_å_teste: [
-      'Småbedriftseiere bruker mer enn 2 timer per uke på fakturering',
-      'Eksisterende løsninger oppleves som utilstrekkelige for denne gruppen',
-      'Mobilapp er den foretrukne plattformen for denne oppgaven',
-    ],
-    neste_læring:
-      'Å snakke med 5-10 småbedriftseiere om deres faktiske faktureringspraksis og opplevde utfordringer.',
-  },
-  meta: {
-    dekningsgrad: 'delvis',
-    usikkerheter: [
-      'Teknisk kompleksitet i integrasjoner',
-      'Konkurransesituasjonen i markedet',
-      'Faktisk betalingsvillighet',
-    ],
-  },
+  kjerneantagelse:
+    'Småbedriftseiere opplever fakturering som så tidkrevende at de vil bytte til en ny app for å spare tid.',
+  neste_steg: [
+    'Snakk med 5-10 småbedriftseiere om deres faktiske faktureringspraksis',
+    'Kartlegg hvilke verktøy de bruker i dag og hva som er mest frustrerende',
+    'Test om mobilapp er foretrukket format for denne oppgaven',
+  ],
 };
 
 /**
- * A simpler mock for "utforskning" phase (early exploration).
- * No governance patterns, lighter observations.
+ * Mock response for "utforskning" phase (early exploration)
  */
 export const MOCK_RESPONSE_UTFORSKNING: KonseptspeilMockResponse = {
+  kort_vurdering:
+    'Dette er en tidlig idé hvor både hvem brukeren er og hva problemet handler om fortsatt er åpent. Den viktigste usikkerheten er om noen faktisk har dette problemet.',
   fase: {
     status: 'utforskning',
     begrunnelse:
-      'Dette er en tidlig idé der tanker og muligheter utforskes. Det finnes ingen forpliktelser eller detaljerte planer ennå.',
-    fokusområde:
-      'Å bli kjent med problemområdet og de som eventuelt opplever det.',
+      'En tidlig idé der tanker og muligheter utforskes. Ingen konkrete forpliktelser ennå.',
   },
   observasjoner: {
     bruker: {
@@ -158,40 +96,30 @@ export const MOCK_RESPONSE_UTFORSKNING: KonseptspeilMockResponse = {
     gjennomførbarhet: null,
     levedyktighet: null,
   },
-  styringsmønstre: null,
-  refleksjon: {
-    kjernespørsmål:
-      'Hvem er det du ser for deg at dette kunne være verdifullt for?',
-    hypoteser_å_teste: null,
-    neste_læring:
-      'Å observere eller snakke med mennesker som potensielt har dette problemet.',
-  },
-  meta: {
-    dekningsgrad: 'tynn',
-    usikkerheter: [
-      'Målgruppen er ikke definert',
-      'Problemet er ikke konkretisert',
-    ],
-  },
+  kjerneantagelse:
+    'Det finnes mennesker som opplever dette som et problem verdt å løse.',
+  neste_steg: [
+    'Definer hvem du ser for deg at dette kunne være verdifullt for',
+    'Snakk med 3-5 potensielle brukere om deres opplevelse av problemet',
+  ],
 };
 
 /**
- * A comprehensive mock for "forpliktelse" phase (commitment/execution).
+ * Mock response for "forpliktelse" phase (commitment/execution)
  */
 export const MOCK_RESPONSE_FORPLIKTELSE: KonseptspeilMockResponse = {
+  kort_vurdering:
+    'Dette er en tydelig hypotese som har begynt å bli validert gjennom pilotering. Hovedusikkerheten nå er om resultatene vil holde seg ved skalering.',
   fase: {
     status: 'forpliktelse',
     begrunnelse:
-      'Konseptet har validert kjerneantagelser og er nær beslutning om iverksetting. Brukerundersøkelser og pilotering er gjennomført.',
-    fokusområde:
-      'Å sikre at alle avhengigheter og risikoer er forstått før full skalering.',
+      'Kjerneantagelser er validert og konseptet er nær beslutning om full skalering.',
   },
   observasjoner: {
     bruker: {
       tilstede:
         'Pilotgruppe på 50 brukere har testet løsningen i 3 måneder med god tilbakemelding.',
-      uutforsket:
-        'Hvordan løsningen vil fungere for brukere utenfor pilotgruppen.',
+      uutforsket: 'Hvordan løsningen vil fungere for brukere utenfor pilotgruppen.',
       modenhet: 'tidlig-signal',
     },
     brukbarhet: {
@@ -200,40 +128,20 @@ export const MOCK_RESPONSE_FORPLIKTELSE: KonseptspeilMockResponse = {
       uutforsket: 'Langsiktig engasjement og retensjon.',
       modenhet: 'tidlig-signal',
     },
-    gjennomførbarhet: {
-      tilstede:
-        'Teknisk arkitektur er validert. Integrasjoner med de tre største regnskapssystemene er testet.',
-      uutforsket:
-        'Skaleringsutfordringer ved høyere volum.',
-      modenhet: 'validert',
-    },
-    levedyktighet: {
-      tilstede:
-        'Betalingsvillighet er testet i pilot. Unit economics viser positiv margin.',
-      uutforsket: 'Langsiktig kundelivstidsverdi og churn-rate.',
-      modenhet: 'hypotese',
-    },
+    gjennomførbarhet: null,
+    levedyktighet: null,
   },
-  styringsmønstre: null,
-  refleksjon: {
-    kjernespørsmål:
-      'Hvilke signaler ville fortelle dere at det er riktig tidspunkt å skalere?',
-    hypoteser_å_teste: [
-      'Retensjon etter 6 måneder er over 60%',
-      'Infrastrukturen håndterer 10x dagens volum',
-    ],
-    neste_læring:
-      'Å definere tydelige go/no-go kriterier for neste fase.',
-  },
-  meta: {
-    dekningsgrad: 'fyldig',
-    usikkerheter: ['Langsiktig retensjon', 'Skaleringskapasitet'],
-  },
+  kjerneantagelse:
+    'Pilotresultatene er representative for hvordan løsningen vil fungere i større skala.',
+  neste_steg: [
+    'Definer tydelige go/no-go kriterier for skalering',
+    'Test infrastruktur med 10x dagens volum',
+    'Følg opp retensjon etter 6 måneder i pilotgruppen',
+  ],
 };
 
 /**
- * Get mock response based on input content.
- * Attempts to match phase based on keywords in the input.
+ * Get mock response based on input content
  */
 export function getMockResponse(input: string): KonseptspeilMockResponse {
   const lowerInput = input.toLowerCase();
