@@ -2,6 +2,7 @@
  * Helper utilities for contrast testing
  * These functions are used both in Node.js context and browser context (via page.evaluate)
  */
+import type { Page } from '@playwright/test';
 
 /**
  * Convert RGB/RGBA string to hex color
@@ -163,7 +164,7 @@ export const calculateElementContrast = `
  * 2. Wait for ThemeToggle script to initialize and respect localStorage
  * 3. Force dark class and inject CSS if needed
  */
-export async function setupTheme(page: any, theme: 'light' | 'dark'): Promise<void> {
+export async function setupTheme(page: Page, theme: 'light' | 'dark'): Promise<void> {
   await page.waitForLoadState('networkidle');
   
   if (theme === 'dark') {

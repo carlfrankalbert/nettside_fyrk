@@ -81,7 +81,7 @@ export async function reviewOKR(input: string): Promise<OKRReviewResult> {
         };
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as { output?: string; cached?: boolean };
 
       if (!data.output) {
         return {
@@ -98,7 +98,7 @@ export async function reviewOKR(input: string): Promise<OKRReviewResult> {
       return {
         success: true,
         output: data.output,
-        cached: data.cached,
+        cached: data.cached ?? false,
       };
     } catch (err) {
       // Handle timeout specifically

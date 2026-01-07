@@ -148,7 +148,7 @@ class ClientErrorTracker {
     // Track fetch requests
     const originalFetch = window.fetch;
     window.fetch = async (...args) => {
-      const url = typeof args[0] === 'string' ? args[0] : args[0].url;
+      const url = typeof args[0] === 'string' ? args[0] : (args[0] as Request).url;
       const method = (args[1]?.method || 'GET').toUpperCase();
 
       this.addBreadcrumb('http', `${method} ${url}`, 'info', { url, method });

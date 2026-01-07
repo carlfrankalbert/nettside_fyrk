@@ -104,55 +104,34 @@ Se [docs/design/DESIGN_PRINCIPLES.md](./docs/design/DESIGN_PRINCIPLES.md) for de
 
 ## 🧪 Testing
 
-Prosjektet har omfattende testing med både E2E-tester (Playwright) og unit-tester (Vitest).
-
-### Kjør tester
+Prosjektet har et pragmatisk testregime designet for trygghet og ro i deploy-beslutninger.
 
 ```bash
-# Alle E2E-tester
-npm test
-
-# Smoke tests (desktop, mobile, tablet)
-npm run test:smoke
-
-# Visual regression tests
-npm run test:visual
-
-# Mobile-spesifikke tester
-npm run test:mobile
-
-# Security tests (OWASP)
-npm run test:security
-
-# OKR API tests
-npm run test:okr-api
-
-# Theme toggle tests
-npm run test:theme
-
-# Unit tests
-npm run test:unit
-
-# Unit tests med coverage
-npm run test:unit:coverage
-
-# Playwright UI mode
-npm run test:ui
+# Golden command – kjører hele kvalitetssuiten
+npm run test
 ```
 
-### Test-prosjekter
+Når `npm run test` er grønt, kan vi deploye med ro.
 
-| Prosjekt | Beskrivelse |
-|----------|-------------|
-| `smoke` | Daglige kritiske brukerflyt-tester |
-| `visual` | Visuell regresjonstesting |
-| `visual-mobile` | Mobil visuell testing |
-| `ux-mobile` | Mobil UX-testing |
-| `security` | OWASP sikkerhetstester |
-| `okr-api` | OKR API endpoint-testing |
-| `theme` | Dark/light mode testing |
+### Kvalitetsnivåer
 
-Se [docs/development/TESTING.md](./docs/development/TESTING.md) for mer informasjon.
+| Nivå | Verktøy | Beskytter |
+|------|---------|-----------|
+| Statisk analyse | TypeScript, ESLint | Typefeil, kodestil |
+| Unit/Integration | Vitest | Forretningslogikk |
+| E2E | Playwright | Kritiske brukerflyter |
+| Tilgjengelighet | axe-core | WCAG-brudd |
+
+### Vanlige kommandoer
+
+```bash
+npm run test:unit     # Unit-tester
+npm run test:e2e      # E2E smoke-tester
+npm run test:a11y     # Tilgjengelighetstester
+npm run test:visual   # Visuell regresjon (manuelt)
+```
+
+Se [TESTING.md](./TESTING.md) for komplett dokumentasjon.
 
 ## 🚢 Deployment
 
@@ -211,39 +190,27 @@ Se [docs/deployment/](./docs/deployment/) for detaljerte instruksjoner.
 ```bash
 # Utvikling
 npm run dev              # Start utviklingsserver (port 4321)
-npm run start            # Alias for dev
 npm run preview          # Forhåndsvis produksjonsbygget
 
 # Bygging
 npm run build            # Bygg for produksjon
 
-# Testing
-npm test                 # Alle Playwright-tester
-npm run test:smoke       # Smoke tests
-npm run test:visual      # Visual regression
-npm run test:mobile      # Mobile tester
-npm run test:security    # Security tests
-npm run test:okr-api     # OKR API tests
-npm run test:theme       # Theme toggle tests
-npm run test:unit        # Unit tests (Vitest)
-npm run test:unit:watch  # Unit tests i watch-mode
-npm run test:unit:coverage # Unit tests med coverage
-npm run test:ui          # Playwright UI mode
-
-# Load testing (krever k6)
-npm run test:load            # Smoke test
-npm run test:load:sustained  # Vedvarende last (10 brukere)
-npm run test:load:stress     # Stresstest
-npm run test:load:spike      # Spike-test
+# Kvalitetssikring
+npm run test             # Full kvalitetssuite (typecheck + lint + unit + e2e)
+npm run typecheck        # TypeScript-sjekk
+npm run lint             # ESLint
+npm run test:unit        # Unit-tester (Vitest)
+npm run test:e2e         # E2E smoke-tester (Playwright)
+npm run test:a11y        # Tilgjengelighetstester
 ```
 
 ## 📚 Dokumentasjon
 
 - **Quick Start:** [QUICKSTART.md](./QUICKSTART.md)
+- **Testing:** [TESTING.md](./TESTING.md)
 - **Deployment:** [docs/deployment/](./docs/deployment/)
 - **Development:** [docs/development/](./docs/development/)
 - **Design:** [docs/design/](./docs/design/)
-- **Testing:** [docs/development/TESTING.md](./docs/development/TESTING.md)
 - **Monitoring:** [docs/development/MONITORING.md](./docs/development/MONITORING.md)
 - **Load Testing:** [load-tests/README.md](./load-tests/README.md)
 

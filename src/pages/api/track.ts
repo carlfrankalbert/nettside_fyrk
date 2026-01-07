@@ -90,7 +90,10 @@ export const POST: APIRoute = async ({ locals, request }) => {
     let buttonId: ButtonId = 'okr_submit'; // default for backwards compatibility
     let metadata: CheckSuccessMetadata | undefined;
     try {
-      const body = await request.json();
+      const body = (await request.json()) as {
+        buttonId?: string;
+        metadata?: { charCount?: number; processingTimeMs?: number };
+      };
       if (body.buttonId && body.buttonId in TRACKED_BUTTONS) {
         buttonId = body.buttonId as ButtonId;
       }

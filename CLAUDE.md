@@ -74,19 +74,24 @@ When asked to "check" or "refactor" the code:
 
 ## 🧪 Testing Strategy
 
+- **Static Analysis:** TypeScript (`astro check`) and ESLint catch errors before runtime.
 - **Unit Testing:** Use **Vitest** for all logic in `src/services` or `src/utils`.
-- **E2E Testing:** Use **Playwright** for critical user flows and visual regression.
-- **A11y Testing:** Use `playwright-axe` to automatically check for accessibility violations during E2E runs.
-- **Rule:** Every new bug fix must include a regression test. Every new library/utility must have 80%+ test coverage.
+- **E2E Testing:** Use **Playwright** for critical user flows. API calls are mocked for stability.
+- **A11y Testing:** Use `axe-core` to check for serious accessibility violations.
+- **Pre-commit:** Husky runs typecheck and lint-staged on every commit.
+- **Rule:** Every new bug fix should include a regression test. New utilities should have good test coverage.
 
 ## 🧪 Test Commands
 
 | Command | Description |
 |---------|-------------|
-| `npm test` | Run all Playwright tests |
+| `npm test` | Full quality suite (typecheck + lint + unit + e2e) |
+| `npm run typecheck` | TypeScript check |
+| `npm run lint` | ESLint |
 | `npm run test:unit` | Run Vitest unit tests |
 | `npm run test:unit:coverage` | Unit tests with coverage report |
-| `npm run test:smoke` | Smoke tests (desktop, mobile, tablet) |
+| `npm run test:e2e` | E2E smoke tests |
+| `npm run test:a11y` | Accessibility tests |
 | `npm run test:visual` | Visual regression tests |
 | `npm run test:ui` | Open Playwright interactive UI |
 | `npm run test:load` | Run k6 load tests |

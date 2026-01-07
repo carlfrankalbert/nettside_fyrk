@@ -108,6 +108,18 @@ export default defineConfig({
       testMatch: /theme-toggle\.spec\.ts/,
       use: { ...devices['Desktop Chrome'] },
     },
+    // Accessibility tests with axe-core
+    {
+      name: 'a11y',
+      testMatch: /a11y\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    // Konseptspeilet E2E tests
+    {
+      name: 'konseptspeilet',
+      testMatch: /konseptspeilet\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
     // Add more configurations as needed based on analytics
   ],
 
@@ -115,7 +127,7 @@ export default defineConfig({
   webServer: isExternalUrl
     ? undefined
     : {
-        command: 'npm run preview',
+        command: 'npm run dev',
         url: 'http://localhost:4321',
         reuseExistingServer: !process.env.CI,
         timeout: 120 * 1000,
