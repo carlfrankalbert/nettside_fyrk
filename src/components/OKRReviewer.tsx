@@ -111,6 +111,26 @@ export default function OKRReviewer() {
     autoResizeTextarea();
   }, [input, autoResizeTextarea]);
 
+  // Dispatch events for mobile CTA sync
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('okr:inputChange', {
+      detail: {
+        length: input.trim().length,
+        isLoading: loading,
+        hasResult: !!result,
+      }
+    }));
+  }, [input, loading, result]);
+
+  // Listen for mobile submit trigger
+  useEffect(() => {
+    const handleMobileSubmit = () => {
+      handleSubmit();
+    };
+    window.addEventListener('okr:submit', handleMobileSubmit);
+    return () => window.removeEventListener('okr:submit', handleMobileSubmit);
+  }, [handleSubmit]);
+
   /**
    * Handle paste events to decode URL-encoded text
    * This fixes an iOS Safari bug where copied text sometimes gets URL-encoded
@@ -178,7 +198,7 @@ export default function OKRReviewer() {
     setInput('');
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     // Prevent duplicate submissions
     if (loading) return;
 
@@ -238,7 +258,7 @@ export default function OKRReviewer() {
       },
       abortControllerRef.current.signal
     );
-  };
+  }, [input, loading]);
 
   return (
     <div className="space-y-6" aria-busy={loading}>
