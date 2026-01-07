@@ -131,7 +131,7 @@ test.describe('Konseptspeilet', () => {
     await submitButton.click();
 
     // Check for loading text which appears during submission
-    await expect(page.getByText('Speiler konseptet')).toBeVisible();
+    await expect(page.getByText('Speiler konseptet').first()).toBeVisible();
   });
 
   test('handles API error gracefully', async ({ page }) => {
