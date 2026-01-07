@@ -1,224 +1,157 @@
 # Testing
 
-## Én kommando for deploy-ro
+## Formål
+
+Testregimet i FYRK er designet for å beskytte det som er kostbart å få feil i produksjon: førsteinntrykk, brukerflyt og kjernefunksjonalitet i AI-verktøyene.
+
+Målet er ikke maksimal testdekning, men **trygghet og ro** i deploy-beslutninger. Testene skal gi signal når noe viktig er i ferd med å gå galt – og holde seg stille når alt er som det skal.
+
+---
+
+## Kvalitetsnivåer
+
+FYRK bruker en pragmatisk test-pyramide med fire nivåer:
+
+### Statisk analyse
+TypeScript og ESLint fanger feil før koden kjøres. Dette er den raskeste og billigste formen for kvalitetssikring.
+
+- **Beskytter:** Typefeil, inkonsistent kode, ubrukte variabler
+- **Effekt:** Forhindrer hele kategorier av bugs fra å nå runtime
+
+### Unit- og integrasjonstester
+Vitest tester forretningslogikk isolert fra UI. Alle eksterne avhengigheter (API-kall, nettleser) er mocket.
+
+- **Beskytter:** Parsere, validering, service-logikk
+- **Effekt:** Sikrer at kjernefunksjoner fungerer korrekt under kontrollerte forhold
+
+### End-to-end-tester
+Playwright simulerer ekte brukerreiser i en faktisk nettleser. API-kall mockes for stabilitet og hastighet.
+
+- **Beskytter:** Kritiske brukerflyter (landing → CTA, OKR-sjekken, Konseptspeilet)
+- **Effekt:** Verifiserer at systemet fungerer som helhet fra brukerens perspektiv
+
+### Tilgjengelighet (lett)
+Axe-core sjekker nøkkelsider for alvorlige WCAG-brudd. Kun `critical` og `serious` funn blokkerer.
+
+- **Beskytter:** Grunnleggende tilgjengelighet for skjermlesere og tastaturnavigasjon
+- **Effekt:** Forhindrer de mest pinlige tilgjengelighetsfeilene
+
+---
+
+## Quality Gates
+
+Før merge til main og deploy må følgende være grønt:
+
+| Gate | Verktøy | Blokkerer |
+|------|---------|-----------|
+| Typecheck | `astro check` | Ja |
+| Lint | ESLint | Ja |
+| Unit-tester | Vitest | Ja |
+| E2E smoke | Playwright | Ja |
+| A11y | axe-core | Ja (kun critical/serious) |
+
+**Når `npm run test` er grønt, kan vi deploye med ro.**
+
+Pre-commit hooks kjører automatisk typecheck og lint på endrede filer, slik at de fleste feil fanges før commit.
+
+---
+
+## Hvordan kjøre testene
+
+### Golden command
 
 ```bash
 npm run test
 ```
 
-Denne kommandoen kjører:
-1. **TypeScript check** - Verifiserer typesikkerhet
-2. **ESLint** - Konsistent kodestil
-3. **Unit-tester** - Vitest på services og utils
-4. **E2E smoke** - Playwright på kritiske sider
+Kjører hele kvalitetssuiten: typecheck → lint → unit → E2E smoke.
 
-Grønn = trygt å shippe.
+### Enkeltkommandoer
 
----
-
-## Pre-commit hooks
-
-Prosjektet bruker Husky for pre-commit hooks:
-- **Typecheck** - Kjører `astro check` før hver commit
-- **Lint-staged** - Linter kun endrede filer
-
-Installeres automatisk med `npm install` via `prepare` script.
+| Kommando | Når du bruker den |
+|----------|-------------------|
+| `npm run typecheck` | Verifisere TypeScript etter refaktorering |
+| `npm run lint` | Sjekke kodestil |
+| `npm run lint:fix` | Auto-fikse lint-feil |
+| `npm run test:unit` | Raskt verifisere forretningslogikk |
+| `npm run test:unit:watch` | Under utvikling av ny logikk |
+| `npm run test:e2e` | Verifisere kritiske brukerflyter |
+| `npm run test:a11y` | Sjekke tilgjengelighet |
+| `npm run test:visual` | Manuell visuell regresjonstest |
+| `npm run test:ui` | Debugge E2E-tester interaktivt |
 
 ---
 
-## Hva testes hvor
+## Nåværende oppsett
 
-### Test-pyramide
-
-```
-         ┌─────────────────────────┐
-         │   E2E (Playwright)      │  Få, kritiske journeys
-         │   - Landing → CTA       │
-         │   - OKR happy path      │
-         │   - Konseptspeilet      │
-         │   - Feilsider           │
-         └───────────┬─────────────┘
-                     │
-    ┌────────────────┴────────────────┐
-    │   Unit/Integration (Vitest)     │  Forretningslogikk
-    │   - form-validation             │
-    │   - okr-parser                  │
-    │   - konseptspeil-parser         │
-    │   - okr-service (mocked)        │
-    └────────────────┬────────────────┘
-                     │
-    ┌────────────────┴────────────────┐
-    │   Static Analysis               │  Alltid først
-    │   - TypeScript strict           │
-    │   - ESLint                      │
-    └─────────────────────────────────┘
-```
-
-### Unit-tester (Vitest)
-- **Hvor:** `src/**/*.test.ts`
-- **Hva:** Parsers, validering, service-logikk med mocked fetch
-- **Kjør:** `npm run test:unit`
-
-### E2E-tester (Playwright)
-- **Hvor:** `tests/*.smoke.ts`, `tests/*.spec.ts`
-- **Hva:** Kritiske brukerreiser, visuell regresjon, kontrast
-- **Kjør:** `npm run test:e2e` (smoke) eller `npm run test:e2e:all`
-
-### A11y-tester (axe-core)
-- **Hvor:** `tests/a11y.spec.ts`
-- **Hva:** WCAG 2.1 AA brudd på nøkkelsider
-- **Kjør:** `npm run test:a11y`
-
----
-
-## Kommandoer
-
-| Kommando | Beskrivelse |
-|----------|-------------|
-| `npm run test` | **Golden command** - typecheck + lint + unit + smoke |
-| `npm run typecheck` | TypeScript-sjekk |
-| `npm run lint` | ESLint |
-| `npm run lint:fix` | ESLint med auto-fix |
-| `npm run test:unit` | Vitest unit-tester |
-| `npm run test:unit:watch` | Vitest i watch mode |
-| `npm run test:unit:coverage` | Unit-tester med coverage |
-| `npm run test:e2e` | Playwright smoke-tester |
-| `npm run test:e2e:all` | Alle Playwright-prosjekter |
-| `npm run test:a11y` | Accessibility-tester |
-| `npm run test:konseptspeilet` | Konseptspeilet E2E |
-| `npm run test:ui` | Playwright interaktiv UI |
-
----
-
-## Skrive nye tester
+### Statisk analyse
+- **ESLint** med flat config for TypeScript og Astro
+- Integrert i pre-commit hooks via Husky og lint-staged
+- Pragmatisk regelset som fanger reelle feil uten å være pedantisk
 
 ### Unit-tester
-
-1. Lag fil ved siden av koden: `my-util.test.ts`
-2. Bruk Arrange-Act-Assert:
-
-```typescript
-import { describe, it, expect } from 'vitest';
-import { myFunction } from './my-util';
-
-describe('myFunction', () => {
-  it('returns expected value for valid input', () => {
-    // Arrange
-    const input = 'test';
-
-    // Act
-    const result = myFunction(input);
-
-    // Assert
-    expect(result).toBe('expected');
-  });
-});
-```
+- **Vitest** med happy-dom for DOM-simulering
+- Dekker form-validering, OKR-parser, konseptspeil-parser, og okr-service
+- 78 tester med god dekning av forretningslogikk
 
 ### E2E-tester
+- **Playwright** med prosjekter for smoke, a11y, visual, og spesifikke features
+- Konseptspeilet har full E2E-dekning med API-mocking (6 tester)
+- OKR-sjekken dekkes via smoke-tester og dedikert spec
 
-1. Lag fil i `tests/`: `my-feature.smoke.ts`
-2. Hold testene korte og stabile:
+### CI/CD
+- **PR-workflow** kjører alle quality gates parallelt
+- **Nightly** kjører full suite med coverage-rapport kl 03:00 UTC
+- Artefakter lastes kun opp ved feil
 
-```typescript
-import { test, expect } from '@playwright/test';
-
-test('user can complete primary action', async ({ page }) => {
-  await page.goto('/my-page');
-  await page.click('button[type="submit"]');
-  await expect(page.locator('.success')).toBeVisible();
-});
-```
-
-### E2E med API-mocking
-
-```typescript
-test.beforeEach(async ({ page }) => {
-  await page.route('**/api/my-endpoint', async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({ data: 'mocked' }),
-    });
-  });
-});
-```
+### Pre-commit hooks
+- Typecheck kjører på alle commits
+- Lint-staged kjører ESLint på endrede filer
+- Kan bypasses med `--no-verify` ved behov (bruk sjelden)
 
 ---
 
-## CI
+## Hva som bevisst ikke er testet
 
-### PR-workflow (`ci.yml`)
-Kjører automatisk på PR til main:
-1. TypeScript check
-2. ESLint
-3. Unit-tester
-4. E2E smoke
-5. A11y-tester
+Følgende er bevisste valg, ikke mangler:
 
-Artifacts lastes opp kun ved feil.
-
-### Nightly (`nightly.yml`)
-Kjører kl 03:00 UTC hver dag:
-- Full test suite inkludert alle Playwright-prosjekter
-- Coverage-rapport
+| Område | Begrunnelse |
+|--------|-------------|
+| Ekte Anthropic API-kall | Mockes for stabilitet, hastighet og kostnadskontroll |
+| Full visual regression | Kjøres manuelt ved behov; automatisering gir for mye støy |
+| Komplett WCAG-compliance | Fokuserer på alvorlige brudd; full compliance er et designansvar |
+| Load/performance testing | Kjøres manuelt med k6 ved behov; ikke del av CI |
 
 ---
 
-## Vanlige problemer
+## Neste forbedringer
 
-### Playwright timeout
+Når det gir mening:
+
+1. **Utvide E2E-journeys** når produktflyt endres eller nye features lanseres
+2. **Vedlikeholde visual baselines** ved større designendringer
+3. **Vurdere strengere a11y** hvis brukergruppen krever det
+4. **Legge til flere unit-tester** for nye services og utils
+
+---
+
+## Feilsøking
+
+### Pre-commit feiler
 ```bash
-# Øk timeout i testen:
-test.setTimeout(60000);
+# Bypass midlertidig (bruk sjelden):
+git commit --no-verify -m "message"
+```
 
-# Eller kjør med debug:
+### E2E timeout
+```bash
+# Debug interaktivt:
 PWDEBUG=1 npm run test:e2e
 ```
 
 ### Vitest finner ikke modul
 ```bash
-# Sjekk at happy-dom er installert:
-npm ls happy-dom
-
-# Reinstaller dependencies:
 rm -rf node_modules && npm ci
 ```
 
-### TypeScript-feil i .astro
-```bash
-# Kjør astro check direkte:
-npx astro check
-
-# Se detaljert output:
-npx astro check --verbose
-```
-
-### ESLint-feil
-```bash
-# Auto-fix der mulig:
-npm run lint:fix
-
-# Se spesifikk fil:
-npx eslint src/my-file.ts
-```
-
-### A11y-tester feiler
-A11y-testene failer kun på `critical` og `serious` brudd. Sjekk console-output for detaljer om hvilket element som feiler og hvorfor. Bruk [deque axe extension](https://www.deque.com/axe/browser-extensions/) for debugging i nettleseren.
-
-### Pre-commit hook feiler
-```bash
-# Bypass midlertidig (bruk sjelden):
-git commit --no-verify -m "message"
-
-# Reinstaller hooks:
-npx husky install
-```
-
----
-
-## Hva vi bevisst ikke tester
-
-- **Visuelt layout** - bruker visual regression snapshots (kjør `npm run test:visual`)
-- **Tredjeparts API-respons** - mocker Anthropic-kall
-- **Full a11y-compliance** - kun alvorlige brudd blokkerer
+For mer detaljert feilsøking, se kommentarer i de individuelle testfilene.
