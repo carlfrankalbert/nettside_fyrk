@@ -193,6 +193,164 @@ git commit --allow-empty -m "Trigger CI" && git push
 
 ---
 
+## CI Error Fix Routine
+
+Når CI feiler i GitHub, følg denne rutinen for rask feilretting:
+
+### Steg 1: Identifiser feilen
+
+1. Åpne GitHub Actions-loggen for den feilende jobben
+2. Se hvilken jobb som feilet:
+   - **Quality Gates** → typecheck, lint, eller unit-tester
+   - **E2E Smoke Tests** → Playwright smoke-tester
+   - **Accessibility Tests** → axe-core a11y-tester
+
+### Steg 2: Reproduser lokalt
+
+```bash
+# For Quality Gates-feil:
+npm run typecheck      # Hvis TypeScript check feilet
+npm run lint           # Hvis Lint feilet
+npm run test:unit      # Hvis Unit tests feilet
+
+# For E2E Smoke-feil:
+npm run build && npm run test:e2e
+
+# For A11y-feil:
+npm run build && npm run test:a11y
+```
+
+### Steg 3: Fiks basert på feiltype
+
+#### TypeScript-feil (`npm run typecheck`)
+
+| Feilmelding | Årsak | Fix |
+|-------------|-------|-----|
+| `Type 'X' is not assignable to type 'Y'` | Feil type | Oppdater type eller cast riktig |
+| `Property 'X' does not exist` | Manglende property | Sjekk interface/type definisjon |
+| `Cannot find module 'X'` | Manglende import | Legg til import eller installer pakke |
+| `'X' is declared but never used` | Ubrukt variabel | Fjern eller bruk variabelen |
+
+```bash
+# Kjør typecheck med watch for iterativ fixing:
+npx astro check --watch
+```
+
+#### Lint-feil (`npm run lint`)
+
+```bash
+# Auto-fiks det som kan fikses:
+npm run lint:fix
+
+# Hvis auto-fix ikke virker, les feilmeldingen og fiks manuelt
+npm run lint
+```
+
+| Vanlig regel | Betydning | Fix |
+|--------------|-----------|-----|
+| `no-unused-vars` | Ubrukt variabel | Fjern eller prefikser med `_` |
+| `@typescript-eslint/no-explicit-any` | Bruker `any` | Definer riktig type |
+| `prefer-const` | Variabel endres aldri | Bytt `let` til `const` |
+
+#### Unit-test-feil (`npm run test:unit`)
+
+```bash
+# Kjør med detaljert output:
+npm run test:unit -- --reporter=verbose
+
+# Kjør enkelt test for debugging:
+npm run test:unit -- --grep "testnavn"
+
+# Watch mode for iterativ fixing:
+npm run test:unit:watch
+```
+
+| Feiltype | Diagnose | Fix |
+|----------|----------|-----|
+| Assertion failed | Forventet vs faktisk verdi | Oppdater test eller fiks kode |
+| Import error | Modulsti feil | Sjekk paths i tsconfig |
+| Timeout | Async operasjon tar for lang tid | Øk timeout eller mock |
+
+#### E2E-feil (`npm run test:e2e`)
+
+```bash
+# Debug interaktivt:
+PWDEBUG=1 npm run test:e2e
+
+# Kjør med headed browser:
+npm run test:e2e -- --headed
+
+# Kjør spesifikk test:
+npm run test:e2e -- --grep "testnavn"
+
+# Se trace fra failed tests:
+npx playwright show-report
+```
+
+| Feiltype | Diagnose | Fix |
+|----------|----------|-----|
+| `Timeout waiting for selector` | Element finnes ikke/tar lang tid | Sjekk selector, øk timeout |
+| `strict mode violation` | Selector matcher flere elementer | Bruk `.first()` eller mer spesifikk selector |
+| `Target closed` | Side krasjet/navigerte bort | Sjekk for console errors i trace |
+| `locator.click: Target detached` | Element fjernet under interaksjon | Legg til `waitFor()` |
+
+#### A11y-feil (`npm run test:a11y`)
+
+```bash
+# Kjør a11y-tester med detaljert rapport:
+npm run test:a11y
+
+# Sjekk spesifikk side:
+npm run test:a11y -- --grep "sidename"
+```
+
+| Vanlig a11y-feil | Fix |
+|------------------|-----|
+| `color-contrast` | Bruk mørkere tekst (neutral-600+) eller lysere bakgrunn |
+| `button-name` | Legg til `aria-label` eller synlig tekst |
+| `image-alt` | Legg til `alt`-attributt på bilder |
+| `link-name` | Legg til synlig tekst eller `aria-label` på lenker |
+| `heading-order` | Ikke hopp over heading-nivåer (h1→h3) |
+
+### Steg 4: Verifiser fix lokalt
+
+```bash
+# Kjør full test-suite før push:
+npm run test
+
+# Eller kjør bare det som feilet + avhengigheter:
+npm run typecheck && npm run lint && npm run test:unit  # For Quality Gates
+npm run build && npm run test:e2e                        # For E2E
+npm run build && npm run test:a11y                       # For A11y
+```
+
+### Steg 5: Push og verifiser i CI
+
+```bash
+git add -A && git commit -m "Fix: beskrivelse av fix" && git push
+```
+
+### Quick Reference: CI Job → Lokal Kommando
+
+| CI Job | Lokal reproduksjon | Debug-modus |
+|--------|-------------------|-------------|
+| TypeScript check | `npm run typecheck` | `npx astro check --watch` |
+| Lint | `npm run lint` | `npm run lint:fix` |
+| Unit tests | `npm run test:unit` | `npm run test:unit:watch` |
+| E2E Smoke Tests | `npm run build && npm run test:e2e` | `PWDEBUG=1 npm run test:e2e` |
+| Accessibility Tests | `npm run build && npm run test:a11y` | `npm run test:ui` |
+
+### Vanlige CI-spesifikke problemer
+
+| Problem | Årsak | Løsning |
+|---------|-------|---------|
+| Tester passerer lokalt, feiler i CI | Miljøforskjeller (fonts, timing) | Bruk `waitFor()`, unngå hardkodede timeouts |
+| `npm ci` feiler | Lockfile ut av sync | Kjør `npm install` lokalt og commit `package-lock.json` |
+| Playwright install feiler | Cache-problemer | CI cacher browsere, sjekk Playwright-versjon |
+| Build feiler kun i CI | Manglende env-variabler | Sjekk repository secrets i GitHub |
+
+---
+
 ## Hvordan dette brukes i praksis
 
 Under utvikling fanger pre-commit hooks de fleste feil før koden forlater din maskin. Ved PR kjører CI alle quality gates automatisk – typecheck, lint, unit og E2E smoke. Nightly kjører full suite med coverage for å fange regresjoner som slipper gjennom.
