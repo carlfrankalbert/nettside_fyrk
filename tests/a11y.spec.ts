@@ -85,8 +85,8 @@ test('OKR-sjekken form is keyboard accessible', async ({ page }) => {
   await page.waitForLoadState('networkidle');
 
   // Check that main interactive elements are focusable
-  const textarea = page.locator('textarea').first();
-  const submitButton = page.locator('button[type="submit"]').first();
+  const _textarea = page.locator('textarea').first();
+  const _submitButton = page.locator('button[type="submit"]').first();
 
   // Tab to textarea
   await page.keyboard.press('Tab');

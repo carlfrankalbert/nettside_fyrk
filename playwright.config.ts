@@ -114,6 +114,12 @@ export default defineConfig({
       testMatch: /a11y\.spec\.ts/,
       use: { ...devices['Desktop Chrome'] },
     },
+    // Konseptspeilet E2E tests
+    {
+      name: 'konseptspeilet',
+      testMatch: /konseptspeilet\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
     // Add more configurations as needed based on analytics
   ],
 

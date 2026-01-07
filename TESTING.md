@@ -8,10 +8,21 @@ npm run test
 
 Denne kommandoen kjører:
 1. **TypeScript check** - Verifiserer typesikkerhet
-2. **Unit-tester** - Vitest på services og utils
-3. **E2E smoke** - Playwright på kritiske sider
+2. **ESLint** - Konsistent kodestil
+3. **Unit-tester** - Vitest på services og utils
+4. **E2E smoke** - Playwright på kritiske sider
 
 Grønn = trygt å shippe.
+
+---
+
+## Pre-commit hooks
+
+Prosjektet bruker Husky for pre-commit hooks:
+- **Typecheck** - Kjører `astro check` før hver commit
+- **Lint-staged** - Linter kun endrede filer
+
+Installeres automatisk med `npm install` via `prepare` script.
 
 ---
 
@@ -24,6 +35,7 @@ Grønn = trygt å shippe.
          │   E2E (Playwright)      │  Få, kritiske journeys
          │   - Landing → CTA       │
          │   - OKR happy path      │
+         │   - Konseptspeilet      │
          │   - Feilsider           │
          └───────────┬─────────────┘
                      │
@@ -38,6 +50,7 @@ Grønn = trygt å shippe.
     ┌────────────────┴────────────────┐
     │   Static Analysis               │  Alltid først
     │   - TypeScript strict           │
+    │   - ESLint                      │
     └─────────────────────────────────┘
 ```
 
@@ -62,14 +75,17 @@ Grønn = trygt å shippe.
 
 | Kommando | Beskrivelse |
 |----------|-------------|
-| `npm run test` | **Golden command** - typecheck + unit + smoke |
+| `npm run test` | **Golden command** - typecheck + lint + unit + smoke |
 | `npm run typecheck` | TypeScript-sjekk |
+| `npm run lint` | ESLint |
+| `npm run lint:fix` | ESLint med auto-fix |
 | `npm run test:unit` | Vitest unit-tester |
 | `npm run test:unit:watch` | Vitest i watch mode |
 | `npm run test:unit:coverage` | Unit-tester med coverage |
 | `npm run test:e2e` | Playwright smoke-tester |
 | `npm run test:e2e:all` | Alle Playwright-prosjekter |
 | `npm run test:a11y` | Accessibility-tester |
+| `npm run test:konseptspeilet` | Konseptspeilet E2E |
 | `npm run test:ui` | Playwright interaktiv UI |
 
 ---
@@ -114,17 +130,38 @@ test('user can complete primary action', async ({ page }) => {
 });
 ```
 
+### E2E med API-mocking
+
+```typescript
+test.beforeEach(async ({ page }) => {
+  await page.route('**/api/my-endpoint', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ data: 'mocked' }),
+    });
+  });
+});
+```
+
 ---
 
 ## CI
 
-PR-workflow (`ci.yml`) kjører automatisk:
+### PR-workflow (`ci.yml`)
+Kjører automatisk på PR til main:
 1. TypeScript check
-2. Unit-tester
-3. E2E smoke
-4. A11y-tester
+2. ESLint
+3. Unit-tester
+4. E2E smoke
+5. A11y-tester
 
 Artifacts lastes opp kun ved feil.
+
+### Nightly (`nightly.yml`)
+Kjører kl 03:00 UTC hver dag:
+- Full test suite inkludert alle Playwright-prosjekter
+- Coverage-rapport
 
 ---
 
@@ -157,8 +194,26 @@ npx astro check
 npx astro check --verbose
 ```
 
+### ESLint-feil
+```bash
+# Auto-fix der mulig:
+npm run lint:fix
+
+# Se spesifikk fil:
+npx eslint src/my-file.ts
+```
+
 ### A11y-tester feiler
 A11y-testene failer kun på `critical` og `serious` brudd. Sjekk console-output for detaljer om hvilket element som feiler og hvorfor. Bruk [deque axe extension](https://www.deque.com/axe/browser-extensions/) for debugging i nettleseren.
+
+### Pre-commit hook feiler
+```bash
+# Bypass midlertidig (bruk sjelden):
+git commit --no-verify -m "message"
+
+# Reinstaller hooks:
+npx husky install
+```
 
 ---
 
