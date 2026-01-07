@@ -44,7 +44,7 @@ export function TrafficChart({ pageId, stats }: TrafficChartProps) {
     setLoading(true);
     try {
       const response = await fetch(`/api/pageview?timeseries=true&pageId=${pageId}&period=${period}`);
-      const result = await response.json();
+      const result = (await response.json()) as { timeseries?: TimeseriesPoint[] };
       if (result.timeseries) {
         setData(result.timeseries);
       }

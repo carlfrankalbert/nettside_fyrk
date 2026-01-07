@@ -49,9 +49,9 @@
     const html = document.documentElement;
     
     // Get theme from localStorage or system preference
-    function getInitialTheme() {
+    function getInitialTheme(): 'light' | 'dark' {
       const stored = localStorage.getItem('theme');
-      if (stored) {
+      if (stored === 'dark' || stored === 'light') {
         return stored;
       }
       // Check system preference

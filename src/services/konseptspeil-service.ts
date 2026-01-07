@@ -86,7 +86,7 @@ async function performStreamingRequest(
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = (await response.json().catch(() => ({}))) as { error?: string };
     if (response.status === 429) {
       throw new Error(ERROR_MESSAGES.RATE_LIMIT);
     }
@@ -116,7 +116,7 @@ async function performStreamingRequest(
         if (data === '[DONE]') continue;
 
         try {
-          const event = JSON.parse(data);
+          const event = JSON.parse(data) as { error?: boolean; message?: string; text?: string };
           if (event.error) {
             throw new Error(event.message || ERROR_MESSAGES.DEFAULT);
           }
@@ -270,14 +270,14 @@ export async function speileKonsept(input: string): Promise<{ output: string; ca
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = (await response.json().catch(() => ({}))) as { error?: string };
     if (response.status === 429) {
       throw new Error(ERROR_MESSAGES.RATE_LIMIT);
     }
     throw new Error(errorData.error || ERROR_MESSAGES.DEFAULT);
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as { output?: string; cached?: boolean };
 
   // Cache the result
   if (data.output) {
@@ -285,7 +285,7 @@ export async function speileKonsept(input: string): Promise<{ output: string; ca
   }
 
   return {
-    output: data.output,
-    cached: data.cached || false,
+    output: data.output ?? '',
+    cached: data.cached ?? false,
   };
 }

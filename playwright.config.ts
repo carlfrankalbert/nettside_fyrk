@@ -108,6 +108,12 @@ export default defineConfig({
       testMatch: /theme-toggle\.spec\.ts/,
       use: { ...devices['Desktop Chrome'] },
     },
+    // Accessibility tests with axe-core
+    {
+      name: 'a11y',
+      testMatch: /a11y\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
     // Add more configurations as needed based on analytics
   ],
 

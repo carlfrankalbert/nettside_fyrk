@@ -72,7 +72,7 @@ export const POST: APIRoute = async ({ locals, request }) => {
     // Parse request body to get pageId
     let pageId: PageId = 'home';
     try {
-      const body = await request.json();
+      const body = (await request.json()) as { pageId?: string };
       if (body.pageId && body.pageId in TRACKED_PAGES) {
         pageId = body.pageId as PageId;
       }

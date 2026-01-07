@@ -114,7 +114,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
-    const { input, stream = false } = await request.json();
+    const { input, stream = false } = (await request.json()) as { input?: string; stream?: boolean };
 
     // Basic presence check
     if (!input?.trim()) {

@@ -30,16 +30,16 @@ const headingClasses = {
   6: 'text-h6',
 };
 
-const HeadingTag = `h${headingLevel}` as keyof astroHTML.JSX.IntrinsicElements;
+const headingStyle = cn(headingClasses[headingLevel], 'mb-6 md:mb-8', textClasses.primary, 'font-bold tracking-tight');
 ---
 
 <div class={cn('text-center', className)}>
-  <HeadingTag
-    id={headingId}
-    class={cn(headingClasses[headingLevel], 'mb-6 md:mb-8', textClasses.primary, 'font-bold tracking-tight')}
-  >
-    {heading}
-  </HeadingTag>
+  {headingLevel === 1 && <h1 id={headingId} class={headingStyle}>{heading}</h1>}
+  {headingLevel === 2 && <h2 id={headingId} class={headingStyle}>{heading}</h2>}
+  {headingLevel === 3 && <h3 id={headingId} class={headingStyle}>{heading}</h3>}
+  {headingLevel === 4 && <h4 id={headingId} class={headingStyle}>{heading}</h4>}
+  {headingLevel === 5 && <h5 id={headingId} class={headingStyle}>{heading}</h5>}
+  {headingLevel === 6 && <h6 id={headingId} class={headingStyle}>{heading}</h6>}
   {description && (
     <p class={cn('text-lg md:text-xl', textClasses.secondary, 'max-w-[70ch] mx-auto leading-relaxed')}>
       {description}

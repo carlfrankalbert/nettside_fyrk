@@ -333,7 +333,7 @@ class WebVitalsMonitor {
     });
 
     try {
-      observer.observe({ type: 'event', buffered: true, durationThreshold: 40 });
+      observer.observe({ type: 'event', buffered: true, durationThreshold: 40 } as PerformanceObserverInitExtended);
     } catch {
       // INP not supported
       return;
@@ -349,10 +349,15 @@ class WebVitalsMonitor {
   }
 }
 
-// Type declarations for PerformanceEventTiming
+// Type declarations for PerformanceEventTiming (extends browser API)
 interface PerformanceEventTiming extends PerformanceEntry {
-  processingStart: number;
-  interactionId?: number;
+  readonly processingStart: number;
+  readonly interactionId?: number;
+}
+
+// Extended observer options for INP measurement
+interface PerformanceObserverInitExtended extends PerformanceObserverInit {
+  durationThreshold?: number;
 }
 
 // Initialize monitoring

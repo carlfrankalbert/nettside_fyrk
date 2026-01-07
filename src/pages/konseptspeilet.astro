@@ -65,7 +65,7 @@ export const prerender = false;
     initTrackingHelpers();
 
     // Sync mobile CTA with main form
-    const mobileBtn = document.getElementById('mobile-submit-btn');
+    const mobileBtn = document.getElementById('mobile-submit-btn') as HTMLButtonElement | null;
     const mobileCTABar = document.getElementById('mobile-cta-bar');
 
     if (mobileBtn && mobileCTABar) {

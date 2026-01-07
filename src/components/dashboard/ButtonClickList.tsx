@@ -46,7 +46,7 @@ function ButtonRow({ button, maxCount }: { button: ButtonData; maxCount: number 
     setLoading(true);
     try {
       const response = await fetch(`/api/track?timeseries=true&buttonId=${button.id}&period=${period}`);
-      const result = await response.json();
+      const result = (await response.json()) as { timeseries?: TimeseriesPoint[] };
       if (result.timeseries) {
         setChartData(result.timeseries);
       }
