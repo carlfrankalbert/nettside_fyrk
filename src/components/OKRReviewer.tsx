@@ -122,15 +122,6 @@ export default function OKRReviewer() {
     }));
   }, [input, loading, result]);
 
-  // Listen for mobile submit trigger
-  useEffect(() => {
-    const handleMobileSubmit = () => {
-      handleSubmit();
-    };
-    window.addEventListener('okr:submit', handleMobileSubmit);
-    return () => window.removeEventListener('okr:submit', handleMobileSubmit);
-  }, [handleSubmit]);
-
   /**
    * Handle paste events to decode URL-encoded text
    * This fixes an iOS Safari bug where copied text sometimes gets URL-encoded
@@ -259,6 +250,15 @@ export default function OKRReviewer() {
       abortControllerRef.current.signal
     );
   }, [input, loading]);
+
+  // Listen for mobile submit trigger
+  useEffect(() => {
+    const handleMobileSubmit = () => {
+      handleSubmit();
+    };
+    window.addEventListener('okr:submit', handleMobileSubmit);
+    return () => window.removeEventListener('okr:submit', handleMobileSubmit);
+  }, [handleSubmit]);
 
   return (
     <div className="space-y-6" aria-busy={loading}>
