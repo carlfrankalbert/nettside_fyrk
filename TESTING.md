@@ -155,3 +155,17 @@ rm -rf node_modules && npm ci
 ```
 
 For mer detaljert feilsøking, se kommentarer i de individuelle testfilene.
+
+---
+
+## Hvordan dette brukes i praksis
+
+Under utvikling fanger pre-commit hooks de fleste feil før koden forlater din maskin. Ved PR kjører CI alle quality gates automatisk – typecheck, lint, unit og E2E smoke. Nightly kjører full suite med coverage for å fange regresjoner som slipper gjennom.
+
+Før deploy er regelen enkel: kjør `npm run test` lokalt. Når `npm run test` er grønt, kan vi deploye med ro.
+
+Dette er ikke et perfekt system – det er et pragmatisk system som gir oss trygghet i de beslutningene som teller.
+
+---
+
+*Dette dokumentet følger FYRK Quality Standard.*
