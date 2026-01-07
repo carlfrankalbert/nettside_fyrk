@@ -55,7 +55,8 @@ test.describe('Konseptspeilet', () => {
 
     // Check page title and main heading
     await expect(page).toHaveTitle(/Konseptspeilet/);
-    await expect(page.locator('h1')).toContainText('Konseptspeilet');
+    // Main h1 says "Få klarhet i konseptet ditt"
+    await expect(page.getByRole('heading', { level: 1 }).first()).toContainText('klarhet');
   });
 
   test('shows character counter and validation', async ({ page }) => {
@@ -63,7 +64,8 @@ test.describe('Konseptspeilet', () => {
     await page.waitForLoadState('networkidle');
 
     const textarea = page.locator('textarea').first();
-    const submitButton = page.locator('button[type="submit"]').first();
+    // Button uses type="button" not type="submit"
+    const submitButton = page.getByRole('button', { name: /Speil konseptet/i });
 
     // Initially button should be disabled (no input)
     await expect(submitButton).toBeDisabled();
@@ -83,7 +85,7 @@ test.describe('Konseptspeilet', () => {
     await page.waitForLoadState('networkidle');
 
     const textarea = page.locator('textarea').first();
-    const submitButton = page.locator('button[type="submit"]').first();
+    const submitButton = page.getByRole('button', { name: /Speil konseptet/i });
 
     // Enter valid concept description
     const conceptDescription = `
@@ -120,7 +122,7 @@ test.describe('Konseptspeilet', () => {
     await page.waitForLoadState('networkidle');
 
     const textarea = page.locator('textarea').first();
-    const submitButton = page.locator('button[type="submit"]').first();
+    const submitButton = page.getByRole('button', { name: /Speil konseptet/i });
 
     await textarea.fill('En lang nok tekst for å teste loading-tilstanden i appen vår.');
     await submitButton.click();
@@ -143,7 +145,7 @@ test.describe('Konseptspeilet', () => {
     await page.waitForLoadState('networkidle');
 
     const textarea = page.locator('textarea').first();
-    const submitButton = page.locator('button[type="submit"]').first();
+    const submitButton = page.getByRole('button', { name: /Speil konseptet/i });
 
     await textarea.fill('En tekst som vil utløse en feil fra API-et for testing.');
     await submitButton.click();
@@ -157,15 +159,15 @@ test.describe('Konseptspeilet', () => {
     await page.waitForLoadState('networkidle');
 
     const textarea = page.locator('textarea').first();
-    const submitButton = page.locator('button[type="submit"]').first();
+    const submitButton = page.getByRole('button', { name: /Speil konseptet/i });
 
     // First submission
     await textarea.fill('Første konseptbeskrivelse som er lang nok til analyse.');
     await submitButton.click();
     await expect(page.locator('text=Antagelser i teksten')).toBeVisible({ timeout: 10000 });
 
-    // Look for reset/new analysis button
-    const resetButton = page.locator('button:has-text("Ny"), button:has-text("Prøv igjen"), button:has-text("Nullstill")').first();
+    // Look for reset/new analysis button ("Start på nytt" on desktop, "Skriv nytt konsept" on mobile)
+    const resetButton = page.getByRole('button', { name: /Start på nytt|Skriv nytt konsept/i });
 
     if (await resetButton.isVisible()) {
       await resetButton.click();
