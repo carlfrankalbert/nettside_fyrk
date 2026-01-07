@@ -75,6 +75,7 @@ export default [
       'dist/**',
       'node_modules/**',
       '.astro/**',
+      '.wrangler/**',
       '*.d.ts',
       'playwright-report/**',
       'test-results/**',
