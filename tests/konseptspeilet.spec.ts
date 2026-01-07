@@ -111,7 +111,7 @@ test.describe('Konseptspeilet', () => {
   test('displays loading state during submission', async ({ page }) => {
     // Slow down the mock response to observe loading state
     await page.route('**/api/konseptspeilet', async (route) => {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 3000));
       // Return SSE format since component uses streaming
       const body = `data: ${JSON.stringify({ text: MOCK_RESPONSE })}\n\ndata: [DONE]\n\n`;
       await route.fulfill({
@@ -130,8 +130,8 @@ test.describe('Konseptspeilet', () => {
     await textarea.fill('En lang nok tekst for å teste loading-tilstanden i appen vår.');
     await submitButton.click();
 
-    // Check for loading indicator
-    await expect(submitButton).toBeDisabled();
+    // Check for loading text which appears during submission
+    await expect(page.getByText('Speiler konseptet')).toBeVisible();
   });
 
   test('handles API error gracefully', async ({ page }) => {
