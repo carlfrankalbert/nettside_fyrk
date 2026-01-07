@@ -158,6 +158,41 @@ For mer detaljert feilsøking, se kommentarer i de individuelle testfilene.
 
 ---
 
+## Før du pusher til CI
+
+Kjør alltid testene lokalt før push for å unngå unødvendige CI-feil:
+
+```bash
+# 1. Rask sjekk (typecheck + lint)
+npm run typecheck && npm run lint
+
+# 2. Unit-tester
+npm run test:unit
+
+# 3. Full lokal suite (anbefalt før push)
+npm run test
+```
+
+### Vanlige CI-feil og løsninger
+
+| Problem | Årsak | Løsning |
+|---------|-------|---------|
+| `#a3a3a3` kontrastfeil | Tailwind neutral-400/500 for lys på lys bakgrunn | Bruk `neutral-600` eller mørkere |
+| Strict mode violation | Selector matcher flere elementer | Legg til `.first()` |
+| Button not found | Feil selector (type="submit" vs type="button") | Bruk `getByRole('button', { name: /tekst/i })` |
+| SSE mock feiler | Feil format på streaming response | Bruk `data: {...}\n\ndata: [DONE]\n\n` |
+| E2E timeout | WebServer starter ikke | Sjekk at port 4321 er ledig |
+
+### CI re-run trigger
+
+GitHub "Re-run" knappen kjører samme commit. For å kjøre CI mot nyeste kode:
+
+```bash
+git commit --allow-empty -m "Trigger CI" && git push
+```
+
+---
+
 ## Hvordan dette brukes i praksis
 
 Under utvikling fanger pre-commit hooks de fleste feil før koden forlater din maskin. Ved PR kjører CI alle quality gates automatisk – typecheck, lint, unit og E2E smoke. Nightly kjører full suite med coverage for å fange regresjoner som slipper gjennom.
