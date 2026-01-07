@@ -8,6 +8,7 @@
  */
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import type { Result } from 'axe-core';
 
 // Pages to test for accessibility
 const PAGES_TO_TEST = [
@@ -32,7 +33,7 @@ for (const page of PAGES_TO_TEST) {
 
     // Filter to only critical and serious violations
     const criticalViolations = results.violations.filter(
-      (v) => v.impact === 'critical' || v.impact === 'serious'
+      (v: Result) => v.impact === 'critical' || v.impact === 'serious'
     );
 
     // Log all violations for debugging (including minor ones)
@@ -63,7 +64,7 @@ test('Landing page has sufficient color contrast', async ({ page }) => {
     .analyze();
 
   const seriousContrastIssues = results.violations.filter(
-    (v) => v.impact === 'critical' || v.impact === 'serious'
+    (v: Result) => v.impact === 'critical' || v.impact === 'serious'
   );
 
   if (seriousContrastIssues.length > 0) {
