@@ -26,17 +26,18 @@ test.describe('Konseptspeilet', () => {
       const request = route.request();
       const postData = request.postDataJSON();
 
-      // Simulate streaming response
+      // Simulate streaming response with proper SSE format
       if (postData?.stream) {
-        const chunks = MOCK_RESPONSE.match(/.{1,50}/g) || [MOCK_RESPONSE];
-
-        const body = chunks
-          .map((chunk) => `data: ${JSON.stringify({ text: chunk })}\n`)
-          .join('') + 'data: [DONE]\n';
+        // Send entire response as one SSE event (simpler and more reliable for testing)
+        const body = `data: ${JSON.stringify({ text: MOCK_RESPONSE })}\n\ndata: [DONE]\n\n`;
 
         await route.fulfill({
           status: 200,
           contentType: 'text/event-stream',
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+          },
           body,
         });
       } else {
@@ -111,10 +112,12 @@ test.describe('Konseptspeilet', () => {
     // Slow down the mock response to observe loading state
     await page.route('**/api/konseptspeilet', async (route) => {
       await new Promise((resolve) => setTimeout(resolve, 500));
+      // Return SSE format since component uses streaming
+      const body = `data: ${JSON.stringify({ text: MOCK_RESPONSE })}\n\ndata: [DONE]\n\n`;
       await route.fulfill({
         status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ output: MOCK_RESPONSE, cached: false }),
+        contentType: 'text/event-stream',
+        body,
       });
     });
 
@@ -132,7 +135,7 @@ test.describe('Konseptspeilet', () => {
   });
 
   test('handles API error gracefully', async ({ page }) => {
-    // Mock error response
+    // Mock error response - service checks response.ok first for non-200 status
     await page.route('**/api/konseptspeilet', async (route) => {
       await route.fulfill({
         status: 500,
