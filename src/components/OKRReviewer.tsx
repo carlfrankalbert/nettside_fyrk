@@ -344,14 +344,14 @@ Key Results:
         </div>
       </div>
 
-      {/* Action buttons */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+      {/* Action buttons - desktop only (mobile uses sticky bar) */}
+      <div className="hidden md:flex md:flex-row md:items-center gap-4">
         <button
           type="button"
           onClick={handleSubmit}
           disabled={loading}
           aria-busy={loading}
-          className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+          className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
         >
           {loading ? (
             <>
@@ -367,19 +367,20 @@ Key Results:
           <button
             type="button"
             onClick={handleClearResult}
-            className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
+            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
           >
             Nullstill
           </button>
         )}
-
-        {error && (
-          <p id="okr-error" role="alert" className="text-feedback-error text-sm flex items-center gap-2">
-            <ErrorIcon className="w-4 h-4 flex-shrink-0" />
-            {error}
-          </p>
-        )}
       </div>
+
+      {/* Error display - visible on all viewports */}
+      {error && (
+        <p id="okr-error" role="alert" className="text-feedback-error text-sm flex items-center gap-2">
+          <ErrorIcon className="w-4 h-4 flex-shrink-0" />
+          {error}
+        </p>
+      )}
 
 
       {/* Result area with structured display */}
@@ -402,6 +403,18 @@ Key Results:
         {result && (
           <div className="mt-8 p-6 bg-white border-2 border-neutral-200 rounded-lg shadow-sm">
             <OKRResultDisplay result={result} isStreaming={isStreaming} />
+            {/* Mobile: Show reset button inside result area */}
+            {!loading && (
+              <div className="mt-6 pt-6 border-t border-neutral-200 md:hidden">
+                <button
+                  type="button"
+                  onClick={handleClearResult}
+                  className="w-full inline-flex items-center justify-center px-4 py-3 text-base font-semibold text-neutral-700 bg-neutral-100 hover:bg-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
+                >
+                  Start på nytt
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
