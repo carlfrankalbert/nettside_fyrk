@@ -10,7 +10,7 @@ export const prerender = false;
   description="Lim inn OKR-settet ditt og få tilbakemelding på under ett minutt. Ment som støtte til refleksjon."
 >
   <main id="main-content" class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
-    <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-12 md:py-16 w-full">
+    <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-12 md:py-16 w-full pb-24 md:pb-12">
 
       <!-- Hero -->
       <header class="mb-8">
@@ -35,15 +35,83 @@ export const prerender = false;
         <a href="https://fyrk.no" class="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2">
           FYRK
         </a>
-        {' '}· Drevet av Claude Sonnet
+        {' '}· Drevet av Claude
       </p>
     </footer>
   </main>
+
+  <!-- Mobile sticky bottom bar -->
+  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-neutral-200 px-4 py-3 safe-area-inset-bottom" id="mobile-cta-bar">
+    <button
+      type="button"
+      id="mobile-submit-btn"
+      class="w-full inline-flex items-center justify-center px-6 py-3.5 text-base font-semibold text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 disabled:bg-neutral-200 disabled:text-neutral-400 disabled:cursor-not-allowed transition-all"
+    >
+      <span>Sjekk OKR-settet</span>
+      <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+      </svg>
+    </button>
+  </div>
 
   <script>
     import { initPageViewTracking } from '../scripts/pageview-tracking';
     import { initTrackingHelpers } from '../scripts/tracking-exclusion';
     initPageViewTracking('okr');
     initTrackingHelpers();
+
+    // Sync mobile CTA with main form
+    const mobileBtn = document.getElementById('mobile-submit-btn') as HTMLButtonElement | null;
+    const mobileCTABar = document.getElementById('mobile-cta-bar');
+
+    if (mobileBtn && mobileCTABar) {
+      // Listen for custom events from React component
+      window.addEventListener('okr:inputChange', ((e: CustomEvent) => {
+        const { isLoading, hasResult } = e.detail;
+        mobileBtn.disabled = isLoading;
+
+        // Hide bar when result is shown
+        if (hasResult) {
+          mobileCTABar.classList.add('translate-y-full');
+        } else {
+          mobileCTABar.classList.remove('translate-y-full');
+        }
+
+        // Update button text for loading state
+        if (isLoading) {
+          mobileBtn.innerHTML = `
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Vurderer OKR-ene...</span>
+          `;
+        } else {
+          mobileBtn.innerHTML = `
+            <span>Sjekk OKR-settet</span>
+            <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          `;
+        }
+      }) as EventListener);
+
+      // Forward click to main form
+      mobileBtn.addEventListener('click', () => {
+        window.dispatchEvent(new CustomEvent('okr:submit'));
+      });
+    }
   </script>
+
+  <style>
+    /* Safe area for mobile devices with home indicator */
+    .safe-area-inset-bottom {
+      padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    }
+
+    /* Smooth transition for mobile bar */
+    #mobile-cta-bar {
+      transition: transform 0.3s ease-out;
+    }
+  </style>
 </MinimalLayout>
