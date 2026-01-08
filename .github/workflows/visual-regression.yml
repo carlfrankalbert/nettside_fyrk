@@ -1,42 +1,40 @@
-name: Monthly Visual Regression
+name: Weekly Visual Regression (Full Browser Matrix)
 
 on:
   schedule:
-    - cron: '0 8 1 * *'  # First day of each month at 08:00 UTC
+    - cron: '0 8 * * 0'  # Every Sunday at 08:00 UTC
   workflow_dispatch:
 
 jobs:
   visual-regression:
+    name: Full Visual Regression Suite
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      
+
       - uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
-      - name: Build site
-        run: npm run build
-      
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
-      
-      # Visual regression tests verify appearance against approved baselines
-      # Any deviation must be reviewed and either fixed or approved as new baseline
-      - name: Run visual regression tests
+
+      # Comprehensive visual regression across all browsers/devices
+      # Post-deploy covers Chrome + mobile; this catches cross-browser issues
+      - name: Visual regression (all browsers)
         env:
           PLAYWRIGHT_TEST_BASE_URL: https://fyrk.no
         run: npx playwright test --project=visual --project=visual-firefox --project=visual-safari --project=visual-iphone14 --project=visual-pixel7 --project=visual-ipad --project=visual-mobile
-      
-      - name: Run mobile UX tests
+
+      - name: Mobile UX tests
         env:
           PLAYWRIGHT_TEST_BASE_URL: https://fyrk.no
         run: npx playwright test --project=ux-mobile
-      
+
       - name: Upload visual diff artifacts
         if: always()
         uses: actions/upload-artifact@v6
@@ -45,5 +43,4 @@ jobs:
           path: |
             playwright-report/
             test-results/
-          retention-days: 30
-
+          retention-days: 14

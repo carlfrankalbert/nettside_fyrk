@@ -1,22 +1,24 @@
 name: Lighthouse CI
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  # Run after deploy to track performance trends
+  workflow_run:
+    workflows: ["Deploy to GitHub Pages"]
+    types:
+      - completed
   schedule:
     - cron: '0 7 * * 1'  # Every Monday at 07:00 UTC
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch:
 
 permissions:
   contents: read
-  pull-requests: write
-  issues: write
 
 jobs:
   lighthouse:
+    name: Performance Audit
     runs-on: ubuntu-latest
+    # Only run if deploy was successful (or manual/scheduled trigger)
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name != 'workflow_run' }}
     steps:
       - uses: actions/checkout@v6
 
@@ -28,8 +30,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build site
-        run: npm run build
+      # Wait for deployment to propagate
+      - name: Wait for deployment propagation
+        if: github.event_name == 'workflow_run'
+        run: sleep 30
 
       - name: Run Lighthouse CI
         id: lighthouse
@@ -39,6 +43,7 @@ jobs:
           urls: |
             https://fyrk.no/
             https://fyrk.no/okr-sjekken
+            https://fyrk.no/konseptspeilet
           uploadArtifacts: true
           temporaryPublicStorage: true
 
@@ -57,13 +62,13 @@ jobs:
 
             // Check if manifest exists
             if (!fs.existsSync('.lighthouseci/manifest.json')) {
-              core.setOutput('comment', '## Lighthouse Results\n\n⚠️ Lighthouse run did not produce results.');
+              core.setOutput('summary', '## Lighthouse Results\n\n⚠️ Lighthouse run did not produce results.');
               return;
             }
 
             const results = JSON.parse(fs.readFileSync('.lighthouseci/manifest.json', 'utf8'));
 
-            let comment = '## Lighthouse Results\n\n';
+            let summary = '## Lighthouse Results\n\n';
 
             for (const result of results) {
               const lhr = JSON.parse(fs.readFileSync(result.jsonPath, 'utf8'));
@@ -82,73 +87,36 @@ jobs:
                 return '🔴';
               };
 
-              comment += `### ${url}\n\n`;
-              comment += `| Category | Score |\n`;
-              comment += `|----------|-------|\n`;
-              comment += `| ${getEmoji(scores.performance)} Performance | ${scores.performance} |\n`;
-              comment += `| ${getEmoji(scores.accessibility)} Accessibility | ${scores.accessibility} |\n`;
-              comment += `| ${getEmoji(scores.bestPractices)} Best Practices | ${scores.bestPractices} |\n`;
-              comment += `| ${getEmoji(scores.seo)} SEO | ${scores.seo} |\n\n`;
+              summary += `### ${url}\n\n`;
+              summary += `| Category | Score |\n`;
+              summary += `|----------|-------|\n`;
+              summary += `| ${getEmoji(scores.performance)} Performance | ${scores.performance} |\n`;
+              summary += `| ${getEmoji(scores.accessibility)} Accessibility | ${scores.accessibility} |\n`;
+              summary += `| ${getEmoji(scores.bestPractices)} Best Practices | ${scores.bestPractices} |\n`;
+              summary += `| ${getEmoji(scores.seo)} SEO | ${scores.seo} |\n\n`;
 
               // Add Core Web Vitals
               const lcp = lhr.audits['largest-contentful-paint']?.numericValue;
-              const fid = lhr.audits['max-potential-fid']?.numericValue;
-              const cls = lhr.audits['cumulative-layout-shift']?.numericValue;
               const fcp = lhr.audits['first-contentful-paint']?.numericValue;
+              const cls = lhr.audits['cumulative-layout-shift']?.numericValue;
               const ttfb = lhr.audits['server-response-time']?.numericValue;
               const tbt = lhr.audits['total-blocking-time']?.numericValue;
 
-              comment += `**Core Web Vitals:**\n`;
-              if (lcp) comment += `- LCP: ${(lcp/1000).toFixed(2)}s\n`;
-              if (fcp) comment += `- FCP: ${(fcp/1000).toFixed(2)}s\n`;
-              if (tbt) comment += `- TBT: ${Math.round(tbt)}ms\n`;
-              if (cls !== undefined) comment += `- CLS: ${cls.toFixed(3)}\n`;
-              if (ttfb) comment += `- TTFB: ${Math.round(ttfb)}ms\n`;
-              comment += '\n';
+              summary += `**Core Web Vitals:**\n`;
+              if (lcp) summary += `- LCP: ${(lcp/1000).toFixed(2)}s\n`;
+              if (fcp) summary += `- FCP: ${(fcp/1000).toFixed(2)}s\n`;
+              if (tbt) summary += `- TBT: ${Math.round(tbt)}ms\n`;
+              if (cls !== undefined) summary += `- CLS: ${cls.toFixed(3)}\n`;
+              if (ttfb) summary += `- TTFB: ${Math.round(ttfb)}ms\n`;
+              summary += '\n';
             }
 
-            core.setOutput('comment', comment);
-            return comment;
+            core.setOutput('summary', summary);
 
-      - name: Comment on PR
-        if: github.event_name == 'pull_request' && always()
-        uses: actions/github-script@v8
-        with:
-          script: |
-            const comment = `${{ steps.format_lighthouse.outputs.comment }}`;
-
-            if (!comment || comment.trim() === '') {
-              console.log('No comment to post');
-              return;
-            }
-
-            // Find existing comment
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            });
-
-            const existingComment = comments.find(c =>
-              c.user.login === 'github-actions[bot]' &&
-              c.body.includes('## Lighthouse Results')
-            );
-
-            if (existingComment) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: existingComment.id,
-                body: comment,
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body: comment,
-              });
-            }
+      - name: Write to job summary
+        if: always()
+        run: |
+          echo "${{ steps.format_lighthouse.outputs.summary }}" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload Lighthouse reports
         if: always()
@@ -156,5 +124,5 @@ jobs:
         with:
           name: lighthouse-reports
           path: .lighthouseci/
-          retention-days: 30
+          retention-days: 14
           if-no-files-found: ignore

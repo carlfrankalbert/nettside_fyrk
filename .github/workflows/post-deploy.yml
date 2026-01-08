@@ -1,0 +1,71 @@
+name: Post-Deploy Validation
+
+on:
+  # Triggered after successful deployment
+  workflow_run:
+    workflows: ["Deploy to GitHub Pages"]
+    types:
+      - completed
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Validate Production
+    runs-on: ubuntu-latest
+    # Only run if deploy was successful
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      # Wait for deployment to propagate (GitHub Pages can take a moment)
+      - name: Wait for deployment propagation
+        run: sleep 30
+
+      # Smoke tests - verify pages render correctly
+      - name: Smoke tests (all devices)
+        env:
+          PLAYWRIGHT_TEST_BASE_URL: https://fyrk.no
+        run: npx playwright test --project=smoke --project=smoke-mobile --project=smoke-tablet
+
+      # Full accessibility tests
+      - name: Accessibility tests
+        env:
+          PLAYWRIGHT_TEST_BASE_URL: https://fyrk.no
+        run: npx playwright test --project=a11y
+
+      # Visual regression tests - catch layout/style changes
+      - name: Visual regression tests
+        env:
+          PLAYWRIGHT_TEST_BASE_URL: https://fyrk.no
+        run: npx playwright test --project=visual --project=visual-mobile
+        continue-on-error: true  # Don't fail deploy, but report
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: post-deploy-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+
+      - name: Report status
+        if: failure()
+        run: |
+          echo "::error::Post-deploy validation failed! Check the test results."
+          echo "## ❌ Post-Deploy Validation Failed" >> $GITHUB_STEP_SUMMARY
+          echo "One or more tests failed after deployment. Review the artifacts for details." >> $GITHUB_STEP_SUMMARY
