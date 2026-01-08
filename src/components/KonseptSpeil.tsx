@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { speileKonseptStreaming, ERROR_MESSAGES, isValidOutput } from '../services/konseptspeil-service';
-import KonseptSpeilResultDisplay from './KonseptSpeilResultDisplay';
+import KonseptSpeilResultDisplayV2 from './KonseptSpeilResultDisplayV2';
 import { SpinnerIcon, ChevronRightIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
 import { INPUT_VALIDATION } from '../utils/constants';
@@ -339,7 +339,7 @@ export default function KonseptSpeil() {
     <div className="space-y-6" aria-busy={loading}>
       {/* Input section */}
       <section>
-        <label htmlFor="konsept-input" className="sr-only">
+        <label htmlFor="konsept-input" className="block text-sm font-medium text-neutral-700 mb-2">
           Beskriv konseptet ditt
         </label>
 
@@ -379,10 +379,15 @@ export default function KonseptSpeil() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-              Fyll inn eksempel
+              Prøv med eksempel
             </button>
           )}
         </div>
+
+        {/* Help text */}
+        <p className="mt-2 text-sm text-neutral-500 leading-relaxed">
+          Uferdige tanker er velkomne. Skriv om problemet, hvem det gjelder, og hva du tenker å gjøre.
+        </p>
 
         {/* Character count and helper */}
         <div id="konsept-help" className="mt-3 flex items-center justify-between gap-4">
@@ -541,26 +546,36 @@ export default function KonseptSpeil() {
 
         {result && (
           <div className="p-6 bg-white border-2 border-neutral-200 rounded-xl shadow-sm">
-            <KonseptSpeilResultDisplay
+            <KonseptSpeilResultDisplayV2
               result={result}
               isStreaming={isStreaming}
               onRetry={handleSubmit}
+              onReset={handleClearResult}
             />
-            {/* Mobile: Show reset button here */}
-            {!loading && (
-              <div className="mt-6 pt-6 border-t border-neutral-200 md:hidden">
-                <button
-                  type="button"
-                  onClick={handleClearResult}
-                  className="w-full inline-flex items-center justify-center px-4 py-3 text-base font-semibold text-neutral-700 bg-neutral-100 hover:bg-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
-                >
-                  Skriv nytt konsept
-                </button>
-              </div>
-            )}
           </div>
         )}
       </div>
+
+      {/* CTA section - shown after result */}
+      {result && !loading && (
+        <section className="p-5 bg-brand-cyan-lightest/30 border border-brand-cyan/20 rounded-xl">
+          <h3 className="text-base font-semibold text-brand-navy mb-2">
+            Vil du gå dypere?
+          </h3>
+          <p className="text-sm text-neutral-600 leading-relaxed mb-4">
+            En 20-minutters sparring kan hjelpe deg prioritere hva som er viktigst å avklare først.
+          </p>
+          <a
+            href="https://fyrk.no/kontakt"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-brand-navy hover:bg-brand-navy/90 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
+          >
+            <span>📅</span>
+            Book gratis sparring med FYRK
+          </a>
+        </section>
+      )}
 
       {/* Trygghet og personvern - secondary section */}
       <section id="trygghet" className="pt-4">
@@ -588,19 +603,19 @@ export default function KonseptSpeil() {
             <div>
               <h3 className="font-medium text-neutral-700 mb-1">Hvordan fungerer det?</h3>
               <p className="text-neutral-600 leading-relaxed">
-                Konseptspeilet speiler teksten du skriver inn. Det vurderer den ikke, men identifiserer antagelser og formulerer åpne spørsmål som kan hjelpe deg å se konseptet klarere.
+                Refleksjonen genereres av Claude (Anthropic), en AI-modell som analyserer konseptbeskrivelsen og speiler tilbake observasjoner.
               </p>
             </div>
             <div>
-              <h3 className="font-medium text-neutral-700 mb-1">Hva skjer med teksten?</h3>
+              <h3 className="font-medium text-neutral-700 mb-1">Hva skjer med dataene?</h3>
               <p className="text-neutral-600 leading-relaxed">
-                Teksten sendes til en AI-modell for å generere refleksjonen. Innholdet lagres ikke og brukes ikke til å trene modeller.
+                Sendes til Claude API for å generere refleksjonen. Vi lagrer ikke innholdet, og det brukes ikke til å trene AI-modeller.
               </p>
             </div>
             <div>
               <h3 className="font-medium text-neutral-700 mb-1">Er det trygt?</h3>
               <p className="text-neutral-600 leading-relaxed">
-                Ja. Du trenger ikke å logge inn, og vi samler ikke personopplysninger. For sensitive konsepter anbefaler vi å anonymisere innholdet før du bruker verktøyet.
+                Ja, ingen innlogging, ingen persondata samles inn.
               </p>
             </div>
           </div>
