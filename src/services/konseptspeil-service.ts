@@ -26,43 +26,39 @@ export { ERROR_MESSAGES };
  * Check if a response has minimal required content
  * This helps detect truncated or incomplete AI responses
  *
- * For the MVP format, we check for:
- * - "Antagelser i teksten" section with at least one bullet point
- * - "Åpne spørsmål" section with at least one bullet point
+ * For the v2 format, we check for all four sections
  */
 function isResponseComplete(output: string): boolean {
   if (!output || output.trim().length === 0) return false;
 
   const content = output.trim();
 
-  // Check for the two required Markdown sections
-  const hasAntagelser = /##\s*Antagelser i teksten[\s\S]*?-\s+\S/.test(content);
-  const hasSporsmal = /##\s*Åpne spørsmål[\s\S]*?-\s+\S/.test(content);
+  // Check for all required v2 sections
+  const hasSummary = /---SUMMARY---[\s\S]*?---END_SUMMARY---/.test(content);
+  const hasDimensions = /---DIMENSIONS---[\s\S]*?---END_DIMENSIONS---/.test(content);
+  const hasAssumptions = /---ASSUMPTIONS---[\s\S]*?---END_ASSUMPTIONS---/.test(content);
+  const hasQuestions = /---QUESTIONS---[\s\S]*?---END_QUESTIONS---/.test(content);
 
-  // Response is complete if it has at least one bullet in each section
-  return hasAntagelser && hasSporsmal;
+  // Response is complete if it has all sections
+  return hasSummary && hasDimensions && hasAssumptions && hasQuestions;
 }
 
 /**
- * Validate that the output conforms to the expected format with ONLY the required sections.
- * Returns true if valid, false if missing required sections or has extra content.
+ * Validate that the output conforms to the expected v2 format.
+ * Returns true if valid, false if missing required sections.
  */
 export function isValidOutput(output: string): boolean {
   if (!output || output.trim().length === 0) return false;
 
   const content = output.trim();
 
-  // Must have both required sections
-  const hasAntagelser = /##\s*Antagelser i teksten/i.test(content);
-  const hasSporsmal = /##\s*Åpne spørsmål/i.test(content);
+  // Must have all four required v2 sections
+  const hasSummary = /---SUMMARY---[\s\S]*?---END_SUMMARY---/.test(content);
+  const hasDimensions = /---DIMENSIONS---[\s\S]*?---END_DIMENSIONS---/.test(content);
+  const hasAssumptions = /---ASSUMPTIONS---[\s\S]*?---END_ASSUMPTIONS---/.test(content);
+  const hasQuestions = /---QUESTIONS---[\s\S]*?---END_QUESTIONS---/.test(content);
 
-  if (!hasAntagelser || !hasSporsmal) return false;
-
-  // Count the number of ## headings - should be exactly 2
-  const headingMatches = content.match(/^##\s+/gm);
-  if (!headingMatches || headingMatches.length !== 2) return false;
-
-  return true;
+  return hasSummary && hasDimensions && hasAssumptions && hasQuestions;
 }
 
 // Track pending requests to prevent duplicates
