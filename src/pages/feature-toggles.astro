@@ -1,11 +1,7 @@
 ---
 export const prerender = false;
 
-import {
-  getFeatureToggles,
-  type FeatureToggle,
-  type FeatureStatus,
-} from '../utils/feature-toggles';
+import { getFeatureToggles, type FeatureToggle } from '../utils/feature-toggles';
 
 // Get the secret token from environment
 const cloudflareEnv = Astro.locals.runtime?.env;
@@ -34,13 +30,6 @@ if (hasAccess) {
 
 // Generate beta activation URL
 const betaActivationUrl = betaToken ? `/beta?token=${betaToken}` : null;
-
-// Status labels and colors (reserved for future use)
-const _statusConfig: Record<FeatureStatus, { label: string; color: string; bg: string }> = {
-  off: { label: 'Av', color: '#ef4444', bg: '#fef2f2' },
-  beta: { label: 'Beta', color: '#f59e0b', bg: '#fffbeb' },
-  on: { label: 'På', color: '#22c55e', bg: '#f0fdf4' },
-};
 ---
 
 <!DOCTYPE html>
@@ -339,7 +328,7 @@ const _statusConfig: Record<FeatureStatus, { label: string; color: string; bg: s
     </div>
   )}
 
-  <script define:vars={{ providedToken }}>
+  <script is:inline define:vars={{ providedToken }}>
     // Copy beta URL to clipboard
     const betaUrlEl = document.getElementById('beta-url');
     if (betaUrlEl) {

@@ -35,7 +35,7 @@ export const ERROR_MESSAGES = {
  */
 export const ELEMENT_IDS = {
   /** Mobile menu button */
-  MOBILE_MENU_BUTTON: 'mobile-menu-btn',
+  MOBILE_MENU_BUTTON: 'mobile-menu-button',
   /** Mobile menu container */
   MOBILE_MENU: 'mobile-menu',
   /** Main content area */
