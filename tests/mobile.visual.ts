@@ -45,28 +45,19 @@ test.describe('Mobile Visual Regression - UX Designer Perspective', () => {
     });
   });
 
-  test('contact page mobile', async ({ page }) => {
-    await page.goto('/kontakt');
+  test('okr-sjekken page mobile', async ({ page }) => {
+    await page.goto('/okr-sjekken');
     await page.waitForLoadState('networkidle');
-    await expect(page).toHaveScreenshot('contact-mobile.png', {
+    await expect(page).toHaveScreenshot('okr-sjekken-mobile.png', {
       fullPage: true,
       maxDiffPixelRatio: 0.01,
     });
   });
 
-  test('contact form mobile layout', async ({ page }) => {
-    await page.goto('/kontakt');
+  test('konseptspeilet page mobile', async ({ page }) => {
+    await page.goto('/konseptspeilet');
     await page.waitForLoadState('networkidle');
-    const form = page.locator('form');
-    await expect(form).toHaveScreenshot('contact-form-mobile.png', {
-      maxDiffPixelRatio: 0.01,
-    });
-  });
-
-  test('about page mobile', async ({ page }) => {
-    await page.goto('/om');
-    await page.waitForLoadState('networkidle');
-    await expect(page).toHaveScreenshot('about-mobile.png', {
+    await expect(page).toHaveScreenshot('konseptspeilet-mobile.png', {
       fullPage: true,
       maxDiffPixelRatio: 0.01,
     });
