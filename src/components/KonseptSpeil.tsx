@@ -605,6 +605,9 @@ export default function KonseptSpeil() {
               <p className="text-neutral-600 leading-relaxed">
                 Refleksjonen genereres av Claude (Anthropic), en AI-modell som analyserer konseptbeskrivelsen og speiler tilbake observasjoner.
               </p>
+              <p className="text-neutral-600 leading-relaxed mt-2">
+                Refleksjonen er strukturert rundt de fire produktrisikoene (verdi, brukbarhet, gjennomførbarhet, levedyktighet) – et rammeverk kjent fra blant annet Marty Cagans arbeid med produktutvikling.
+              </p>
             </div>
             <div>
               <h3 className="font-medium text-neutral-700 mb-1">Hva skjer med dataene?</h3>
