@@ -11,9 +11,8 @@ import { test, expect } from '@playwright/test';
 test.describe('All Pages Visual Regression', () => {
   const pages = [
     { path: '/', name: 'homepage' },
-    { path: '/om', name: 'about' },
-    { path: '/kontakt', name: 'contact' },
-    { path: '/blogg', name: 'blog' },
+    { path: '/okr-sjekken', name: 'okr-sjekken' },
+    { path: '/konseptspeilet', name: 'konseptspeilet' },
   ];
 
   for (const pageInfo of pages) {
