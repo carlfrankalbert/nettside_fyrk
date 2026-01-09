@@ -16,8 +16,8 @@ const EXAMPLE_KONSEPT = `Jeg vurderer å bygge et lite verktøy for team som sli
 const SUBMIT_THRESHOLD = 50;
 
 /** Timeout thresholds in milliseconds */
-const SLOW_TIMEOUT_MS = 8000;
-const HARD_TIMEOUT_MS = 20000;
+const SLOW_TIMEOUT_MS = 15000;  // 15 seconds - shows "slow" UI feedback
+const HARD_TIMEOUT_MS = 45000;  // 45 seconds - aborts request (higher than server's 30s timeout)
 
 /** Error types for logging */
 type ErrorType = 'timeout' | 'network' | 'invalid_output' | 'validation' | null;
