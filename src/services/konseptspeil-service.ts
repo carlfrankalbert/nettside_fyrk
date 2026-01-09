@@ -61,8 +61,10 @@ export function isValidOutput(output: string): boolean {
   return hasSummary && hasDimensions && hasAssumptions && hasQuestions;
 }
 
-// Track pending requests to prevent duplicates
-const pendingRequests = new Map<string, Promise<string>>();
+// Track pending requests - Note: We no longer use this for deduplication
+// as it caused state corruption when multiple React callbacks shared state.
+// The localStorage cache provides sufficient deduplication for performance.
+// Keeping the Map for potential future use with proper isolation.
 
 /**
  * Internal function to perform a single streaming request
@@ -169,64 +171,51 @@ export async function speileKonseptStreaming(
     localStorageCache.remove(cacheKey);
   }
 
-  // Check for pending request with same input
-  const pendingRequest = pendingRequests.get(cacheKey);
-  if (pendingRequest) {
-    try {
-      const result = await pendingRequest;
-      onChunk(result);
-      onComplete();
-    } catch (error) {
-      onError(error instanceof Error ? error.message : ERROR_MESSAGES.DEFAULT);
-    }
-    return;
-  }
+  // Note: We intentionally removed the pending request deduplication logic here.
+  // The previous implementation reused pending promises across React component calls,
+  // which caused state corruption: the first request's onChunk callbacks would update
+  // React state, then the second request's onChunk would append the full result again.
+  // The localStorage cache provides sufficient caching for performance.
 
   // Create new request with retry logic
   const requestPromise = (async (): Promise<string> => {
     let lastOutput = '';
     let retryCount = 0;
 
-    try {
-      while (retryCount <= MAX_RETRIES) {
-        if (signal?.aborted) {
-          throw new Error(ERROR_MESSAGES.ABORTED);
-        }
-
-        // Clear previous output if retrying
-        if (retryCount > 0) {
-          // Reset the output display for retry
-          onChunk('\n[Automatisk retry...]\n');
-        }
-
-        lastOutput = await performStreamingRequest(trimmedInput, onChunk, signal);
-
-        // Check if response is complete
-        if (isResponseComplete(lastOutput)) {
-          // Cache the complete result
-          localStorageCache.set(cacheKey, lastOutput);
-          return lastOutput;
-        }
-
-        // Response is incomplete, retry if we haven't exceeded max retries
-        retryCount++;
-        if (retryCount <= MAX_RETRIES) {
-          console.warn(`Incomplete response detected, retrying (attempt ${retryCount}/${MAX_RETRIES})...`);
-          // Short delay before retry
-          await new Promise((resolve) => setTimeout(resolve, 500));
-        }
+    while (retryCount <= MAX_RETRIES) {
+      if (signal?.aborted) {
+        throw new Error(ERROR_MESSAGES.ABORTED);
       }
 
-      // All retries exhausted, return what we have (even if incomplete)
-      // Don't cache incomplete responses
-      console.warn('Max retries reached, returning incomplete response');
-      return lastOutput;
-    } finally {
-      pendingRequests.delete(cacheKey);
-    }
-  })();
+      // Clear previous output if retrying
+      if (retryCount > 0) {
+        // Reset the output display for retry
+        onChunk('\n[Automatisk retry...]\n');
+      }
 
-  pendingRequests.set(cacheKey, requestPromise);
+      lastOutput = await performStreamingRequest(trimmedInput, onChunk, signal);
+
+      // Check if response is complete
+      if (isResponseComplete(lastOutput)) {
+        // Cache the complete result
+        localStorageCache.set(cacheKey, lastOutput);
+        return lastOutput;
+      }
+
+      // Response is incomplete, retry if we haven't exceeded max retries
+      retryCount++;
+      if (retryCount <= MAX_RETRIES) {
+        console.warn(`Incomplete response detected, retrying (attempt ${retryCount}/${MAX_RETRIES})...`);
+        // Short delay before retry
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+    }
+
+    // All retries exhausted, return what we have (even if incomplete)
+    // Don't cache incomplete responses
+    console.warn('Max retries reached, returning incomplete response');
+    return lastOutput;
+  })();
 
   try {
     await requestPromise;
