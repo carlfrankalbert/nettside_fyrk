@@ -85,6 +85,9 @@ export default function KonseptSpeil() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const slowTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hardTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Synchronous guard to prevent race conditions with concurrent submissions
+  // (React state updates are async, so we need a ref for immediate check)
+  const isSubmittingRef = useRef(false);
 
   // ---------------------------------------------------------------------------
   // Derived Values
@@ -132,22 +135,26 @@ export default function KonseptSpeil() {
 
   /** Submit the konsept for AI reflection */
   const handleSubmit = useCallback(async () => {
-    if (loading) return;
+    // Use synchronous ref check to prevent race conditions
+    // (React's loading state update is async, so rapid clicks could bypass it)
+    if (isSubmittingRef.current || loading) return;
+    isSubmittingRef.current = true;
 
     const validationError = validateKonseptInput(input);
     if (validationError) {
       setErrorWithType(validationError, 'validation');
+      isSubmittingRef.current = false;
       return;
     }
 
     trackClick('konseptspeil_submit');
 
-    // Clear previous state
+    // Clear previous state - reset result to null first to ensure clean state
     setLoading(true);
     setIsStreaming(true);
     setError(null);
     setErrorType(null);
-    setResult('');
+    setResult(null); // Use null instead of '' to ensure clean state detection
     setIsSlow(false);
     clearTimeouts();
 
@@ -169,6 +176,7 @@ export default function KonseptSpeil() {
       setIsStreaming(false);
       setResult(null);
       abortControllerRef.current = null;
+      isSubmittingRef.current = false;
     }, HARD_TIMEOUT_MS);
 
     let finalResult = '';
@@ -177,10 +185,12 @@ export default function KonseptSpeil() {
       input.trim(),
       (chunk) => {
         finalResult += chunk;
-        setResult((prev) => (prev || '') + chunk);
+        // Use functional update to safely append chunks to previous state
+        setResult((prev) => (prev ?? '') + chunk);
       },
       () => {
         clearTimeouts();
+        isSubmittingRef.current = false;
 
         // Validate output format
         if (!isValidOutput(finalResult)) {
@@ -201,6 +211,7 @@ export default function KonseptSpeil() {
       },
       (errorMsg) => {
         clearTimeouts();
+        isSubmittingRef.current = false;
         // Determine error type based on message
         const type: ErrorType = errorMsg.includes('koble til') ? 'network' : 'network';
         setErrorWithType(errorMsg, type);
