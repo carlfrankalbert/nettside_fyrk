@@ -339,11 +339,23 @@ export const POST: APIRoute = async ({ request, locals }) => {
       const customReadable = new ReadableStream({
         async start(controller) {
           try {
-            const anthropicResponse = await fetch(ANTHROPIC_CONFIG.API_URL, {
-              method: 'POST',
-              headers: createAnthropicHeaders(apiKey),
-              body: JSON.stringify(createAnthropicRequestBody(input, model, true)),
-            });
+            // Create AbortController with timeout for Anthropic API request
+            const timeoutController = new AbortController();
+            const timeoutId = setTimeout(() => {
+              timeoutController.abort();
+            }, ANTHROPIC_CONFIG.REQUEST_TIMEOUT_MS);
+
+            let anthropicResponse: Response;
+            try {
+              anthropicResponse = await fetch(ANTHROPIC_CONFIG.API_URL, {
+                method: 'POST',
+                headers: createAnthropicHeaders(apiKey),
+                body: JSON.stringify(createAnthropicRequestBody(input, model, true)),
+                signal: timeoutController.signal,
+              });
+            } finally {
+              clearTimeout(timeoutId);
+            }
 
             if (!anthropicResponse.ok) {
               const errorData = await anthropicResponse.json() as AnthropicErrorResponse;
@@ -402,9 +414,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
             controller.close();
           } catch (error) {
             console.error('Streaming error:', error);
+            // Check if this was a timeout error
+            const isTimeout = error instanceof Error && error.name === 'AbortError';
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({
               error: true,
-              message: ERROR_MESSAGES.STREAMING_FAILED
+              message: isTimeout ? 'Forespørselen tok for lang tid. Prøv igjen.' : ERROR_MESSAGES.STREAMING_FAILED
             })}\n\n`));
             controller.close();
           }
@@ -421,12 +435,35 @@ export const POST: APIRoute = async ({ request, locals }) => {
       });
     }
 
-    // Non-streaming response
-    const anthropicResponse = await fetch(ANTHROPIC_CONFIG.API_URL, {
-      method: 'POST',
-      headers: createAnthropicHeaders(apiKey),
-      body: JSON.stringify(createAnthropicRequestBody(input, model, false)),
-    });
+    // Non-streaming response with timeout
+    const timeoutController = new AbortController();
+    const timeoutId = setTimeout(() => {
+      timeoutController.abort();
+    }, ANTHROPIC_CONFIG.REQUEST_TIMEOUT_MS);
+
+    let anthropicResponse: Response;
+    try {
+      anthropicResponse = await fetch(ANTHROPIC_CONFIG.API_URL, {
+        method: 'POST',
+        headers: createAnthropicHeaders(apiKey),
+        body: JSON.stringify(createAnthropicRequestBody(input, model, false)),
+        signal: timeoutController.signal,
+      });
+    } catch (error) {
+      clearTimeout(timeoutId);
+      // Check if this was a timeout error
+      if (error instanceof Error && error.name === 'AbortError') {
+        return new Response(
+          JSON.stringify({
+            error: 'Forespørselen tok for lang tid',
+            details: 'Prøv igjen om litt'
+          }),
+          { status: 504, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
+        );
+      }
+      throw error;
+    }
+    clearTimeout(timeoutId);
 
     if (!anthropicResponse.ok) {
       const errorData = await anthropicResponse.json() as AnthropicErrorResponse;
