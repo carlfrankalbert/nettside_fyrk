@@ -6,18 +6,36 @@
  */
 import { test, expect } from '@playwright/test';
 
-// Sample mock response that matches expected format
-const MOCK_RESPONSE = `## Antagelser i teksten
+// Sample mock response that matches expected v2 format
+const MOCK_RESPONSE = `---SUMMARY---
+assumptions: 3
+unclear: 3
+maturity: 2
+recommendation: Utforsk brukerbehov før du går videre
+---END_SUMMARY---
 
+---DIMENSIONS---
+value: assumed
+value_desc: Problemet er nevnt, men ikke validert med brukere.
+usability: not_addressed
+usability_desc: Hvordan brukerne vil bruke løsningen er ikke beskrevet.
+feasibility: assumed
+feasibility_desc: Teksten antyder at det er mulig å bygge.
+viability: not_addressed
+viability_desc: Forretningsmodell eller ressursbehov er ikke nevnt.
+---END_DIMENSIONS---
+
+---ASSUMPTIONS---
 - Målgruppen ønsker et enkelt verktøy
 - Markedet er klart for denne typen produkt
 - Teamet har kapasitet til lansering i Q1
+---END_ASSUMPTIONS---
 
-## Åpne spørsmål
-
+---QUESTIONS---
 - Hvem er den primære brukeren?
 - Hva skiller produktet fra konkurrentene?
-- Hvordan måles suksess etter lansering?`;
+- Hvordan måles suksess etter lansering?
+---END_QUESTIONS---`;
 
 test.describe('Konseptspeilet', () => {
   test.beforeEach(async ({ page }) => {
@@ -56,8 +74,8 @@ test.describe('Konseptspeilet', () => {
 
     // Check page title and main heading
     await expect(page).toHaveTitle(/Konseptspeilet/);
-    // Main h1 says "Få klarhet i konseptet ditt"
-    await expect(page.getByRole('heading', { level: 1 }).first()).toContainText('klarhet');
+    // Main h1 says "Test konseptet ditt før du bygger"
+    await expect(page.getByRole('heading', { level: 1 }).first()).toContainText('Test konseptet');
   });
 
   test('shows character counter and validation', async ({ page }) => {
@@ -99,9 +117,15 @@ test.describe('Konseptspeilet', () => {
     // Submit form
     await submitButton.click();
 
-    // Wait for result to appear
-    await expect(page.locator('text=Antagelser i teksten')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('text=Åpne spørsmål')).toBeVisible();
+    // Wait for v2 result summary to appear (shows assumption count)
+    await expect(page.locator('text=3 antagelser')).toBeVisible({ timeout: 10000 });
+
+    // Click to expand details and see assumptions/questions
+    await page.getByRole('button', { name: /Vis antagelser og spørsmål/i }).click();
+
+    // Verify expanded content shows assumptions and questions sections
+    await expect(page.locator('text=Antagelser du gjør')).toBeVisible();
+    await expect(page.locator('text=Spørsmål å utforske')).toBeVisible();
 
     // Verify content from mock response
     await expect(page.locator('text=Målgruppen ønsker et enkelt verktøy')).toBeVisible();
@@ -167,7 +191,8 @@ test.describe('Konseptspeilet', () => {
     // First submission
     await textarea.fill('Første konseptbeskrivelse som er lang nok til analyse.');
     await submitButton.click();
-    await expect(page.locator('text=Antagelser i teksten')).toBeVisible({ timeout: 10000 });
+    // Wait for v2 result summary to appear
+    await expect(page.locator('text=3 antagelser')).toBeVisible({ timeout: 10000 });
 
     // Look for reset/new analysis button ("Start på nytt" on desktop, "Skriv nytt konsept" on mobile)
     const resetButton = page.getByRole('button', { name: /Start på nytt|Skriv nytt konsept/i });
