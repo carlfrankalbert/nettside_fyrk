@@ -280,12 +280,23 @@ export const POST: APIRoute = async ({ request, locals }) => {
       });
     }
 
-    // Non-streaming response
-    const anthropicResponse = await fetch(ANTHROPIC_CONFIG.API_URL, {
-      method: 'POST',
-      headers: createAnthropicHeaders(apiKey),
-      body: JSON.stringify(createAnthropicRequestBody(input, model, false)),
-    });
+    // Non-streaming response with timeout protection
+    const timeoutController = new AbortController();
+    const timeoutId = setTimeout(() => {
+      timeoutController.abort();
+    }, ANTHROPIC_CONFIG.REQUEST_TIMEOUT_MS);
+
+    let anthropicResponse: Response;
+    try {
+      anthropicResponse = await fetch(ANTHROPIC_CONFIG.API_URL, {
+        method: 'POST',
+        headers: createAnthropicHeaders(apiKey),
+        body: JSON.stringify(createAnthropicRequestBody(input, model, false)),
+        signal: timeoutController.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!anthropicResponse.ok) {
       const errorData = await anthropicResponse.json() as AnthropicErrorResponse;
