@@ -180,8 +180,14 @@ export function createRateLimiter() {
       const now = Date.now();
       const limit = limits.get(identifier);
 
+      // Probabilistic cleanup on every request (1% chance) to prevent memory buildup
+      // This runs before size check to spread cleanup load and prevent burst scenarios
+      if (Math.random() < 0.01) {
+        cleanup();
+      }
+
       if (!limit || now > limit.resetTime) {
-        // Cleanup periodically when creating new entries
+        // Additional cleanup when approaching capacity
         if (limits.size > CACHE_CONFIG.MAX_RATE_LIMIT_ENTRIES * 0.9) {
           cleanup();
         }

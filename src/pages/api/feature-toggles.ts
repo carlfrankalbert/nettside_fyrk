@@ -7,6 +7,41 @@ import {
 } from '../../utils/feature-toggles';
 
 /**
+ * Validates that the request origin matches the expected host (CSRF protection)
+ * Returns true if valid, false if CSRF check fails
+ */
+function validateOrigin(request: Request): boolean {
+  const origin = request.headers.get('origin');
+  const host = request.headers.get('host');
+
+  // If no origin header (same-origin request or non-browser), allow
+  if (!origin) return true;
+
+  // Extract hostname from origin (e.g., "https://fyrk.no" -> "fyrk.no")
+  try {
+    const originUrl = new URL(origin);
+    const originHost = originUrl.host;
+
+    // Check if origin matches host
+    if (host && originHost === host) return true;
+
+    // Allow localhost for development
+    if (originHost.startsWith('localhost') || originHost.startsWith('127.0.0.1')) {
+      return true;
+    }
+
+    // Allow fyrk.no domain (production)
+    if (originHost === 'fyrk.no' || originHost.endsWith('.fyrk.no')) {
+      return true;
+    }
+
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * GET /api/feature-toggles?token=<FEATURE_TOGGLE_TOKEN>
  * Returns all feature toggles
  */
@@ -47,6 +82,14 @@ export const GET: APIRoute = async ({ request, locals }) => {
  * Body: { token: string, features: FeatureToggle[] }
  */
 export const POST: APIRoute = async ({ request, locals }) => {
+  // CSRF protection - validate origin header
+  if (!validateOrigin(request)) {
+    return new Response(JSON.stringify({ error: 'CSRF check failed' }), {
+      status: 403,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   const cloudflareEnv = (locals as App.Locals).runtime?.env;
   const expectedToken = cloudflareEnv?.FEATURE_TOGGLE_TOKEN;
 
