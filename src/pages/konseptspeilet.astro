@@ -12,7 +12,7 @@ export const prerender = false;
   <main id="main-content" class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
     <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-8 md:py-12 w-full pb-24 md:pb-12">
 
-      <!-- Hero: New v2 header -->
+      <!-- Hero: Reframed to emphasize reflection, not assessment -->
       <header class="mb-8" id="skriv">
         <div class="flex items-center gap-2 mb-3 md:hidden">
           <span class="text-xs font-medium text-brand-cyan-darker bg-brand-cyan-lightest/50 px-2 py-1 rounded-full">
@@ -20,30 +20,30 @@ export const prerender = false;
           </span>
         </div>
         <h1 class="text-h3 md:text-h2 font-semibold text-brand-navy mb-3 leading-tight">
-          Test konseptet ditt før du bygger
+          Se hva du tar for gitt
         </h1>
         <p class="text-base text-neutral-600 leading-relaxed mb-6">
-          Beskriv en idé, et initiativ eller et konsept – og få et strukturert speil tilbake på <span class="font-medium text-brand-navy">30 sekunder</span>.
+          Beskriv en tidlig idé – og få et speil som viser hva som er antatt vs. hva som er gjort eksplisitt.
         </p>
 
-        <!-- Value proposition box -->
+        <!-- Value proposition box - reframed for reflection -->
         <div class="p-4 bg-white border border-neutral-200 rounded-xl space-y-2">
           <div class="flex items-start gap-2 text-sm text-neutral-700">
-            <span class="text-brand-cyan-darker shrink-0">✓</span>
-            <span>Se hvilke antagelser du gjør uten å vite det</span>
+            <span class="text-neutral-400 shrink-0">•</span>
+            <span>Avdekker antagelser du kanskje ikke ser selv</span>
           </div>
           <div class="flex items-start gap-2 text-sm text-neutral-700">
-            <span class="text-brand-cyan-darker shrink-0">✓</span>
-            <span>Forstå hva som mangler før du investerer tid</span>
+            <span class="text-neutral-400 shrink-0">•</span>
+            <span>Viser hull i beskrivelsen – ikke hull i ideen</span>
           </div>
           <div class="flex items-start gap-2 text-sm text-neutral-700">
-            <span class="text-brand-cyan-darker shrink-0">✓</span>
-            <span>Velg bevisst hvilke snarveier du tar</span>
+            <span class="text-neutral-400 shrink-0">•</span>
+            <span>Hjelper deg tenke høyt uten å bli evaluert</span>
           </div>
         </div>
 
         <p class="mt-4 text-xs text-neutral-500 italic">
-          Designet for tidlig fase. Ingen evaluering, bare refleksjon.
+          Dette er et refleksjonsverktøy, ikke en dommer. Det vurderer ikke om ideen din er god.
         </p>
       </header>
 
@@ -95,7 +95,7 @@ export const prerender = false;
       class="w-full inline-flex items-center justify-center px-6 py-3.5 text-base font-semibold text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 disabled:bg-neutral-200 disabled:text-neutral-400 disabled:cursor-not-allowed transition-all"
       disabled
     >
-      <span>Speil konseptet</span>
+      <span>Avdekk antagelser</span>
       <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
       </svg>
@@ -132,11 +132,11 @@ export const prerender = false;
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <span>Speiler konseptet…</span>
+            <span>Speiler tankene dine…</span>
           `;
         } else {
           mobileBtn.innerHTML = `
-            <span>Speil konseptet</span>
+            <span>Avdekk antagelser</span>
             <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>

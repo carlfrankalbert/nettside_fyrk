@@ -4,13 +4,17 @@
  */
 
 /**
- * Maturity level indicating how much has been described (not quality)
- * 1-2: Tidlig idé (Early idea)
+ * Exploration level indicating how much has been made explicit (not quality)
+ * Renamed from "Modenhet" to avoid implicit judgment.
+ * 1-2: Lite utforsket (Little explored)
  * 3: Under utforskning (Being explored)
- * 4: Klart for testing (Ready for testing)
- * 5: Klart for beslutning (Ready for decision)
+ * 4: Mye beskrevet (Well described)
+ * 5: Grundig utforsket (Thoroughly explored)
  */
-export type MaturityLevel = 1 | 2 | 3 | 4 | 5;
+export type ExplorationLevel = 1 | 2 | 3 | 4 | 5;
+
+/** @deprecated Use ExplorationLevel instead */
+export type MaturityLevel = ExplorationLevel;
 
 /**
  * Status indicator for each dimension
@@ -40,9 +44,16 @@ export interface Dimension {
 export interface Summary {
   assumptionCount: number;
   unclearCount: number;
-  maturityLevel: MaturityLevel;
-  maturityLabel: string;
-  recommendation: string;
+  explorationLevel: ExplorationLevel;
+  explorationLabel: string;
+  /** Optional conditional next step (not directive) */
+  conditionalStep: string;
+  /** @deprecated Use explorationLevel instead */
+  maturityLevel?: ExplorationLevel;
+  /** @deprecated Use explorationLabel instead */
+  maturityLabel?: string;
+  /** @deprecated Use conditionalStep instead */
+  recommendation?: string;
 }
 
 /**
@@ -53,20 +64,26 @@ export interface ParsedKonseptSpeilResultV2 {
   dimensions: Dimension[];
   antagelser: string[];
   sporsmal: string[];
+  /** The single most important thing to explore first (synthesis) */
+  priorityExploration: string | null;
   isComplete: boolean;
   parseError: string | null;
 }
 
 /**
- * Maturity level labels in Norwegian
+ * Exploration level labels in Norwegian
+ * These describe what has been made explicit, not idea quality
  */
-export const MATURITY_LABELS: Record<MaturityLevel, string> = {
-  1: 'Tidlig idé',
-  2: 'Tidlig idé',
+export const EXPLORATION_LABELS: Record<ExplorationLevel, string> = {
+  1: 'Lite utforsket',
+  2: 'Lite utforsket',
   3: 'Under utforskning',
-  4: 'Klart for testing',
-  5: 'Klart for beslutning',
+  4: 'Mye beskrevet',
+  5: 'Grundig utforsket',
 };
+
+/** @deprecated Use EXPLORATION_LABELS instead */
+export const MATURITY_LABELS = EXPLORATION_LABELS;
 
 /**
  * Dimension labels in Norwegian

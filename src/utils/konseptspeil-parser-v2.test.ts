@@ -50,7 +50,7 @@ describe('parseKonseptSpeilResultV2', () => {
     expect(result.summary.assumptionCount).toBe(4);
     expect(result.summary.unclearCount).toBe(3);
     expect(result.summary.maturityLevel).toBe(2);
-    expect(result.summary.maturityLabel).toBe('Tidlig idé');
+    expect(result.summary.maturityLabel).toBe('Lite utforsket');
     expect(result.summary.recommendation).toBe('Utforsk brukerbehov før du går videre');
 
     // Dimensions
@@ -115,7 +115,7 @@ viability_desc: Test
     expect(result.summary.assumptionCount).toBe(5);
     expect(result.summary.unclearCount).toBe(2);
     expect(result.summary.maturityLevel).toBe(4);
-    expect(result.summary.maturityLabel).toBe('Klart for testing');
+    expect(result.summary.maturityLabel).toBe('Mye beskrevet');
     expect(result.summary.recommendation).toBe('Klar for prototype-testing');
   });
 

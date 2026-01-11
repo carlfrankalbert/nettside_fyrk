@@ -72,14 +72,15 @@ export function isValidOutput(output: string): boolean {
 async function performStreamingRequest(
   trimmedInput: string,
   onChunk: (chunk: string) => void,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  challengeMode = false
 ): Promise<string> {
   const response = await fetch(API_ENDPOINT, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ input: trimmedInput, stream: true }),
+    body: JSON.stringify({ input: trimmedInput, stream: true, challengeMode }),
     signal,
   });
 
@@ -137,6 +138,13 @@ async function performStreamingRequest(
 }
 
 /**
+ * Options for streaming request
+ */
+interface StreamingOptions {
+  challengeMode?: boolean;
+}
+
+/**
  * Speile konsept with streaming response
  */
 export async function speileKonseptStreaming(
@@ -144,10 +152,13 @@ export async function speileKonseptStreaming(
   onChunk: (chunk: string) => void,
   onComplete: () => void,
   onError: (error: string) => void,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  options: StreamingOptions = {}
 ): Promise<void> {
   const trimmedInput = input.trim();
-  const cacheKey = await hashInput('konseptspeil:' + trimmedInput);
+  const { challengeMode = false } = options;
+  // Include challenge mode in cache key so different modes don't share cache
+  const cacheKey = await hashInput('konseptspeil:' + trimmedInput + (challengeMode ? ':challenge' : ''));
 
   // Check local cache first (only if complete)
   const cachedResult = localStorageCache.get(cacheKey);
@@ -193,7 +204,7 @@ export async function speileKonseptStreaming(
         onChunk('\n[Automatisk retry...]\n');
       }
 
-      lastOutput = await performStreamingRequest(trimmedInput, onChunk, signal);
+      lastOutput = await performStreamingRequest(trimmedInput, onChunk, signal, challengeMode);
 
       // Check if response is complete
       if (isResponseComplete(lastOutput)) {

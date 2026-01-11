@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { parseKonseptSpeilResultV2, hasContentV2 } from '../utils/konseptspeil-parser-v2';
-import type { Dimension, DimensionStatus, MaturityLevel } from '../types/konseptspeil-v2';
+import type { Dimension, DimensionStatus, ExplorationLevel } from '../types/konseptspeil-v2';
 import { DIMENSION_LABELS, STATUS_ICONS } from '../types/konseptspeil-v2';
 import { SpinnerIcon, ChevronRightIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
@@ -13,11 +13,11 @@ interface KonseptSpeilResultDisplayV2Props {
 }
 
 /**
- * Maturity dots visualization
+ * Exploration level dots visualization
  */
-function MaturityDots({ level }: { level: MaturityLevel }) {
+function ExplorationDots({ level }: { level: ExplorationLevel }) {
   return (
-    <div className="flex gap-1" aria-label={`Modenhetsnivå ${level} av 5`}>
+    <div className="flex gap-1" aria-label={`Utforskningsnivå ${level} av 5`}>
       {[1, 2, 3, 4, 5].map((i) => (
         <span
           key={i}
@@ -127,34 +127,52 @@ export default function KonseptSpeilResultDisplayV2({
 
   return (
     <div className="space-y-6">
-      {/* Summary box */}
+      {/* Clarifying text - prominent reminder */}
+      <p className="text-xs text-neutral-500 italic text-center px-2">
+        Dette speiler antagelser og hull i beskrivelsen – ikke kvaliteten på ideen.
+      </p>
+
+      {/* Start here synthesis - the single most important thing */}
+      {parsed.priorityExploration && (
+        <div className="p-4 bg-brand-cyan-lightest/40 border border-brand-cyan/30 rounded-xl">
+          <p className="text-xs font-medium text-brand-navy mb-1.5 uppercase tracking-wide">
+            Hvis du bare utforsker én ting først
+          </p>
+          <p className="text-[15px] text-neutral-800 leading-relaxed">
+            {parsed.priorityExploration}
+          </p>
+        </div>
+      )}
+
+      {/* Summary box - reframed */}
       <div className="p-5 bg-neutral-50 border border-neutral-200 rounded-xl">
         <div className="flex items-start gap-3 mb-4">
-          <span className="text-xl" aria-hidden="true">📊</span>
+          <span className="text-xl" aria-hidden="true">🔍</span>
           <p className="text-[15px] text-neutral-800 leading-relaxed">
-            Konseptet har <span className="font-semibold">{parsed.summary.assumptionCount} antagelser</span>
+            <span className="font-semibold">{parsed.summary.assumptionCount} antagelser</span> fanget
             {parsed.summary.unclearCount > 0 && (
-              <> og <span className="font-semibold">{parsed.summary.unclearCount} uklarheter</span></>
+              <>, <span className="font-semibold">{parsed.summary.unclearCount} uklarheter</span> identifisert</>
             )}
           </p>
         </div>
 
         <div className="space-y-3">
           <div className="flex items-center gap-3">
-            <span className="text-sm text-neutral-600">Modenhet:</span>
-            <MaturityDots level={parsed.summary.maturityLevel} />
+            <span className="text-sm text-neutral-600">Eksplisitthet:</span>
+            <ExplorationDots level={parsed.summary.explorationLevel} />
             <span className="text-sm font-medium text-neutral-700">
-              {parsed.summary.maturityLabel}
+              {parsed.summary.explorationLabel}
             </span>
           </div>
 
           <p className="text-xs text-neutral-500 italic">
-            Basert på hva som er beskrevet, ikke kvaliteten på ideen.
+            Hvor mye som er gjort eksplisitt, ikke hvor god ideen er.
           </p>
 
-          {parsed.summary.recommendation && (
-            <p className="text-sm text-neutral-700 pt-2 border-t border-neutral-200">
-              <span className="font-medium">Anbefaling:</span> {parsed.summary.recommendation}
+          {parsed.summary.conditionalStep && (
+            <p className="text-sm text-neutral-600 pt-2 border-t border-neutral-200">
+              <span className="text-neutral-500">Mulig neste steg:</span>{' '}
+              <span className="text-neutral-700">{parsed.summary.conditionalStep}</span>
             </p>
           )}
         </div>
@@ -241,11 +259,11 @@ export default function KonseptSpeilResultDisplayV2({
         </div>
       )}
 
-      {/* Closing quote */}
+      {/* Closing reflection - calm, non-prescriptive */}
       {!isStreaming && parsed.isComplete && (
         <div className="pt-4 border-t border-neutral-200">
-          <p className="text-sm text-neutral-600 italic text-center leading-relaxed">
-            "Nå vet du hva du tar for gitt. Du kan validere før du bygger – eller løpe videre og vite hvilke snarveier du tar."
+          <p className="text-sm text-neutral-500 italic text-center leading-relaxed">
+            Ta deg tid til å sitte med dette. Det er ingen hastverk.
           </p>
         </div>
       )}
