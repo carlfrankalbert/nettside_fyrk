@@ -254,7 +254,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const mockMode = cloudflareEnv?.KONSEPTSPEILET_MOCK || import.meta.env.KONSEPTSPEILET_MOCK;
 
     if (mockMode === 'true' || mockMode === true) {
-      console.log('Konseptspeilet: Using mock response (KONSEPTSPEILET_MOCK=true)');
       const mockOutput = getMockResponseJson(trimmedInput);
 
       // Handle streaming mock response
@@ -303,7 +302,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const cachedEntry = cacheManager.get(cacheKey);
 
     if (cachedEntry) {
-      console.log('Cache hit for konseptspeil hash:', cacheKey.substring(0, 8));
       return new Response(
         JSON.stringify({
           output: cachedEntry.output,

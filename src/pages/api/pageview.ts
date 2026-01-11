@@ -1,7 +1,14 @@
 import type { APIRoute } from 'astro';
 import { shouldExcludeRequest } from '../../utils/tracking-exclusion';
+import { verifySignedRequest } from '../../utils/request-signing';
 
 export const prerender = false;
+
+/** Standard headers for API responses - prevents CDN caching of dynamic data */
+const API_HEADERS = {
+  'Content-Type': 'application/json',
+  'Cache-Control': 'no-store',
+};
 
 /**
  * Valid page IDs for tracking
@@ -55,7 +62,7 @@ export const POST: APIRoute = async ({ locals, request }) => {
     if (shouldExcludeRequest(request)) {
       return new Response(
         JSON.stringify({ success: true, message: 'Excluded from tracking' }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
+        { status: 200, headers: API_HEADERS }
       );
     }
 
@@ -65,14 +72,26 @@ export const POST: APIRoute = async ({ locals, request }) => {
     if (!kv) {
       return new Response(
         JSON.stringify({ success: true, message: 'Tracking not configured' }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
+        { status: 200, headers: API_HEADERS }
       );
     }
 
-    // Parse request body to get pageId
+    // Parse and verify signed request
     let pageId: PageId = 'home';
     try {
-      const body = (await request.json()) as { pageId?: string };
+      const rawBody = await request.json();
+
+      // Verify request signature
+      const verification = verifySignedRequest<{ pageId?: string }>(rawBody);
+
+      if (!verification.isValid) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Invalid request signature' }),
+          { status: 400, headers: API_HEADERS }
+        );
+      }
+
+      const body = verification.payload;
       if (body.pageId && body.pageId in TRACKED_PAGES) {
         pageId = body.pageId as PageId;
       }
@@ -139,13 +158,13 @@ export const POST: APIRoute = async ({ locals, request }) => {
 
     return new Response(
       JSON.stringify({ success: true, pageId, views: newTotal, isNewVisitor }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+      { status: 200, headers: API_HEADERS }
     );
   } catch (error) {
     console.error('Page view tracking error:', error);
     return new Response(
       JSON.stringify({ success: false, error: 'Tracking failed' }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+      { status: 200, headers: API_HEADERS }
     );
   }
 };
@@ -181,7 +200,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
     if (!kv) {
       return new Response(
         JSON.stringify({ stats: null, message: 'Tracking not configured' }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
+        { status: 200, headers: API_HEADERS }
       );
     }
 
@@ -196,7 +215,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
       const visitorsTimeseries = await getVisitorsTimeseriesData(kv, pageId, period);
       return new Response(
         JSON.stringify({ pageId, timeseries, visitorsTimeseries, period }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
+        { status: 200, headers: API_HEADERS }
       );
     }
 
@@ -225,7 +244,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
           totalVisitors: parseInt(totalVisitors || '0', 10) || 0,
           todayVisitors,
         }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
+        { status: 200, headers: API_HEADERS }
       );
     }
 
@@ -263,20 +282,20 @@ export const GET: APIRoute = async ({ locals, url }) => {
 
       return new Response(
         JSON.stringify({ stats }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
+        { status: 200, headers: API_HEADERS }
       );
     }
 
     // Default: return all stats
     return new Response(
       JSON.stringify({ message: 'Use ?all=true or ?pageId=home|okr' }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+      { status: 200, headers: API_HEADERS }
     );
   } catch (error) {
     console.error('Error fetching page view stats:', error);
     return new Response(
       JSON.stringify({ stats: null, error: 'Failed to fetch stats' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { status: 500, headers: API_HEADERS }
     );
   }
 };

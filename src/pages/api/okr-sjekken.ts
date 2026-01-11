@@ -165,7 +165,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const cachedEntry = cacheManager.get(cacheKey);
 
     if (cachedEntry) {
-      console.log('Cache hit for input hash:', cacheKey.substring(0, 8));
       return new Response(
         JSON.stringify({
           output: cachedEntry.output,

@@ -1,7 +1,14 @@
 import type { APIRoute } from 'astro';
 import { shouldExcludeRequest } from '../../utils/tracking-exclusion';
+import { verifySignedRequest } from '../../utils/request-signing';
 
 export const prerender = false;
+
+/** Standard headers for API responses - prevents CDN caching of dynamic data */
+const API_HEADERS = {
+  'Content-Type': 'application/json',
+  'Cache-Control': 'no-store',
+};
 
 /**
  * Valid button IDs for tracking
@@ -71,7 +78,7 @@ export const POST: APIRoute = async ({ locals, request }) => {
     if (shouldExcludeRequest(request)) {
       return new Response(
         JSON.stringify({ success: true, message: 'Excluded from tracking' }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
+        { status: 200, headers: API_HEADERS }
       );
     }
 
@@ -82,18 +89,30 @@ export const POST: APIRoute = async ({ locals, request }) => {
       console.warn('ANALYTICS_KV not configured, tracking disabled');
       return new Response(
         JSON.stringify({ success: true, message: 'Tracking not configured' }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
+        { status: 200, headers: API_HEADERS }
       );
     }
 
-    // Parse request body to get buttonId and optional metadata
+    // Parse and verify signed request
     let buttonId: ButtonId = 'okr_submit'; // default for backwards compatibility
     let metadata: CheckSuccessMetadata | undefined;
     try {
-      const body = (await request.json()) as {
+      const rawBody = await request.json();
+
+      // Verify request signature
+      const verification = verifySignedRequest<{
         buttonId?: string;
         metadata?: { charCount?: number; processingTimeMs?: number };
-      };
+      }>(rawBody);
+
+      if (!verification.isValid) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Invalid request signature' }),
+          { status: 400, headers: API_HEADERS }
+        );
+      }
+
+      const body = verification.payload;
       if (body.buttonId && body.buttonId in TRACKED_BUTTONS) {
         buttonId = body.buttonId as ButtonId;
       }
@@ -172,13 +191,13 @@ export const POST: APIRoute = async ({ locals, request }) => {
 
     return new Response(
       JSON.stringify({ success: true, buttonId, count: newCount }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+      { status: 200, headers: API_HEADERS }
     );
   } catch (error) {
     console.error('Tracking error:', error);
     return new Response(
       JSON.stringify({ success: false, error: 'Tracking failed' }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+      { status: 200, headers: API_HEADERS }
     );
   }
 };
@@ -215,7 +234,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
     if (!kv) {
       return new Response(
         JSON.stringify({ counts: null, message: 'Tracking not configured' }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
+        { status: 200, headers: API_HEADERS }
       );
     }
 
@@ -229,7 +248,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
       const timeseries = await getTimeseriesData(kv, buttonId, period);
       return new Response(
         JSON.stringify({ buttonId, timeseries, period }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
+        { status: 200, headers: API_HEADERS }
       );
     }
 
@@ -241,7 +260,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
 
       return new Response(
         JSON.stringify({ buttonId, count, label: TRACKED_BUTTONS[buttonId].label }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
+        { status: 200, headers: API_HEADERS }
       );
     }
 
@@ -261,7 +280,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
 
       return new Response(
         JSON.stringify({ counts }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
+        { status: 200, headers: API_HEADERS }
       );
     }
 
@@ -271,13 +290,13 @@ export const GET: APIRoute = async ({ locals, url }) => {
 
     return new Response(
       JSON.stringify({ count }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+      { status: 200, headers: API_HEADERS }
     );
   } catch (error) {
     console.error('Error fetching tracking count:', error);
     return new Response(
       JSON.stringify({ counts: null, error: 'Failed to fetch count' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { status: 500, headers: API_HEADERS }
     );
   }
 };

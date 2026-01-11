@@ -19,6 +19,8 @@ export const CACHE_CONFIG = {
   MAX_CACHE_ENTRIES: 500,
   /** Maximum rate limit entries to track */
   MAX_RATE_LIMIT_ENTRIES: 1000,
+  /** Maximum number of localStorage cache entries (prevents quota exhaustion) */
+  MAX_LOCAL_STORAGE_ENTRIES: 50,
 } as const;
 
 /**
@@ -222,6 +224,60 @@ export function createRateLimiter() {
  */
 export const localStorageCache = {
   /**
+   * Get all cache keys from localStorage
+   */
+  _getCacheKeys(): string[] {
+    const keys: string[] = [];
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key?.startsWith(CACHE_CONFIG.KEY_PREFIX)) {
+          keys.push(key);
+        }
+      }
+    } catch {
+      // Ignore errors
+    }
+    return keys;
+  },
+
+  /**
+   * Evict oldest entries to stay under the size limit
+   */
+  _evictOldestEntries(): void {
+    try {
+      const keys = this._getCacheKeys();
+      if (keys.length < CACHE_CONFIG.MAX_LOCAL_STORAGE_ENTRIES) return;
+
+      // Get all entries with their timestamps
+      const entries: { key: string; timestamp: number }[] = [];
+      for (const key of keys) {
+        const cached = localStorage.getItem(key);
+        if (cached) {
+          try {
+            const entry: LocalStorageCacheEntry = JSON.parse(cached);
+            entries.push({ key, timestamp: entry.timestamp });
+          } catch {
+            // Invalid entry, mark for removal
+            entries.push({ key, timestamp: 0 });
+          }
+        }
+      }
+
+      // Sort by timestamp (oldest first)
+      entries.sort((a, b) => a.timestamp - b.timestamp);
+
+      // Remove oldest entries until under limit (keep some buffer)
+      const toRemove = entries.length - CACHE_CONFIG.MAX_LOCAL_STORAGE_ENTRIES + 5;
+      for (let i = 0; i < toRemove && i < entries.length; i++) {
+        localStorage.removeItem(entries[i].key);
+      }
+    } catch {
+      // Ignore errors during eviction
+    }
+  },
+
+  /**
    * Get cached result from localStorage
    */
   get(cacheKey: string): string | null {
@@ -242,10 +298,13 @@ export const localStorageCache = {
   },
 
   /**
-   * Save result to localStorage cache
+   * Save result to localStorage cache (with size limit enforcement)
    */
   set(cacheKey: string, output: string): void {
     try {
+      // Evict old entries before adding new one
+      this._evictOldestEntries();
+
       const entry: LocalStorageCacheEntry = {
         output,
         timestamp: Date.now(),
@@ -255,7 +314,22 @@ export const localStorageCache = {
         JSON.stringify(entry)
       );
     } catch (e) {
-      console.warn('Failed to cache result:', e);
+      // If we hit quota, try to evict more aggressively
+      if (e instanceof DOMException && e.name === 'QuotaExceededError') {
+        this._evictOldestEntries();
+        try {
+          const entry: LocalStorageCacheEntry = {
+            output,
+            timestamp: Date.now(),
+          };
+          localStorage.setItem(
+            CACHE_CONFIG.KEY_PREFIX + cacheKey,
+            JSON.stringify(entry)
+          );
+        } catch {
+          // Give up silently
+        }
+      }
     }
   },
 
@@ -265,8 +339,15 @@ export const localStorageCache = {
   remove(cacheKey: string): void {
     try {
       localStorage.removeItem(CACHE_CONFIG.KEY_PREFIX + cacheKey);
-    } catch (e) {
-      console.warn('Failed to remove cache entry:', e);
+    } catch {
+      // Ignore errors
     }
+  },
+
+  /**
+   * Get current number of cache entries
+   */
+  size(): number {
+    return this._getCacheKeys().length;
   },
 };

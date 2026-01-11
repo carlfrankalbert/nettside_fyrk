@@ -4,11 +4,13 @@
  */
 
 import { shouldExcludeFromTracking } from './tracking-exclusion';
+import { signRequest } from '../utils/request-signing';
+import { fetchWithRetryFireAndForget } from '../utils/fetch-retry';
 
 type PageId = 'home' | 'okr' | 'konseptspeil';
 
 /**
- * Track a page view (fire and forget)
+ * Track a page view (fire and forget with retry)
  */
 function trackPageView(pageId: PageId): void {
   // Skip tracking for excluded visitors (developer, tests)
@@ -16,12 +18,12 @@ function trackPageView(pageId: PageId): void {
     return;
   }
 
-  fetch('/api/pageview', {
+  const signedRequest = signRequest({ pageId });
+
+  fetchWithRetryFireAndForget('/api/pageview', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ pageId }),
-  }).catch(() => {
-    // Silently ignore tracking errors
+    body: JSON.stringify(signedRequest),
   });
 }
 

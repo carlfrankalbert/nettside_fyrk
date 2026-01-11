@@ -6,6 +6,12 @@ import {
   type FeatureStatus,
 } from '../../utils/feature-toggles';
 
+/** Standard headers for API responses - prevents CDN caching of dynamic data */
+const API_HEADERS = {
+  'Content-Type': 'application/json',
+  'Cache-Control': 'no-store',
+};
+
 /**
  * Validates that the request origin matches the expected host (CSRF protection)
  * Returns true if valid, false if CSRF check fails
@@ -42,21 +48,36 @@ function validateOrigin(request: Request): boolean {
 }
 
 /**
- * GET /api/feature-toggles?token=<FEATURE_TOGGLE_TOKEN>
+ * Extract token from Authorization header (Bearer token) or query param (fallback)
+ */
+function extractToken(request: Request): string | null {
+  // Prefer Authorization header
+  const authHeader = request.headers.get('Authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    return authHeader.slice(7);
+  }
+
+  // Fallback to query param for backwards compatibility
+  const url = new URL(request.url);
+  return url.searchParams.get('token');
+}
+
+/**
+ * GET /api/feature-toggles
  * Returns all feature toggles
+ * Auth: Authorization: Bearer <token> (preferred) or ?token=<token> (deprecated)
  */
 export const GET: APIRoute = async ({ request, locals }) => {
   const cloudflareEnv = (locals as App.Locals).runtime?.env;
   const expectedToken = cloudflareEnv?.FEATURE_TOGGLE_TOKEN;
 
   // Check authorization
-  const url = new URL(request.url);
-  const providedToken = url.searchParams.get('token');
+  const providedToken = extractToken(request);
 
   if (!expectedToken || providedToken !== expectedToken) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
-      headers: { 'Content-Type': 'application/json' },
+      headers: API_HEADERS,
     });
   }
 
@@ -64,7 +85,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
   if (!kv) {
     return new Response(JSON.stringify({ error: 'KV not configured' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: API_HEADERS,
     });
   }
 
@@ -72,21 +93,22 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
   return new Response(JSON.stringify(toggles), {
     status: 200,
-    headers: { 'Content-Type': 'application/json' },
+    headers: API_HEADERS,
   });
 };
 
 /**
  * POST /api/feature-toggles
  * Updates feature toggles
- * Body: { token: string, features: FeatureToggle[] }
+ * Auth: Authorization: Bearer <token> (preferred) or body.token (deprecated)
+ * Body: { features: FeatureToggle[] }
  */
 export const POST: APIRoute = async ({ request, locals }) => {
   // CSRF protection - validate origin header
   if (!validateOrigin(request)) {
     return new Response(JSON.stringify({ error: 'CSRF check failed' }), {
       status: 403,
-      headers: { 'Content-Type': 'application/json' },
+      headers: API_HEADERS,
     });
   }
 
@@ -99,15 +121,16 @@ export const POST: APIRoute = async ({ request, locals }) => {
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
       status: 400,
-      headers: { 'Content-Type': 'application/json' },
+      headers: API_HEADERS,
     });
   }
 
-  // Check authorization
-  if (!expectedToken || body.token !== expectedToken) {
+  // Check authorization - prefer header, fallback to body token
+  const providedToken = extractToken(request) || body.token;
+  if (!expectedToken || providedToken !== expectedToken) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
-      headers: { 'Content-Type': 'application/json' },
+      headers: API_HEADERS,
     });
   }
 
@@ -115,7 +138,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   if (!body.features || !Array.isArray(body.features)) {
     return new Response(JSON.stringify({ error: 'Missing features array' }), {
       status: 400,
-      headers: { 'Content-Type': 'application/json' },
+      headers: API_HEADERS,
     });
   }
 
@@ -125,7 +148,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     if (!feature.id || typeof feature.id !== 'string') {
       return new Response(JSON.stringify({ error: 'Invalid feature id' }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: API_HEADERS,
       });
     }
     if (!validStatuses.includes(feature.status)) {
@@ -133,7 +156,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         JSON.stringify({ error: `Invalid status for feature ${feature.id}` }),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' },
+          headers: API_HEADERS,
         }
       );
     }
@@ -143,7 +166,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   if (!kv) {
     return new Response(JSON.stringify({ error: 'KV not configured' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: API_HEADERS,
     });
   }
 
@@ -151,6 +174,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   return new Response(JSON.stringify({ success: true }), {
     status: 200,
-    headers: { 'Content-Type': 'application/json' },
+    headers: API_HEADERS,
   });
 };
