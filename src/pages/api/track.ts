@@ -97,7 +97,14 @@ export const POST: APIRoute = async ({ locals, request }) => {
     let buttonId: ButtonId = 'okr_submit'; // default for backwards compatibility
     let metadata: CheckSuccessMetadata | undefined;
     try {
-      const rawBody = await request.json();
+      const rawBody = await request.json() as {
+        payload?: {
+          buttonId?: string;
+          metadata?: { charCount?: number; processingTimeMs?: number };
+        };
+        _ts?: number;
+        _sig?: string;
+      };
 
       // Verify request signature
       const verification = verifySignedRequest<{

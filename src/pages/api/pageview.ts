@@ -79,7 +79,11 @@ export const POST: APIRoute = async ({ locals, request }) => {
     // Parse and verify signed request
     let pageId: PageId = 'home';
     try {
-      const rawBody = await request.json();
+      const rawBody = await request.json() as {
+        payload?: { pageId?: string };
+        _ts?: number;
+        _sig?: string;
+      };
 
       // Verify request signature
       const verification = verifySignedRequest<{ pageId?: string }>(rawBody);
