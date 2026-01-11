@@ -368,7 +368,8 @@ test.describe('Theme Toggle Tests', () => {
   });
 
   test.describe('Theme on Different Pages', () => {
-    const pages = ['/om', '/kontakt', '/blogg'];
+    // Only test pages that actually exist
+    const pages = ['/okr-sjekken', '/konseptspeilet'];
 
     for (const path of pages) {
       test(`theme toggle works on ${path}`, async ({ page }) => {
@@ -413,8 +414,8 @@ test.describe('Theme Toggle Tests', () => {
       await themeToggle.click();
       await page.waitForTimeout(200);
 
-      // Navigate to another page
-      await page.goto('/om');
+      // Navigate to another page that exists
+      await page.goto('/okr-sjekken');
       await page.waitForLoadState('networkidle');
 
       const hasDarkClass = await page.evaluate(() =>
