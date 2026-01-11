@@ -8,9 +8,9 @@ import type {
   Dimension,
   DimensionType,
   DimensionStatus,
-  MaturityLevel,
+  ExplorationLevel,
 } from '../types/konseptspeil-v2';
-import { MATURITY_LABELS } from '../types/konseptspeil-v2';
+import { EXPLORATION_LABELS } from '../types/konseptspeil-v2';
 
 /**
  * Extract content between delimiters
@@ -52,16 +52,22 @@ function parseSummary(text: string): Summary | null {
 
   const assumptionCount = parseInt(data.assumptions || '0', 10) || 0;
   const unclearCount = parseInt(data.unclear || '0', 10) || 0;
-  const maturityRaw = parseInt(data.maturity || '1', 10);
-  const maturityLevel = (Math.min(5, Math.max(1, maturityRaw)) as MaturityLevel);
-  const recommendation = data.recommendation || '';
+  // Support both 'exploration' (new) and 'maturity' (legacy) fields
+  const explorationRaw = parseInt(data.exploration || data.maturity || '1', 10);
+  const explorationLevel = (Math.min(5, Math.max(1, explorationRaw)) as ExplorationLevel);
+  // Support both 'conditional_step' (new) and 'recommendation' (legacy)
+  const conditionalStep = data.conditional_step || data.recommendation || '';
 
   return {
     assumptionCount,
     unclearCount,
-    maturityLevel,
-    maturityLabel: MATURITY_LABELS[maturityLevel],
-    recommendation,
+    explorationLevel,
+    explorationLabel: EXPLORATION_LABELS[explorationLevel],
+    conditionalStep,
+    // Backward compatibility
+    maturityLevel: explorationLevel,
+    maturityLabel: EXPLORATION_LABELS[explorationLevel],
+    recommendation: conditionalStep,
   };
 }
 
@@ -151,21 +157,33 @@ function parseQuestions(text: string): string[] {
 }
 
 /**
+ * Create a default empty summary
+ */
+function createDefaultSummary(assumptionCount = 0): Summary {
+  return {
+    assumptionCount,
+    unclearCount: 0,
+    explorationLevel: 1,
+    explorationLabel: EXPLORATION_LABELS[1],
+    conditionalStep: '',
+    // Backward compatibility
+    maturityLevel: 1,
+    maturityLabel: EXPLORATION_LABELS[1],
+    recommendation: '',
+  };
+}
+
+/**
  * Parse the v2 KonseptSpeil result from raw output
  */
 export function parseKonseptSpeilResultV2(text: string): ParsedKonseptSpeilResultV2 {
   if (!text || text.trim().length === 0) {
     return {
-      summary: {
-        assumptionCount: 0,
-        unclearCount: 0,
-        maturityLevel: 1,
-        maturityLabel: MATURITY_LABELS[1],
-        recommendation: '',
-      },
+      summary: createDefaultSummary(),
       dimensions: [],
       antagelser: [],
       sporsmal: [],
+      priorityExploration: null,
       isComplete: false,
       parseError: null,
     };
@@ -184,33 +202,26 @@ export function parseKonseptSpeilResultV2(text: string): ParsedKonseptSpeilResul
       antagelser.length > 0 &&
       sporsmal.length > 0;
 
+    // Priority exploration is the first question (or first assumption if no questions)
+    const priorityExploration = sporsmal[0] || antagelser[0] || null;
+
     return {
-      summary: summary || {
-        assumptionCount: antagelser.length,
-        unclearCount: 0,
-        maturityLevel: 1,
-        maturityLabel: MATURITY_LABELS[1],
-        recommendation: '',
-      },
+      summary: summary || createDefaultSummary(antagelser.length),
       dimensions,
       antagelser,
       sporsmal,
+      priorityExploration,
       isComplete,
       parseError: null,
     };
   } catch (error) {
     console.error('Failed to parse KonseptSpeil v2 result:', error);
     return {
-      summary: {
-        assumptionCount: 0,
-        unclearCount: 0,
-        maturityLevel: 1,
-        maturityLabel: MATURITY_LABELS[1],
-        recommendation: '',
-      },
+      summary: createDefaultSummary(),
       dimensions: [],
       antagelser: [],
       sporsmal: [],
+      priorityExploration: null,
       isComplete: false,
       parseError: 'Kunne ikke tolke svaret',
     };
@@ -222,7 +233,7 @@ export function parseKonseptSpeilResultV2(text: string): ParsedKonseptSpeilResul
  */
 export function hasContentV2(result: ParsedKonseptSpeilResultV2): boolean {
   return (
-    result.summary.recommendation.length > 0 ||
+    result.summary.conditionalStep.length > 0 ||
     result.dimensions.length > 0 ||
     result.antagelser.length > 0 ||
     result.sporsmal.length > 0

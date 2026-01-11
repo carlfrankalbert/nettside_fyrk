@@ -76,6 +76,7 @@ export default function KonseptSpeil() {
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isExampleAnimating, setIsExampleAnimating] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+  const [challengeMode, setChallengeMode] = useState(false);
 
   // ---------------------------------------------------------------------------
   // Refs
@@ -220,9 +221,10 @@ export default function KonseptSpeil() {
         setResult(null);
         abortControllerRef.current = null;
       },
-      abortControllerRef.current.signal
+      abortControllerRef.current.signal,
+      { challengeMode }
     );
-  }, [input, loading, clearTimeouts, setErrorWithType]);
+  }, [input, loading, challengeMode, clearTimeouts, setErrorWithType]);
 
   // ---------------------------------------------------------------------------
   // Effects
@@ -354,6 +356,13 @@ export default function KonseptSpeil() {
           Beskriv konseptet ditt
         </label>
 
+        {/* Pre-input guidance - discouraging pitch language */}
+        <div className="mb-3 p-3 bg-neutral-100/50 border border-neutral-200 rounded-lg">
+          <p className="text-xs text-neutral-600 leading-relaxed">
+            <span className="font-medium">Tips:</span> Unngå salgsspråk. Skriv det du faktisk tror er sant – ikke det som høres overbevisende ut.
+          </p>
+        </div>
+
         <div className="relative">
           <textarea
             ref={textareaRef}
@@ -395,9 +404,9 @@ export default function KonseptSpeil() {
           )}
         </div>
 
-        {/* Help text */}
+        {/* Help text - encouraging honesty over polish */}
         <p className="mt-2 text-sm text-neutral-500 leading-relaxed">
-          Uferdige tanker er velkomne. Skriv om problemet, hvem det gjelder, og hva du tenker å gjøre.
+          Uferdige tanker er velkomne. Usikkerhet er verdifullt. Skriv det du ikke vet like mye som det du tror.
         </p>
 
         {/* Character count and helper */}
@@ -432,6 +441,38 @@ export default function KonseptSpeil() {
         </div>
       </section>
 
+      {/* Challenge mode toggle */}
+      <div className="flex items-center justify-between py-2">
+        <label htmlFor="challenge-mode" className="text-sm text-neutral-600 cursor-pointer">
+          Utfordre meg hardere
+        </label>
+        <button
+          id="challenge-mode"
+          type="button"
+          role="switch"
+          aria-checked={challengeMode}
+          onClick={() => setChallengeMode(!challengeMode)}
+          className={cn(
+            'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2',
+            challengeMode ? 'bg-brand-navy' : 'bg-neutral-300'
+          )}
+        >
+          <span
+            className={cn(
+              'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+              challengeMode ? 'translate-x-6' : 'translate-x-1'
+            )}
+          />
+        </button>
+      </div>
+
+      {/* Privacy assurance - visible near CTA */}
+      {!result && (
+        <p className="text-xs text-neutral-400 leading-relaxed">
+          Ingen lagring, ingen innlogging, ingen trening av AI på det du skriver.
+        </p>
+      )}
+
       {/* Action buttons - desktop only (mobile uses sticky bar) */}
       <div className="hidden md:block space-y-3">
         <div className="flex flex-col gap-3">
@@ -452,11 +493,11 @@ export default function KonseptSpeil() {
             {loading ? (
               <>
                 <SpinnerIcon className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
-                <span>Speiler konseptet…</span>
+                <span>Speiler tankene dine…</span>
               </>
             ) : (
               <>
-                <span>Speil konseptet</span>
+                <span>Avdekk antagelser</span>
                 <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
@@ -464,10 +505,10 @@ export default function KonseptSpeil() {
             )}
           </button>
 
-          {/* CTA support text */}
+          {/* CTA support text - reframed */}
           {!result && !loading && (
             <p className="text-xs text-neutral-500 leading-[1.4]">
-              Du får tilbake antakelser og åpne spørsmål.
+              Du får tilbake det som er antatt vs. det som er gjort eksplisitt.
             </p>
           )}
 
@@ -567,23 +608,22 @@ export default function KonseptSpeil() {
         )}
       </div>
 
-      {/* CTA section - shown after result */}
+      {/* Optional next step - shown after result, non-pressuring */}
       {result && !loading && (
-        <section className="p-5 bg-brand-cyan-lightest/30 border border-brand-cyan/20 rounded-xl">
-          <h3 className="text-base font-semibold text-brand-navy mb-2">
-            Vil du gå dypere?
+        <section className="p-5 bg-neutral-50 border border-neutral-200 rounded-xl">
+          <h3 className="text-sm font-medium text-neutral-600 mb-2">
+            Hvis du vil ha en sparringspartner
           </h3>
-          <p className="text-sm text-neutral-600 leading-relaxed mb-4">
-            En 20-minutters sparring kan hjelpe deg prioritere hva som er viktigst å avklare først.
+          <p className="text-sm text-neutral-500 leading-relaxed mb-3">
+            Noen ganger hjelper det å tenke høyt med noen. Helt frivillig.
           </p>
           <a
             href="https://fyrk.no/kontakt"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-brand-navy hover:bg-brand-navy/90 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
+            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 hover:bg-neutral-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
           >
-            <span>📅</span>
-            Book gratis sparring med FYRK
+            Ta kontakt med FYRK
           </a>
         </section>
       )}
