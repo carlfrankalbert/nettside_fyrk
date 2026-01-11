@@ -332,6 +332,34 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const cachedEntry = cacheManager.get(cacheKey);
 
     if (cachedEntry) {
+      // If client requested streaming, return cached result as SSE stream
+      if (stream) {
+        const encoder = new TextEncoder();
+        const cachedChunks = cachedEntry.output.match(/.{1,50}/g) || [cachedEntry.output];
+
+        const cachedStream = new ReadableStream({
+          async start(controller) {
+            for (const chunk of cachedChunks) {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: chunk })}\n\n`));
+              // Small delay to simulate streaming
+              await new Promise((resolve) => setTimeout(resolve, 5));
+            }
+            controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+            controller.close();
+          },
+        });
+
+        return new Response(cachedStream, {
+          headers: {
+            'Content-Type': HTTP_HEADERS.CONTENT_TYPE_SSE,
+            'Cache-Control': HTTP_HEADERS.CACHE_CONTROL_NO_CACHE,
+            'Connection': HTTP_HEADERS.CONNECTION_KEEP_ALIVE,
+            'X-Cache': CACHE_HEADERS.HIT,
+          },
+        });
+      }
+
+      // Non-streaming: return JSON response
       return new Response(
         JSON.stringify({
           output: cachedEntry.output,
