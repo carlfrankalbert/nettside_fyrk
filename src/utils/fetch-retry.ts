@@ -73,7 +73,6 @@ export async function fetchWithRetry(
   options?: RetryOptions
 ): Promise<Response | null> {
   const opts = { ...DEFAULT_OPTIONS, ...options };
-  let lastError: unknown;
 
   for (let attempt = 0; attempt <= opts.maxRetries; attempt++) {
     try {
@@ -85,10 +84,7 @@ export async function fetchWithRetry(
       }
 
       // Retryable status, continue to retry logic
-      lastError = new Error(`HTTP ${response.status}`);
     } catch (error) {
-      lastError = error;
-
       // If not retryable, give up immediately
       if (!isRetryableError(error)) {
         return null;
