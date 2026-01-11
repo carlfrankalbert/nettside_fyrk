@@ -202,4 +202,66 @@ test.describe('Konseptspeilet', () => {
       await expect(textarea).toBeVisible();
     }
   });
+
+  test('handles resubmission of same concept without error', async ({ page }) => {
+    // Track API call count to verify caching behavior
+    let apiCallCount = 0;
+
+    await page.route('**/api/konseptspeilet', async (route) => {
+      apiCallCount++;
+      const request = route.request();
+      const postData = request.postDataJSON();
+
+      // Always return SSE format for streaming requests (simulates server cache hit on second call)
+      if (postData?.stream) {
+        const body = `data: ${JSON.stringify({ text: MOCK_RESPONSE })}\n\ndata: [DONE]\n\n`;
+        await route.fulfill({
+          status: 200,
+          contentType: 'text/event-stream',
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'X-Cache': apiCallCount > 1 ? 'HIT' : 'MISS',
+          },
+          body,
+        });
+      } else {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ output: MOCK_RESPONSE, cached: apiCallCount > 1 }),
+        });
+      }
+    });
+
+    await page.goto('/konseptspeilet');
+    await page.waitForLoadState('networkidle');
+
+    // Clear localStorage to ensure we're testing server-side cache behavior
+    await page.evaluate(() => localStorage.clear());
+
+    const textarea = page.locator('textarea').first();
+    const submitButton = page.getByRole('button', { name: /Avdekk antagelser/i });
+
+    const conceptText = 'Dette er et konsept som skal testes for gjentatt innsending uten endringer.';
+
+    // First submission
+    await textarea.fill(conceptText);
+    await submitButton.click();
+
+    // Wait for result
+    await expect(page.locator('text=3 antagelser')).toBeVisible({ timeout: 10000 });
+
+    // Clear localStorage to simulate client cache miss (forcing server request)
+    await page.evaluate(() => localStorage.clear());
+
+    // Second submission of the same concept (this was causing the bug)
+    await submitButton.click();
+
+    // Should still show result without error
+    await expect(page.locator('text=3 antagelser')).toBeVisible({ timeout: 10000 });
+
+    // Should not show error message
+    await expect(page.locator('text=Noe gikk galt')).not.toBeVisible();
+  });
 });
