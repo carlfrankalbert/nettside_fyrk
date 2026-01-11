@@ -5,9 +5,11 @@
  */
 
 import { shouldExcludeFromTracking } from './tracking-exclusion';
+import { signRequest } from '../utils/request-signing';
+import { fetchWithRetryFireAndForget } from '../utils/fetch-retry';
 
 /**
- * Track a button click (fire and forget)
+ * Track a button click (fire and forget with retry)
  */
 function trackClick(buttonId: string): void {
   // Skip tracking for excluded visitors (developer, tests)
@@ -15,12 +17,12 @@ function trackClick(buttonId: string): void {
     return;
   }
 
-  fetch('/api/track', {
+  const signedRequest = signRequest({ buttonId });
+
+  fetchWithRetryFireAndForget('/api/track', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ buttonId }),
-  }).catch(() => {
-    // Silently ignore tracking errors
+    body: JSON.stringify(signedRequest),
   });
 }
 

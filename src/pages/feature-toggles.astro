@@ -386,8 +386,11 @@ const betaActivationUrl = betaToken ? `/beta?token=${betaToken}` : null;
         try {
           const response = await fetch('/api/feature-toggles', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token: providedToken, features }),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${providedToken}`,
+            },
+            body: JSON.stringify({ features }),
           });
 
           if (response.ok) {
