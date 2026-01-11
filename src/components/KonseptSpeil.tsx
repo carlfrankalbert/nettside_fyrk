@@ -468,7 +468,7 @@ export default function KonseptSpeil() {
 
       {/* Privacy assurance - visible near CTA */}
       {!result && (
-        <p className="text-xs text-neutral-400 leading-relaxed">
+        <p className="text-xs text-neutral-500 leading-relaxed">
           Ingen lagring, ingen innlogging, ingen trening av AI på det du skriver.
         </p>
       )}
