@@ -373,7 +373,7 @@ export default function KonseptSpeil() {
             onKeyDown={handleKeyDown}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            placeholder="Vi vurderer å bygge et verktøy for team som sliter med prioritering. Problemet er at..."
+            placeholder="Vi vurderer å bygge... Problemet vi vil løse er..."
             maxLength={INPUT_VALIDATION.MAX_LENGTH}
             aria-describedby={error ? 'konsept-error konsept-help konsept-helper' : 'konsept-help konsept-helper'}
             aria-invalid={error ? 'true' : undefined}
@@ -401,8 +401,11 @@ export default function KonseptSpeil() {
             <button
               type="button"
               onClick={handleFillExample}
-              className="shrink-0 text-brand-navy/70 hover:text-brand-navy underline underline-offset-2 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded"
+              className="shrink-0 inline-flex items-center gap-1.5 text-brand-navy hover:text-brand-cyan-darker font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded"
             >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
               Se eksempel
             </button>
           )}
@@ -576,10 +579,15 @@ export default function KonseptSpeil() {
           }}
           aria-expanded={isPrivacyOpen}
           aria-controls="privacy-content"
-          className="w-full flex items-center justify-between py-2 text-left focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded-lg"
+          className="w-full flex items-center justify-between py-2.5 px-3 text-left bg-neutral-100/50 hover:bg-neutral-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
         >
-          <span className="text-sm font-medium text-neutral-500 leading-[1.3]">Trygghet og personvern</span>
-          <ChevronRightIcon className={cn('w-4 h-4 text-neutral-400 transition-transform', isPrivacyOpen && 'rotate-90')} />
+          <span className="flex items-center gap-2 text-sm font-medium text-neutral-600">
+            <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            Trygghet og personvern
+          </span>
+          <ChevronRightIcon className={cn('w-4 h-4 text-neutral-500 transition-transform', isPrivacyOpen && 'rotate-90')} />
         </button>
 
         {isPrivacyOpen && (
