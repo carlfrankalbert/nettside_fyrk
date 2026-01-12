@@ -3,9 +3,27 @@
  * Provides functions to exclude certain visitors from analytics:
  * - Developer/owner (via localStorage flag)
  * - Automated tests (Playwright, headless browsers)
+ * - Bots and crawlers
  */
 
 const EXCLUSION_KEY = 'fyrk_exclude_from_stats';
+
+/**
+ * Common bot/crawler user agent patterns (subset - most bots don't run JS)
+ */
+const BOT_PATTERNS = [
+  'bot', 'crawler', 'spider', 'crawling',
+  'googlebot', 'bingbot', 'slurp', 'duckduckbot',
+  'facebookexternalhit', 'twitterbot', 'linkedinbot',
+];
+
+/**
+ * Check if user agent looks like a bot
+ */
+function isBot(userAgent: string): boolean {
+  const ua = userAgent.toLowerCase();
+  return BOT_PATTERNS.some(pattern => ua.includes(pattern));
+}
 
 /**
  * Check if tracking should be skipped for this visitor
@@ -26,14 +44,20 @@ export function shouldExcludeFromTracking(): boolean {
       return true;
     }
 
-    // Check user agent for common test/automation indicators
     const ua = navigator.userAgent.toLowerCase();
+
+    // Check user agent for common test/automation indicators
     if (
       ua.includes('playwright') ||
       ua.includes('puppeteer') ||
       ua.includes('headlesschrome') ||
       ua.includes('cypress')
     ) {
+      return true;
+    }
+
+    // Check for bots (rare in JS context, but just in case)
+    if (isBot(ua)) {
       return true;
     }
   }
