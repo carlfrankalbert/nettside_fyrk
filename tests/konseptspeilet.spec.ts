@@ -6,36 +6,41 @@
  */
 import { test, expect } from '@playwright/test';
 
-// Sample mock response that matches expected v2 format
-const MOCK_RESPONSE = `---SUMMARY---
-assumptions: 3
-unclear: 3
-maturity: 2
-recommendation: Utforsk brukerbehov før du går videre
----END_SUMMARY---
-
----DIMENSIONS---
-value: assumed
-value_desc: Problemet er nevnt, men ikke validert med brukere.
-usability: not_addressed
-usability_desc: Hvordan brukerne vil bruke løsningen er ikke beskrevet.
-feasibility: assumed
-feasibility_desc: Teksten antyder at det er mulig å bygge.
-viability: not_addressed
-viability_desc: Forretningsmodell eller ressursbehov er ikke nevnt.
----END_DIMENSIONS---
-
----ASSUMPTIONS---
-- Målgruppen ønsker et enkelt verktøy
-- Markedet er klart for denne typen produkt
-- Teamet har kapasitet til lansering i Q1
----END_ASSUMPTIONS---
-
----QUESTIONS---
-- Hvem er den primære brukeren?
-- Hva skiller produktet fra konkurrentene?
-- Hvordan måles suksess etter lansering?
----END_QUESTIONS---`;
+// Sample mock response that matches expected v2 JSON format
+const MOCK_RESPONSE = JSON.stringify({
+  refleksjon_status: {
+    kommentar: 'Du har beskrevet løsningen detaljert, men problemet den løser er kun antydet.',
+    antagelser_funnet: 3
+  },
+  fokus_sporsmal: {
+    overskrift: 'HVIS DU VIL UTFORSKE ÉN TING VIDERE',
+    sporsmal: 'Hvem er den primære brukeren?',
+    hvorfor: 'Problemet er nevnt, men ikke konkretisert.'
+  },
+  dimensjoner: {
+    verdi: {
+      status: 'antatt',
+      observasjon: 'Problemet er nevnt, men ikke validert med brukere.'
+    },
+    brukbarhet: {
+      status: 'ikke_nevnt',
+      observasjon: 'Hvordan brukerne vil bruke løsningen er ikke beskrevet.'
+    },
+    gjennomforbarhet: {
+      status: 'antatt',
+      observasjon: 'Teksten antyder at det er mulig å bygge.'
+    },
+    levedyktighet: {
+      status: 'ikke_nevnt',
+      observasjon: 'Forretningsmodell eller ressursbehov er ikke nevnt.'
+    }
+  },
+  antagelser_liste: [
+    'Målgruppen ønsker et enkelt verktøy',
+    'Markedet er klart for denne typen produkt',
+    'Teamet har kapasitet til lansering i Q1'
+  ]
+});
 
 test.describe('Konseptspeilet', () => {
   test.beforeEach(async ({ page }) => {
@@ -74,8 +79,8 @@ test.describe('Konseptspeilet', () => {
 
     // Check page title and main heading
     await expect(page).toHaveTitle(/Konseptspeilet/);
-    // Main h1 says "Test konseptet ditt før du bygger"
-    await expect(page.getByRole('heading', { level: 1 }).first()).toContainText('Test konseptet');
+    // Main h1 says "Se hva du tar for gitt"
+    await expect(page.getByRole('heading', { level: 1 }).first()).toContainText('Se hva du tar for gitt');
   });
 
   test('shows character counter and validation', async ({ page }) => {
@@ -84,7 +89,7 @@ test.describe('Konseptspeilet', () => {
 
     const textarea = page.locator('textarea').first();
     // Button uses type="button" not type="submit"
-    const submitButton = page.getByRole('button', { name: /Speil konseptet/i });
+    const submitButton = page.getByRole('button', { name: /Avdekk antagelser/i });
 
     // Initially button should be disabled (no input)
     await expect(submitButton).toBeDisabled();
@@ -104,7 +109,7 @@ test.describe('Konseptspeilet', () => {
     await page.waitForLoadState('networkidle');
 
     const textarea = page.locator('textarea').first();
-    const submitButton = page.getByRole('button', { name: /Speil konseptet/i });
+    const submitButton = page.getByRole('button', { name: /Avdekk antagelser/i });
 
     // Enter valid concept description
     const conceptDescription = `
@@ -120,16 +125,18 @@ test.describe('Konseptspeilet', () => {
     // Wait for v2 result summary to appear (shows assumption count)
     await expect(page.locator('text=3 antagelser')).toBeVisible({ timeout: 10000 });
 
-    // Click to expand details and see assumptions/questions
-    await page.getByRole('button', { name: /Vis antagelser og spørsmål/i }).click();
+    // Antagelser section is open by default in v2.1
+    await expect(page.locator('text=Antagelser i teksten')).toBeVisible();
 
-    // Verify expanded content shows assumptions and questions sections
-    await expect(page.locator('text=Antagelser du gjør')).toBeVisible();
-    await expect(page.locator('text=Spørsmål å utforske')).toBeVisible();
-
-    // Verify content from mock response
-    await expect(page.locator('text=Målgruppen ønsker et enkelt verktøy')).toBeVisible();
+    // Verify focus question is shown (the key question to explore)
     await expect(page.locator('text=Hvem er den primære brukeren?')).toBeVisible();
+
+    // Verify content from mock response antagelser
+    await expect(page.locator('text=Målgruppen ønsker et enkelt verktøy')).toBeVisible();
+
+    // Verify action buttons are present
+    await expect(page.getByRole('button', { name: /Juster tekst/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Nullstill/i })).toBeVisible();
   });
 
   test('displays loading state during submission', async ({ page }) => {
@@ -149,13 +156,13 @@ test.describe('Konseptspeilet', () => {
     await page.waitForLoadState('networkidle');
 
     const textarea = page.locator('textarea').first();
-    const submitButton = page.getByRole('button', { name: /Speil konseptet/i });
+    const submitButton = page.getByRole('button', { name: /Avdekk antagelser/i });
 
     await textarea.fill('En lang nok tekst for å teste loading-tilstanden i appen vår.');
     await submitButton.click();
 
-    // Check for loading text which appears during submission
-    await expect(page.getByText('Speiler konseptet').first()).toBeVisible();
+    // Check for narrative loader messages during submission (NarrativeLoader cycles through messages)
+    await expect(page.getByText(/Analyserer|Ser etter|Vurderer|Genererer/).first()).toBeVisible();
   });
 
   test('handles API error gracefully', async ({ page }) => {
@@ -172,7 +179,7 @@ test.describe('Konseptspeilet', () => {
     await page.waitForLoadState('networkidle');
 
     const textarea = page.locator('textarea').first();
-    const submitButton = page.getByRole('button', { name: /Speil konseptet/i });
+    const submitButton = page.getByRole('button', { name: /Avdekk antagelser/i });
 
     await textarea.fill('En tekst som vil utløse en feil fra API-et for testing.');
     await submitButton.click();
@@ -186,7 +193,7 @@ test.describe('Konseptspeilet', () => {
     await page.waitForLoadState('networkidle');
 
     const textarea = page.locator('textarea').first();
-    const submitButton = page.getByRole('button', { name: /Speil konseptet/i });
+    const submitButton = page.getByRole('button', { name: /Avdekk antagelser/i });
 
     // First submission
     await textarea.fill('Første konseptbeskrivelse som er lang nok til analyse.');
@@ -194,13 +201,14 @@ test.describe('Konseptspeilet', () => {
     // Wait for v2 result summary to appear
     await expect(page.locator('text=3 antagelser')).toBeVisible({ timeout: 10000 });
 
-    // Look for reset/new analysis button ("Start på nytt" on desktop, "Skriv nytt konsept" on mobile)
-    const resetButton = page.getByRole('button', { name: /Start på nytt|Skriv nytt konsept/i });
+    // "Nullstill" resets completely, "Juster tekst" keeps input for editing
+    const resetButton = page.getByRole('button', { name: /Nullstill/i });
+    await expect(resetButton).toBeVisible();
+    await resetButton.click();
 
-    if (await resetButton.isVisible()) {
-      await resetButton.click();
-      await expect(textarea).toBeVisible();
-    }
+    // After reset, textarea should be visible and empty
+    await expect(textarea).toBeVisible();
+    await expect(textarea).toHaveValue('');
   });
 
   test('handles resubmission of same concept without error', async ({ page }) => {
@@ -263,5 +271,79 @@ test.describe('Konseptspeilet', () => {
 
     // Should not show error message
     await expect(page.locator('text=Noe gikk galt')).not.toBeVisible();
+  });
+
+  test('can edit input with "Juster tekst" button', async ({ page }) => {
+    await page.goto('/konseptspeilet');
+    await page.waitForLoadState('networkidle');
+
+    const textarea = page.locator('textarea').first();
+    const submitButton = page.getByRole('button', { name: /Avdekk antagelser/i });
+    const originalInput = 'Første konseptbeskrivelse som er lang nok til analyse.';
+
+    // First submission
+    await textarea.fill(originalInput);
+    await submitButton.click();
+    await expect(page.locator('text=3 antagelser')).toBeVisible({ timeout: 10000 });
+
+    // "Juster tekst" keeps input for editing
+    const editButton = page.getByRole('button', { name: /Juster tekst/i });
+    await expect(editButton).toBeVisible();
+    await editButton.click();
+
+    // After clicking "Juster tekst", textarea should be visible with original input preserved
+    await expect(textarea).toBeVisible();
+    await expect(textarea).toHaveValue(originalInput);
+  });
+
+  test('shows dimension cards with status indicators', async ({ page }) => {
+    await page.goto('/konseptspeilet');
+    await page.waitForLoadState('networkidle');
+
+    const textarea = page.locator('textarea').first();
+    const submitButton = page.getByRole('button', { name: /Avdekk antagelser/i });
+
+    await textarea.fill('En konseptbeskrivelse for å teste dimensjonskort visning.');
+    await submitButton.click();
+    await expect(page.locator('text=3 antagelser')).toBeVisible({ timeout: 10000 });
+
+    // Verify all four dimensions are shown (Cagan framework) - use heading role for precision
+    await expect(page.getByRole('heading', { name: 'Verdi' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Brukbarhet' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Gjennomførbarhet' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Levedyktighet' })).toBeVisible();
+  });
+
+  test('shows collapsible input review', async ({ page }) => {
+    await page.goto('/konseptspeilet');
+    await page.waitForLoadState('networkidle');
+
+    const textarea = page.locator('textarea').first();
+    const submitButton = page.getByRole('button', { name: /Avdekk antagelser/i });
+
+    await textarea.fill('En konseptbeskrivelse for å teste kollapserbar input visning.');
+    await submitButton.click();
+    await expect(page.locator('text=3 antagelser')).toBeVisible({ timeout: 10000 });
+
+    // "Din tekst" section should be present (collapsible input review)
+    await expect(page.locator('text=Din tekst')).toBeVisible();
+  });
+
+  test('shows copy buttons after result', async ({ page }) => {
+    await page.goto('/konseptspeilet');
+    await page.waitForLoadState('networkidle');
+
+    const textarea = page.locator('textarea').first();
+    const submitButton = page.getByRole('button', { name: /Avdekk antagelser/i });
+
+    await textarea.fill('En konseptbeskrivelse for å teste kopieringsknapper.');
+    await submitButton.click();
+    await expect(page.locator('text=3 antagelser')).toBeVisible({ timeout: 10000 });
+
+    // "Kopier hele analysen" button should be visible
+    await expect(page.getByRole('button', { name: /Kopier hele analysen/i })).toBeVisible();
+
+    // "Del funn med kollega" button should be visible in antagelser section
+    await expect(page.getByRole('button', { name: /Del funn med kollega/i })).toBeVisible();
   });
 });
