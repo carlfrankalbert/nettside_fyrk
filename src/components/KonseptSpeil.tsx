@@ -569,7 +569,7 @@ export default function KonseptSpeil() {
       {/* AI og personvern - matching OKR-sjekken style */}
       <div className="border-t border-neutral-200 pt-6">
         <p className="text-sm text-neutral-500 mb-3">
-          Teksten du skriver brukes kun til å generere refleksjonen.
+          Teksten du skriver brukes kun til å generere refleksjonen. Unngå å lime inn konfidensiell eller sensitiv informasjon.
         </p>
         <button
           type="button"
@@ -593,15 +593,25 @@ export default function KonseptSpeil() {
           >
             <p>
               <strong>Hvordan fungerer det?</strong><br />
-              Refleksjonen genereres av Claude (Anthropic), strukturert rundt de fire produktrisikoene (verdi, brukbarhet, gjennomførbarhet, levedyktighet).
+              Refleksjonen genereres av Claude (Anthropic), strukturert rundt de fire produktrisikoene (verdi, brukbarhet, gjennomførbarhet, levedyktighet). AI-output kan være unøyaktig eller ufullstendig – bruk din egen vurdering.
             </p>
             <p>
               <strong>Hva skjer med dataene?</strong><br />
-              Teksten sendes til Claude API for å generere refleksjonen. Vi lagrer ikke innholdet, og det brukes ikke til å trene AI-modeller.
+              Teksten sendes til Claude API for å generere refleksjonen. Vi lagrer ikke innholdet, og det brukes ikke til å trene AI-modeller. Vi bruker anonymisert bruksstatistikk (f.eks. antall tegn, responstid) for å forbedre tjenesten.
             </p>
             <p>
               <strong>Er det trygt?</strong><br />
-              Ja. Du trenger ikke logge inn, og vi samler ikke inn personopplysninger.
+              Du trenger ikke logge inn. Ikke del personopplysninger, forretningshemmeligheter eller annen sensitiv informasjon i teksten du sender inn.
+            </p>
+            <p className="pt-2 border-t border-neutral-200">
+              <a
+                href="https://fyrk.no/personvern"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2"
+              >
+                Les FYRKs personvernerklæring
+              </a>
             </p>
           </div>
         )}

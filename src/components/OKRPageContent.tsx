@@ -44,7 +44,7 @@ export default function OKRPageContent() {
           </a>
         </div>
         <p className="text-xs text-neutral-500 mt-4">
-          OKR-sjekken er laget av FYRK som supplement til rådgivning.
+          OKR-sjekken er et profesjonelt verktøy laget av FYRK for produktteam og ledere. Ikke ment som erstatning for faglig rådgivning.
         </p>
       </section>
     </>
