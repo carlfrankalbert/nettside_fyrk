@@ -111,7 +111,14 @@ export function fetchWithRetryFireAndForget(
   init?: RequestInit,
   options?: RetryOptions
 ): void {
-  fetchWithRetry(url, init, options).catch(() => {
-    // Silently ignore - analytics should never block
-  });
+  fetchWithRetry(url, init, options)
+    .then((response) => {
+      // Log failed tracking for debugging (only if all retries exhausted)
+      if (response === null) {
+        console.warn('[Tracking] Request failed after retries:', url);
+      }
+    })
+    .catch(() => {
+      // Silently ignore - analytics should never block
+    });
 }

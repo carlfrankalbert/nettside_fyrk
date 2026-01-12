@@ -117,3 +117,9 @@ export const CACHE_HEADERS = {
   HIT: 'HIT',
   MISS: 'MISS',
 } as const;
+
+/**
+ * Example text for Konseptspeilet
+ * Centralized to ensure consistency across UI
+ */
+export const EXAMPLE_KONSEPT = `Jeg vurderer å bygge et lite verktøy for team som sliter med prioritering. Vi har mange initiativer samtidig, og det er uklart hva som faktisk er viktig. Jeg tror det finnes et reelt problem, men vi har ikke testet det ordentlig. Målet er å få mer klarhet før vi bestemmer oss.` as const;

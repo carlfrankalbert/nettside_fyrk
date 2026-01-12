@@ -184,11 +184,8 @@ export async function speileKonseptStreaming(
         throw new Error(ERROR_MESSAGES.ABORTED);
       }
 
-      // Clear previous output if retrying
-      if (retryCount > 0) {
-        // Reset the output display for retry
-        onChunk('\n[Automatisk retry...]\n');
-      }
+      // Note: On retry, we simply restart the stream
+      // The component's state will be reset by the new chunks arriving
 
       lastOutput = await performStreamingRequest(trimmedInput, onChunk, signal);
 

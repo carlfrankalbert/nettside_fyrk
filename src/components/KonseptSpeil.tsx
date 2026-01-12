@@ -3,14 +3,12 @@ import { speileKonseptStreaming, ERROR_MESSAGES, isValidOutput } from '../servic
 import KonseptSpeilResultDisplayV2 from './KonseptSpeilResultDisplayV2';
 import { SpinnerIcon, ChevronRightIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
-import { INPUT_VALIDATION } from '../utils/constants';
+import { INPUT_VALIDATION, EXAMPLE_KONSEPT } from '../utils/constants';
 import { trackClick, logEvent } from '../utils/tracking';
 
 // ============================================================================
 // Constants
 // ============================================================================
-
-const EXAMPLE_KONSEPT = `Jeg vurderer å bygge et lite verktøy for team som sliter med prioritering. Vi har mange initiativer samtidig, og det er uklart hva som faktisk er viktig. Jeg tror det finnes et reelt problem, men vi har ikke testet det ordentlig. Målet er å få mer klarhet før vi bestemmer oss.`;
 
 /** Minimum characters required for button to be enabled (higher than MIN_LENGTH for UX) */
 const SUBMIT_THRESHOLD = 50;

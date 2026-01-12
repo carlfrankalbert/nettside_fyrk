@@ -293,19 +293,44 @@ export default function KonseptSpeilResultDisplayV2({
 
   const parsed = parseKonseptSpeilResultV2(result);
 
-  // Copy to clipboard with toast feedback
+  // Copy to clipboard with toast feedback and fallback for older browsers
   const copyToClipboard = async (text: string, feedbackMessage = 'Kopiert!') => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setToastMessage(feedbackMessage);
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-      setToastMessage('Kunne ikke kopiere');
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 2000);
+    // Try modern clipboard API first
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        setToastMessage(feedbackMessage);
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 2000);
+        return;
+      } catch {
+        // Fall through to fallback
+      }
     }
+
+    // Fallback: create a temporary textarea
+    try {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+      textarea.style.top = '0';
+      textarea.setAttribute('readonly', '');
+      document.body.appendChild(textarea);
+      textarea.select();
+      const success = document.execCommand('copy');
+      document.body.removeChild(textarea);
+
+      if (success) {
+        setToastMessage(feedbackMessage);
+      } else {
+        setToastMessage('Kunne ikke kopiere');
+      }
+    } catch {
+      setToastMessage('Kunne ikke kopiere');
+    }
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 2000);
   };
 
   // During streaming, show narrative loader if we don't have enough content yet
