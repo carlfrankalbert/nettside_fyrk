@@ -15,8 +15,7 @@ const EXAMPLE_KONSEPT = `Jeg vurderer å bygge et lite verktøy for team som sli
 /** Minimum characters required for button to be enabled (higher than MIN_LENGTH for UX) */
 const SUBMIT_THRESHOLD = 50;
 
-/** Timeout thresholds in milliseconds */
-const SLOW_TIMEOUT_MS = 15000;  // 15 seconds - shows "slow" UI feedback
+/** Timeout threshold in milliseconds */
 const HARD_TIMEOUT_MS = 45000;  // 45 seconds - aborts request (higher than server's 30s timeout)
 
 /** Error types for logging */
@@ -72,7 +71,6 @@ export default function KonseptSpeil() {
   const [errorType, setErrorType] = useState<ErrorType>(null);
   const [result, setResult] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [isSlow, setIsSlow] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isExampleAnimating, setIsExampleAnimating] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -84,7 +82,6 @@ export default function KonseptSpeil() {
   const abortControllerRef = useRef<AbortController | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const slowTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hardTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Synchronous guard to prevent race conditions with concurrent submissions
   // (React state updates are async, so we need a ref for immediate check)
@@ -112,17 +109,12 @@ export default function KonseptSpeil() {
     textarea.style.height = `${textarea.scrollHeight}px`;
   }, []);
 
-  /** Clear all pending timeouts */
+  /** Clear pending timeout */
   const clearTimeouts = useCallback(() => {
-    if (slowTimeoutRef.current) {
-      clearTimeout(slowTimeoutRef.current);
-      slowTimeoutRef.current = null;
-    }
     if (hardTimeoutRef.current) {
       clearTimeout(hardTimeoutRef.current);
       hardTimeoutRef.current = null;
     }
-    setIsSlow(false);
   }, []);
 
   /** Set an error with type tracking for logging */
@@ -159,19 +151,13 @@ export default function KonseptSpeil() {
     setError(null);
     setErrorType(null);
     setResult(null); // Use null instead of '' to ensure clean state detection
-    setIsSlow(false);
     clearTimeouts();
 
     // Abort any previous request
     abortControllerRef.current?.abort();
     abortControllerRef.current = new AbortController();
 
-    // Set up slow timeout (8 seconds)
-    slowTimeoutRef.current = setTimeout(() => {
-      setIsSlow(true);
-    }, SLOW_TIMEOUT_MS);
-
-    // Set up hard timeout (20 seconds)
+    // Set up hard timeout
     hardTimeoutRef.current = setTimeout(() => {
       clearTimeouts();
       abortControllerRef.current?.abort();
