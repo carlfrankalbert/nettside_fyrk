@@ -373,7 +373,7 @@ export default function KonseptSpeil() {
             onKeyDown={handleKeyDown}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            placeholder="Hva vurderer du å bygge – og hvorfor?"
+            placeholder="Vi vurderer å bygge et verktøy for team som sliter med prioritering. Problemet er at..."
             maxLength={INPUT_VALIDATION.MAX_LENGTH}
             aria-describedby={error ? 'konsept-error konsept-help konsept-helper' : 'konsept-help konsept-helper'}
             aria-invalid={error ? 'true' : undefined}
@@ -390,24 +390,23 @@ export default function KonseptSpeil() {
             )}
             disabled={loading}
           />
+        </div>
+
+        {/* Help text and example link - combined for cleaner layout */}
+        <div className="mt-2 flex items-center justify-between gap-4 text-sm text-neutral-500">
+          <p className="leading-relaxed">
+            Uferdige tanker og usikkerhet er verdifullt.
+          </p>
           {!input && !loading && (
             <button
               type="button"
               onClick={handleFillExample}
-              className="absolute bottom-4 left-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-brand-navy bg-brand-cyan-lightest hover:bg-brand-cyan-light border border-brand-cyan/40 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 hover:scale-105"
+              className="shrink-0 text-brand-navy/70 hover:text-brand-navy underline underline-offset-2 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              Prøv med eksempel
+              Se eksempel
             </button>
           )}
         </div>
-
-        {/* Help text - encouraging honesty over polish */}
-        <p className="mt-2 text-sm text-neutral-500 leading-relaxed">
-          Uferdige tanker er velkomne. Usikkerhet er verdifullt. Skriv det du ikke vet like mye som det du tror.
-        </p>
 
         {/* Character count and helper */}
         <div id="konsept-help" className="mt-3 flex items-center justify-between gap-4">
@@ -441,12 +440,6 @@ export default function KonseptSpeil() {
         </div>
       </section>
 
-      {/* Privacy assurance - visible near CTA */}
-      {!result && (
-        <p className="text-xs text-neutral-500 leading-relaxed">
-          Ingen lagring, ingen innlogging, ingen trening av AI på det du skriver.
-        </p>
-      )}
 
       {/* Action buttons - desktop only (mobile uses sticky bar) */}
       <div className="hidden md:block space-y-3">
@@ -479,13 +472,6 @@ export default function KonseptSpeil() {
               </>
             )}
           </button>
-
-          {/* CTA support text - reframed */}
-          {!result && !loading && (
-            <p className="text-xs text-neutral-500 leading-[1.4]">
-              Du får tilbake det som er antatt vs. det som er gjort eksplisitt.
-            </p>
-          )}
 
         </div>
 
@@ -602,23 +588,20 @@ export default function KonseptSpeil() {
             className="mt-3 p-4 bg-neutral-50 rounded-lg border border-neutral-200 space-y-3 text-sm"
           >
             <div>
-              <h3 className="font-medium text-neutral-700 mb-1">Hvordan fungerer det?</h3>
-              <p className="text-neutral-600 leading-relaxed">
-                Refleksjonen genereres av Claude (Anthropic), en AI-modell som analyserer konseptbeskrivelsen og speiler tilbake observasjoner.
-              </p>
-              <p className="text-neutral-600 leading-relaxed mt-2">
-                Refleksjonen er strukturert rundt de fire produktrisikoene (verdi, brukbarhet, gjennomførbarhet, levedyktighet) – et rammeverk kjent fra blant annet Marty Cagans arbeid med produktutvikling.
+              <h4 className="text-xs font-medium text-neutral-600 mb-1">Hvordan fungerer det?</h4>
+              <p className="text-neutral-500 leading-relaxed">
+                Refleksjonen genereres av Claude (Anthropic). Strukturert rundt de fire produktrisikoene (verdi, brukbarhet, gjennomførbarhet, levedyktighet).
               </p>
             </div>
             <div>
-              <h3 className="font-medium text-neutral-700 mb-1">Hva skjer med dataene?</h3>
-              <p className="text-neutral-600 leading-relaxed">
-                Sendes til Claude API for å generere refleksjonen. Vi lagrer ikke innholdet, og det brukes ikke til å trene AI-modeller.
+              <h4 className="text-xs font-medium text-neutral-600 mb-1">Hva skjer med dataene?</h4>
+              <p className="text-neutral-500 leading-relaxed">
+                Sendes til Claude API. Vi lagrer ikke innholdet, og det brukes ikke til å trene AI-modeller.
               </p>
             </div>
             <div>
-              <h3 className="font-medium text-neutral-700 mb-1">Er det trygt?</h3>
-              <p className="text-neutral-600 leading-relaxed">
+              <h4 className="text-xs font-medium text-neutral-600 mb-1">Er det trygt?</h4>
+              <p className="text-neutral-500 leading-relaxed">
                 Ja, ingen innlogging, ingen persondata samles inn.
               </p>
             </div>

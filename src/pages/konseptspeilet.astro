@@ -43,7 +43,9 @@ export const prerender = false;
       </header>
 
       <!-- Dynamic content (input, CTA, result) -->
-      <KonseptSpeil client:load />
+      <div class="mt-8">
+        <KonseptSpeil client:load />
+      </div>
 
       <!-- When is this useful section -->
       <section class="mt-8 pt-6 border-t border-neutral-200">
@@ -78,7 +80,7 @@ export const prerender = false;
     </div>
 
     <footer class="py-6 border-t border-neutral-200 text-center text-sm text-neutral-500">
-      <p>Laget av <a href="https://fyrk.no" class="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 font-medium focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded">FYRK</a></p>
+      <p>Laget av <a href="https://fyrk.no" class="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 font-medium focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded">FYRK</a> · Drevet av Claude</p>
     </footer>
   </main>
 
