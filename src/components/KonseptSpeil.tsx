@@ -593,11 +593,11 @@ export default function KonseptSpeil() {
           >
             <p>
               <strong>Hvordan fungerer det?</strong><br />
-              Refleksjonen genereres av Claude (Anthropic), strukturert rundt de fire produktrisikoene (verdi, brukbarhet, gjennomførbarhet, levedyktighet). AI-output kan være unøyaktig eller ufullstendig – bruk din egen vurdering.
+              Refleksjonen genereres av Claude (Anthropic), strukturert rundt de fire produktrisikoene (verdi, brukbarhet, gjennomførbarhet, levedyktighet).
             </p>
             <p>
               <strong>Hva skjer med dataene?</strong><br />
-              Teksten sendes til Claude API for å generere refleksjonen. Vi lagrer ikke innholdet, og det brukes ikke til å trene AI-modeller. Vi bruker anonymisert bruksstatistikk (f.eks. antall tegn, responstid) for å forbedre tjenesten.
+              Teksten sendes til Claude API for å generere refleksjonen. Vi lagrer ikke innholdet, og det brukes ikke til å trene AI-modeller.
             </p>
             <p>
               <strong>Er det trygt?</strong><br />

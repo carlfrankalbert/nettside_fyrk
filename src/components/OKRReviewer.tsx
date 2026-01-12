@@ -448,12 +448,12 @@ Key Results:
             <p>
               <strong>Hvordan fungerer det?</strong><br />
               Vurderingen genereres av Claude (Anthropic), en AI-modell som analyserer
-              OKR-settet ditt basert på etablerte prinsipper for god målsetting. AI-output kan være unøyaktig eller ufullstendig – bruk din egen vurdering.
+              OKR-settet ditt basert på etablerte prinsipper for god målsetting.
             </p>
             <p>
               <strong>Hva skjer med dataene?</strong><br />
               OKR-ene dine sendes til Anthropics API for å generere vurderingen.
-              Vi lagrer ikke innholdet du sender inn, og det brukes ikke til å trene AI-modeller. Vi bruker anonymisert bruksstatistikk for å forbedre tjenesten.
+              Vi lagrer ikke innholdet du sender inn, og det brukes ikke til å trene AI-modeller.
             </p>
             <p>
               <strong>Er det trygt?</strong><br />
