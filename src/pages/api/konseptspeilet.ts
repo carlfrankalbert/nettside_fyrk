@@ -76,6 +76,8 @@ Bruk rolige, reflekterende formuleringer:
 ## OUTPUT-FORMAT (OBLIGATORISK)
 Returner NØYAKTIG dette formatet. Ingen annen tekst før eller etter.
 
+KRITISK FORMATREGEL: Hver linje med "- " SKAL stå på sin egen linje med linjeskift før og etter. ALDRI skriv flere kulepunkter på samme linje.
+
 ---SUMMARY---
 assumptions: [antall antagelser funnet, f.eks. 4]
 unclear: [antall uklarheter, f.eks. 3]
@@ -95,16 +97,18 @@ viability_desc: [Én setning som beskriver status for levedyktighet-dimensjonen]
 ---END_DIMENSIONS---
 
 ---ASSUMPTIONS---
-- [Antagelse 1 med reflekterende språk, som identifiserer noe som tas for gitt]
-- [Antagelse 2 - fokuser på forutsetninger som ikke er bekreftet]
-- [osv., 2-6 stykker]
+- [Antagelse 1 - én per linje]
+- [Antagelse 2 - én per linje]
+- [Antagelse 3 - én per linje]
+- [osv., 2-6 stykker totalt]
 ---END_ASSUMPTIONS---
 
 ---QUESTIONS---
-- [Viktigste spørsmål FØRST - det som avdekker størst risiko eller usikkerhet]
-- [Falsifiserbart spørsmål - hva ville motbevise en nøkkelantagelse?]
-- [Spørsmål om hvem dette IKKE fungerer for]
-- [osv., 4-8 stykker, rangert etter viktighet]
+- [Spørsmål 1 - én per linje]
+- [Spørsmål 2 - én per linje]
+- [Spørsmål 3 - én per linje]
+- [Spørsmål 4 - én per linje]
+- [osv., 4-8 stykker totalt, rangert etter viktighet]
 ---END_QUESTIONS---`;
 
 // Additional instructions for challenge mode

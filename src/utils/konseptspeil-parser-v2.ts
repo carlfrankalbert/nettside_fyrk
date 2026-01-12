@@ -82,15 +82,13 @@ function parseDimensionStatus(value: string): DimensionStatus {
 }
 
 /**
- * Parse the dimensions section
+ * Parse key:value pairs from content, handling both newline-separated and single-line formats
  */
-function parseDimensions(text: string): Dimension[] {
-  const dimensionsContent = extractSection(text, '---DIMENSIONS---', '---END_DIMENSIONS---');
-  if (!dimensionsContent) return [];
-
-  const lines = dimensionsContent.split('\n');
+function parseKeyValuePairs(content: string): Record<string, string> {
   const data: Record<string, string> = {};
 
+  // First try normal newline-separated parsing
+  const lines = content.split('\n');
   for (const line of lines) {
     const colonIndex = line.indexOf(':');
     if (colonIndex > 0) {
@@ -99,6 +97,53 @@ function parseDimensions(text: string): Dimension[] {
       data[key] = value;
     }
   }
+
+  // Check if we got valid dimension data
+  const hasValidDimensions = ['value', 'usability', 'feasibility', 'viability'].some(
+    dim => data[dim] && ['assumed', 'described', 'not_addressed'].includes(data[dim].toLowerCase())
+  );
+
+  // If normal parsing didn't work, try to parse as single line with multiple key:value pairs
+  if (!hasValidDimensions && content.includes(':')) {
+    // Pattern: "key1: value1 key2: value2" or "key1: value1key2: value2"
+    // Known keys in dimensions section
+    const knownKeys = [
+      'value', 'value_desc',
+      'usability', 'usability_desc',
+      'feasibility', 'feasibility_desc',
+      'viability', 'viability_desc'
+    ];
+
+    // Build regex to split by known keys
+    const keyPattern = new RegExp(`\\b(${knownKeys.join('|')})\\s*:`, 'gi');
+    const matches: { key: string; index: number }[] = [];
+
+    let match;
+    while ((match = keyPattern.exec(content)) !== null) {
+      matches.push({ key: match[1].toLowerCase(), index: match.index });
+    }
+
+    // Extract values between keys
+    for (let i = 0; i < matches.length; i++) {
+      const key = matches[i].key;
+      const startIndex = matches[i].index + key.length + 1; // +1 for the colon
+      const endIndex = i + 1 < matches.length ? matches[i + 1].index : content.length;
+      const value = content.slice(startIndex, endIndex).trim();
+      data[key] = value;
+    }
+  }
+
+  return data;
+}
+
+/**
+ * Parse the dimensions section
+ */
+function parseDimensions(text: string): Dimension[] {
+  const dimensionsContent = extractSection(text, '---DIMENSIONS---', '---END_DIMENSIONS---');
+  if (!dimensionsContent) return [];
+
+  const data = parseKeyValuePairs(dimensionsContent);
 
   const dimensionTypes: DimensionType[] = ['value', 'usability', 'feasibility', 'viability'];
   const dimensions: Dimension[] = [];
@@ -119,6 +164,7 @@ function parseDimensions(text: string): Dimension[] {
 
 /**
  * Extract bullet points from a section
+ * Handles both proper newline-separated bullets and malformed single-line bullets
  */
 function extractBulletPoints(content: string): string[] {
   const lines = content.split('\n');
@@ -128,8 +174,20 @@ function extractBulletPoints(content: string): string[] {
     const trimmed = line.trim();
     // Match lines starting with - or *
     if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
-      const text = trimmed.slice(2).trim();
-      if (text) {
+      let text = trimmed.slice(2).trim();
+
+      // Check if multiple bullets are on the same line (malformed response)
+      // Pattern: "Question 1?- Question 2?- Question 3?"
+      if (text.includes('?- ') || text.includes('.- ')) {
+        // Split by common patterns where a new bullet starts mid-line
+        const parts = text.split(/(?<=\?|\.)- /);
+        for (const part of parts) {
+          const cleaned = part.trim();
+          if (cleaned) {
+            bullets.push(cleaned);
+          }
+        }
+      } else if (text) {
         bullets.push(text);
       }
     }

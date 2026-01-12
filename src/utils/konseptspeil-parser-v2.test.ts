@@ -311,6 +311,94 @@ viability_desc: Test
     expect(result.antagelser).toContain('Gyldig antagelse');
     expect(result.antagelser).toContain('Annen gyldig antagelse');
   });
+
+  it('handles malformed response with multiple bullets on same line', () => {
+    // This tests the bug fix for when AI returns bullets without proper newlines
+    const input = `---SUMMARY---
+assumptions: 3
+unclear: 2
+exploration: 2
+conditional_step: Test
+---END_SUMMARY---
+
+---DIMENSIONS---
+value: assumed
+value_desc: Test
+usability: assumed
+usability_desc: Test
+feasibility: assumed
+feasibility_desc: Test
+viability: assumed
+viability_desc: Test
+---END_DIMENSIONS---
+
+---ASSUMPTIONS---
+- Første antagelse.- Andre antagelse.- Tredje antagelse.
+---END_ASSUMPTIONS---
+
+---QUESTIONS---
+- Første spørsmål?- Andre spørsmål?- Tredje spørsmål?
+---END_QUESTIONS---`;
+
+    const result = parseKonseptSpeilResultV2(input);
+
+    // Should split malformed bullets into separate items
+    expect(result.antagelser).toHaveLength(3);
+    expect(result.antagelser[0]).toBe('Første antagelse.');
+    expect(result.antagelser[1]).toBe('Andre antagelse.');
+    expect(result.antagelser[2]).toBe('Tredje antagelse.');
+
+    expect(result.sporsmal).toHaveLength(3);
+    expect(result.sporsmal[0]).toBe('Første spørsmål?');
+    expect(result.sporsmal[1]).toBe('Andre spørsmål?');
+    expect(result.sporsmal[2]).toBe('Tredje spørsmål?');
+
+    // Priority exploration should be just the first question, not all of them
+    expect(result.priorityExploration).toBe('Første spørsmål?');
+  });
+
+  it('handles malformed dimensions on single line', () => {
+    // This tests the bug fix for when AI returns dimensions without proper newlines
+    const input = `---SUMMARY---
+assumptions: 2
+unclear: 1
+exploration: 2
+conditional_step: Test
+---END_SUMMARY---
+
+---DIMENSIONS---
+value: assumed value_desc: Problemet er nevnt men ikke validert. usability: not_addressed usability_desc: Ingen beskrivelse av brukeropplevelse. feasibility: described feasibility_desc: Teknisk løsning er godt beskrevet. viability: assumed viability_desc: Forretningsmodell er antatt.
+---END_DIMENSIONS---
+
+---ASSUMPTIONS---
+- Test antagelse
+---END_ASSUMPTIONS---
+
+---QUESTIONS---
+- Test spørsmål?
+---END_QUESTIONS---`;
+
+    const result = parseKonseptSpeilResultV2(input);
+
+    // Should parse dimensions correctly even when on single line
+    expect(result.dimensions).toHaveLength(4);
+
+    const valueDim = result.dimensions.find(d => d.type === 'value');
+    expect(valueDim?.status).toBe('assumed');
+    expect(valueDim?.description).toBe('Problemet er nevnt men ikke validert.');
+
+    const usabilityDim = result.dimensions.find(d => d.type === 'usability');
+    expect(usabilityDim?.status).toBe('not_addressed');
+    expect(usabilityDim?.description).toBe('Ingen beskrivelse av brukeropplevelse.');
+
+    const feasibilityDim = result.dimensions.find(d => d.type === 'feasibility');
+    expect(feasibilityDim?.status).toBe('described');
+    expect(feasibilityDim?.description).toBe('Teknisk løsning er godt beskrevet.');
+
+    const viabilityDim = result.dimensions.find(d => d.type === 'viability');
+    expect(viabilityDim?.status).toBe('assumed');
+    expect(viabilityDim?.description).toBe('Forretningsmodell er antatt.');
+  });
 });
 
 describe('hasContentV2', () => {
