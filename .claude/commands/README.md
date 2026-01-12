@@ -1,31 +1,43 @@
-# FYRK Persona Commands
+# FYRK Claude Code Commands
 
-Prosjekt-lokale slash commands for strukturert review uten rollespill.
+Slash commands for personas og orchestrated reviews.
 
-Hver persona leverer **maks 5 presise risikopunkter** uten løsningsforslag.
+Personas er "linser/instrumenter" (ikke kollegaer) som identifiserer risiko uten å foreslå løsninger.
 
-## Bruk
+## Fremgangsmåte
+
+1. **Før koding:** `/review-concept` - vurder konsept/copy/flow
+2. **Etter koding:** `/review-change` - vurder diff/implementasjon
+3. **Før merge:** `/review-release` - gate basert på forrige review
+
+## Orchestrated Reviews
 
 ```
-/personas/ux <tekst eller kode å vurdere>
-/personas/qa <tekst eller kode å vurdere>
-/personas/frontend <tekst eller kode å vurdere>
-/personas/backend <tekst eller kode å vurdere>
-/personas/data <tekst eller kode å vurdere>
-/personas/legal <tekst eller kode å vurdere>
-/personas/fyrk-quality <tekst eller kode å vurdere>
+/review-concept Mål: ... Constraints: stateless ... Endring: ...
+/review-change Review diff: ... (eller "Se på filene X/Y")
+/review-release
+```
+
+Output: UX → QA → FE → BE → Data → Legal → FYRK Quality → TRIAGE → DECISION
+
+## Enkelt-personas
+
+Kjør én linse om gangen:
+
+```
+/personas/ux <tekst>
+/personas/qa <tekst>
+/personas/frontend <tekst>
+/personas/backend <tekst>
+/personas/data <tekst>
+/personas/legal <tekst>
+/personas/fyrk-quality <tekst>
 /personas/triage
 /personas/go-no-go
 ```
 
-## Anbefalt sekvens
+## Tips
 
-1. **UX** - Brukeropplevelse og mental modell
-2. **QA** - Edge cases og feilstier
-3. **Frontend** - UI-implementasjon
-4. **Backend** - API og infrastruktur
-5. **Data** - Analytics og måling
-6. **Legal** - Juridisk risiko
-7. **FYRK Quality** - Intern kvalitetsstandard
-8. **Triage** - Kategoriser funn
-9. **Go/No-Go** - Beslutning
+- Inkludér alltid mål/scope/constraints for å unngå generiske svar
+- Maks 5 risikopunkter per seksjon, ingen løsninger
+- Bruk `/review-release` etter en full review for rask GO/NO-GO
