@@ -76,6 +76,7 @@ export default function KonseptSpeil() {
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isExampleAnimating, setIsExampleAnimating] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+  const [submittedInput, setSubmittedInput] = useState<string | null>(null);
 
   // ---------------------------------------------------------------------------
   // Refs
@@ -148,6 +149,9 @@ export default function KonseptSpeil() {
     }
 
     trackClick('konseptspeil_submit');
+
+    // Save the submitted input for display in results
+    setSubmittedInput(input.trim());
 
     // Clear previous state - reset result to null first to ensure clean state
     setLoading(true);
@@ -310,10 +314,22 @@ export default function KonseptSpeil() {
     }, 600);
   };
 
-  /** Reset form and clear result */
-  const handleClearResult = () => {
+  /** Edit input while keeping results visible (Juster tekst) */
+  const handleEditInput = () => {
+    trackClick('konseptspeil_edit');
+    // Scroll to input area
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Focus the textarea after scroll
+    setTimeout(() => {
+      textareaRef.current?.focus();
+    }, 300);
+  };
+
+  /** Full reset - clear everything (Nullstill) */
+  const handleFullReset = () => {
     trackClick('konseptspeil_reset');
     setResult(null);
+    setSubmittedInput(null);
     setError(null);
     setInput('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -485,15 +501,6 @@ export default function KonseptSpeil() {
             </p>
           )}
 
-          {result && !loading && (
-            <button
-              type="button"
-              onClick={handleClearResult}
-              className="self-start inline-flex items-center justify-center px-5 py-3 text-base font-semibold text-neutral-700 bg-neutral-100 hover:bg-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
-            >
-              Start på nytt
-            </button>
-          )}
         </div>
 
         {/* Validation errors (input length) shown inline near button */}
@@ -550,32 +557,16 @@ export default function KonseptSpeil() {
           </div>
         )}
 
-        {/* Loading state */}
-        {loading && !result && (
-          <div className="p-6 bg-white border-2 border-brand-cyan/30 rounded-xl">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-brand-cyan-lightest flex items-center justify-center">
-                <SpinnerIcon className="animate-spin h-5 w-5 text-brand-cyan-darker" />
-              </div>
-              <div>
-                <p className="text-[15px] font-medium text-neutral-800 leading-[1.5]">Speiler konseptet…</p>
-                {isSlow ? (
-                  <p className="text-xs text-neutral-500 leading-[1.4]">Dette tar litt lenger tid enn vanlig …</p>
-                ) : (
-                  <p className="text-xs text-neutral-500 leading-[1.4]">Dette tar vanligvis 15-30 sekunder</p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {result && (
+        {/* Result display - also handles loading state with NarrativeLoader */}
+        {(result || isStreaming) && (
           <div className="p-6 bg-white border-2 border-neutral-200 rounded-xl shadow-sm">
             <KonseptSpeilResultDisplayV2
-              result={result}
+              result={result || ''}
               isStreaming={isStreaming}
+              originalInput={submittedInput || undefined}
               onRetry={handleSubmit}
-              onReset={handleClearResult}
+              onEdit={handleEditInput}
+              onReset={handleFullReset}
             />
           </div>
         )}
