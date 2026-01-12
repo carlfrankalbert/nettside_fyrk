@@ -320,7 +320,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     // Check cache
     cacheManager.cleanup();
-    const cacheKey = await hashInput('konseptspeil:' + trimmedInput + (challengeMode ? ':challenge' : ''));
+    const cacheKey = await hashInput('konseptspeil:v2:' + trimmedInput + (challengeMode ? ':challenge' : ''));
     const cachedEntry = cacheManager.get(cacheKey);
 
     if (cachedEntry) {
