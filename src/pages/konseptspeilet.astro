@@ -44,34 +44,41 @@ export const prerender = false;
         <KonseptSpeil client:load />
       </div>
 
-      <!-- When is this useful section -->
-      <section class="mt-8 pt-6 border-t border-neutral-200">
-        <details class="group">
-          <summary class="flex items-center justify-between cursor-pointer py-2 text-sm font-medium text-neutral-600 hover:text-neutral-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan-darker focus-visible:ring-offset-2 rounded-lg list-none">
-            <span>Når er dette nyttig?</span>
-            <svg class="w-4 h-4 text-neutral-400 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      <!-- Når er dette nyttig + Kontakt - matching OKR-sjekken style -->
+      <section class="pt-6 border-t border-neutral-200">
+        <h2 class="text-lg font-semibold text-brand-navy mb-3">
+          Når er dette nyttig?
+        </h2>
+        <ul class="text-neutral-600 space-y-1.5 text-sm mb-6">
+          <li class="flex items-start gap-2">
+            <span class="text-neutral-500">•</span>
+            <span>Før du presenterer en idé, for å forstå hvilke spørsmål som kan komme</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-neutral-500">•</span>
+            <span>Når du vil tenke høyt i en tidlig fase uten å forplikte deg</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-neutral-500">•</span>
+            <span>Når du vil skille mellom det du faktisk vet og det du tror</span>
+          </li>
+        </ul>
+
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 pt-4 border-t border-neutral-100">
+          <span class="text-sm text-neutral-600">Vil du ha et menneskelig blikk i tillegg?</span>
+          <a
+            href="mailto:hei@fyrk.no"
+            class="inline-flex items-center gap-2 px-4 py-2 text-sm text-brand-navy hover:text-white hover:bg-brand-navy border-2 border-brand-navy rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
-          </summary>
-          <div class="mt-3 space-y-2 text-sm text-neutral-600">
-            <div class="flex items-start gap-2">
-              <span class="text-neutral-400 shrink-0">•</span>
-              <span>Før du presenterer en idé, for å forstå hvilke spørsmål som kan komme</span>
-            </div>
-            <div class="flex items-start gap-2">
-              <span class="text-neutral-400 shrink-0">•</span>
-              <span>Når du vil tenke høyt i en tidlig fase uten å forplikte deg</span>
-            </div>
-            <div class="flex items-start gap-2">
-              <span class="text-neutral-400 shrink-0">•</span>
-              <span>Når du vil skille mellom det du faktisk vet og det du tror</span>
-            </div>
-            <div class="flex items-start gap-2">
-              <span class="text-neutral-400 shrink-0">•</span>
-              <span>Som forberedelse til samtaler med kolleger, ledere eller interessenter</span>
-            </div>
-          </div>
-        </details>
+            Ta kontakt
+          </a>
+        </div>
+        <p class="text-xs text-neutral-500 mt-4">
+          Konseptspeilet er laget av FYRK som supplement til rådgivning.
+        </p>
       </section>
 
     </div>

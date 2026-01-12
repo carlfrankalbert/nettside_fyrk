@@ -163,7 +163,7 @@ function InputReview({ input }: { input: string }) {
         />
       </button>
       {isOpen && (
-        <div className="mt-2 p-3 bg-neutral-50 rounded-lg text-sm text-neutral-700 leading-relaxed whitespace-pre-wrap">
+        <div className="mt-2 p-3 bg-neutral-50 rounded-lg text-sm text-neutral-700 leading-relaxed whitespace-pre-wrap max-h-48 overflow-y-auto">
           {input}
         </div>
       )}
@@ -506,7 +506,7 @@ export default function KonseptSpeilResultDisplayV2({
             <button
               type="button"
               onClick={onReset}
-              className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-neutral-600 hover:text-neutral-800 hover:bg-neutral-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
+              className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
             >
               Nullstill
             </button>

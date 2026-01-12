@@ -352,64 +352,47 @@ export default function KonseptSpeil() {
     <div className="space-y-6" aria-busy={loading}>
       {/* Input section */}
       <section>
-        <label htmlFor="konsept-input" className="block text-sm font-medium text-neutral-700 mb-2">
-          Beskriv konseptet ditt
-        </label>
-
-        {/* Pre-input guidance - discouraging pitch language */}
-        <div className="mb-3 p-3 bg-neutral-100/50 border border-neutral-200 rounded-lg">
-          <p className="text-xs text-neutral-600 leading-relaxed">
-            <span className="font-medium">Tips:</span> Unngå salgsspråk. Skriv det du faktisk tror er sant – ikke det som høres overbevisende ut.
-          </p>
-        </div>
-
-        <div className="relative">
-          <textarea
-            ref={textareaRef}
-            id="konsept-input"
-            value={input}
-            onChange={handleInputChange}
-            onPaste={handlePaste}
-            onKeyDown={handleKeyDown}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            placeholder="Jeg vurderer å bygge... Problemet jeg vil løse er..."
-            maxLength={INPUT_VALIDATION.MAX_LENGTH}
-            aria-describedby={error ? 'konsept-error konsept-help konsept-helper' : 'konsept-help konsept-helper'}
-            aria-invalid={error ? 'true' : undefined}
-            className={cn(
-              'w-full px-4 py-4 text-base text-neutral-800 bg-white border-2 rounded-xl',
-              'resize-none min-h-[160px] overflow-hidden',
-              'placeholder:text-neutral-500',
-              'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker',
-              'disabled:opacity-60 disabled:cursor-not-allowed',
-              'aria-[invalid=true]:border-feedback-error transition-all duration-300',
-              isExampleAnimating
-                ? 'border-brand-cyan bg-brand-cyan-lightest/50 ring-2 ring-brand-cyan scale-[1.01]'
-                : 'border-neutral-300'
-            )}
-            disabled={loading}
-          />
-        </div>
-
-        {/* Help text and example link - combined for cleaner layout */}
-        <div className="mt-2 flex items-center justify-between gap-4 text-sm text-neutral-500">
-          <p className="leading-relaxed">
-            Uferdige tanker og usikkerhet er verdifullt.
-          </p>
+        <div className="flex items-center justify-between mb-2">
+          <label htmlFor="konsept-input" className="block text-base font-medium text-neutral-700">
+            Beskriv konseptet ditt
+          </label>
           {!input && !loading && (
             <button
               type="button"
               onClick={handleFillExample}
-              className="shrink-0 inline-flex items-center gap-1.5 text-brand-navy hover:text-brand-cyan-darker font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded"
+              className="text-sm text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded transition-colors"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              Se eksempel
+              Prøv med eksempel
             </button>
           )}
         </div>
+
+        <textarea
+          ref={textareaRef}
+          id="konsept-input"
+          value={input}
+          onChange={handleInputChange}
+          onPaste={handlePaste}
+          onKeyDown={handleKeyDown}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          placeholder="Jeg vurderer å bygge... Problemet jeg vil løse er..."
+          maxLength={INPUT_VALIDATION.MAX_LENGTH}
+          aria-describedby={error ? 'konsept-error konsept-help konsept-helper' : 'konsept-help konsept-helper'}
+          aria-invalid={error ? 'true' : undefined}
+          className={cn(
+            'w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 rounded-lg',
+            'resize-none min-h-[160px] overflow-hidden',
+            'placeholder:text-neutral-500',
+            'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker',
+            'disabled:opacity-60 disabled:cursor-not-allowed',
+            'aria-[invalid=true]:border-feedback-error transition-all duration-300',
+            isExampleAnimating
+              ? 'border-brand-cyan bg-brand-cyan-lightest/50 ring-2 ring-brand-cyan scale-[1.01]'
+              : 'border-neutral-300'
+          )}
+          disabled={loading}
+        />
 
         {/* Character count and helper */}
         <div id="konsept-help" className="mt-3 flex items-center justify-between gap-4">
@@ -547,28 +530,11 @@ export default function KonseptSpeil() {
         )}
       </div>
 
-      {/* Optional next step - shown after result, non-pressuring */}
-      {result && !loading && (
-        <section className="p-5 bg-neutral-50 border border-neutral-200 rounded-xl">
-          <h3 className="text-sm font-medium text-neutral-600 mb-2">
-            Hvis du vil ha en sparringspartner
-          </h3>
-          <p className="text-sm text-neutral-500 leading-relaxed mb-3">
-            Noen ganger hjelper det å tenke høyt med noen. Helt frivillig.
-          </p>
-          <a
-            href="https://fyrk.no/kontakt"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 hover:bg-neutral-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
-          >
-            Ta kontakt med FYRK
-          </a>
-        </section>
-      )}
-
-      {/* Trygghet og personvern - secondary section */}
-      <section id="trygghet" className="pt-4">
+      {/* AI og personvern - matching OKR-sjekken style */}
+      <div className="border-t border-neutral-200 pt-6">
+        <p className="text-sm text-neutral-500 mb-3">
+          Teksten du skriver brukes kun til å generere refleksjonen.
+        </p>
         <button
           type="button"
           onClick={() => {
@@ -579,43 +545,31 @@ export default function KonseptSpeil() {
           }}
           aria-expanded={isPrivacyOpen}
           aria-controls="privacy-content"
-          className="w-full flex items-center justify-between py-2.5 px-3 text-left bg-neutral-100/50 hover:bg-neutral-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
+          className="flex items-center gap-2 text-sm text-brand-navy hover:text-brand-cyan-darker focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded py-2"
         >
-          <span className="flex items-center gap-2 text-sm font-medium text-neutral-600">
-            <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-            Trygghet og personvern
-          </span>
-          <ChevronRightIcon className={cn('w-4 h-4 text-neutral-500 transition-transform', isPrivacyOpen && 'rotate-90')} />
+          <ChevronRightIcon className={cn('w-4 h-4 transition-transform', isPrivacyOpen && 'rotate-90')} />
+          Les mer om AI og personvern
         </button>
-
         {isPrivacyOpen && (
           <div
             id="privacy-content"
-            className="mt-3 p-4 bg-neutral-50 rounded-lg border border-neutral-200 space-y-3 text-sm"
+            className="mt-3 p-4 bg-neutral-100 rounded-lg text-sm text-neutral-700 space-y-3"
           >
-            <div>
-              <h4 className="text-xs font-medium text-neutral-600 mb-1">Hvordan fungerer det?</h4>
-              <p className="text-neutral-500 leading-relaxed">
-                Refleksjonen genereres av Claude (Anthropic). Strukturert rundt de fire produktrisikoene (verdi, brukbarhet, gjennomførbarhet, levedyktighet).
-              </p>
-            </div>
-            <div>
-              <h4 className="text-xs font-medium text-neutral-600 mb-1">Hva skjer med dataene?</h4>
-              <p className="text-neutral-500 leading-relaxed">
-                Sendes til Claude API. Vi lagrer ikke innholdet, og det brukes ikke til å trene AI-modeller.
-              </p>
-            </div>
-            <div>
-              <h4 className="text-xs font-medium text-neutral-600 mb-1">Er det trygt?</h4>
-              <p className="text-neutral-500 leading-relaxed">
-                Ja, ingen innlogging, ingen persondata samles inn.
-              </p>
-            </div>
+            <p>
+              <strong>Hvordan fungerer det?</strong><br />
+              Refleksjonen genereres av Claude (Anthropic), strukturert rundt de fire produktrisikoene (verdi, brukbarhet, gjennomførbarhet, levedyktighet).
+            </p>
+            <p>
+              <strong>Hva skjer med dataene?</strong><br />
+              Teksten sendes til Claude API for å generere refleksjonen. Vi lagrer ikke innholdet, og det brukes ikke til å trene AI-modeller.
+            </p>
+            <p>
+              <strong>Er det trygt?</strong><br />
+              Ja. Du trenger ikke logge inn, og vi samler ikke inn personopplysninger.
+            </p>
           </div>
         )}
-      </section>
+      </div>
     </div>
   );
 }
