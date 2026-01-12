@@ -4,6 +4,7 @@
  */
 
 import { hashInput, localStorageCache } from '../utils/cache';
+import { trackClick } from '../utils/tracking';
 
 const API_ENDPOINT = '/api/konseptspeilet';
 const MAX_RETRIES = 1; // Number of automatic retries for incomplete responses
@@ -202,6 +203,8 @@ export async function speileKonseptStreaming(
       retryCount++;
       if (retryCount <= MAX_RETRIES) {
         console.warn(`Incomplete response detected, retrying (attempt ${retryCount}/${MAX_RETRIES})...`);
+        // Track retry for analytics visibility
+        trackClick('konseptspeil_retry');
         // Short delay before retry
         await new Promise((resolve) => setTimeout(resolve, 500));
       }

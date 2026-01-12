@@ -4,6 +4,7 @@ import type { DimensionKey, DimensionStatus, DimensionData, ParsedKonseptSpeilRe
 import { DIMENSION_LABELS, STATUS_ICONS, STATUS_LABELS } from '../types/konseptspeil-v2';
 import { SpinnerIcon, ChevronRightIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
+import { trackClick } from '../utils/tracking';
 
 // ============================================================================
 // Types
@@ -454,7 +455,10 @@ export default function KonseptSpeilResultDisplayV2({
               {/* Share with colleague button */}
               <button
                 type="button"
-                onClick={() => copyToClipboard(generateShareText(parsed.antagelserListe), 'Kopiert til utklippstavle!')}
+                onClick={() => {
+                  trackClick('konseptspeil_share_colleague');
+                  copyToClipboard(generateShareText(parsed.antagelserListe), 'Kopiert til utklippstavle!');
+                }}
                 className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 hover:bg-neutral-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -471,7 +475,10 @@ export default function KonseptSpeilResultDisplayV2({
       {!isStreaming && parsed.isComplete && (
         <button
           type="button"
-          onClick={() => copyToClipboard(generateFullAnalysisMarkdown(parsed), 'Hele analysen kopiert!')}
+          onClick={() => {
+            trackClick('konseptspeil_copy_analysis');
+            copyToClipboard(generateFullAnalysisMarkdown(parsed), 'Hele analysen kopiert!');
+          }}
           className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-neutral-600 bg-neutral-50 hover:bg-neutral-100 border border-neutral-200 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

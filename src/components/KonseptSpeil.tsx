@@ -4,7 +4,7 @@ import KonseptSpeilResultDisplayV2 from './KonseptSpeilResultDisplayV2';
 import { SpinnerIcon, ChevronRightIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
 import { INPUT_VALIDATION } from '../utils/constants';
-import { trackClick } from '../utils/tracking';
+import { trackClick, logEvent } from '../utils/tracking';
 
 // ============================================================================
 // Constants
@@ -86,6 +86,10 @@ export default function KonseptSpeil() {
   // Synchronous guard to prevent race conditions with concurrent submissions
   // (React state updates are async, so we need a ref for immediate check)
   const isSubmittingRef = useRef(false);
+  // Track start time for processing duration measurement
+  const checkStartTimeRef = useRef<number>(0);
+  // Track if input_started has been fired (only fire once per session)
+  const hasTrackedInputStartRef = useRef(false);
 
   // ---------------------------------------------------------------------------
   // Derived Values
@@ -142,6 +146,9 @@ export default function KonseptSpeil() {
 
     trackClick('konseptspeil_submit');
 
+    // Record start time for processing duration tracking
+    checkStartTimeRef.current = Date.now();
+
     // Save the submitted input for display in results
     setSubmittedInput(input.trim());
 
@@ -167,6 +174,11 @@ export default function KonseptSpeil() {
       setResult(null);
       abortControllerRef.current = null;
       isSubmittingRef.current = false;
+      // Track timeout error
+      logEvent('konseptspeil_error', {
+        charCount: input.trim().length,
+        processingTimeMs: Date.now() - checkStartTimeRef.current,
+      });
     }, HARD_TIMEOUT_MS);
 
     let finalResult = '';
@@ -189,8 +201,20 @@ export default function KonseptSpeil() {
           setIsStreaming(false);
           setResult(null);
           abortControllerRef.current = null;
+          // Track invalid output as error
+          logEvent('konseptspeil_error', {
+            charCount: input.trim().length,
+            processingTimeMs: Date.now() - checkStartTimeRef.current,
+          });
           return;
         }
+
+        // Track successful completion
+        const processingTimeMs = Date.now() - checkStartTimeRef.current;
+        logEvent('check_success', {
+          charCount: input.trim().length,
+          processingTimeMs,
+        });
 
         setLoading(false);
         setIsStreaming(false);
@@ -207,6 +231,11 @@ export default function KonseptSpeil() {
         setErrorWithType(errorMsg, type);
         setLoading(false);
         setIsStreaming(false);
+        // Track error
+        logEvent('konseptspeil_error', {
+          charCount: input.trim().length,
+          processingTimeMs: Date.now() - checkStartTimeRef.current,
+        });
         setResult(null);
         abortControllerRef.current = null;
       },
@@ -340,6 +369,13 @@ export default function KonseptSpeil() {
     if (isUrlEncoded(newValue)) {
       newValue = safeDecodeURIComponent(newValue);
     }
+
+    // Track first input (funnel start) - only fire once per session
+    if (!hasTrackedInputStartRef.current && newValue.length > 0 && input.length === 0) {
+      hasTrackedInputStartRef.current = true;
+      trackClick('konseptspeil_input_started');
+    }
+
     setInput(newValue);
     if (error) setError(null);
   };
