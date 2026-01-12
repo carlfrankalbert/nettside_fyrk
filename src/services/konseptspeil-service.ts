@@ -26,39 +26,35 @@ export { ERROR_MESSAGES };
  * Check if a response has minimal required content
  * This helps detect truncated or incomplete AI responses
  *
- * For the v2 format, we check for all four sections
+ * For the JSON format, we check that it's valid JSON with required fields
  */
 function isResponseComplete(output: string): boolean {
   if (!output || output.trim().length === 0) return false;
 
-  const content = output.trim();
+  try {
+    // Extract JSON from potential markdown code blocks or surrounding text
+    const jsonMatch = output.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) return false;
 
-  // Check for all required v2 sections
-  const hasSummary = /---SUMMARY---[\s\S]*?---END_SUMMARY---/.test(content);
-  const hasDimensions = /---DIMENSIONS---[\s\S]*?---END_DIMENSIONS---/.test(content);
-  const hasAssumptions = /---ASSUMPTIONS---[\s\S]*?---END_ASSUMPTIONS---/.test(content);
-  const hasQuestions = /---QUESTIONS---[\s\S]*?---END_QUESTIONS---/.test(content);
+    const parsed = JSON.parse(jsonMatch[0]);
 
-  // Response is complete if it has all sections
-  return hasSummary && hasDimensions && hasAssumptions && hasQuestions;
+    // Check for required top-level fields
+    const hasRefleksjonStatus = parsed.refleksjon_status?.kommentar;
+    const hasFokusSporsmal = parsed.fokus_sporsmal?.sporsmal;
+    const hasDimensjoner = parsed.dimensjoner?.verdi && parsed.dimensjoner?.brukbarhet;
+
+    return !!(hasRefleksjonStatus && hasFokusSporsmal && hasDimensjoner);
+  } catch {
+    return false;
+  }
 }
 
 /**
- * Validate that the output conforms to the expected v2 format.
+ * Validate that the output conforms to the expected JSON format.
  * Returns true if valid, false if missing required sections.
  */
 export function isValidOutput(output: string): boolean {
-  if (!output || output.trim().length === 0) return false;
-
-  const content = output.trim();
-
-  // Must have all four required v2 sections
-  const hasSummary = /---SUMMARY---[\s\S]*?---END_SUMMARY---/.test(content);
-  const hasDimensions = /---DIMENSIONS---[\s\S]*?---END_DIMENSIONS---/.test(content);
-  const hasAssumptions = /---ASSUMPTIONS---[\s\S]*?---END_ASSUMPTIONS---/.test(content);
-  const hasQuestions = /---QUESTIONS---[\s\S]*?---END_QUESTIONS---/.test(content);
-
-  return hasSummary && hasDimensions && hasAssumptions && hasQuestions;
+  return isResponseComplete(output);
 }
 
 // Track pending requests - Note: We no longer use this for deduplication
@@ -158,7 +154,7 @@ export async function speileKonseptStreaming(
   const trimmedInput = input.trim();
   const { challengeMode = false } = options;
   // Include challenge mode in cache key so different modes don't share cache
-  const cacheKey = await hashInput('konseptspeil:' + trimmedInput + (challengeMode ? ':challenge' : ''));
+  const cacheKey = await hashInput('konseptspeil:v2:' + trimmedInput + (challengeMode ? ':challenge' : ''));
 
   // Check local cache first (only if complete)
   const cachedResult = localStorageCache.get(cacheKey);
@@ -249,7 +245,7 @@ export async function speileKonseptStreaming(
  */
 export async function speileKonsept(input: string): Promise<{ output: string; cached: boolean }> {
   const trimmedInput = input.trim();
-  const cacheKey = await hashInput('konseptspeil:' + trimmedInput);
+  const cacheKey = await hashInput('konseptspeil:v2:' + trimmedInput);
 
   // Check local cache first
   const cachedResult = localStorageCache.get(cacheKey);
