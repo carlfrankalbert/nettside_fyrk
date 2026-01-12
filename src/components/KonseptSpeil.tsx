@@ -373,7 +373,7 @@ export default function KonseptSpeil() {
             onKeyDown={handleKeyDown}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            placeholder="Vi vurderer å bygge... Problemet vi vil løse er..."
+            placeholder="Jeg vurderer å bygge... Problemet jeg vil løse er..."
             maxLength={INPUT_VALIDATION.MAX_LENGTH}
             aria-describedby={error ? 'konsept-error konsept-help konsept-helper' : 'konsept-help konsept-helper'}
             aria-invalid={error ? 'true' : undefined}
