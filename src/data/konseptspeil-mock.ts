@@ -1,123 +1,134 @@
 /**
- * Mock response data for local testing of Konseptspeilet v2
+ * Mock response data for local testing of Konseptspeilet v2 JSON format
  *
  * This mock data is used when KONSEPTSPEILET_MOCK=true is set in the environment.
- * It provides realistic examples that match the v2 structured format.
+ * It provides realistic examples that match the v2 JSON format.
  *
  * To use: Set KONSEPTSPEILET_MOCK=true in your .env file or environment
  */
 
+import type { KonseptspeilJsonResponse } from '../types/konseptspeil-v2';
+
 /**
  * Mock response for a concept about a product management tool
  */
-export const MOCK_RESPONSE_PRODUCT_TOOL = `---SUMMARY---
-assumptions: 4
-unclear: 3
-maturity: 2
-recommendation: Utforsk brukerbehov før du går videre
----END_SUMMARY---
-
----DIMENSIONS---
-value: assumed
-value_desc: Problemet er nevnt, men ikke validert med brukere.
-usability: not_addressed
-usability_desc: Hvordan produktledere vil bruke verktøyet er ikke beskrevet.
-feasibility: assumed
-feasibility_desc: Teksten antyder at logging og tagging er mulig å bygge.
-viability: not_addressed
-viability_desc: Forretningsmodell eller ressursbehov er ikke nevnt.
----END_DIMENSIONS---
-
----ASSUMPTIONS---
-- Teksten antyder at produktledere opplever det som utfordrende å holde oversikt over discovery-arbeid
-- Det kan ligge en antakelse om at logging av samtaler vil føre til bedre hukommelse av innsikt
-- Det virker som teksten forutsetter at produktledere i mellomstore tech-selskaper har tid til å tagge og organisere samtaler
-- Teksten antyder at mønstre over tid er nyttig informasjon for prioritering
----END_ASSUMPTIONS---
-
----QUESTIONS---
-- Hvordan håndterer produktledere dette i dag, og hva er det som gjør det vanskelig?
-- Hva skal til for at en produktleder faktisk logger samtaler konsekvent over tid?
-- Hvilke mønstre er det interessant å se, og hvordan vil de informere prioritering?
-- Er tidsbruk på logging verdt innsikten man får tilbake?
-- Hva ville skje hvis du lot dette problemet ligge?
----END_QUESTIONS---`;
+export const MOCK_RESPONSE_PRODUCT_TOOL: KonseptspeilJsonResponse = {
+  refleksjon_status: {
+    kommentar: "Du har beskrevet løsningen detaljert, men problemet den løser er kun antydet.",
+    antagelser_funnet: 4
+  },
+  fokus_sporsmal: {
+    overskrift: "HVIS DU VIL UTFORSKE ÉN TING VIDERE",
+    sporsmal: "Hvordan håndterer produktledere dette problemet i dag, og hva gjør det vanskelig?",
+    hvorfor: "Problemet er nevnt, men ikke konkretisert med eksempler eller observasjoner."
+  },
+  dimensjoner: {
+    verdi: {
+      status: "antatt",
+      observasjon: "Målgruppen er nevnt som 'produktledere', men hvilke roller eller kontekster er ikke spesifisert."
+    },
+    brukbarhet: {
+      status: "ikke_nevnt",
+      observasjon: "Det er ikke beskrevet hvordan eller når verktøyet vil brukes i praksis."
+    },
+    gjennomforbarhet: {
+      status: "antatt",
+      observasjon: "Teksten antyder at logging og tagging er mulig å bygge, uten å nevne konkret teknologi."
+    },
+    levedyktighet: {
+      status: "ikke_nevnt",
+      observasjon: "Forretningsmodell eller ressursbehov er ikke nevnt."
+    }
+  },
+  antagelser_liste: [
+    "Det antas at produktledere opplever det som utfordrende å holde oversikt over discovery-arbeid.",
+    "Teksten legger til grunn at logging av samtaler vil føre til bedre hukommelse av innsikt.",
+    "Det antas at produktledere har tid til å tagge og organisere samtaler.",
+    "Teksten legger til grunn at mønstre over tid er nyttig informasjon for prioritering."
+  ]
+};
 
 /**
  * Mock response for an early-stage idea
  */
-export const MOCK_RESPONSE_EARLY_IDEA = `---SUMMARY---
-assumptions: 3
-unclear: 4
-maturity: 1
-recommendation: Snakk med noen som har dette problemet
----END_SUMMARY---
-
----DIMENSIONS---
-value: assumed
-value_desc: Det antas at dette er et problem, men målgruppen er uklar.
-usability: not_addressed
-usability_desc: Ingen beskrivelse av hvordan løsningen vil fungere.
-feasibility: not_addressed
-feasibility_desc: Teknisk gjennomførbarhet er ikke vurdert.
-viability: not_addressed
-viability_desc: Ingen tanker om virksomhetsmodell.
----END_DIMENSIONS---
-
----ASSUMPTIONS---
-- Det kan ligge en antakelse om at det finnes mennesker som opplever dette som et problem
-- Teksten antyder at en løsning på dette vil være verdifull for noen
-- Det virker som teksten forutsetter at problemet er stort nok til at folk vil endre adferd
----END_ASSUMPTIONS---
-
----QUESTIONS---
-- Hvem er det egentlig som opplever dette?
-- Hva gjør de i dag for å håndtere det?
-- Hvor viktig er dette sammenlignet med andre utfordringer de har?
-- Hva ville få dem til å prøve noe nytt?
-- Hva ville skje hvis du ikke løste dette problemet?
----END_QUESTIONS---`;
+export const MOCK_RESPONSE_EARLY_IDEA: KonseptspeilJsonResponse = {
+  refleksjon_status: {
+    kommentar: "Ideen er på et tidlig stadium der mye er antatt og lite er konkretisert.",
+    antagelser_funnet: 3
+  },
+  fokus_sporsmal: {
+    overskrift: "HVIS DU VIL UTFORSKE ÉN TING VIDERE",
+    sporsmal: "Hvem er det egentlig som opplever dette problemet, og hvor viktig er det for dem?",
+    hvorfor: "Målgruppen og problemets alvorlighetsgrad er ikke beskrevet konkret."
+  },
+  dimensjoner: {
+    verdi: {
+      status: "antatt",
+      observasjon: "Det antas at dette er et problem, men målgruppen er uklar."
+    },
+    brukbarhet: {
+      status: "ikke_nevnt",
+      observasjon: "Ingen beskrivelse av hvordan løsningen vil fungere i praksis."
+    },
+    gjennomforbarhet: {
+      status: "ikke_nevnt",
+      observasjon: "Teknisk gjennomførbarhet er ikke vurdert."
+    },
+    levedyktighet: {
+      status: "ikke_nevnt",
+      observasjon: "Ingen tanker om virksomhetsmodell eller bærekraft."
+    }
+  },
+  antagelser_liste: [
+    "Det antas at det finnes mennesker som opplever dette som et problem.",
+    "Teksten legger til grunn at en løsning på dette vil være verdifull for noen.",
+    "Det antas at problemet er stort nok til at folk vil endre adferd."
+  ]
+};
 
 /**
  * Mock response for a more defined concept
  */
-export const MOCK_RESPONSE_DEFINED_CONCEPT = `---SUMMARY---
-assumptions: 4
-unclear: 2
-maturity: 3
-recommendation: Test antagelsen om ett-klikks-fakturering med prototyp
----END_SUMMARY---
-
----DIMENSIONS---
-value: described
-value_desc: Tidsbesparelse for småbedriftseiere er tydelig beskrevet som hovedverdi.
-usability: assumed
-usability_desc: Mobilapp-format er nevnt, men brukeropplevelsen er ikke utforsket.
-feasibility: assumed
-feasibility_desc: Ett-klikks-fakturering høres enkelt ut, men tekniske detaljer mangler.
-viability: not_addressed
-viability_desc: Prising eller konkurransesituasjon er ikke omtalt.
----END_DIMENSIONS---
-
----ASSUMPTIONS---
-- Teksten antyder at småbedriftseiere opplever fakturering som tidkrevende
-- Det kan ligge en antakelse om at en mobilapp er riktig format for denne oppgaven
-- Det virker som teksten forutsetter at ett-klikks-fakturering er mulig å bygge
-- Teksten antyder at tidsbesparelse er det viktigste for denne målgruppen
----END_ASSUMPTIONS---
-
----QUESTIONS---
-- Hvor mye tid bruker småbedriftseiere faktisk på fakturering i dag?
-- Hva bruker de nå, og hva er det som gjør det tidkrevende?
-- Er mobil det foretrukne formatet for denne typen oppgaver?
-- Hva skal til for at de vil bytte fra noe de allerede bruker?
-- Hva ville være godt nok – og hva ville være for lite?
----END_QUESTIONS---`;
+export const MOCK_RESPONSE_DEFINED_CONCEPT: KonseptspeilJsonResponse = {
+  refleksjon_status: {
+    kommentar: "Konseptet har flere konkrete elementer, men noen sentrale antagelser er ikke validert.",
+    antagelser_funnet: 4
+  },
+  fokus_sporsmal: {
+    overskrift: "HVIS DU VIL UTFORSKE ÉN TING VIDERE",
+    sporsmal: "Hvor mye tid bruker småbedriftseiere faktisk på fakturering i dag?",
+    hvorfor: "Tidsbesparelse er hovedverdien, men den faktiske tidsbruken er ikke dokumentert."
+  },
+  dimensjoner: {
+    verdi: {
+      status: "beskrevet",
+      observasjon: "Tidsbesparelse for småbedriftseiere er tydelig beskrevet som hovedverdi."
+    },
+    brukbarhet: {
+      status: "antatt",
+      observasjon: "Mobilapp-format er nevnt, men brukeropplevelsen er ikke utforsket."
+    },
+    gjennomforbarhet: {
+      status: "antatt",
+      observasjon: "Ett-klikks-fakturering høres enkelt ut, men tekniske detaljer mangler."
+    },
+    levedyktighet: {
+      status: "ikke_nevnt",
+      observasjon: "Prising eller konkurransesituasjon er ikke omtalt."
+    }
+  },
+  antagelser_liste: [
+    "Det antas at småbedriftseiere opplever fakturering som tidkrevende.",
+    "Teksten legger til grunn at en mobilapp er riktig format for denne oppgaven.",
+    "Det antas at ett-klikks-fakturering er mulig å bygge.",
+    "Teksten legger til grunn at tidsbesparelse er det viktigste for denne målgruppen."
+  ]
+};
 
 /**
  * Get mock response based on input content
  */
-export function getMockResponse(input: string): string {
+export function getMockResponse(input: string): KonseptspeilJsonResponse {
   const lowerInput = input.toLowerCase();
 
   // Keywords that suggest a product management tool concept
@@ -146,9 +157,8 @@ export function getMockResponse(input: string): string {
 }
 
 /**
- * Get the mock response as returned by the API
- * (Now returns Markdown string directly, not JSON)
+ * Get the mock response as JSON string (as returned by the API)
  */
 export function getMockResponseJson(input: string): string {
-  return getMockResponse(input);
+  return JSON.stringify(getMockResponse(input), null, 2);
 }

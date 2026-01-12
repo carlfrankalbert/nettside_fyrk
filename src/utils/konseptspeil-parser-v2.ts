@@ -1,287 +1,179 @@
 /**
- * Parser for Konseptspeilet v2 structured output format
+ * Parser for Konseptspeilet v2 JSON output format
  */
 
 import type {
   ParsedKonseptSpeilResultV2,
-  Summary,
-  Dimension,
-  DimensionType,
+  KonseptspeilJsonResponse,
+  RefleksjonStatus,
+  FokusSporsmal,
+  Dimensjoner,
+  DimensionData,
   DimensionStatus,
-  ExplorationLevel,
 } from '../types/konseptspeil-v2';
-import { EXPLORATION_LABELS } from '../types/konseptspeil-v2';
 
 /**
- * Extract content between delimiters
+ * Default empty reflection status
  */
-function extractSection(text: string, startDelimiter: string, endDelimiter: string): string | null {
-  const startPattern = new RegExp(`${startDelimiter}\\s*\\n?`, 'i');
-  const endPattern = new RegExp(`\\n?\\s*${endDelimiter}`, 'i');
-
-  const startMatch = text.match(startPattern);
-  if (!startMatch) return null;
-
-  const startIndex = startMatch.index! + startMatch[0].length;
-  const afterStart = text.slice(startIndex);
-
-  const endMatch = afterStart.match(endPattern);
-  if (!endMatch) return null;
-
-  return afterStart.slice(0, endMatch.index).trim();
-}
-
-/**
- * Parse the summary section
- */
-function parseSummary(text: string): Summary | null {
-  const summaryContent = extractSection(text, '---SUMMARY---', '---END_SUMMARY---');
-  if (!summaryContent) return null;
-
-  const lines = summaryContent.split('\n');
-  const data: Record<string, string> = {};
-
-  for (const line of lines) {
-    const colonIndex = line.indexOf(':');
-    if (colonIndex > 0) {
-      const key = line.slice(0, colonIndex).trim().toLowerCase();
-      const value = line.slice(colonIndex + 1).trim();
-      data[key] = value;
-    }
-  }
-
-  const assumptionCount = parseInt(data.assumptions || '0', 10) || 0;
-  const unclearCount = parseInt(data.unclear || '0', 10) || 0;
-  // Support both 'exploration' (new) and 'maturity' (legacy) fields
-  const explorationRaw = parseInt(data.exploration || data.maturity || '1', 10);
-  const explorationLevel = (Math.min(5, Math.max(1, explorationRaw)) as ExplorationLevel);
-  // Support both 'conditional_step' (new) and 'recommendation' (legacy)
-  const conditionalStep = data.conditional_step || data.recommendation || '';
-
+function createDefaultRefleksjonStatus(): RefleksjonStatus {
   return {
-    assumptionCount,
-    unclearCount,
-    explorationLevel,
-    explorationLabel: EXPLORATION_LABELS[explorationLevel],
-    conditionalStep,
-    // Backward compatibility
-    maturityLevel: explorationLevel,
-    maturityLabel: EXPLORATION_LABELS[explorationLevel],
-    recommendation: conditionalStep,
+    kommentar: '',
+    antagelser_funnet: 0,
   };
 }
 
 /**
- * Parse dimension status from string
+ * Default empty focus question
  */
-function parseDimensionStatus(value: string): DimensionStatus {
-  const normalized = value.toLowerCase().trim();
-  if (normalized === 'described') return 'described';
-  if (normalized === 'assumed') return 'assumed';
-  return 'not_addressed';
-}
-
-/**
- * Parse key:value pairs from content, handling both newline-separated and single-line formats
- */
-function parseKeyValuePairs(content: string): Record<string, string> {
-  const data: Record<string, string> = {};
-
-  // First try normal newline-separated parsing
-  const lines = content.split('\n');
-  for (const line of lines) {
-    const colonIndex = line.indexOf(':');
-    if (colonIndex > 0) {
-      const key = line.slice(0, colonIndex).trim().toLowerCase();
-      const value = line.slice(colonIndex + 1).trim();
-      data[key] = value;
-    }
-  }
-
-  // Check if we got valid dimension data
-  const hasValidDimensions = ['value', 'usability', 'feasibility', 'viability'].some(
-    dim => data[dim] && ['assumed', 'described', 'not_addressed'].includes(data[dim].toLowerCase())
-  );
-
-  // If normal parsing didn't work, try to parse as single line with multiple key:value pairs
-  if (!hasValidDimensions && content.includes(':')) {
-    // Pattern: "key1: value1 key2: value2" or "key1: value1key2: value2"
-    // Known keys in dimensions section
-    const knownKeys = [
-      'value', 'value_desc',
-      'usability', 'usability_desc',
-      'feasibility', 'feasibility_desc',
-      'viability', 'viability_desc'
-    ];
-
-    // Build regex to split by known keys
-    const keyPattern = new RegExp(`\\b(${knownKeys.join('|')})\\s*:`, 'gi');
-    const matches: { key: string; index: number }[] = [];
-
-    let match;
-    while ((match = keyPattern.exec(content)) !== null) {
-      matches.push({ key: match[1].toLowerCase(), index: match.index });
-    }
-
-    // Extract values between keys
-    for (let i = 0; i < matches.length; i++) {
-      const key = matches[i].key;
-      const startIndex = matches[i].index + key.length + 1; // +1 for the colon
-      const endIndex = i + 1 < matches.length ? matches[i + 1].index : content.length;
-      const value = content.slice(startIndex, endIndex).trim();
-      data[key] = value;
-    }
-  }
-
-  return data;
-}
-
-/**
- * Parse the dimensions section
- */
-function parseDimensions(text: string): Dimension[] {
-  const dimensionsContent = extractSection(text, '---DIMENSIONS---', '---END_DIMENSIONS---');
-  if (!dimensionsContent) return [];
-
-  const data = parseKeyValuePairs(dimensionsContent);
-
-  const dimensionTypes: DimensionType[] = ['value', 'usability', 'feasibility', 'viability'];
-  const dimensions: Dimension[] = [];
-
-  for (const type of dimensionTypes) {
-    const status = parseDimensionStatus(data[type] || 'not_addressed');
-    const description = data[`${type}_desc`] || '';
-
-    dimensions.push({
-      type,
-      status,
-      description,
-    });
-  }
-
-  return dimensions;
-}
-
-/**
- * Extract bullet points from a section
- * Handles both proper newline-separated bullets and malformed single-line bullets
- */
-function extractBulletPoints(content: string): string[] {
-  const lines = content.split('\n');
-  const bullets: string[] = [];
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-    // Match lines starting with - or *
-    if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
-      let text = trimmed.slice(2).trim();
-
-      // Check if multiple bullets are on the same line (malformed response)
-      // Pattern: "Question 1?- Question 2?- Question 3?"
-      if (text.includes('?- ') || text.includes('.- ')) {
-        // Split by common patterns where a new bullet starts mid-line
-        const parts = text.split(/(?<=\?|\.)- /);
-        for (const part of parts) {
-          const cleaned = part.trim();
-          if (cleaned) {
-            bullets.push(cleaned);
-          }
-        }
-      } else if (text) {
-        bullets.push(text);
-      }
-    }
-  }
-
-  return bullets;
-}
-
-/**
- * Parse the assumptions section
- */
-function parseAssumptions(text: string): string[] {
-  const content = extractSection(text, '---ASSUMPTIONS---', '---END_ASSUMPTIONS---');
-  if (!content) return [];
-  return extractBulletPoints(content);
-}
-
-/**
- * Parse the questions section
- */
-function parseQuestions(text: string): string[] {
-  const content = extractSection(text, '---QUESTIONS---', '---END_QUESTIONS---');
-  if (!content) return [];
-  return extractBulletPoints(content);
-}
-
-/**
- * Create a default empty summary
- */
-function createDefaultSummary(assumptionCount = 0): Summary {
+function createDefaultFokusSporsmal(): FokusSporsmal {
   return {
-    assumptionCount,
-    unclearCount: 0,
-    explorationLevel: 1,
-    explorationLabel: EXPLORATION_LABELS[1],
-    conditionalStep: '',
-    // Backward compatibility
-    maturityLevel: 1,
-    maturityLabel: EXPLORATION_LABELS[1],
-    recommendation: '',
+    overskrift: 'HVIS DU VIL UTFORSKE ÉN TING VIDERE',
+    sporsmal: '',
+    hvorfor: '',
   };
 }
 
 /**
- * Parse the v2 KonseptSpeil result from raw output
+ * Default empty dimension data
+ */
+function createDefaultDimensionData(): DimensionData {
+  return {
+    status: 'ikke_nevnt',
+    observasjon: '',
+  };
+}
+
+/**
+ * Default empty dimensions
+ */
+function createDefaultDimensjoner(): Dimensjoner {
+  return {
+    verdi: createDefaultDimensionData(),
+    brukbarhet: createDefaultDimensionData(),
+    gjennomforbarhet: createDefaultDimensionData(),
+    levedyktighet: createDefaultDimensionData(),
+  };
+}
+
+/**
+ * Validate and normalize dimension status
+ */
+function normalizeDimensionStatus(status: string | undefined): DimensionStatus {
+  const normalized = (status || '').toLowerCase().trim();
+  if (normalized === 'beskrevet') return 'beskrevet';
+  if (normalized === 'antatt') return 'antatt';
+  return 'ikke_nevnt';
+}
+
+/**
+ * Safely parse dimension data
+ */
+function parseDimensionData(data: unknown): DimensionData {
+  if (!data || typeof data !== 'object') {
+    return createDefaultDimensionData();
+  }
+
+  const d = data as Record<string, unknown>;
+  return {
+    status: normalizeDimensionStatus(d.status as string),
+    observasjon: typeof d.observasjon === 'string' ? d.observasjon : '',
+  };
+}
+
+/**
+ * Extract JSON from text that might contain markdown code blocks or extra text
+ */
+function extractJson(text: string): string {
+  const trimmed = text.trim();
+
+  // Try to extract JSON from markdown code block
+  const jsonBlockMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (jsonBlockMatch) {
+    return jsonBlockMatch[1].trim();
+  }
+
+  // Try to find JSON object in the text
+  const jsonMatch = trimmed.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    return jsonMatch[0];
+  }
+
+  return trimmed;
+}
+
+/**
+ * Parse the v2 KonseptSpeil JSON result from raw output
  */
 export function parseKonseptSpeilResultV2(text: string): ParsedKonseptSpeilResultV2 {
   if (!text || text.trim().length === 0) {
     return {
-      summary: createDefaultSummary(),
-      dimensions: [],
-      antagelser: [],
-      sporsmal: [],
-      priorityExploration: null,
+      refleksjonStatus: createDefaultRefleksjonStatus(),
+      fokusSporsmal: createDefaultFokusSporsmal(),
+      dimensjoner: createDefaultDimensjoner(),
+      antagelserListe: [],
       isComplete: false,
       parseError: null,
     };
   }
 
   try {
-    const summary = parseSummary(text);
-    const dimensions = parseDimensions(text);
-    const antagelser = parseAssumptions(text);
-    const sporsmal = parseQuestions(text);
+    const jsonText = extractJson(text);
+    const parsed = JSON.parse(jsonText) as KonseptspeilJsonResponse;
 
-    // Check completeness - need at least summary, one dimension, one assumption, one question
+    // Parse refleksjon_status
+    const refleksjonStatus: RefleksjonStatus = {
+      kommentar: parsed.refleksjon_status?.kommentar || '',
+      antagelser_funnet: typeof parsed.refleksjon_status?.antagelser_funnet === 'number'
+        ? parsed.refleksjon_status.antagelser_funnet
+        : 0,
+    };
+
+    // Parse fokus_sporsmal
+    const fokusSporsmal: FokusSporsmal = {
+      overskrift: parsed.fokus_sporsmal?.overskrift || 'HVIS DU VIL UTFORSKE ÉN TING VIDERE',
+      sporsmal: parsed.fokus_sporsmal?.sporsmal || '',
+      hvorfor: parsed.fokus_sporsmal?.hvorfor || '',
+    };
+
+    // Parse dimensjoner
+    const dimensjoner: Dimensjoner = {
+      verdi: parseDimensionData(parsed.dimensjoner?.verdi),
+      brukbarhet: parseDimensionData(parsed.dimensjoner?.brukbarhet),
+      gjennomforbarhet: parseDimensionData(parsed.dimensjoner?.gjennomforbarhet),
+      levedyktighet: parseDimensionData(parsed.dimensjoner?.levedyktighet),
+    };
+
+    // Parse antagelser_liste
+    const antagelserListe = Array.isArray(parsed.antagelser_liste)
+      ? parsed.antagelser_liste.filter((item): item is string => typeof item === 'string')
+      : [];
+
+    // Check completeness
     const isComplete =
-      summary !== null &&
-      dimensions.length === 4 &&
-      antagelser.length > 0 &&
-      sporsmal.length > 0;
-
-    // Priority exploration is the first question (or first assumption if no questions)
-    const priorityExploration = sporsmal[0] || antagelser[0] || null;
+      refleksjonStatus.kommentar.length > 0 &&
+      fokusSporsmal.sporsmal.length > 0 &&
+      (dimensjoner.verdi.observasjon.length > 0 ||
+        dimensjoner.brukbarhet.observasjon.length > 0 ||
+        dimensjoner.gjennomforbarhet.observasjon.length > 0 ||
+        dimensjoner.levedyktighet.observasjon.length > 0);
 
     return {
-      summary: summary || createDefaultSummary(antagelser.length),
-      dimensions,
-      antagelser,
-      sporsmal,
-      priorityExploration,
+      refleksjonStatus,
+      fokusSporsmal,
+      dimensjoner,
+      antagelserListe,
       isComplete,
       parseError: null,
     };
   } catch (error) {
-    console.error('Failed to parse KonseptSpeil v2 result:', error);
+    console.error('Failed to parse KonseptSpeil v2 JSON result:', error);
     return {
-      summary: createDefaultSummary(),
-      dimensions: [],
-      antagelser: [],
-      sporsmal: [],
-      priorityExploration: null,
+      refleksjonStatus: createDefaultRefleksjonStatus(),
+      fokusSporsmal: createDefaultFokusSporsmal(),
+      dimensjoner: createDefaultDimensjoner(),
+      antagelserListe: [],
       isComplete: false,
-      parseError: 'Kunne ikke tolke svaret',
+      parseError: 'Kunne ikke tolke svaret som JSON',
     };
   }
 }
@@ -291,16 +183,20 @@ export function parseKonseptSpeilResultV2(text: string): ParsedKonseptSpeilResul
  */
 export function hasContentV2(result: ParsedKonseptSpeilResultV2): boolean {
   return (
-    result.summary.conditionalStep.length > 0 ||
-    result.dimensions.length > 0 ||
-    result.antagelser.length > 0 ||
-    result.sporsmal.length > 0
+    result.refleksjonStatus.kommentar.length > 0 ||
+    result.fokusSporsmal.sporsmal.length > 0 ||
+    result.antagelserListe.length > 0 ||
+    result.dimensjoner.verdi.observasjon.length > 0 ||
+    result.dimensjoner.brukbarhet.observasjon.length > 0 ||
+    result.dimensjoner.gjennomforbarhet.observasjon.length > 0 ||
+    result.dimensjoner.levedyktighet.observasjon.length > 0
   );
 }
 
 /**
- * Check if the response text contains v2 format markers (for streaming detection)
+ * Check if the response text looks like JSON format
  */
 export function isV2Format(text: string): boolean {
-  return text.includes('---SUMMARY---') || text.includes('---DIMENSIONS---');
+  const trimmed = text.trim();
+  return trimmed.startsWith('{') || trimmed.includes('"refleksjon_status"');
 }

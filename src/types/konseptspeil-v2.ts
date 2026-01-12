@@ -1,109 +1,97 @@
 /**
- * Types for Konseptspeilet v2 output format
+ * Types for Konseptspeilet v2 JSON output format
  * Based on Cagan's four product dimensions framework
  */
 
 /**
- * Exploration level indicating how much has been made explicit (not quality)
- * Renamed from "Modenhet" to avoid implicit judgment.
- * 1-2: Lite utforsket (Little explored)
- * 3: Under utforskning (Being explored)
- * 4: Mye beskrevet (Well described)
- * 5: Grundig utforsket (Thoroughly explored)
+ * Status indicator for each dimension (Norwegian)
+ * - ikke_nevnt: Not mentioned in the text
+ * - antatt: Mentioned but not validated/explored
+ * - beskrevet: Described with concrete examples/data
  */
-export type ExplorationLevel = 1 | 2 | 3 | 4 | 5;
-
-/** @deprecated Use ExplorationLevel instead */
-export type MaturityLevel = ExplorationLevel;
+export type DimensionStatus = 'ikke_nevnt' | 'antatt' | 'beskrevet';
 
 /**
- * Status indicator for each dimension
- * - not_addressed: 🔴 The dimension is not mentioned
- * - assumed: 🟡 The dimension is mentioned but not validated/explored
- * - described: 🟢 The dimension is described or explored
+ * The four dimension keys in Norwegian
  */
-export type DimensionStatus = 'not_addressed' | 'assumed' | 'described';
+export type DimensionKey = 'verdi' | 'brukbarhet' | 'gjennomforbarhet' | 'levedyktighet';
 
 /**
- * The four Cagan dimensions
+ * A single dimension with its status and observation
  */
-export type DimensionType = 'value' | 'usability' | 'feasibility' | 'viability';
-
-/**
- * A single dimension with its status and description
- */
-export interface Dimension {
-  type: DimensionType;
+export interface DimensionData {
   status: DimensionStatus;
-  description: string;
+  observasjon: string;
 }
 
 /**
- * Summary section at the top of results
+ * All four dimensions
  */
-export interface Summary {
-  assumptionCount: number;
-  unclearCount: number;
-  explorationLevel: ExplorationLevel;
-  explorationLabel: string;
-  /** Optional conditional next step (not directive) */
-  conditionalStep: string;
-  /** @deprecated Use explorationLevel instead */
-  maturityLevel?: ExplorationLevel;
-  /** @deprecated Use explorationLabel instead */
-  maturityLabel?: string;
-  /** @deprecated Use conditionalStep instead */
-  recommendation?: string;
+export interface Dimensjoner {
+  verdi: DimensionData;
+  brukbarhet: DimensionData;
+  gjennomforbarhet: DimensionData;
+  levedyktighet: DimensionData;
 }
 
 /**
- * The full parsed v2 result
+ * Reflection status summary
+ */
+export interface RefleksjonStatus {
+  kommentar: string;
+  antagelser_funnet: number;
+}
+
+/**
+ * Focus question section
+ */
+export interface FokusSporsmal {
+  overskrift: string;
+  sporsmal: string;
+  hvorfor: string;
+}
+
+/**
+ * The raw JSON response from the AI
+ */
+export interface KonseptspeilJsonResponse {
+  refleksjon_status: RefleksjonStatus;
+  fokus_sporsmal: FokusSporsmal;
+  dimensjoner: Dimensjoner;
+  antagelser_liste: string[];
+}
+
+/**
+ * The parsed result with additional metadata
  */
 export interface ParsedKonseptSpeilResultV2 {
-  summary: Summary;
-  dimensions: Dimension[];
-  antagelser: string[];
-  sporsmal: string[];
-  /** The single most important thing to explore first (synthesis) */
-  priorityExploration: string | null;
+  refleksjonStatus: RefleksjonStatus;
+  fokusSporsmal: FokusSporsmal;
+  dimensjoner: Dimensjoner;
+  antagelserListe: string[];
   isComplete: boolean;
   parseError: string | null;
 }
 
 /**
- * Exploration level labels in Norwegian
- * These describe what has been made explicit, not idea quality
+ * Dimension labels in Norwegian for display
  */
-export const EXPLORATION_LABELS: Record<ExplorationLevel, string> = {
-  1: 'Lite utforsket',
-  2: 'Lite utforsket',
-  3: 'Under utforskning',
-  4: 'Mye beskrevet',
-  5: 'Grundig utforsket',
-};
-
-/** @deprecated Use EXPLORATION_LABELS instead */
-export const MATURITY_LABELS = EXPLORATION_LABELS;
-
-/**
- * Dimension labels in Norwegian
- */
-export const DIMENSION_LABELS: Record<DimensionType, { name: string; question: string }> = {
-  value: {
+export const DIMENSION_LABELS: Record<DimensionKey, { name: string; question: string }> = {
+  verdi: {
     name: 'Verdi',
-    question: 'Løser dette et reelt problem for noen?',
+    question: 'Er problemet og behovet konkretisert?',
   },
-  usability: {
+  brukbarhet: {
     name: 'Brukbarhet',
-    question: 'Vil brukerne forstå og bruke løsningen?',
+    question: 'Er situasjonen for bruk beskrevet?',
   },
-  feasibility: {
+  gjennomforbarhet: {
     name: 'Gjennomførbarhet',
-    question: 'Kan vi faktisk bygge dette?',
+    question: 'Er ressurser, teknikk eller tid nevnt konkret?',
   },
-  viability: {
+  levedyktighet: {
     name: 'Levedyktighet',
-    question: 'Gir dette mening for virksomheten?',
+    question: 'Er forretningsmodell eller bærekraft nevnt?',
   },
 };
 
@@ -111,7 +99,16 @@ export const DIMENSION_LABELS: Record<DimensionType, { name: string; question: s
  * Status icons for display
  */
 export const STATUS_ICONS: Record<DimensionStatus, string> = {
-  not_addressed: '🔴',
-  assumed: '🟡',
-  described: '🟢',
+  ikke_nevnt: '🔴',
+  antatt: '🟡',
+  beskrevet: '🟢',
+};
+
+/**
+ * Status labels in Norwegian
+ */
+export const STATUS_LABELS: Record<DimensionStatus, string> = {
+  ikke_nevnt: 'Ikke nevnt',
+  antatt: 'Antatt',
+  beskrevet: 'Beskrevet',
 };

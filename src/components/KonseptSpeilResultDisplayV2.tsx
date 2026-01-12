@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { parseKonseptSpeilResultV2, hasContentV2 } from '../utils/konseptspeil-parser-v2';
-import type { Dimension, DimensionStatus, ExplorationLevel } from '../types/konseptspeil-v2';
+import type { DimensionKey, DimensionStatus, DimensionData } from '../types/konseptspeil-v2';
 import { DIMENSION_LABELS, STATUS_ICONS } from '../types/konseptspeil-v2';
 import { SpinnerIcon, ChevronRightIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
@@ -10,26 +10,6 @@ interface KonseptSpeilResultDisplayV2Props {
   isStreaming: boolean;
   onRetry?: () => void;
   onReset?: () => void;
-}
-
-/**
- * Exploration level dots visualization
- */
-function ExplorationDots({ level }: { level: ExplorationLevel }) {
-  return (
-    <div className="flex gap-1" aria-label={`Utforskningsnivå ${level} av 5`}>
-      {[1, 2, 3, 4, 5].map((i) => (
-        <span
-          key={i}
-          className={cn(
-            'w-2.5 h-2.5 rounded-full',
-            i <= level ? 'bg-brand-navy' : 'bg-neutral-200'
-          )}
-          aria-hidden="true"
-        />
-      ))}
-    </div>
-  );
 }
 
 /**
@@ -46,24 +26,24 @@ function StatusIndicator({ status }: { status: DimensionStatus }) {
 /**
  * Single dimension card
  */
-function DimensionCard({ dimension }: { dimension: Dimension }) {
-  const labels = DIMENSION_LABELS[dimension.type];
+function DimensionCard({ dimensionKey, data }: { dimensionKey: DimensionKey; data: DimensionData }) {
+  const labels = DIMENSION_LABELS[dimensionKey];
 
   return (
     <div className="p-4 bg-white border border-neutral-200 rounded-lg">
       <div className="flex items-start gap-2 mb-2">
-        <StatusIndicator status={dimension.status} />
+        <StatusIndicator status={data.status} />
         <h4 className="font-semibold text-neutral-900">{labels.name}</h4>
       </div>
       <p className="text-sm text-neutral-600 leading-relaxed">
-        {dimension.description || labels.question}
+        {data.observasjon || labels.question}
       </p>
     </div>
   );
 }
 
 /**
- * v2 result display with summary, dimensions, and expandable details
+ * v2 result display with JSON-based structure
  */
 export default function KonseptSpeilResultDisplayV2({
   result,
@@ -125,6 +105,8 @@ export default function KonseptSpeilResultDisplayV2({
     );
   }
 
+  const dimensionKeys: DimensionKey[] = ['verdi', 'brukbarhet', 'gjennomforbarhet', 'levedyktighet'];
+
   return (
     <div className="space-y-6">
       {/* Clarifying text - prominent reminder */}
@@ -132,131 +114,96 @@ export default function KonseptSpeilResultDisplayV2({
         Dette speiler antagelser og hull i beskrivelsen – ikke kvaliteten på ideen.
       </p>
 
-      {/* Start here synthesis - the single most important thing */}
-      {parsed.priorityExploration && (
+      {/* Focus question - the single most important thing */}
+      {parsed.fokusSporsmal.sporsmal && (
         <div className="p-4 bg-brand-cyan-lightest/40 border border-brand-cyan/30 rounded-xl">
           <p className="text-xs font-medium text-brand-navy mb-1.5 uppercase tracking-wide">
-            Hvis du bare utforsker én ting først
+            {parsed.fokusSporsmal.overskrift}
           </p>
-          <p className="text-[15px] text-neutral-800 leading-relaxed">
-            {parsed.priorityExploration}
+          <p className="text-[15px] text-neutral-800 leading-relaxed mb-2">
+            {parsed.fokusSporsmal.sporsmal}
           </p>
-        </div>
-      )}
-
-      {/* Summary box - reframed */}
-      <div className="p-5 bg-neutral-50 border border-neutral-200 rounded-xl">
-        <div className="flex items-start gap-3 mb-4">
-          <span className="text-xl" aria-hidden="true">🔍</span>
-          <p className="text-[15px] text-neutral-800 leading-relaxed">
-            <span className="font-semibold">{parsed.summary.assumptionCount} antagelser</span> fanget
-            {parsed.summary.unclearCount > 0 && (
-              <>, <span className="font-semibold">{parsed.summary.unclearCount} uklarheter</span> identifisert</>
-            )}
-          </p>
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-neutral-600">Eksplisitthet:</span>
-            <ExplorationDots level={parsed.summary.explorationLevel} />
-            <span className="text-sm font-medium text-neutral-700">
-              {parsed.summary.explorationLabel}
-            </span>
-          </div>
-
-          <p className="text-xs text-neutral-500 italic">
-            Hvor mye som er gjort eksplisitt, ikke hvor god ideen er.
-          </p>
-
-          {parsed.summary.conditionalStep && (
-            <p className="text-sm text-neutral-600 pt-2 border-t border-neutral-200">
-              <span className="text-neutral-500">Mulig neste steg:</span>{' '}
-              <span className="text-neutral-700">{parsed.summary.conditionalStep}</span>
+          {parsed.fokusSporsmal.hvorfor && (
+            <p className="text-xs text-neutral-600 italic">
+              {parsed.fokusSporsmal.hvorfor}
             </p>
           )}
         </div>
+      )}
+
+      {/* Summary box */}
+      <div className="p-5 bg-neutral-50 border border-neutral-200 rounded-xl">
+        <div className="flex items-start gap-3 mb-3">
+          <span className="text-xl" aria-hidden="true">🔍</span>
+          <p className="text-[15px] text-neutral-800 leading-relaxed">
+            {parsed.refleksjonStatus.kommentar || 'Analyserer teksten...'}
+          </p>
+        </div>
+
+        {parsed.refleksjonStatus.antagelser_funnet > 0 && (
+          <p className="text-sm text-neutral-600">
+            <span className="font-semibold">{parsed.refleksjonStatus.antagelser_funnet} antagelser</span> identifisert
+          </p>
+        )}
       </div>
 
       {/* Four dimensions */}
-      {parsed.dimensions.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {parsed.dimensions.map((dimension) => (
-            <DimensionCard key={dimension.type} dimension={dimension} />
-          ))}
-        </div>
-      )}
-
-      {/* Expandable details button */}
-      {(parsed.antagelser.length > 0 || parsed.sporsmal.length > 0) && (
-        <button
-          type="button"
-          onClick={() => setIsDetailsOpen(!isDetailsOpen)}
-          aria-expanded={isDetailsOpen}
-          aria-controls="details-content"
-          className="w-full flex items-center justify-between py-3 px-4 text-left bg-neutral-50 hover:bg-neutral-100 border border-neutral-200 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
-        >
-          <span className="text-sm font-medium text-neutral-700">
-            {isDetailsOpen ? 'Skjul detaljer' : 'Vis antagelser og spørsmål'}
-          </span>
-          <ChevronRightIcon
-            className={cn(
-              'w-4 h-4 text-neutral-400 transition-transform',
-              isDetailsOpen && 'rotate-90'
-            )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {dimensionKeys.map((key) => (
+          <DimensionCard
+            key={key}
+            dimensionKey={key}
+            data={parsed.dimensjoner[key]}
           />
-        </button>
-      )}
+        ))}
+      </div>
 
-      {/* Expandable details content */}
-      {isDetailsOpen && (
-        <div id="details-content" className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-200">
-          {/* Assumptions */}
-          {parsed.antagelser.length > 0 && (
-            <section>
-              <h3 className="text-base font-semibold text-neutral-900 mb-3">
-                Antagelser du gjør
-              </h3>
-              <ul className="space-y-2.5">
-                {parsed.antagelser.map((antagelse, i) => (
-                  <li
-                    key={i}
-                    className="flex items-start gap-3 text-sm text-neutral-700 leading-relaxed"
-                  >
-                    <span
-                      className="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker shrink-0 mt-2"
-                      aria-hidden="true"
-                    />
-                    <span>{antagelse}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
+      {/* Expandable assumptions list */}
+      {parsed.antagelserListe.length > 0 && (
+        <>
+          <button
+            type="button"
+            onClick={() => setIsDetailsOpen(!isDetailsOpen)}
+            aria-expanded={isDetailsOpen}
+            aria-controls="details-content"
+            className="w-full flex items-center justify-between py-3 px-4 text-left bg-neutral-50 hover:bg-neutral-100 border border-neutral-200 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
+          >
+            <span className="text-sm font-medium text-neutral-700">
+              {isDetailsOpen ? 'Skjul antagelser' : `Vis ${parsed.antagelserListe.length} antagelser`}
+            </span>
+            <ChevronRightIcon
+              className={cn(
+                'w-4 h-4 text-neutral-400 transition-transform',
+                isDetailsOpen && 'rotate-90'
+              )}
+            />
+          </button>
 
-          {/* Questions */}
-          {parsed.sporsmal.length > 0 && (
-            <section>
-              <h3 className="text-base font-semibold text-neutral-900 mb-3">
-                Spørsmål å utforske
-              </h3>
-              <ul className="space-y-2.5">
-                {parsed.sporsmal.map((sporsmal, i) => (
-                  <li
-                    key={i}
-                    className="flex items-start gap-3 text-sm text-neutral-700 leading-relaxed"
-                  >
-                    <span
-                      className="w-1.5 h-1.5 rounded-full bg-neutral-400 shrink-0 mt-2"
-                      aria-hidden="true"
-                    />
-                    <span>{sporsmal}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
+          {/* Expandable details content */}
+          {isDetailsOpen && (
+            <div id="details-content" className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-200">
+              <section>
+                <h3 className="text-base font-semibold text-neutral-900 mb-3">
+                  Antagelser i teksten
+                </h3>
+                <ul className="space-y-2.5">
+                  {parsed.antagelserListe.map((antagelse, i) => (
+                    <li
+                      key={i}
+                      className="flex items-start gap-3 text-sm text-neutral-700 leading-relaxed"
+                    >
+                      <span
+                        className="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker shrink-0 mt-2"
+                        aria-hidden="true"
+                      />
+                      <span>{antagelse}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            </div>
           )}
-        </div>
+        </>
       )}
 
       {/* Closing reflection - calm, non-prescriptive */}
