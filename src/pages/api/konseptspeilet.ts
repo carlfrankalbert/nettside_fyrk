@@ -80,25 +80,6 @@ Hold alle tekster konsise (maks 1-2 setninger) for lesbarhet på mobil:
   ]
 }`;
 
-// Additional instructions for challenge mode
-const CHALLENGE_MODE_ADDITION = `
-
-## UTFORDRE HARDERE MODUS
-Brukeren har bedt om å bli utfordret hardere. Dette betyr:
-- Vær mer direkte i å identifisere svakheter
-- Spør om det som ville INVALIDERE konseptet, ikke bare utfordre det
-- Identifiser den mest kritiske antagelsen som, hvis feil, ville undergrave alt
-- Still spørsmål som krever konkrete svar, ikke bare refleksjon
-- Anta ingenting – alt må være eksplisitt beskrevet for å telle som "beskrevet"
-- Vær skeptisk til polert språk og selvsikre påstander
-- Klassifiser mer som "antatt" eller "ikke_nevnt" fremfor "beskrevet"`;
-
-function getSystemPrompt(challengeMode: boolean): string {
-  return challengeMode
-    ? SYSTEM_PROMPT_BASE + CHALLENGE_MODE_ADDITION
-    : SYSTEM_PROMPT_BASE;
-}
-
 // Create shared cache and rate limiter instances
 const cacheManager = createServerCacheManager();
 const rateLimiter = createRateLimiter();
@@ -182,7 +163,7 @@ function isValidOutputFormat(output: string): boolean {
 /**
  * Create an Anthropic API request body
  */
-function createAnthropicRequestBody(input: string, model: string, stream: boolean, challengeMode = false) {
+function createAnthropicRequestBody(input: string, model: string, stream: boolean) {
   const sanitizedInput = sanitizeInput(input.trim());
 
   const wrappedInput = `<konsept_input>
@@ -194,7 +175,7 @@ Speil teksten over. Svar KUN med JSON-objektet, ingen tekst før eller etter.`;
   return {
     model,
     max_tokens: ANTHROPIC_CONFIG.MAX_TOKENS,
-    system: getSystemPrompt(challengeMode),
+    system: SYSTEM_PROMPT_BASE,
     stream,
     messages: [
       {
@@ -227,7 +208,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
-    const { input, stream = false, challengeMode = false } = (await request.json()) as { input?: string; stream?: boolean; challengeMode?: boolean };
+    const { input, stream = false } = (await request.json()) as { input?: string; stream?: boolean };
 
     // Basic presence check
     if (!input?.trim()) {
@@ -321,7 +302,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     // Check cache
     cacheManager.cleanup();
-    const cacheKey = await hashInput('konseptspeil:v2:' + trimmedInput + (challengeMode ? ':challenge' : ''));
+    const cacheKey = await hashInput('konseptspeil:v2:' + trimmedInput);
     const cachedEntry = cacheManager.get(cacheKey);
 
     if (cachedEntry) {
@@ -399,7 +380,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
               anthropicResponse = await fetch(ANTHROPIC_CONFIG.API_URL, {
                 method: 'POST',
                 headers: createAnthropicHeaders(apiKey),
-                body: JSON.stringify(createAnthropicRequestBody(input, model, true, challengeMode)),
+                body: JSON.stringify(createAnthropicRequestBody(input, model, true)),
                 signal: timeoutController.signal,
               });
             } finally {
@@ -495,7 +476,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       anthropicResponse = await fetch(ANTHROPIC_CONFIG.API_URL, {
         method: 'POST',
         headers: createAnthropicHeaders(apiKey),
-        body: JSON.stringify(createAnthropicRequestBody(input, model, false, challengeMode)),
+        body: JSON.stringify(createAnthropicRequestBody(input, model, false)),
         signal: timeoutController.signal,
       });
     } catch (error) {

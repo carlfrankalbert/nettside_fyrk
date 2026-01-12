@@ -76,7 +76,6 @@ export default function KonseptSpeil() {
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isExampleAnimating, setIsExampleAnimating] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const [challengeMode, setChallengeMode] = useState(false);
 
   // ---------------------------------------------------------------------------
   // Refs
@@ -221,10 +220,9 @@ export default function KonseptSpeil() {
         setResult(null);
         abortControllerRef.current = null;
       },
-      abortControllerRef.current.signal,
-      { challengeMode }
+      abortControllerRef.current.signal
     );
-  }, [input, loading, challengeMode, clearTimeouts, setErrorWithType]);
+  }, [input, loading, clearTimeouts, setErrorWithType]);
 
   // ---------------------------------------------------------------------------
   // Effects
@@ -440,31 +438,6 @@ export default function KonseptSpeil() {
           </span>
         </div>
       </section>
-
-      {/* Challenge mode toggle */}
-      <div className="flex items-center justify-between py-2">
-        <label htmlFor="challenge-mode" className="text-sm text-neutral-600 cursor-pointer">
-          Utfordre meg hardere
-        </label>
-        <button
-          id="challenge-mode"
-          type="button"
-          role="switch"
-          aria-checked={challengeMode}
-          onClick={() => setChallengeMode(!challengeMode)}
-          className={cn(
-            'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2',
-            challengeMode ? 'bg-brand-navy' : 'bg-neutral-300'
-          )}
-        >
-          <span
-            className={cn(
-              'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
-              challengeMode ? 'translate-x-6' : 'translate-x-1'
-            )}
-          />
-        </button>
-      </div>
 
       {/* Privacy assurance - visible near CTA */}
       {!result && (
