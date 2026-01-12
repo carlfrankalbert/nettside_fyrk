@@ -80,6 +80,12 @@ export const INPUT_VALIDATION = {
 
 /**
  * Anthropic API configuration
+ *
+ * Timeout coordination:
+ * - Server timeout (REQUEST_TIMEOUT_MS): 30s - abort Anthropic API call
+ * - With retries (up to 2): total max ~40s (30s + backoff delays)
+ * - Client hard timeout: should be > server timeout to receive proper error response
+ * - Cloudflare Workers CPU limit: 50ms (doesn't apply to I/O wait)
  */
 export const ANTHROPIC_CONFIG = {
   /** API endpoint */
@@ -90,7 +96,7 @@ export const ANTHROPIC_CONFIG = {
   DEFAULT_MODEL: 'claude-sonnet-4-5-20250929',
   /** Max tokens for response */
   MAX_TOKENS: 4096,
-  /** Request timeout in milliseconds */
+  /** Request timeout in milliseconds (per attempt, before retries) */
   REQUEST_TIMEOUT_MS: 30000,
 } as const;
 

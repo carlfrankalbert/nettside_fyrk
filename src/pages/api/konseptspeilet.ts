@@ -81,8 +81,14 @@ Hold alle tekster konsise (maks 1-2 setninger) for lesbarhet på mobil:
 }`;
 
 // Create shared cache and rate limiter instances
+// NOTE: These are in-memory and per-isolate on Cloudflare Workers.
+// Rate limiting is best-effort only - not effective across edge nodes or cold starts.
+// For production-grade rate limiting, consider Cloudflare Rate Limiting or KV-based solution.
 const cacheManager = createServerCacheManager();
 const rateLimiter = createRateLimiter();
+
+// Track last cleanup time for probabilistic cleanup
+let lastCleanupTime = Date.now();
 
 /**
  * Get client IP from request headers
@@ -197,6 +203,110 @@ function createAnthropicHeaders(apiKey: string) {
   };
 }
 
+/**
+ * Retry configuration for Anthropic API calls
+ */
+const RETRY_CONFIG = {
+  MAX_RETRIES: 2,
+  INITIAL_DELAY_MS: 1000,
+  MAX_DELAY_MS: 5000,
+  BACKOFF_MULTIPLIER: 2,
+  // Status codes that should trigger a retry
+  RETRYABLE_STATUS_CODES: [429, 500, 502, 503, 504],
+} as const;
+
+/**
+ * Sleep for a specified duration
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Calculate delay with exponential backoff and jitter
+ */
+function calculateBackoffDelay(attempt: number): number {
+  const baseDelay = RETRY_CONFIG.INITIAL_DELAY_MS * Math.pow(RETRY_CONFIG.BACKOFF_MULTIPLIER, attempt);
+  const jitter = Math.random() * 0.3 * baseDelay; // Add up to 30% jitter
+  return Math.min(baseDelay + jitter, RETRY_CONFIG.MAX_DELAY_MS);
+}
+
+/**
+ * Check if an HTTP status code is retryable
+ */
+function isRetryableStatusCode(status: number): boolean {
+  return RETRY_CONFIG.RETRYABLE_STATUS_CODES.includes(status);
+}
+
+/**
+ * Fetch with retry logic and exponential backoff
+ * Only retries on transient errors (429, 5xx)
+ */
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  timeoutMs: number
+): Promise<Response> {
+  let lastError: Error | null = null;
+  let lastResponse: Response | null = null;
+
+  for (let attempt = 0; attempt <= RETRY_CONFIG.MAX_RETRIES; attempt++) {
+    // Create timeout for this attempt
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      // If response is OK or not retryable, return it
+      if (response.ok || !isRetryableStatusCode(response.status)) {
+        return response;
+      }
+
+      // Store for potential return after all retries exhausted
+      lastResponse = response;
+
+      // Don't retry if we've exhausted attempts
+      if (attempt >= RETRY_CONFIG.MAX_RETRIES) {
+        return response;
+      }
+
+      // Log retry attempt
+      const retryDelay = calculateBackoffDelay(attempt);
+      console.warn(`Anthropic API returned ${response.status}, retrying in ${Math.round(retryDelay)}ms (attempt ${attempt + 1}/${RETRY_CONFIG.MAX_RETRIES})`);
+
+      await sleep(retryDelay);
+    } catch (error) {
+      clearTimeout(timeoutId);
+      lastError = error as Error;
+
+      // Don't retry on abort (timeout) - let it propagate
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw error;
+      }
+
+      // Don't retry if we've exhausted attempts
+      if (attempt >= RETRY_CONFIG.MAX_RETRIES) {
+        throw error;
+      }
+
+      const retryDelay = calculateBackoffDelay(attempt);
+      console.warn(`Anthropic API request failed, retrying in ${Math.round(retryDelay)}ms (attempt ${attempt + 1}/${RETRY_CONFIG.MAX_RETRIES}):`, error);
+
+      await sleep(retryDelay);
+    }
+  }
+
+  // Should not reach here, but return last response or throw last error
+  if (lastResponse) return lastResponse;
+  throw lastError || new Error('Unknown error during fetch retry');
+}
+
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
     // Validate Content-Type header
@@ -300,8 +410,16 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
+    // Probabilistic cache cleanup (every ~5 minutes or 1% of requests)
+    // Avoids latency spike from synchronous cleanup on every request
+    const now = Date.now();
+    if (now - lastCleanupTime > 300000 || Math.random() < 0.01) {
+      lastCleanupTime = now;
+      // Run cleanup async to not block the request
+      Promise.resolve().then(() => cacheManager.cleanup());
+    }
+
     // Check cache
-    cacheManager.cleanup();
     const cacheKey = await hashInput('konseptspeil:v2:' + trimmedInput);
     const cachedEntry = cacheManager.get(cacheKey);
 
@@ -465,22 +583,19 @@ export const POST: APIRoute = async ({ request, locals }) => {
       });
     }
 
-    // Non-streaming response with timeout
-    const timeoutController = new AbortController();
-    const timeoutId = setTimeout(() => {
-      timeoutController.abort();
-    }, ANTHROPIC_CONFIG.REQUEST_TIMEOUT_MS);
-
+    // Non-streaming response with retry and timeout
     let anthropicResponse: Response;
     try {
-      anthropicResponse = await fetch(ANTHROPIC_CONFIG.API_URL, {
-        method: 'POST',
-        headers: createAnthropicHeaders(apiKey),
-        body: JSON.stringify(createAnthropicRequestBody(input, model, false)),
-        signal: timeoutController.signal,
-      });
+      anthropicResponse = await fetchWithRetry(
+        ANTHROPIC_CONFIG.API_URL,
+        {
+          method: 'POST',
+          headers: createAnthropicHeaders(apiKey),
+          body: JSON.stringify(createAnthropicRequestBody(input, model, false)),
+        },
+        ANTHROPIC_CONFIG.REQUEST_TIMEOUT_MS
+      );
     } catch (error) {
-      clearTimeout(timeoutId);
       // Check if this was a timeout error
       if (error instanceof Error && error.name === 'AbortError') {
         return new Response(
@@ -493,7 +608,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
       }
       throw error;
     }
-    clearTimeout(timeoutId);
 
     if (!anthropicResponse.ok) {
       const errorData = await anthropicResponse.json() as AnthropicErrorResponse;
@@ -537,11 +651,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
     );
 
   } catch (err) {
-    console.error('Konseptspeil error:', err);
+    // Log error details - stack trace only in development for security
+    const isDev = import.meta.env.DEV;
+    console.error('Konseptspeil error:', err instanceof Error ? err.message : err);
 
-    if (err instanceof Error) {
+    if (isDev && err instanceof Error) {
       console.error('Error name:', err.name);
-      console.error('Error message:', err.message);
       console.error('Error stack:', err.stack);
     }
 
