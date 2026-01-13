@@ -17,7 +17,7 @@ interface VitalsPayload {
   metrics: WebVitalMetric[];
 }
 
-// In-memory aggregation (in production, use a proper time-series database)
+// In-memory aggregation with KV persistence
 const vitalsAggregates: Record<string, {
   count: number;
   sum: number;
@@ -31,12 +31,60 @@ const vitalsAggregates: Record<string, {
 // Keep only last 1000 p75 samples per metric
 const MAX_P75_SAMPLES = 1000;
 
+// Track if we've loaded from KV yet
+let aggregatesLoaded = false;
+
+/**
+ * Load aggregates from KV on first request
+ */
+async function loadAggregatesFromKV(kv: KVNamespace): Promise<void> {
+  if (aggregatesLoaded) return;
+
+  try {
+    const stored = await kv.get('vitals:aggregates');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      for (const [key, value] of Object.entries(parsed)) {
+        vitalsAggregates[key] = value as typeof vitalsAggregates[string];
+      }
+    }
+    aggregatesLoaded = true;
+  } catch (e) {
+    console.error('Failed to load vitals aggregates from KV:', e);
+    aggregatesLoaded = true; // Mark as loaded to avoid repeated failures
+  }
+}
+
+/**
+ * Persist aggregates to KV (called periodically, ~1% of requests)
+ */
+async function persistAggregatesToKV(kv: KVNamespace): Promise<void> {
+  try {
+    // Only persist ~1% of requests to avoid excessive KV writes
+    if (Math.random() > 0.01) return;
+
+    await kv.put('vitals:aggregates', JSON.stringify(vitalsAggregates), {
+      expirationTtl: 60 * 60 * 24 * 90, // 90 days
+    });
+  } catch (e) {
+    console.error('Failed to persist vitals aggregates to KV:', e);
+  }
+}
+
 /**
  * POST /api/vitals
  * Receives Web Vitals metrics from real users
  */
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
+    const cloudflareEnv = (locals as App.Locals).runtime?.env;
+    const kv = cloudflareEnv?.ANALYTICS_KV;
+
+    // Load aggregates from KV on first request
+    if (kv) {
+      await loadAggregatesFromKV(kv);
+    }
+
     const data = await request.json() as VitalsPayload;
 
     if (!data.metrics || !Array.isArray(data.metrics)) {
@@ -80,15 +128,19 @@ export const POST: APIRoute = async ({ request, locals }) => {
         agg.p75.shift();
       }
 
-      // Try to store in KV if available
-      const cloudflareEnv = (locals as App.Locals).runtime?.env;
-      if (cloudflareEnv?.ANALYTICS_KV) {
+      // Store individual metric in KV
+      if (kv) {
         try {
-          await storeMetricInKV(cloudflareEnv.ANALYTICS_KV, metric);
+          await storeMetricInKV(kv, metric);
         } catch (e) {
           console.error('Failed to store metric in KV:', e);
         }
       }
+    }
+
+    // Persist aggregates to KV (probabilistic, ~1% of requests)
+    if (kv) {
+      await persistAggregatesToKV(kv);
     }
 
     return new Response(
@@ -112,6 +164,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
   // Check for auth token
   const cloudflareEnv = (locals as App.Locals).runtime?.env;
   const statsToken = cloudflareEnv?.STATS_TOKEN;
+  const kv = cloudflareEnv?.ANALYTICS_KV;
 
   if (statsToken) {
     const authHeader = request.headers.get('Authorization');
@@ -123,6 +176,11 @@ export const GET: APIRoute = async ({ request, locals }) => {
         { status: 401, headers: { 'Content-Type': 'application/json' } }
       );
     }
+  }
+
+  // Load aggregates from KV on first request
+  if (kv) {
+    await loadAggregatesFromKV(kv);
   }
 
   // Calculate aggregates

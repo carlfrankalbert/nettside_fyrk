@@ -11,6 +11,13 @@ const API_HEADERS = {
 };
 
 /**
+ * Maximum unique visitors to track per day per page
+ * Prevents unbounded array growth in KV storage
+ * After this limit, we stop adding new hashes but still count pageviews
+ */
+const MAX_UNIQUE_VISITORS_PER_DAY = 10000;
+
+/**
  * Valid page IDs for tracking
  */
 export const TRACKED_PAGES = {
@@ -136,6 +143,7 @@ export const POST: APIRoute = async ({ locals, request }) => {
     });
 
     // Track unique visitors per day using a set stored as JSON
+    // Limited to MAX_UNIQUE_VISITORS_PER_DAY to prevent unbounded growth
     const visitorsKey = `visitors:${pageId}:${dateKey}`;
     const visitorsJson = await kv.get(visitorsKey);
     let visitors: string[] = [];
@@ -147,13 +155,17 @@ export const POST: APIRoute = async ({ locals, request }) => {
 
     let isNewVisitor = false;
     if (!visitors.includes(visitorHash)) {
-      visitors.push(visitorHash);
       isNewVisitor = true;
-      await kv.put(visitorsKey, JSON.stringify(visitors), {
-        expirationTtl: 400 * 24 * 60 * 60,
-      });
 
-      // Also update total unique visitors counter
+      // Only store if under the limit (prevents unbounded array growth)
+      if (visitors.length < MAX_UNIQUE_VISITORS_PER_DAY) {
+        visitors.push(visitorHash);
+        await kv.put(visitorsKey, JSON.stringify(visitors), {
+          expirationTtl: 400 * 24 * 60 * 60,
+        });
+      }
+
+      // Always update total unique visitors counter (even if array is at limit)
       const totalVisitorsKey = `visitors_total:${pageId}`;
       const currentTotalVisitors = await kv.get(totalVisitorsKey);
       const newTotalVisitors = (parseInt(currentTotalVisitors || '0', 10) || 0) + 1;

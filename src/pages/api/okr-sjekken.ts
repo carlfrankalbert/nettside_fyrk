@@ -50,6 +50,163 @@ const cacheManager = createServerCacheManager();
 const rateLimiter = createRateLimiter();
 
 /**
+ * Retry configuration for Anthropic API calls
+ */
+const RETRY_CONFIG = {
+  MAX_RETRIES: 2,
+  INITIAL_DELAY_MS: 1000,
+  MAX_DELAY_MS: 5000,
+  BACKOFF_MULTIPLIER: 2,
+  RETRYABLE_STATUS_CODES: [429, 500, 502, 503, 504],
+} as const;
+
+/**
+ * Simple circuit breaker state (shared across requests in same Worker)
+ */
+const circuitBreaker = {
+  failures: 0,
+  lastFailure: 0,
+  isOpen: false,
+  FAILURE_THRESHOLD: 5,
+  RESET_TIMEOUT_MS: 30000, // 30 seconds
+};
+
+/**
+ * Check if circuit breaker allows request
+ */
+function checkCircuitBreaker(): boolean {
+  if (!circuitBreaker.isOpen) return true;
+
+  // Check if we should reset (half-open state)
+  if (Date.now() - circuitBreaker.lastFailure > circuitBreaker.RESET_TIMEOUT_MS) {
+    circuitBreaker.isOpen = false;
+    circuitBreaker.failures = 0;
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Record circuit breaker result
+ */
+function recordCircuitBreakerResult(success: boolean): void {
+  if (success) {
+    circuitBreaker.failures = 0;
+    circuitBreaker.isOpen = false;
+  } else {
+    circuitBreaker.failures++;
+    circuitBreaker.lastFailure = Date.now();
+    if (circuitBreaker.failures >= circuitBreaker.FAILURE_THRESHOLD) {
+      circuitBreaker.isOpen = true;
+      console.warn(`Circuit breaker opened after ${circuitBreaker.failures} failures`);
+    }
+  }
+}
+
+/**
+ * Sleep for a specified duration
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Calculate delay with exponential backoff and jitter
+ */
+function calculateBackoffDelay(attempt: number): number {
+  const baseDelay = RETRY_CONFIG.INITIAL_DELAY_MS * Math.pow(RETRY_CONFIG.BACKOFF_MULTIPLIER, attempt);
+  const jitter = Math.random() * 0.3 * baseDelay;
+  return Math.min(baseDelay + jitter, RETRY_CONFIG.MAX_DELAY_MS);
+}
+
+/**
+ * Check if an HTTP status code is retryable
+ */
+function isRetryableStatusCode(status: number): boolean {
+  return (RETRY_CONFIG.RETRYABLE_STATUS_CODES as readonly number[]).includes(status);
+}
+
+/**
+ * Validate OKR output has expected sections
+ */
+function isValidOKROutput(output: string): boolean {
+  if (!output || output.trim().length < 100) return false;
+
+  const content = output.toLowerCase();
+
+  // Check for expected sections in OKR review output
+  const hasScore = /\d+\s*\/\s*10/.test(output);
+  const hasSections = (
+    (content.includes('vurdering') || content.includes('score')) &&
+    (content.includes('fungerer') || content.includes('bra')) &&
+    (content.includes('forbedres') || content.includes('forslag'))
+  );
+
+  return hasScore || hasSections;
+}
+
+/**
+ * Fetch with retry logic and exponential backoff
+ */
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  timeoutMs: number
+): Promise<Response> {
+  let lastError: Error | null = null;
+  let lastResponse: Response | null = null;
+
+  for (let attempt = 0; attempt <= RETRY_CONFIG.MAX_RETRIES; attempt++) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (response.ok || !isRetryableStatusCode(response.status)) {
+        return response;
+      }
+
+      lastResponse = response;
+
+      if (attempt >= RETRY_CONFIG.MAX_RETRIES) {
+        return response;
+      }
+
+      const retryDelay = calculateBackoffDelay(attempt);
+      console.warn(`Anthropic API returned ${response.status}, retrying in ${Math.round(retryDelay)}ms (attempt ${attempt + 1}/${RETRY_CONFIG.MAX_RETRIES})`);
+
+      await sleep(retryDelay);
+    } catch (error) {
+      clearTimeout(timeoutId);
+      lastError = error as Error;
+
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw error;
+      }
+
+      if (attempt >= RETRY_CONFIG.MAX_RETRIES) {
+        throw error;
+      }
+
+      const retryDelay = calculateBackoffDelay(attempt);
+      console.warn(`Anthropic API request failed, retrying in ${Math.round(retryDelay)}ms (attempt ${attempt + 1}/${RETRY_CONFIG.MAX_RETRIES})`);
+
+      await sleep(retryDelay);
+    }
+  }
+
+  if (lastResponse) return lastResponse;
+  throw lastError || new Error('Unknown error during fetch retry');
+}
+
+/**
  * Get client IP from request headers
  */
 function getClientIP(request: Request): string {
@@ -159,6 +316,23 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
+    // Circuit breaker check
+    if (!checkCircuitBreaker()) {
+      return new Response(
+        JSON.stringify({
+          error: 'Service temporarily unavailable',
+          details: 'Please try again in a few moments'
+        }),
+        {
+          status: 503,
+          headers: {
+            'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
+            'Retry-After': '30'
+          }
+        }
+      );
+    }
+
     // Check cache
     cacheManager.cleanup();
     const cacheKey = await hashInput(input);
@@ -208,6 +382,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
             });
 
             if (!anthropicResponse.ok) {
+              recordCircuitBreakerResult(false);
               const errorData = await anthropicResponse.json() as AnthropicErrorResponse;
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({
                 error: true,
@@ -253,12 +428,16 @@ export const POST: APIRoute = async ({ request, locals }) => {
               }
             }
 
-            // Cache the complete output
-            cacheManager.set(cacheKey, fullOutput);
+            // Record success and cache only if output is valid
+            recordCircuitBreakerResult(true);
+            if (isValidOKROutput(fullOutput)) {
+              cacheManager.set(cacheKey, fullOutput);
+            }
 
             controller.enqueue(encoder.encode('data: [DONE]\n\n'));
             controller.close();
           } catch (error) {
+            recordCircuitBreakerResult(false);
             console.error('Streaming error:', error);
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({
               error: true,
@@ -279,25 +458,19 @@ export const POST: APIRoute = async ({ request, locals }) => {
       });
     }
 
-    // Non-streaming response with timeout protection
-    const timeoutController = new AbortController();
-    const timeoutId = setTimeout(() => {
-      timeoutController.abort();
-    }, ANTHROPIC_CONFIG.REQUEST_TIMEOUT_MS);
-
-    let anthropicResponse: Response;
-    try {
-      anthropicResponse = await fetch(ANTHROPIC_CONFIG.API_URL, {
+    // Non-streaming response with retry logic
+    const anthropicResponse = await fetchWithRetry(
+      ANTHROPIC_CONFIG.API_URL,
+      {
         method: 'POST',
         headers: createAnthropicHeaders(apiKey),
         body: JSON.stringify(createAnthropicRequestBody(input, model, false)),
-        signal: timeoutController.signal,
-      });
-    } finally {
-      clearTimeout(timeoutId);
-    }
+      },
+      ANTHROPIC_CONFIG.REQUEST_TIMEOUT_MS
+    );
 
     if (!anthropicResponse.ok) {
+      recordCircuitBreakerResult(false);
       const errorData = await anthropicResponse.json() as AnthropicErrorResponse;
       console.error('Anthropic API error:', anthropicResponse.status, errorData);
       return new Response(
@@ -309,11 +482,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
+    recordCircuitBreakerResult(true);
     const data = await anthropicResponse.json() as AnthropicResponse;
     const output = data.content[0]?.type === 'text' ? data.content[0].text : '';
 
-    // Cache the result
-    cacheManager.set(cacheKey, output);
+    // Cache the result only if valid
+    if (isValidOKROutput(output)) {
+      cacheManager.set(cacheKey, output);
+    }
 
     return new Response(
       JSON.stringify({ output, cached: false }),
