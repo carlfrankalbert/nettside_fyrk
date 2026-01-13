@@ -102,25 +102,23 @@ test.describe('OKR-sjekken UI Tests', () => {
 
   test('submit button exists', async ({ page }) => {
     await page.goto('/okr-sjekken');
+    await page.waitForLoadState('networkidle');
 
-    // Look for submit/analyze button
-    const button = page.getByRole('button').filter({ hasText: /vurder|analyser|send/i });
-    await expect(button.first()).toBeVisible();
+    // Button text is "Sjekk OKR-settet ditt"
+    const button = page.getByRole('button', { name: /Sjekk OKR/i });
+    await expect(button).toBeVisible({ timeout: 10000 });
   });
 
   test('should show validation message for empty submission', async ({ page }) => {
     await page.goto('/okr-sjekken');
+    await page.waitForLoadState('networkidle');
 
-    // Try to submit empty form
-    const button = page.getByRole('button').filter({ hasText: /vurder|analyser|send/i });
+    // Click submit with empty input - should show error message
+    const button = page.getByRole('button', { name: /Sjekk OKR/i });
+    await button.click();
 
-    if (await button.count() > 0) {
-      await button.first().click();
-
-      // Check for error/validation message or disabled state
-      // The behavior depends on implementation
-      await page.waitForTimeout(500);
-    }
+    // Error message should appear
+    await expect(page.getByText(/skriv inn|fyll ut|påkrevd/i)).toBeVisible({ timeout: 5000 });
   });
 
   test('textarea accepts input', async ({ page }) => {
