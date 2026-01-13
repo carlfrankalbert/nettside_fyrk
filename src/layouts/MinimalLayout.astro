@@ -28,20 +28,22 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       canonicalUrl={canonicalURL}
     />
   </head>
-  <body>
+  <body class="bg-neutral-50">
     <a href="#main-content" class="skip-link">Hopp til hovedinnhold</a>
-    <header class="relative bg-white border-b border-neutral-200">
-      <!-- Tool name centered on full page width -->
-      {toolName && (
-        <span class="absolute inset-0 flex items-center justify-center text-sm font-medium text-neutral-600 pointer-events-none">
-          {toolName}
-        </span>
-      )}
-      <!-- Logo left-aligned with content -->
-      <div class="relative max-w-2xl mx-auto px-4 sm:px-6 py-3 w-full">
+    <header class="bg-white border-b border-neutral-200">
+      <div class="relative max-w-2xl mx-auto px-4 sm:px-6 py-3 w-full flex items-center justify-between">
+        <!-- Logo left-aligned -->
         <a href="/" class="inline-block focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded">
           <Logo variant="navy" class="h-5" />
         </a>
+        <!-- Tool name centered within content area -->
+        {toolName && (
+          <span class="absolute left-1/2 -translate-x-1/2 text-sm font-medium text-neutral-600 pointer-events-none">
+            {toolName}
+          </span>
+        )}
+        <!-- Spacer to balance the layout -->
+        <div class="w-[60px]"></div>
       </div>
     </header>
     <slot />

@@ -27,26 +27,26 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
     <LandingHeader navLinks={navLinks} />
 
-    <main id="main-content" class="pt-24 pb-16">
+    <main id="main-content" class="pt-24 pb-8">
       <!-- Hero section for page title -->
-      <section class="py-12 px-6 bg-gradient-to-b from-white to-neutral-50">
+      <section class="py-6 px-6">
         <div class="max-w-3xl mx-auto">
-          <h1 class="text-3xl md:text-4xl font-semibold text-brand-navy mb-4">
+          <h1 class="text-3xl md:text-4xl font-semibold text-brand-navy mb-2">
             Personvernerklæring
           </h1>
-          <p class="text-lg text-neutral-600">
+          <p class="text-lg text-neutral-600 mb-0">
             Slik behandler vi dine opplysninger på fyrk.no
           </p>
         </div>
       </section>
 
       <!-- Content section -->
-      <section class="py-12 px-6">
-        <div class="max-w-3xl mx-auto space-y-10">
+      <section class="py-6 px-6">
+        <div class="max-w-3xl mx-auto space-y-8">
 
           <div>
             <h2 class="text-xl font-semibold text-brand-navy mb-3">Om denne nettsiden</h2>
-            <p class="text-neutral-600 leading-relaxed">
+            <p class="text-neutral-600 leading-relaxed mb-0">
               Fyrk.no er en nettside som tilbyr informasjon om våre tjenester samt AI-baserte verktøy
               for OKR-evaluering og konseptanalyse.
             </p>
@@ -76,7 +76,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
               </li>
             </ul>
             <div class="mt-4 p-4 bg-brand-cyan-lightest/30 border border-brand-cyan/20 rounded-lg">
-              <p class="text-neutral-700 text-sm">
+              <p class="text-neutral-700 text-sm mb-0">
                 <strong class="text-brand-navy">Anbefaling:</strong> Ikke del personopplysninger, forretningshemmeligheter
                 eller annen sensitiv informasjon i teksten du sender inn.
               </p>
@@ -85,7 +85,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
           <div>
             <h2 class="text-xl font-semibold text-brand-navy mb-3">Informasjonskapsler</h2>
-            <p class="text-neutral-600 leading-relaxed">
+            <p class="text-neutral-600 leading-relaxed mb-0">
               Nettsiden bruker funksjonelle informasjonskapsler for å huske dine preferanser
               (som lys/mørk modus). Vi bruker ikke tredjeparts analyseverktøy som samler
               personopplysninger.
@@ -94,7 +94,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
           <div>
             <h2 class="text-xl font-semibold text-brand-navy mb-3">Anonymisert analyse</h2>
-            <p class="text-neutral-600 leading-relaxed">
+            <p class="text-neutral-600 leading-relaxed mb-0">
               Vi samler inn anonymisert bruksstatistikk (sidevisninger, knappeklikk) for å
               forbedre nettsiden. Denne informasjonen kan ikke spores tilbake til enkeltpersoner.
             </p>
@@ -102,7 +102,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
           <div>
             <h2 class="text-xl font-semibold text-brand-navy mb-3">Kontakt</h2>
-            <p class="text-neutral-600 leading-relaxed">
+            <p class="text-neutral-600 leading-relaxed mb-0">
               Har du spørsmål om personvern? Ta kontakt på{' '}
               <a href="mailto:hei@fyrk.no" class="text-brand-cyan-darker hover:text-brand-navy underline underline-offset-2 transition-colors">
                 hei@fyrk.no
@@ -111,7 +111,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
           </div>
 
           <div class="pt-6 border-t border-neutral-200">
-            <p class="text-sm text-neutral-500">
+            <p class="text-sm text-neutral-500 mb-0">
               Sist oppdatert: Januar 2026
             </p>
           </div>
