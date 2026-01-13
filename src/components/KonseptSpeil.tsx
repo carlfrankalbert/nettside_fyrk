@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { speileKonseptStreaming, ERROR_MESSAGES, isValidOutput } from '../services/konseptspeil-service';
 import KonseptSpeilResultDisplayV2 from './KonseptSpeilResultDisplayV2';
 import { SpinnerIcon, ChevronRightIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
 import { INPUT_VALIDATION, EXAMPLE_KONSEPT } from '../utils/constants';
 import { trackClick, logEvent } from '../utils/tracking';
+import { debounce } from '../hooks/useCopyToClipboard';
 
 // ============================================================================
 // Constants
@@ -103,13 +104,17 @@ export default function KonseptSpeil() {
   // Callbacks (defined before effects that use them)
   // ---------------------------------------------------------------------------
 
-  /** Auto-resize textarea to fit content */
-  const autoResizeTextarea = useCallback(() => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-    textarea.style.height = 'auto';
-    textarea.style.height = `${textarea.scrollHeight}px`;
-  }, []);
+  /** Auto-resize textarea to fit content (debounced for performance) */
+  const autoResizeTextarea = useMemo(
+    () =>
+      debounce(() => {
+        const textarea = textareaRef.current;
+        if (!textarea) return;
+        textarea.style.height = 'auto';
+        textarea.style.height = `${textarea.scrollHeight}px`;
+      }, 16), // ~60fps, smooth enough for typing
+    []
+  );
 
   /** Clear pending timeout */
   const clearTimeouts = useCallback(() => {

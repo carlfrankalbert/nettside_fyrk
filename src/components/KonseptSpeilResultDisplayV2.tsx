@@ -5,6 +5,7 @@ import { DIMENSION_LABELS, STATUS_ICONS, STATUS_LABELS } from '../types/konsepts
 import { SpinnerIcon, ChevronRightIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
 import { trackClick } from '../utils/tracking';
+import { useCopyToClipboard } from '../hooks/useCopyToClipboard';
 
 // ============================================================================
 // Types
@@ -46,7 +47,7 @@ function Toast({ message, isVisible }: { message: string; isVisible: boolean }) 
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
       )}
       role="status"
-      aria-live="polite"
+      aria-live="assertive"
     >
       {message}
     </div>
@@ -121,7 +122,7 @@ ${data.observasjon || labels.question}`;
       <CopyButton
         onCopy={() => onCopy(copyText)}
         ariaLabel={`Kopier ${labels.name}`}
-        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
+        className="absolute top-2 right-2 opacity-50 hover:opacity-100 focus:opacity-100 group-hover:opacity-100"
       />
       <div className="flex items-start gap-2 mb-2 pr-8">
         <StatusIndicator status={data.status} />
@@ -235,7 +236,7 @@ function generateFullAnalysisMarkdown(parsed: ParsedKonseptSpeilResultV2): strin
   markdown += `## Dimensjoner\n\n`;
   for (const key of dimensionKeys) {
     const labels = DIMENSION_LABELS[key];
-    const data = parsed.dimensjoner[key];
+    const data: DimensionData = parsed.dimensjoner[key];
     markdown += `### ${labels.name}\n`;
     markdown += `**Status:** ${STATUS_LABELS[data.status]}\n\n`;
     markdown += `${data.observasjon || labels.question}\n\n`;
@@ -292,43 +293,12 @@ export default function KonseptSpeilResultDisplayV2({
   const [showToast, setShowToast] = useState(false);
 
   const parsed = parseKonseptSpeilResultV2(result);
+  const { copyToClipboard: copy } = useCopyToClipboard();
 
-  // Copy to clipboard with toast feedback and fallback for older browsers
+  // Wrapper to show toast feedback
   const copyToClipboard = async (text: string, feedbackMessage = 'Kopiert!') => {
-    // Try modern clipboard API first
-    if (navigator.clipboard?.writeText) {
-      try {
-        await navigator.clipboard.writeText(text);
-        setToastMessage(feedbackMessage);
-        setShowToast(true);
-        setTimeout(() => setShowToast(false), 2000);
-        return;
-      } catch {
-        // Fall through to fallback
-      }
-    }
-
-    // Fallback: create a temporary textarea
-    try {
-      const textarea = document.createElement('textarea');
-      textarea.value = text;
-      textarea.style.position = 'fixed';
-      textarea.style.left = '-9999px';
-      textarea.style.top = '0';
-      textarea.setAttribute('readonly', '');
-      document.body.appendChild(textarea);
-      textarea.select();
-      const success = document.execCommand('copy');
-      document.body.removeChild(textarea);
-
-      if (success) {
-        setToastMessage(feedbackMessage);
-      } else {
-        setToastMessage('Kunne ikke kopiere');
-      }
-    } catch {
-      setToastMessage('Kunne ikke kopiere');
-    }
+    const success = await copy(text);
+    setToastMessage(success ? feedbackMessage : 'Kunne ikke kopiere');
     setShowToast(true);
     setTimeout(() => setShowToast(false), 2000);
   };
