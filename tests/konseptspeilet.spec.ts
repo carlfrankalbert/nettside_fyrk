@@ -123,10 +123,10 @@ test.describe('Konseptspeilet', () => {
     await submitButton.click();
 
     // Wait for v2 result summary to appear (shows assumption count)
-    await expect(page.locator('text=3 antagelser')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=Se antagelser i teksten nedenfor')).toBeVisible({ timeout: 10000 });
 
     // Antagelser section is open by default in v2.1
-    await expect(page.locator('text=Antagelser i teksten')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Antagelser i teksten' })).toBeVisible();
 
     // Verify focus question is shown (the key question to explore)
     await expect(page.locator('text=Hvem er den primære brukeren?')).toBeVisible();
@@ -162,7 +162,7 @@ test.describe('Konseptspeilet', () => {
     await submitButton.click();
 
     // Check for narrative loader messages during submission (NarrativeLoader cycles through messages)
-    await expect(page.getByText(/Analyserer|Ser etter|Vurderer|Genererer/).first()).toBeVisible();
+    await expect(page.getByText(/Leser gjennom|Kartlegger|Identifiserer|Formulerer/).first()).toBeVisible();
   });
 
   test('handles API error gracefully', async ({ page }) => {
@@ -199,7 +199,7 @@ test.describe('Konseptspeilet', () => {
     await textarea.fill('Første konseptbeskrivelse som er lang nok til analyse.');
     await submitButton.click();
     // Wait for v2 result summary to appear
-    await expect(page.locator('text=3 antagelser')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=Se antagelser i teksten nedenfor')).toBeVisible({ timeout: 10000 });
 
     // "Nullstill" resets completely, "Juster tekst" keeps input for editing
     const resetButton = page.getByRole('button', { name: /Nullstill/i });
@@ -258,7 +258,7 @@ test.describe('Konseptspeilet', () => {
     await submitButton.click();
 
     // Wait for result
-    await expect(page.locator('text=3 antagelser')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=Se antagelser i teksten nedenfor')).toBeVisible({ timeout: 10000 });
 
     // Clear localStorage to simulate client cache miss (forcing server request)
     await page.evaluate(() => localStorage.clear());
@@ -267,7 +267,7 @@ test.describe('Konseptspeilet', () => {
     await submitButton.click();
 
     // Should still show result without error
-    await expect(page.locator('text=3 antagelser')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=Se antagelser i teksten nedenfor')).toBeVisible({ timeout: 10000 });
 
     // Should not show error message
     await expect(page.locator('text=Noe gikk galt')).not.toBeVisible();
@@ -284,7 +284,7 @@ test.describe('Konseptspeilet', () => {
     // First submission
     await textarea.fill(originalInput);
     await submitButton.click();
-    await expect(page.locator('text=3 antagelser')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=Se antagelser i teksten nedenfor')).toBeVisible({ timeout: 10000 });
 
     // "Juster tekst" keeps input for editing
     const editButton = page.getByRole('button', { name: /Juster tekst/i });
@@ -305,7 +305,7 @@ test.describe('Konseptspeilet', () => {
 
     await textarea.fill('En konseptbeskrivelse for å teste dimensjonskort visning.');
     await submitButton.click();
-    await expect(page.locator('text=3 antagelser')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=Se antagelser i teksten nedenfor')).toBeVisible({ timeout: 10000 });
 
     // Verify all four dimensions are shown (Cagan framework) - use heading role for precision
     await expect(page.getByRole('heading', { name: 'Verdi' })).toBeVisible();
@@ -323,7 +323,7 @@ test.describe('Konseptspeilet', () => {
 
     await textarea.fill('En konseptbeskrivelse for å teste kollapserbar input visning.');
     await submitButton.click();
-    await expect(page.locator('text=3 antagelser')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=Se antagelser i teksten nedenfor')).toBeVisible({ timeout: 10000 });
 
     // "Din tekst" section should be present (collapsible input review)
     await expect(page.locator('text=Din tekst')).toBeVisible();
@@ -338,7 +338,7 @@ test.describe('Konseptspeilet', () => {
 
     await textarea.fill('En konseptbeskrivelse for å teste kopieringsknapper.');
     await submitButton.click();
-    await expect(page.locator('text=3 antagelser')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('text=Se antagelser i teksten nedenfor')).toBeVisible({ timeout: 10000 });
 
     // "Kopier hele analysen" button should be visible
     await expect(page.getByRole('button', { name: /Kopier hele analysen/i })).toBeVisible();
