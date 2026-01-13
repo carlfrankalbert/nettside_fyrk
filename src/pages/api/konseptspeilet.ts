@@ -235,7 +235,7 @@ function calculateBackoffDelay(attempt: number): number {
  * Check if an HTTP status code is retryable
  */
 function isRetryableStatusCode(status: number): boolean {
-  return RETRY_CONFIG.RETRYABLE_STATUS_CODES.includes(status);
+  return (RETRY_CONFIG.RETRYABLE_STATUS_CODES as readonly number[]).includes(status);
 }
 
 /**
