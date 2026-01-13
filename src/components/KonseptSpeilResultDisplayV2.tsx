@@ -25,10 +25,10 @@ interface KonseptSpeilResultDisplayV2Props {
 // ============================================================================
 
 const LOADER_MESSAGES = [
-  'Analyserer salgsspråk …',
-  'Ser etter hull i logikken …',
-  'Vurderer gjennomførbarhet …',
-  'Genererer speilbilde …',
+  'Leser gjennom teksten …',
+  'Kartlegger dimensjonene …',
+  'Identifiserer antagelser …',
+  'Formulerer speilbilde …',
 ];
 
 const LOADER_INTERVAL_MS = 2000;
@@ -261,7 +261,7 @@ function generateShareText(antagelser: string[]): string {
   const displayItems = antagelser.slice(0, maxItems);
   const remaining = antagelser.length - maxItems;
 
-  let text = `Jeg kjørte dette gjennom Konseptspeilet.\n\nAntagelser vi bør verifisere:\n`;
+  let text = `Jeg kjørte dette gjennom Konseptspeilet.\n\nAntagelser i teksten:\n`;
 
   for (const item of displayItems) {
     text += `– ${item}\n`;
@@ -271,7 +271,7 @@ function generateShareText(antagelser: string[]): string {
     text += `(+${remaining} flere)\n`;
   }
 
-  text += `\nHva tenker du er raskeste måten å teste 1–2 av disse denne uka?`;
+  text += `\nfyrk.no/konseptspeilet`;
 
   return text;
 }
@@ -392,7 +392,7 @@ export default function KonseptSpeilResultDisplayV2({
 
         {parsed.refleksjonStatus.antagelser_funnet > 0 && (
           <p className="text-sm text-neutral-600">
-            <span className="font-semibold">{parsed.refleksjonStatus.antagelser_funnet} antagelser</span> identifisert
+            Se antagelser i teksten nedenfor
           </p>
         )}
       </div>

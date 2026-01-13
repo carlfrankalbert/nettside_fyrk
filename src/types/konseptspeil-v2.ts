@@ -96,12 +96,12 @@ export const DIMENSION_LABELS: Record<DimensionKey, { name: string; question: st
 };
 
 /**
- * Status icons for display
+ * Status icons for display (neutral symbols indicating coverage, not judgment)
  */
 export const STATUS_ICONS: Record<DimensionStatus, string> = {
-  ikke_nevnt: '🔴',
-  antatt: '🟡',
-  beskrevet: '🟢',
+  ikke_nevnt: '○',
+  antatt: '◐',
+  beskrevet: '●',
 };
 
 /**
