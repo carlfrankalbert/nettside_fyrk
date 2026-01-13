@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { parseKonseptSpeilResultV2, hasContentV2 } from '../utils/konseptspeil-parser-v2';
 import type { DimensionKey, DimensionStatus, DimensionData, ParsedKonseptSpeilResultV2 } from '../types/konseptspeil-v2';
-import { DIMENSION_LABELS, STATUS_ICONS, STATUS_LABELS } from '../types/konseptspeil-v2';
+import { DIMENSION_LABELS, STATUS_LABELS } from '../types/konseptspeil-v2';
 import { SpinnerIcon, ChevronRightIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
 import { trackClick } from '../utils/tracking';
@@ -90,20 +90,41 @@ function CopyButton({
 // ============================================================================
 
 /**
- * Coverage-based colors (not judgment-based)
- * Uses brand-cyan with varying intensity to show coverage level
+ * Three-dot progress indicator
+ * Shows coverage level in a minimal, intuitive way:
+ * - beskrevet: ●●● (3 filled)
+ * - antatt: ●●○ (2 filled)
+ * - ikke_nevnt: ○○○ (0 filled)
  */
-const STATUS_COLORS: Record<DimensionStatus, string> = {
-  beskrevet: 'text-brand-cyan-darker', // Full coverage - dark cyan
-  antatt: 'text-brand-cyan',           // Partial coverage - medium cyan
-  ikke_nevnt: 'text-neutral-300',      // No coverage - light gray
+const STATUS_TO_FILLED_DOTS: Record<DimensionStatus, number> = {
+  beskrevet: 3,
+  antatt: 2,
+  ikke_nevnt: 0,
 };
 
 function StatusIndicator({ status }: { status: DimensionStatus }) {
+  const filledCount = STATUS_TO_FILLED_DOTS[status];
+
   return (
-    <span className={cn('text-lg', STATUS_COLORS[status])} aria-hidden="true">
-      {STATUS_ICONS[status]}
-    </span>
+    <div
+      className="flex items-center gap-[3px]"
+      role="img"
+      aria-label={`${STATUS_LABELS[status]} (${filledCount} av 3)`}
+      title={STATUS_LABELS[status]}
+    >
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className={cn(
+            'w-[6px] h-[6px] rounded-full transition-colors',
+            i < filledCount
+              ? 'bg-brand-cyan-darker'
+              : 'bg-neutral-200'
+          )}
+          aria-hidden="true"
+        />
+      ))}
+    </div>
   );
 }
 
@@ -139,14 +160,17 @@ ${data.observasjon || labels.question}`;
 
   return (
     <div className={cn('relative p-4 border rounded-lg group', CARD_BG_COLORS[data.status])}>
-      <CopyButton
-        onCopy={() => onCopy(copyText)}
-        ariaLabel={`Kopier ${labels.name}`}
-        className="absolute top-2 right-2 opacity-50 hover:opacity-100 focus:opacity-100 group-hover:opacity-100"
-      />
-      <div className="flex items-start gap-2 mb-2 pr-8">
-        <StatusIndicator status={data.status} />
-        <h4 className="font-semibold text-neutral-900">{labels.name}</h4>
+      {/* Header: Status icon + Title left, Copy right */}
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <div className="flex items-center gap-2">
+          <StatusIndicator status={data.status} />
+          <h4 className="font-semibold text-neutral-900">{labels.name}</h4>
+        </div>
+        <CopyButton
+          onCopy={() => onCopy(copyText)}
+          ariaLabel={`Kopier ${labels.name}`}
+          className="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+        />
       </div>
       <p className="text-sm text-neutral-600 leading-relaxed">
         {data.observasjon || labels.question}
@@ -417,18 +441,33 @@ export default function KonseptSpeilResultDisplayV2({
         )}
       </div>
 
-      {/* Four dimensions with legend and copy buttons */}
+      {/* Four dimensions */}
       <div>
-        {/* Legend explaining the status icons */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-3 text-xs text-neutral-500">
+        {/* Minimal legend matching three-dot indicator */}
+        <div className="flex items-center gap-5 mb-3 text-xs text-neutral-400">
           <span className="flex items-center gap-1.5">
-            <span className="text-brand-cyan-darker">●</span> Beskrevet
+            <span className="flex gap-[2px]">
+              <span className="w-[5px] h-[5px] rounded-full bg-brand-cyan-darker" />
+              <span className="w-[5px] h-[5px] rounded-full bg-brand-cyan-darker" />
+              <span className="w-[5px] h-[5px] rounded-full bg-brand-cyan-darker" />
+            </span>
+            <span>Beskrevet</span>
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="text-brand-cyan">◐</span> Antatt
+            <span className="flex gap-[2px]">
+              <span className="w-[5px] h-[5px] rounded-full bg-brand-cyan-darker" />
+              <span className="w-[5px] h-[5px] rounded-full bg-brand-cyan-darker" />
+              <span className="w-[5px] h-[5px] rounded-full bg-neutral-200" />
+            </span>
+            <span>Antatt</span>
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="text-neutral-300">○</span> Ikke nevnt
+            <span className="flex gap-[2px]">
+              <span className="w-[5px] h-[5px] rounded-full bg-neutral-200" />
+              <span className="w-[5px] h-[5px] rounded-full bg-neutral-200" />
+              <span className="w-[5px] h-[5px] rounded-full bg-neutral-200" />
+            </span>
+            <span>Ikke nevnt</span>
           </span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
