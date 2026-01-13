@@ -1,72 +1,129 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+/**
+ * Privacy policy page
+ * Uses same layout as landing page for consistency
+ */
+import '../styles/global.css';
+import SEOHead from '../components/seo/SEOHead.astro';
+import LandingHeader from '../components/landing/LandingHeader.astro';
+import LandingFooter from '../components/landing/LandingFooter.astro';
+import { navLinks, footerContent } from '../data/landing';
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
-<BaseLayout
-  title="Personvern | Fyrk"
-  description="Informasjon om hvordan Fyrk behandler personopplysninger."
->
-  <main class="container mx-auto px-4 py-16 max-w-3xl">
-    <h1 class="text-3xl font-bold text-brand-navy dark:text-white mb-8">Personvernerklæring</h1>
+<!doctype html>
+<html lang="no" class="scroll-smooth">
+  <head>
+    <SEOHead
+      title="Personvern | Fyrk"
+      description="Informasjon om hvordan Fyrk behandler personopplysninger."
+      type="website"
+      canonicalUrl={canonicalURL}
+    />
+  </head>
+  <body class="bg-neutral-50 text-neutral-700">
+    <a href="#main-content" class="skip-link">Hopp til hovedinnhold</a>
 
-    <div class="prose prose-neutral dark:prose-invert max-w-none space-y-6">
-      <section>
-        <h2 class="text-xl font-semibold text-brand-navy dark:text-white mb-3">Om denne nettsiden</h2>
-        <p class="text-neutral-700 dark:text-neutral-200 leading-relaxed">
-          Fyrk.no er en nettside som tilbyr informasjon om våre tjenester samt AI-baserte verktøy
-          for OKR-evaluering og konseptanalyse.
-        </p>
+    <LandingHeader navLinks={navLinks} />
+
+    <main id="main-content" class="pt-24 pb-16">
+      <!-- Hero section for page title -->
+      <section class="py-12 px-6 bg-gradient-to-b from-white to-neutral-50">
+        <div class="max-w-3xl mx-auto">
+          <h1 class="text-3xl md:text-4xl font-semibold text-brand-navy mb-4">
+            Personvernerklæring
+          </h1>
+          <p class="text-lg text-neutral-600">
+            Slik behandler vi dine opplysninger på fyrk.no
+          </p>
+        </div>
       </section>
 
-      <section>
-        <h2 class="text-xl font-semibold text-brand-navy dark:text-white mb-3">AI-verktøyene</h2>
-        <p class="text-neutral-700 dark:text-neutral-200 leading-relaxed mb-3">
-          Når du bruker OKR-sjekken eller Konseptspeilet:
-        </p>
-        <ul class="list-disc list-inside text-neutral-700 dark:text-neutral-200 space-y-2">
-          <li>Teksten du skriver inn sendes til Anthropic (Claude API) for analyse</li>
-          <li>Vi lagrer ikke teksten du sender inn permanent</li>
-          <li>Teksten brukes ikke til å trene AI-modeller</li>
-          <li>Du trenger ikke logge inn for å bruke verktøyene</li>
-        </ul>
-        <p class="text-neutral-700 dark:text-neutral-200 leading-relaxed mt-3">
-          <strong>Anbefaling:</strong> Ikke del personopplysninger, forretningshemmeligheter
-          eller annen sensitiv informasjon i teksten du sender inn.
-        </p>
-      </section>
+      <!-- Content section -->
+      <section class="py-12 px-6">
+        <div class="max-w-3xl mx-auto space-y-10">
 
-      <section>
-        <h2 class="text-xl font-semibold text-brand-navy dark:text-white mb-3">Informasjonskapsler</h2>
-        <p class="text-neutral-700 dark:text-neutral-200 leading-relaxed">
-          Nettsiden bruker funksjonelle informasjonskapsler for å huske dine preferanser
-          (som lys/mørk modus). Vi bruker ikke tredjeparts analyseverktøy som samler
-          personopplysninger.
-        </p>
-      </section>
+          <div>
+            <h2 class="text-xl font-semibold text-brand-navy mb-3">Om denne nettsiden</h2>
+            <p class="text-neutral-600 leading-relaxed">
+              Fyrk.no er en nettside som tilbyr informasjon om våre tjenester samt AI-baserte verktøy
+              for OKR-evaluering og konseptanalyse.
+            </p>
+          </div>
 
-      <section>
-        <h2 class="text-xl font-semibold text-brand-navy dark:text-white mb-3">Anonymisert analyse</h2>
-        <p class="text-neutral-700 dark:text-neutral-200 leading-relaxed">
-          Vi samler inn anonymisert bruksstatistikk (sidevisninger, knappeklikk) for å
-          forbedre nettsiden. Denne informasjonen kan ikke spores tilbake til enkeltpersoner.
-        </p>
-      </section>
+          <div>
+            <h2 class="text-xl font-semibold text-brand-navy mb-3">AI-verktøyene</h2>
+            <p class="text-neutral-600 leading-relaxed mb-4">
+              Når du bruker OKR-sjekken eller Konseptspeilet:
+            </p>
+            <ul class="space-y-2 text-neutral-600">
+              <li class="flex items-start gap-3">
+                <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker mt-2 shrink-0"></span>
+                <span>Teksten du skriver inn sendes til Anthropic (Claude API) for analyse</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker mt-2 shrink-0"></span>
+                <span>Vi lagrer ikke teksten du sender inn permanent</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker mt-2 shrink-0"></span>
+                <span>Teksten brukes ikke til å trene AI-modeller</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker mt-2 shrink-0"></span>
+                <span>Du trenger ikke logge inn for å bruke verktøyene</span>
+              </li>
+            </ul>
+            <div class="mt-4 p-4 bg-brand-cyan-lightest/30 border border-brand-cyan/20 rounded-lg">
+              <p class="text-neutral-700 text-sm">
+                <strong class="text-brand-navy">Anbefaling:</strong> Ikke del personopplysninger, forretningshemmeligheter
+                eller annen sensitiv informasjon i teksten du sender inn.
+              </p>
+            </div>
+          </div>
 
-      <section>
-        <h2 class="text-xl font-semibold text-brand-navy dark:text-white mb-3">Kontakt</h2>
-        <p class="text-neutral-700 dark:text-neutral-200 leading-relaxed">
-          Har du spørsmål om personvern? Ta kontakt på{' '}
-          <a href="mailto:hei@fyrk.no" class="text-brand-cyan-darker dark:text-brand-cyan underline underline-offset-2">
-            hei@fyrk.no
-          </a>
-        </p>
-      </section>
+          <div>
+            <h2 class="text-xl font-semibold text-brand-navy mb-3">Informasjonskapsler</h2>
+            <p class="text-neutral-600 leading-relaxed">
+              Nettsiden bruker funksjonelle informasjonskapsler for å huske dine preferanser
+              (som lys/mørk modus). Vi bruker ikke tredjeparts analyseverktøy som samler
+              personopplysninger.
+            </p>
+          </div>
 
-      <section class="pt-6 border-t border-neutral-200 dark:border-neutral-700">
-        <p class="text-sm text-neutral-500 dark:text-neutral-400">
-          Sist oppdatert: Januar 2026
-        </p>
+          <div>
+            <h2 class="text-xl font-semibold text-brand-navy mb-3">Anonymisert analyse</h2>
+            <p class="text-neutral-600 leading-relaxed">
+              Vi samler inn anonymisert bruksstatistikk (sidevisninger, knappeklikk) for å
+              forbedre nettsiden. Denne informasjonen kan ikke spores tilbake til enkeltpersoner.
+            </p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-semibold text-brand-navy mb-3">Kontakt</h2>
+            <p class="text-neutral-600 leading-relaxed">
+              Har du spørsmål om personvern? Ta kontakt på{' '}
+              <a href="mailto:hei@fyrk.no" class="text-brand-cyan-darker hover:text-brand-navy underline underline-offset-2 transition-colors">
+                hei@fyrk.no
+              </a>
+            </p>
+          </div>
+
+          <div class="pt-6 border-t border-neutral-200">
+            <p class="text-sm text-neutral-500">
+              Sist oppdatert: Januar 2026
+            </p>
+          </div>
+        </div>
       </section>
-    </div>
-  </main>
-</BaseLayout>
+    </main>
+
+    <LandingFooter {...footerContent} />
+
+    <script>
+      import { initMobileMenu } from '../scripts/mobile-menu';
+      initMobileMenu({ updateIcon: false });
+    </script>
+  </body>
+</html>
