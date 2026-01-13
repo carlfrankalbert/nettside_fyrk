@@ -122,4 +122,10 @@ export const CACHE_HEADERS = {
  * Example text for Konseptspeilet
  * Centralized to ensure consistency across UI
  */
-export const EXAMPLE_KONSEPT = `Jeg vurderer å bygge et lite verktøy for team som sliter med prioritering. Vi har mange initiativer samtidig, og det er uklart hva som faktisk er viktig. Jeg tror det finnes et reelt problem, men vi har ikke testet det ordentlig. Målet er å få mer klarhet før vi bestemmer oss.` as const;
+export const EXAMPLE_KONSEPT = `Vi vurderer å teste et enkelt, avgrenset refleksjonsverktøy for produktteam som ofte opplever at beslutninger tas på magefølelse eller basert på ufullstendig informasjon.
+
+Tanken er at verktøyet brukes tidlig i en beslutningsprosess, før man har låst seg til en løsning. Brukeren beskriver kort hva som vurderes, hvorfor det er viktig nå, og hva som oppleves uklart. Verktøyet returnerer et strukturert speil som tydeliggjør hva som er eksplisitt sagt, hvilke antakelser som ligger implisitt i teksten, og hvilke spørsmål som ikke er besvart.
+
+Vi antar at produktledere og team vil ha nytte av å stoppe opp og tenke mer strukturert før større prioriteringer eller investeringer. Målgruppen er erfarne produktledere i kunnskapsorganisasjoner som allerede jobber smidig, men som mangler et enkelt verktøy for å gjøre antakelser synlige.
+
+I første omgang er dette ment som et frivillig pilotverktøy for egen bruk og et lite nettverk, uten ambisjon om kommersialisering. Bruk vil være anonymt, uten innlogging eller lagring. Videre utvikling vurderes basert på faktisk bruk og tilbakemeldinger fra pilotdeltakere.` as const;

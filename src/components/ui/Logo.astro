@@ -12,12 +12,10 @@ const logoPath = variant === 'navy'
   : '/fyrk-logo-white.svg';
 ---
 
-<img 
-  src={logoPath} 
-  alt="Fyrk - Produktledelse der kvalitet møter forretningsverdi" 
-  class={className}
-  width="200"
-  height="56"
+<img
+  src={logoPath}
+  alt="Fyrk - Produktledelse der kvalitet møter forretningsverdi"
+  class={className || 'h-8'}
   loading="eager"
 />
 
