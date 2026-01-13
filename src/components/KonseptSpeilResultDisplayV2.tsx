@@ -89,9 +89,19 @@ function CopyButton({
 // Status Indicator Component
 // ============================================================================
 
+/**
+ * Coverage-based colors (not judgment-based)
+ * Uses brand-cyan with varying intensity to show coverage level
+ */
+const STATUS_COLORS: Record<DimensionStatus, string> = {
+  beskrevet: 'text-brand-cyan-darker', // Full coverage - dark cyan
+  antatt: 'text-brand-cyan',           // Partial coverage - medium cyan
+  ikke_nevnt: 'text-neutral-300',      // No coverage - light gray
+};
+
 function StatusIndicator({ status }: { status: DimensionStatus }) {
   return (
-    <span className="text-lg" aria-hidden="true">
+    <span className={cn('text-lg', STATUS_COLORS[status])} aria-hidden="true">
       {STATUS_ICONS[status]}
     </span>
   );
@@ -100,6 +110,16 @@ function StatusIndicator({ status }: { status: DimensionStatus }) {
 // ============================================================================
 // Dimension Card Component
 // ============================================================================
+
+/**
+ * Subtle background colors for dimension cards based on coverage
+ * Uses very light tints to maintain readability while providing visual differentiation
+ */
+const CARD_BG_COLORS: Record<DimensionStatus, string> = {
+  beskrevet: 'bg-brand-cyan-lightest/30 border-brand-cyan/20',
+  antatt: 'bg-white border-neutral-200',
+  ikke_nevnt: 'bg-neutral-50 border-neutral-200',
+};
 
 function DimensionCard({
   dimensionKey,
@@ -118,7 +138,7 @@ ${STATUS_LABELS[data.status]}
 ${data.observasjon || labels.question}`;
 
   return (
-    <div className="relative p-4 bg-white border border-neutral-200 rounded-lg group">
+    <div className={cn('relative p-4 border rounded-lg group', CARD_BG_COLORS[data.status])}>
       <CopyButton
         onCopy={() => onCopy(copyText)}
         ariaLabel={`Kopier ${labels.name}`}
@@ -397,16 +417,30 @@ export default function KonseptSpeilResultDisplayV2({
         )}
       </div>
 
-      {/* Four dimensions with copy buttons */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {dimensionKeys.map((key) => (
-          <DimensionCard
-            key={key}
-            dimensionKey={key}
-            data={parsed.dimensjoner[key]}
-            onCopy={copyToClipboard}
-          />
-        ))}
+      {/* Four dimensions with legend and copy buttons */}
+      <div>
+        {/* Legend explaining the status icons */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-3 text-xs text-neutral-500">
+          <span className="flex items-center gap-1.5">
+            <span className="text-brand-cyan-darker">●</span> Beskrevet
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="text-brand-cyan">◐</span> Antatt
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="text-neutral-300">○</span> Ikke nevnt
+          </span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {dimensionKeys.map((key) => (
+            <DimensionCard
+              key={key}
+              dimensionKey={key}
+              data={parsed.dimensjoner[key]}
+              onCopy={copyToClipboard}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Antagelser section - always visible, styled prominently */}
