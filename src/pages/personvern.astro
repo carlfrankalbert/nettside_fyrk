@@ -1,0 +1,72 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Personvern | Fyrk"
+  description="Informasjon om hvordan Fyrk behandler personopplysninger."
+>
+  <main class="container mx-auto px-4 py-16 max-w-3xl">
+    <h1 class="text-3xl font-bold text-brand-navy mb-8">Personvernerklæring</h1>
+
+    <div class="prose prose-neutral max-w-none space-y-6">
+      <section>
+        <h2 class="text-xl font-semibold text-brand-navy mb-3">Om denne nettsiden</h2>
+        <p class="text-neutral-700 leading-relaxed">
+          Fyrk.no er en nettside som tilbyr informasjon om våre tjenester samt AI-baserte verktøy
+          for OKR-evaluering og konseptanalyse.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-brand-navy mb-3">AI-verktøyene</h2>
+        <p class="text-neutral-700 leading-relaxed mb-3">
+          Når du bruker OKR-sjekken eller Konseptspeilet:
+        </p>
+        <ul class="list-disc list-inside text-neutral-700 space-y-2">
+          <li>Teksten du skriver inn sendes til Anthropic (Claude API) for analyse</li>
+          <li>Vi lagrer ikke teksten du sender inn permanent</li>
+          <li>Teksten brukes ikke til å trene AI-modeller</li>
+          <li>Du trenger ikke logge inn for å bruke verktøyene</li>
+        </ul>
+        <p class="text-neutral-700 leading-relaxed mt-3">
+          <strong>Anbefaling:</strong> Ikke del personopplysninger, forretningshemmeligheter
+          eller annen sensitiv informasjon i teksten du sender inn.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-brand-navy mb-3">Informasjonskapsler</h2>
+        <p class="text-neutral-700 leading-relaxed">
+          Nettsiden bruker funksjonelle informasjonskapsler for å huske dine preferanser
+          (som lys/mørk modus). Vi bruker ikke tredjeparts analyseverktøy som samler
+          personopplysninger.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-brand-navy mb-3">Anonymisert analyse</h2>
+        <p class="text-neutral-700 leading-relaxed">
+          Vi samler inn anonymisert bruksstatistikk (sidevisninger, knappeklikk) for å
+          forbedre nettsiden. Denne informasjonen kan ikke spores tilbake til enkeltpersoner.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold text-brand-navy mb-3">Kontakt</h2>
+        <p class="text-neutral-700 leading-relaxed">
+          Har du spørsmål om personvern? Ta kontakt på{' '}
+          <a href="mailto:hei@fyrk.no" class="text-brand-cyan-darker hover:underline">
+            hei@fyrk.no
+          </a>
+        </p>
+      </section>
+
+      <section class="pt-6 border-t border-neutral-200">
+        <p class="text-sm text-neutral-500">
+          Sist oppdatert: Januar 2026
+        </p>
+      </section>
+    </div>
+  </main>
+</BaseLayout>

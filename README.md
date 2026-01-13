@@ -224,4 +224,4 @@ npm run test:a11y        # Tilgjengelighetstester
 
 ## 📄 Lisens
 
-© 2025 Fyrk. Alle rettigheter reservert.
+Dette prosjektet er proprietær programvare uten åpen kildekode-lisens.
