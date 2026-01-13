@@ -85,14 +85,19 @@ test('OKR-sjekken form is keyboard accessible', async ({ page }) => {
   await page.goto('/okr-sjekken');
   await page.waitForLoadState('networkidle');
 
-  // Check that main interactive elements are focusable
-  const _textarea = page.locator('textarea').first();
-  const _submitButton = page.locator('button[type="submit"]').first();
+  // Tab through the page and verify we can reach interactive elements
+  const interactiveElements: string[] = [];
 
-  // Tab to textarea
-  await page.keyboard.press('Tab');
+  // Tab through first 10 focusable elements
+  for (let i = 0; i < 10; i++) {
+    await page.keyboard.press('Tab');
+    const tagName = await page.evaluate(() => document.activeElement?.tagName);
+    if (tagName) {
+      interactiveElements.push(tagName);
+    }
+  }
 
-  // Verify focus is manageable
-  const focusedElement = await page.evaluate(() => document.activeElement?.tagName);
-  expect(['TEXTAREA', 'BUTTON', 'INPUT', 'A']).toContain(focusedElement);
+  // Should be able to reach textarea and button via keyboard
+  expect(interactiveElements).toContain('TEXTAREA');
+  expect(interactiveElements.some(el => el === 'BUTTON' || el === 'A')).toBe(true);
 });
