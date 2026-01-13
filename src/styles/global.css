@@ -160,7 +160,7 @@
 
 /* Quieter bullet markers */
 .konseptspeil-bullet {
-  @apply w-1 h-1 opacity-60;
+  @apply w-1 h-1 opacity-80;
   margin-top: 0.55rem;
 }
 

@@ -8,7 +8,6 @@ export default {
         brand: {
           navy: '#001F3F',
           cyan: '#5AB9D3',
-          'cyan-text': '#2F8FA8',
           'cyan-light': '#7CC8DD',
           'cyan-lighter': '#9ED7E7',
           'cyan-lightest': '#C0E6F1',

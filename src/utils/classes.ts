@@ -46,8 +46,8 @@ export const transitionClasses = {
  * Common focus ring classes for accessibility
  */
 export const focusClasses = {
-  default: 'focus-visible:ring-2 focus-visible:ring-brand-cyan focus-visible:ring-offset-2 rounded-md',
-  button: 'focus-visible:ring-2 focus-visible:ring-brand-cyan focus-visible:ring-offset-2',
+  default: 'focus-visible:ring-2 focus-visible:ring-brand-cyan-darker focus-visible:ring-offset-2 rounded-md',
+  button: 'focus-visible:ring-2 focus-visible:ring-brand-cyan-darker focus-visible:ring-offset-2',
 } as const;
 
 /**

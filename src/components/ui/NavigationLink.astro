@@ -9,7 +9,7 @@ interface Props {
 const { href, label, isPrimary = false, isMobile = false } = Astro.props;
 
 // Base link classes for non-primary links
-const baseLinkClasses = "font-primary font-medium text-brand-navy dark:text-white hover:text-brand-cyan-darker dark:hover:text-brand-cyan transition-colors duration-fast focus-visible:ring-2 focus-visible:ring-brand-cyan focus-visible:ring-offset-2 rounded-md";
+const baseLinkClasses = "font-primary font-medium text-brand-navy dark:text-white hover:text-brand-cyan-darker dark:hover:text-brand-cyan transition-colors duration-fast focus-visible:ring-2 focus-visible:ring-brand-cyan-darker focus-visible:ring-offset-2 rounded-md";
 const mobileBaseClasses = `${baseLinkClasses} block px-2 py-3`;
 const desktopBaseClasses = `${baseLinkClasses} px-2 py-1`;
 
