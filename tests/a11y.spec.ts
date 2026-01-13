@@ -15,6 +15,7 @@ const PAGES_TO_TEST = [
   { path: '/', name: 'Landing page' },
   { path: '/okr-sjekken', name: 'OKR-sjekken' },
   { path: '/konseptspeilet', name: 'Konseptspeilet' },
+  { path: '/personvern', name: 'Personvern' },
 ];
 
 // Test each page for accessibility violations
