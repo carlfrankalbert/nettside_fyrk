@@ -74,7 +74,7 @@ function FeedbackButtons({ isStreaming }: { isStreaming: boolean }) {
   if (feedbackGiven) {
     return (
       <div className="pt-4 border-t border-neutral-200">
-        <p className="text-sm text-neutral-500 text-center">
+        <p className="text-sm text-neutral-500">
           Takk for tilbakemeldingen!
         </p>
       </div>
@@ -83,7 +83,7 @@ function FeedbackButtons({ isStreaming }: { isStreaming: boolean }) {
 
   return (
     <div className="pt-4 border-t border-neutral-200">
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex items-center gap-4">
         <span className="text-sm text-neutral-600">Var dette nyttig?</span>
         <div className="flex gap-2">
           <button
@@ -584,31 +584,6 @@ export default function KonseptSpeilResultDisplayV2({
         <FeedbackButtons isStreaming={isStreaming} />
       )}
 
-      {/* Natural transition to human dialogue - discrete, non-salesy */}
-      {!isStreaming && parsed.isComplete && (
-        <section className="p-5 bg-neutral-50 border border-neutral-200 rounded-xl">
-          <h3 className="text-base font-semibold text-brand-navy mb-2">
-            Vil du utforske dette videre med et menneskelig blikk?
-          </h3>
-          <p className="text-sm text-neutral-600 mb-4 leading-relaxed">
-            Hvis speilet traff noe viktig, kan FYRK bidra med å sortere videre – helt uforpliktende.
-            Ingen pitch, bare faglig sparring på ideen eller beslutningen du står i.
-          </p>
-          <a
-            href="mailto:hei@fyrk.no?subject=Oppfølging fra Konseptspeilet"
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-brand-navy bg-white hover:bg-brand-navy hover:text-white border-2 border-brand-navy rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-            Be om et ekstra blikk
-          </a>
-          <p className="text-xs text-neutral-500 mt-3">
-            Uforpliktende · Kort samtale · Ingen salgspress
-          </p>
-        </section>
-      )}
-
       {/* Action buttons - responsive grid */}
       {!isStreaming && (
         <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3 pt-2">
@@ -616,9 +591,12 @@ export default function KonseptSpeilResultDisplayV2({
             <button
               type="button"
               onClick={onEdit}
-              className="col-span-2 sm:col-span-1 inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-white bg-brand-navy hover:bg-brand-navy/90 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
+              className="col-span-2 sm:col-span-1 inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-brand-navy hover:bg-brand-navy/90 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
             >
-              Juster tekst
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Rediger
             </button>
           )}
           {parsed.isComplete && (
@@ -640,12 +618,33 @@ export default function KonseptSpeilResultDisplayV2({
             <button
               type="button"
               onClick={onReset}
-              className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
+              className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-neutral-500 hover:text-neutral-700 underline underline-offset-2 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded"
             >
               Start på nytt
             </button>
           )}
         </div>
+      )}
+
+      {/* Natural transition to human dialogue - after actions */}
+      {!isStreaming && parsed.isComplete && (
+        <section className="p-5 bg-neutral-50 border border-neutral-200 rounded-xl">
+          <h3 className="text-base font-semibold text-brand-navy mb-2">
+            Vil du utforske dette videre?
+          </h3>
+          <p className="text-sm text-neutral-600 mb-4 leading-relaxed">
+            FYRK kan bidra med faglig sparring på ideen – ingen pitch, bare et ekstra blikk.
+          </p>
+          <a
+            href="mailto:hei@fyrk.no?subject=Oppfølging fra Konseptspeilet"
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-brand-navy bg-white hover:bg-brand-navy hover:text-white border-2 border-brand-navy rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            Ta kontakt
+          </a>
+        </section>
       )}
 
       {/* Streaming indicator */}
