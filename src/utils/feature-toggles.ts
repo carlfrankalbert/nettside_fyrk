@@ -41,6 +41,12 @@ export const DEFAULT_FEATURES: FeatureToggle[] = [
     description: 'Refleksjonsverktøy for produktkonsepter – hjelper brukere å se antakelser og modenhet i idéer',
     status: 'beta',
   },
+  {
+    id: 'antakelseskart',
+    name: 'Antakelseskartet',
+    description: 'Avdekker implisitte antakelser i produkt- og strategibeslutninger',
+    status: 'beta',
+  },
 ];
 
 /**

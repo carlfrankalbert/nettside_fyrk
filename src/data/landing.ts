@@ -131,6 +131,14 @@ export const toolsContent = {
       featureId: 'konseptspeilet',
       isBeta: true,
     },
+    {
+      title: 'Antakelseskartet',
+      description: 'Avdekker implisitte antakelser i produkt- og strategibeslutninger. Hjelper deg identifisere hva som bør testes først.',
+      href: PAGE_ROUTES.ANTAKELSESKART,
+      buttonText: 'Prøv antakelseskartet',
+      featureId: 'antakelseskart',
+      isBeta: true,
+    },
   ] as ToolDefinition[],
   comingSoonText: 'Flere verktøy er på vei. Følg med.',
 } as const;

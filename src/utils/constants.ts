@@ -65,6 +65,7 @@ export const PAGE_ROUTES = {
   HOME: '/',
   OKR_REVIEWER: '/okr-sjekken',
   KONSEPTSPEIL: '/konseptspeilet',
+  ANTAKELSESKART: '/antakelseskart',
   SPLASH: '/splash',
 } as const;
 

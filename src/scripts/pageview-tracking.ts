@@ -7,7 +7,7 @@ import { shouldExcludeFromTracking } from './tracking-exclusion';
 import { signRequest } from '../utils/request-signing';
 import { fetchWithRetryFireAndForget } from '../utils/fetch-retry';
 
-type PageId = 'home' | 'okr' | 'konseptspeil';
+type PageId = 'home' | 'okr' | 'konseptspeil' | 'antakelseskart';
 
 /**
  * Track a page view (fire and forget with retry)

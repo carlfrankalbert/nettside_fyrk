@@ -1,0 +1,155 @@
+---
+import MinimalLayout from '../layouts/MinimalLayout.astro';
+import AntakelseskartComponent from '../components/Antakelseskart';
+
+export const prerender = false;
+---
+
+<MinimalLayout
+  title="Avdekk skjulte antakelser i produktbeslutninger"
+  description="Gratis verktøy som gjør implisitte antakelser eksplisitte. Identifiser risiko og blindsoner i produkt- og strategibeslutninger."
+  toolName="Antakelseskartet"
+>
+  <main id="main-content" class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
+    <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-8 md:py-12 w-full pb-24 md:pb-12">
+
+      <!-- Hero: Clear value proposition -->
+      <header class="mb-8" id="skriv">
+        <h1 class="text-h3 md:text-h2 font-semibold text-brand-navy mb-3 leading-tight">
+          Finn antakelsene du ikke visste du hadde
+        </h1>
+        <p class="text-base text-neutral-600 leading-relaxed mb-4">
+          Beskriv en beslutning. AI-en avdekker de implisitte antakelsene som ligger til grunn - og hjelper deg å prioritere hva du bør teste.
+        </p>
+
+        <p class="text-xs text-neutral-500">
+          Ingen registrering · Ingen scoring · Bare klarhet
+        </p>
+      </header>
+
+      <!-- When to use this? -->
+      <section class="mb-8 p-4 bg-white border border-neutral-200 rounded-xl">
+        <h2 class="text-base font-semibold text-brand-navy mb-3">Når bør du bruke dette?</h2>
+        <ul class="text-neutral-600 space-y-2 text-sm">
+          <li class="flex items-start gap-2">
+            <span class="text-brand-cyan-darker shrink-0">•</span>
+            <span>Før du forplikter deg til en større produkt- eller strategibeslutning</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-brand-cyan-darker shrink-0">•</span>
+            <span>Når teamet diskuterer, men snakker forbi hverandre</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-brand-cyan-darker shrink-0">•</span>
+            <span>I strategimøter for å synliggjøre hva som tas for gitt</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-brand-cyan-darker shrink-0">•</span>
+            <span>Når du vil finne ut hva som faktisk bør testes</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- What you get back -->
+      <section class="mb-8 p-4 bg-feedback-success-light border border-feedback-success/30 rounded-xl">
+        <h2 class="text-base font-semibold text-brand-navy mb-3">Hva får du tilbake?</h2>
+        <ul class="text-neutral-700 space-y-2 text-sm">
+          <li class="flex items-start gap-2">
+            <span class="text-feedback-success shrink-0">✓</span>
+            <span>8-15 implisitte antakelser gruppert i fire kategorier</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-feedback-success shrink-0">✓</span>
+            <span>Mulighet til å vurdere sikkerhet og konsekvens for hver antakelse</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-feedback-success shrink-0">✓</span>
+            <span>Automatisk markering av kritiske antakelser (lav sikkerhet + høy konsekvens)</span>
+          </li>
+        </ul>
+        <p class="text-sm text-neutral-500 italic mt-4">
+          Ingen råd. Ingen fasit. Bare synliggjøring av det som er tatt for gitt.
+        </p>
+      </section>
+
+      <!-- Dynamic content (input, CTA, result) -->
+      <div class="mt-8">
+        <AntakelseskartComponent client:load />
+      </div>
+
+    </div>
+
+    <footer class="py-6 border-t border-neutral-200 text-center text-sm text-neutral-500">
+      <p>Laget av <a href="https://fyrk.no" class="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 font-medium focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded">FYRK</a> · Drevet av <a href="https://www.anthropic.com/claude" target="_blank" rel="noopener noreferrer" class="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 font-medium focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded">Claude</a> · <a href="/personvern" class="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 font-medium focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded">Personvern</a></p>
+    </footer>
+  </main>
+
+  <!-- Mobile sticky bottom bar -->
+  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-neutral-200 px-4 py-3 safe-area-inset-bottom" id="mobile-cta-bar">
+    <button
+      type="button"
+      id="mobile-submit-btn"
+      class="w-full inline-flex items-center justify-center px-6 py-3.5 text-base font-semibold text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 disabled:bg-neutral-200 disabled:text-neutral-400 disabled:cursor-not-allowed transition-all"
+      disabled
+    >
+      <span>Avdekk antakelser</span>
+    </button>
+  </div>
+
+  <script>
+    import { initPageViewTracking } from '../scripts/pageview-tracking';
+    import { initTrackingHelpers } from '../scripts/tracking-exclusion';
+    initPageViewTracking('antakelseskart');
+    initTrackingHelpers();
+
+    // Sync mobile CTA with main form
+    const mobileBtn = document.getElementById('mobile-submit-btn') as HTMLButtonElement | null;
+    const mobileCTABar = document.getElementById('mobile-cta-bar');
+
+    if (mobileBtn && mobileCTABar) {
+      // Listen for custom events from React component
+      window.addEventListener('antakelseskart:inputChange', ((e: CustomEvent) => {
+        const { length, isLoading, hasResult } = e.detail;
+        mobileBtn.disabled = isLoading || length < 50;
+
+        // Hide bar when result is shown
+        if (hasResult) {
+          mobileCTABar.classList.add('translate-y-full');
+        } else {
+          mobileCTABar.classList.remove('translate-y-full');
+        }
+
+        // Update button text for loading state
+        if (isLoading) {
+          mobileBtn.innerHTML = `
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Avdekker antakelser...</span>
+          `;
+        } else {
+          mobileBtn.innerHTML = `<span>Avdekk antakelser</span>`;
+        }
+      }) as EventListener);
+
+      // Forward click to main form
+      mobileBtn.addEventListener('click', () => {
+        window.dispatchEvent(new CustomEvent('antakelseskart:submit'));
+      });
+    }
+
+  </script>
+
+  <style>
+    /* Safe area for mobile devices with home indicator */
+    .safe-area-inset-bottom {
+      padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    }
+
+    /* Smooth transition for mobile bar */
+    #mobile-cta-bar {
+      transition: transform 0.3s ease-out;
+    }
+  </style>
+</MinimalLayout>
