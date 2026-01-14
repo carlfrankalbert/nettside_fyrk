@@ -7,7 +7,7 @@ import '../styles/global.css';
 import SEOHead from '../components/seo/SEOHead.astro';
 import LandingHeader from '../components/landing/LandingHeader.astro';
 import LandingFooter from '../components/landing/LandingFooter.astro';
-import { navLinks, footerContent } from '../data/landing';
+import { footerContent } from '../data/landing';
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
@@ -25,7 +25,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   <body class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
     <a href="#main-content" class="skip-link">Hopp til hovedinnhold</a>
 
-    <LandingHeader navLinks={navLinks} />
+    <LandingHeader navLinks={[]} />
 
     <main id="main-content" class="flex-1 pt-24 pb-8">
       <!-- Hero section for page title -->
@@ -111,10 +111,5 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     </main>
 
     <LandingFooter {...footerContent} />
-
-    <script>
-      import { initMobileMenu } from '../scripts/mobile-menu';
-      initMobileMenu({ updateIcon: false });
-    </script>
   </body>
 </html>

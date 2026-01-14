@@ -24,36 +24,40 @@ const { navLinks } = Astro.props;
       <LandingLogo />
     </a>
 
-    <div class="hidden md:flex items-center gap-8">
-      {navLinks.map((link) => (
-        <a href={link.href} class="text-neutral-700 hover:text-brand-navy no-underline font-medium transition-colors">
-          {link.label}
-        </a>
-      ))}
-    </div>
+    {navLinks.length > 0 && (
+      <div class="hidden md:flex items-center gap-8">
+        {navLinks.map((link) => (
+          <a href={link.href} class="text-neutral-700 hover:text-brand-navy no-underline font-medium transition-colors">
+            {link.label}
+          </a>
+        ))}
+      </div>
+    )}
 
-    <!-- Mobile menu button -->
-    <button
-      id={ELEMENT_IDS.MOBILE_MENU_BUTTON}
-      class="md:hidden p-3 min-h-[48px] min-w-[48px] flex items-center justify-center text-neutral-700"
-      aria-label="Åpne meny"
-      aria-expanded="false"
-      aria-controls={ELEMENT_IDS.MOBILE_MENU}
-    >
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-      </svg>
-    </button>
+    {navLinks.length > 0 && (
+      <button
+        id={ELEMENT_IDS.MOBILE_MENU_BUTTON}
+        class="md:hidden p-3 min-h-[48px] min-w-[48px] flex items-center justify-center text-neutral-700"
+        aria-label="Åpne meny"
+        aria-expanded="false"
+        aria-controls={ELEMENT_IDS.MOBILE_MENU}
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+    )}
   </nav>
 
-  <!-- Mobile menu -->
-  <div id={ELEMENT_IDS.MOBILE_MENU} class="hidden md:hidden border-t border-neutral-200 bg-white">
-    <div class="px-6 py-4 space-y-4">
-      {navLinks.map((link) => (
-        <a href={link.href} class="block text-neutral-700 hover:text-brand-navy no-underline font-medium">
-          {link.label}
-        </a>
-      ))}
+  {navLinks.length > 0 && (
+    <div id={ELEMENT_IDS.MOBILE_MENU} class="hidden md:hidden border-t border-neutral-200 bg-white">
+      <div class="px-6 py-4 space-y-4">
+        {navLinks.map((link) => (
+          <a href={link.href} class="block text-neutral-700 hover:text-brand-navy no-underline font-medium">
+            {link.label}
+          </a>
+        ))}
+      </div>
     </div>
-  </div>
+  )}
 </header>
