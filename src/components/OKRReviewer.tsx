@@ -403,13 +403,13 @@ Key Results:
         {result && (
           <div className="mt-8 p-6 bg-white border-2 border-neutral-200 rounded-lg shadow-sm">
             <OKRResultDisplay result={result} isStreaming={isStreaming} />
-            {/* Mobile: Show reset button inside result area */}
+            {/* Reset button */}
             {!loading && (
-              <div className="mt-6 pt-6 border-t border-neutral-200 md:hidden">
+              <div className="mt-6 pt-6 border-t border-neutral-200">
                 <button
                   type="button"
                   onClick={handleClearResult}
-                  className="w-full inline-flex items-center justify-center px-4 py-3 text-base font-semibold text-neutral-700 bg-neutral-100 hover:bg-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
+                  className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
                 >
                   Start på nytt
                 </button>

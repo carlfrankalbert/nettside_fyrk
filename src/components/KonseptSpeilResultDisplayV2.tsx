@@ -374,26 +374,6 @@ function generateFullAnalysisMarkdown(parsed: ParsedKonseptSpeilResultV2): strin
   return markdown;
 }
 
-function generateShareText(antagelser: string[]): string {
-  const maxItems = 7;
-  const displayItems = antagelser.slice(0, maxItems);
-  const remaining = antagelser.length - maxItems;
-
-  let text = `Jeg kjørte dette gjennom Konseptspeilet.\n\nAntagelser i teksten:\n`;
-
-  for (const item of displayItems) {
-    text += `– ${item}\n`;
-  }
-
-  if (remaining > 0) {
-    text += `(+${remaining} flere)\n`;
-  }
-
-  text += `\nfyrk.no/konseptspeilet`;
-
-  return text;
-}
-
 // ============================================================================
 // Main Component
 // ============================================================================
@@ -594,49 +574,9 @@ export default function KonseptSpeilResultDisplayV2({
                 ))}
               </ul>
 
-              {/* Share with colleague button */}
-              <button
-                type="button"
-                onClick={() => {
-                  trackClick('konseptspeil_share_colleague');
-                  copyToClipboard(generateShareText(parsed.antagelserListe), 'Kopiert til utklippstavle!');
-                }}
-                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 hover:bg-neutral-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                </svg>
-                Del funn med kollega
-              </button>
             </div>
           )}
         </section>
-      )}
-
-      {/* Copy full analysis button */}
-      {!isStreaming && parsed.isComplete && (
-        <button
-          type="button"
-          onClick={() => {
-            trackClick('konseptspeil_copy_analysis');
-            copyToClipboard(generateFullAnalysisMarkdown(parsed), 'Hele analysen kopiert!');
-          }}
-          className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-neutral-600 bg-neutral-50 hover:bg-neutral-100 border border-neutral-200 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-          </svg>
-          Kopier hele analysen
-        </button>
-      )}
-
-      {/* Closing reflection - calm, non-prescriptive */}
-      {!isStreaming && parsed.isComplete && (
-        <div className="pt-4 border-t border-neutral-200">
-          <p className="text-sm text-neutral-500 italic text-center leading-relaxed">
-            Ta deg tid til å sitte med dette. Det er ingen hastverk.
-          </p>
-        </div>
       )}
 
       {/* Feedback buttons */}
@@ -644,16 +584,31 @@ export default function KonseptSpeilResultDisplayV2({
         <FeedbackButtons isStreaming={isStreaming} />
       )}
 
-      {/* Action buttons */}
+      {/* Action buttons - responsive grid */}
       {!isStreaming && (
-        <div className="flex flex-wrap gap-3 pt-2">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3 pt-2">
           {onEdit && (
             <button
               type="button"
               onClick={onEdit}
-              className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-white bg-brand-navy hover:bg-brand-navy/90 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
+              className="col-span-2 sm:col-span-1 inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-white bg-brand-navy hover:bg-brand-navy/90 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
             >
               Juster tekst
+            </button>
+          )}
+          {parsed.isComplete && (
+            <button
+              type="button"
+              onClick={() => {
+                trackClick('konseptspeil_copy_analysis');
+                copyToClipboard(generateFullAnalysisMarkdown(parsed), 'Kopiert!');
+              }}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              Kopier
             </button>
           )}
           {onReset && (
@@ -662,7 +617,7 @@ export default function KonseptSpeilResultDisplayV2({
               onClick={onReset}
               className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
             >
-              Nullstill
+              Start på nytt
             </button>
           )}
         </div>
