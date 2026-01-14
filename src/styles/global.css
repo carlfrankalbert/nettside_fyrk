@@ -80,15 +80,15 @@
   }
   
   .btn-primary {
-    @apply bg-brand-navy text-white hover:bg-brand-navy/90 active:bg-brand-navy/95;
+    @apply bg-brand-navy text-white hover:bg-brand-navy/90 active:bg-brand-navy/95 visited:text-white;
   }
-  
+
   .btn-secondary {
-    @apply bg-brand-cyan-darker text-white hover:bg-brand-cyan-dark active:bg-brand-cyan-darker;
+    @apply bg-brand-cyan-darker text-white hover:bg-brand-cyan-dark active:bg-brand-cyan-darker visited:text-white;
   }
-  
+
   .btn-outline {
-    @apply border-2 border-brand-navy dark:border-brand-cyan-darker text-brand-navy dark:text-brand-cyan-darker bg-transparent hover:bg-brand-navy dark:hover:bg-brand-cyan-darker hover:text-white transition-colors duration-normal;
+    @apply border-2 border-brand-navy dark:border-brand-cyan-darker text-brand-navy dark:text-brand-cyan-darker bg-transparent hover:bg-brand-navy dark:hover:bg-brand-cyan-darker hover:text-white visited:text-brand-navy dark:visited:text-brand-cyan-darker transition-colors duration-normal;
   }
   
   .card {
