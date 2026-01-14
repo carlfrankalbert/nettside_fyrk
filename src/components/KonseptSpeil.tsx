@@ -391,7 +391,10 @@ export default function KonseptSpeil() {
   const handleFillShortExample = () => {
     trackClick('konseptspeil_example');
     setIsExampleAnimating(true);
-    const shortExample = 'Vi vil lage en ny onboarding-flow som øker aktivering.';
+    const shortExample = `Vi vurderer å bygge et enkelt refleksjonsverktøy for produktteam.
+Tanken er at det skal brukes tidlig i en beslutningsprosess for å avdekke uklarheter før man forplikter seg.
+Målgruppen er erfarne produktledere, men vi er usikre på om dette løser et reelt problem eller bare føles nyttig.
+Hvis dette ikke gir tydelig verdi, bør vi sannsynligvis ikke bygge det videre.`;
     setInput(shortExample);
     setError(null);
 
@@ -414,11 +417,13 @@ export default function KonseptSpeil() {
       {!input && !loading && !result && (
         <section className="p-4 bg-neutral-100 border border-neutral-200 rounded-xl">
           <p className="text-sm text-neutral-600 mb-2">
-            <span className="font-medium">Eksempel (typisk fra et produktteam):</span>{' '}
-            <span className="italic">"Vi vil lage en ny onboarding-flow som øker aktivering."</span>
+            <span className="font-medium">Eksempel (typisk fra et produktteam):</span>
+          </p>
+          <p className="text-sm text-neutral-600 italic mb-3 leading-relaxed">
+            "Vi vurderer å bygge et enkelt refleksjonsverktøy for produktteam. Tanken er at det skal brukes tidlig i en beslutningsprosess..."
           </p>
           <p className="text-xs text-neutral-500 mb-3">
-            Speilet vil typisk vise: uklar målgruppe, antatt effekt uten KPI, uavklart brukssituasjon og skjulte antakelser om beslutningsprosess.
+            Speilet vil typisk vise: uklar målgruppe, antatt effekt uten KPI, uavklart brukssituasjon og skjulte antakelser.
           </p>
           <button
             type="button"
