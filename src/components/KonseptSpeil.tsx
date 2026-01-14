@@ -214,7 +214,7 @@ export default function KonseptSpeil() {
 
         // Track successful completion
         const processingTimeMs = Date.now() - checkStartTimeRef.current;
-        logEvent('check_success', {
+        logEvent('konseptspeil_success', {
           charCount: input.trim().length,
           processingTimeMs,
         });

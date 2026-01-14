@@ -23,6 +23,7 @@ const MAX_UNIQUE_VISITORS_PER_DAY = 10000;
 export const TRACKED_PAGES = {
   home: { key: 'pageviews_home', label: 'fyrk.no' },
   okr: { key: 'pageviews_okr', label: 'fyrk.no/okr-sjekken' },
+  konseptspeil: { key: 'pageviews_konseptspeil', label: 'fyrk.no/konseptspeilet' },
 } as const;
 
 export type PageId = keyof typeof TRACKED_PAGES;
@@ -304,7 +305,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
 
     // Default: return all stats
     return new Response(
-      JSON.stringify({ message: 'Use ?all=true or ?pageId=home|okr' }),
+      JSON.stringify({ message: 'Use ?all=true or ?pageId=home|okr|konseptspeil' }),
       { status: 200, headers: API_HEADERS }
     );
   } catch (error) {

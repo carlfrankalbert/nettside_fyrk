@@ -28,9 +28,24 @@ export const TRACKED_BUTTONS = {
   feedback_up: { key: 'okr_feedback_up', label: 'Tilbakemelding: Nyttig' },
   feedback_down: { key: 'okr_feedback_down', label: 'Tilbakemelding: Ikke nyttig' },
 
+  // Konseptspeilet page buttons
+  konseptspeil_submit: { key: 'konseptspeil_submit_clicks', label: 'Avdekk antagelser' },
+  konseptspeil_example: { key: 'konseptspeil_example_clicks', label: 'Prøv med eksempel' },
+  konseptspeil_edit: { key: 'konseptspeil_edit_clicks', label: 'Rediger' },
+  konseptspeil_reset: { key: 'konseptspeil_reset_clicks', label: 'Nullstill' },
+  konseptspeil_input_started: { key: 'konseptspeil_input_started', label: 'Startet å skrive' },
+  konseptspeil_privacy_toggle: { key: 'konseptspeil_privacy_toggle_clicks', label: 'Les mer om AI og personvern' },
+  konseptspeil_share_colleague: { key: 'konseptspeil_share_colleague_clicks', label: 'Del med kollega' },
+  konseptspeil_copy_analysis: { key: 'konseptspeil_copy_analysis_clicks', label: 'Kopier analyse' },
+
+  // Konseptspeilet funnel events
+  konseptspeil_success: { key: 'konseptspeil_success', label: 'Konseptspeil fullført' },
+  konseptspeil_error: { key: 'konseptspeil_error', label: 'Konseptspeil feil' },
+
   // Landing page buttons
   hero_cta: { key: 'hero_cta_clicks', label: 'Kontakt FYRK (hero)' },
   tools_okr_cta: { key: 'tools_okr_cta_clicks', label: 'Prøv OKR-sjekken' },
+  tools_konseptspeilet_cta: { key: 'tools_konseptspeilet_cta_clicks', label: 'Prøv konseptspeilet' },
   contact_email: { key: 'contact_email_clicks', label: 'E-post (kontakt)' },
   contact_linkedin: { key: 'contact_linkedin_clicks', label: 'LinkedIn (kontakt)' },
   about_linkedin: { key: 'about_linkedin_clicks', label: 'Se komplett CV på LinkedIn' },

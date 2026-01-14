@@ -1,4 +1,4 @@
-import { MousePointer, Eye, Zap, BarChart3, ExternalLink, Sparkles, ThumbsUp, Activity } from 'lucide-react';
+import { MousePointer, Eye, Zap, BarChart3, ExternalLink, Sparkles, ThumbsUp, Activity, Lightbulb } from 'lucide-react';
 import { KPICard } from './KPICard';
 import { TrafficChart } from './TrafficChart';
 import { ButtonClickList } from './ButtonClickList';
@@ -23,8 +23,10 @@ interface AnalyticsDashboardProps {
 }
 
 const OKR_BUTTONS = ['okr_submit', 'okr_example', 'okr_reset', 'okr_privacy_toggle', 'okr_copy_suggestion', 'okr_read_more'];
-const LANDING_BUTTONS = ['hero_cta', 'tools_okr_cta', 'contact_email', 'contact_linkedin', 'about_linkedin'];
-const FUNNEL_EVENTS = ['check_success', 'feedback_up', 'feedback_down'];
+const KONSEPTSPEIL_BUTTONS = ['konseptspeil_submit', 'konseptspeil_example', 'konseptspeil_edit', 'konseptspeil_reset', 'konseptspeil_privacy_toggle', 'konseptspeil_share_colleague', 'konseptspeil_copy_analysis'];
+const LANDING_BUTTONS = ['hero_cta', 'tools_okr_cta', 'tools_konseptspeilet_cta', 'contact_email', 'contact_linkedin', 'about_linkedin'];
+const OKR_FUNNEL_EVENTS = ['check_success', 'feedback_up', 'feedback_down'];
+const KONSEPTSPEIL_FUNNEL_EVENTS = ['konseptspeil_success', 'konseptspeil_error'];
 
 export function AnalyticsDashboard({ buttonCounts, pageStats, totalClicks, refreshToken }: AnalyticsDashboardProps) {
   const totalViews = Object.values(pageStats).reduce((sum, p) => sum + p.totalViews, 0);
@@ -37,13 +39,25 @@ export function AnalyticsDashboard({ buttonCounts, pageStats, totalClicks, refre
     count: buttonCounts[id]?.count || 0,
   }));
 
+  const konseptspeilButtonData = KONSEPTSPEIL_BUTTONS.map(id => ({
+    id,
+    label: buttonCounts[id]?.label || id,
+    count: buttonCounts[id]?.count || 0,
+  }));
+
   const landingButtonData = LANDING_BUTTONS.map(id => ({
     id,
     label: buttonCounts[id]?.label || id,
     count: buttonCounts[id]?.count || 0,
   }));
 
-  const funnelData = FUNNEL_EVENTS.map(id => ({
+  const okrFunnelData = OKR_FUNNEL_EVENTS.map(id => ({
+    id,
+    label: buttonCounts[id]?.label || id,
+    count: buttonCounts[id]?.count || 0,
+  }));
+
+  const konseptspeilFunnelData = KONSEPTSPEIL_FUNNEL_EVENTS.map(id => ({
     id,
     label: buttonCounts[id]?.label || id,
     count: buttonCounts[id]?.count || 0,
@@ -137,11 +151,16 @@ export function AnalyticsDashboard({ buttonCounts, pageStats, totalClicks, refre
             <MousePointer className="w-5 h-5 text-slate-400" />
             Knappeklikk
           </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <ButtonClickList
               title="OKR-sjekken"
               buttons={okrButtonData}
               icon={<Zap className="w-5 h-5" />}
+            />
+            <ButtonClickList
+              title="Konseptspeilet"
+              buttons={konseptspeilButtonData}
+              icon={<Lightbulb className="w-5 h-5" />}
             />
             <ButtonClickList
               title="Landingsside"
@@ -160,8 +179,13 @@ export function AnalyticsDashboard({ buttonCounts, pageStats, totalClicks, refre
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <ButtonClickList
               title="OKR-sjekk funnel"
-              buttons={funnelData}
+              buttons={okrFunnelData}
               icon={<ThumbsUp className="w-5 h-5" />}
+            />
+            <ButtonClickList
+              title="Konseptspeilet funnel"
+              buttons={konseptspeilFunnelData}
+              icon={<Lightbulb className="w-5 h-5" />}
             />
           </div>
         </section>
