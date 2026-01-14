@@ -55,6 +55,80 @@ function Toast({ message, isVisible }: { message: string; isVisible: boolean }) 
 }
 
 // ============================================================================
+// Feedback Buttons Component
+// ============================================================================
+
+function FeedbackButtons({ isStreaming }: { isStreaming: boolean }) {
+  const [feedbackGiven, setFeedbackGiven] = useState<'up' | 'down' | null>(null);
+
+  if (isStreaming) {
+    return null;
+  }
+
+  const handleFeedback = (type: 'up' | 'down') => {
+    if (feedbackGiven) return;
+    setFeedbackGiven(type);
+    trackClick(type === 'up' ? 'konseptspeil_feedback_up' : 'konseptspeil_feedback_down');
+  };
+
+  if (feedbackGiven) {
+    return (
+      <div className="pt-4 border-t border-neutral-200">
+        <p className="text-sm text-neutral-500 text-center">
+          Takk for tilbakemeldingen!
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="pt-4 border-t border-neutral-200">
+      <div className="flex items-center justify-center gap-4">
+        <span className="text-sm text-neutral-600">Var dette nyttig?</span>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => handleFeedback('up')}
+            className={cn(
+              'inline-flex items-center gap-1.5 px-3 py-1.5',
+              'text-sm font-medium text-neutral-600',
+              'bg-neutral-100 hover:bg-feedback-success/10 hover:text-feedback-success',
+              'rounded-lg border border-neutral-200 hover:border-feedback-success/30',
+              'transition-colors focus:outline-none',
+              'focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2'
+            )}
+            aria-label="Ja, dette var nyttig"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+            </svg>
+            Ja
+          </button>
+          <button
+            type="button"
+            onClick={() => handleFeedback('down')}
+            className={cn(
+              'inline-flex items-center gap-1.5 px-3 py-1.5',
+              'text-sm font-medium text-neutral-600',
+              'bg-neutral-100 hover:bg-feedback-error/10 hover:text-feedback-error',
+              'rounded-lg border border-neutral-200 hover:border-feedback-error/30',
+              'transition-colors focus:outline-none',
+              'focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2'
+            )}
+            aria-label="Nei, dette var ikke nyttig"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" />
+            </svg>
+            Nei
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
 // Copy Button Component
 // ============================================================================
 
@@ -563,6 +637,11 @@ export default function KonseptSpeilResultDisplayV2({
             Ta deg tid til å sitte med dette. Det er ingen hastverk.
           </p>
         </div>
+      )}
+
+      {/* Feedback buttons */}
+      {!isStreaming && parsed.isComplete && (
+        <FeedbackButtons isStreaming={isStreaming} />
       )}
 
       {/* Action buttons */}

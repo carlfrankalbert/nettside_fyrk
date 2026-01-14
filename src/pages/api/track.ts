@@ -41,6 +41,8 @@ export const TRACKED_BUTTONS = {
   // Konseptspeilet funnel events
   konseptspeil_success: { key: 'konseptspeil_success', label: 'Konseptspeil fullført' },
   konseptspeil_error: { key: 'konseptspeil_error', label: 'Konseptspeil feil' },
+  konseptspeil_feedback_up: { key: 'konseptspeil_feedback_up', label: 'Tilbakemelding: Nyttig' },
+  konseptspeil_feedback_down: { key: 'konseptspeil_feedback_down', label: 'Tilbakemelding: Ikke nyttig' },
 
   // Landing page buttons
   hero_cta: { key: 'hero_cta_clicks', label: 'Kontakt FYRK (hero)' },

@@ -26,7 +26,7 @@ const OKR_BUTTONS = ['okr_submit', 'okr_example', 'okr_reset', 'okr_privacy_togg
 const KONSEPTSPEIL_BUTTONS = ['konseptspeil_submit', 'konseptspeil_example', 'konseptspeil_edit', 'konseptspeil_reset', 'konseptspeil_privacy_toggle', 'konseptspeil_share_colleague', 'konseptspeil_copy_analysis'];
 const LANDING_BUTTONS = ['hero_cta', 'tools_okr_cta', 'tools_konseptspeilet_cta', 'contact_email', 'contact_linkedin', 'about_linkedin'];
 const OKR_FUNNEL_EVENTS = ['check_success', 'feedback_up', 'feedback_down'];
-const KONSEPTSPEIL_FUNNEL_EVENTS = ['konseptspeil_success', 'konseptspeil_error'];
+const KONSEPTSPEIL_FUNNEL_EVENTS = ['konseptspeil_success', 'konseptspeil_error', 'konseptspeil_feedback_up', 'konseptspeil_feedback_down'];
 
 export function AnalyticsDashboard({ buttonCounts, pageStats, totalClicks, refreshToken }: AnalyticsDashboardProps) {
   const totalViews = Object.values(pageStats).reduce((sum, p) => sum + p.totalViews, 0);
@@ -63,11 +63,17 @@ export function AnalyticsDashboard({ buttonCounts, pageStats, totalClicks, refre
     count: buttonCounts[id]?.count || 0,
   }));
 
-  // Calculate satisfaction rate
-  const feedbackUp = buttonCounts['feedback_up']?.count || 0;
-  const feedbackDown = buttonCounts['feedback_down']?.count || 0;
-  const totalFeedback = feedbackUp + feedbackDown;
-  const satisfactionRate = totalFeedback > 0 ? Math.round((feedbackUp / totalFeedback) * 100) : null;
+  // Calculate OKR satisfaction rate
+  const okrFeedbackUp = buttonCounts['feedback_up']?.count || 0;
+  const okrFeedbackDown = buttonCounts['feedback_down']?.count || 0;
+  const okrTotalFeedback = okrFeedbackUp + okrFeedbackDown;
+  const okrSatisfactionRate = okrTotalFeedback > 0 ? Math.round((okrFeedbackUp / okrTotalFeedback) * 100) : null;
+
+  // Calculate Konseptspeilet satisfaction rate
+  const ksFeedbackUp = buttonCounts['konseptspeil_feedback_up']?.count || 0;
+  const ksFeedbackDown = buttonCounts['konseptspeil_feedback_down']?.count || 0;
+  const ksTotalFeedback = ksFeedbackUp + ksFeedbackDown;
+  const ksSatisfactionRate = ksTotalFeedback > 0 ? Math.round((ksFeedbackUp / ksTotalFeedback) * 100) : null;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -120,13 +126,22 @@ export function AnalyticsDashboard({ buttonCounts, pageStats, totalClicks, refre
               value={todayVisitors}
               icon={<Sparkles className="w-5 h-5" />}
             />
-            {satisfactionRate !== null && (
+            {okrSatisfactionRate !== null && (
               <KPICard
-                title="Tilfredshet"
-                value={`${satisfactionRate}%`}
-                subtitle={`${totalFeedback} svar`}
+                title="OKR Tilfredshet"
+                value={`${okrSatisfactionRate}%`}
+                subtitle={`${okrTotalFeedback} svar`}
                 icon={<ThumbsUp className="w-5 h-5" />}
-                variant={satisfactionRate >= 70 ? 'success' : satisfactionRate >= 50 ? 'warning' : 'danger'}
+                variant={okrSatisfactionRate >= 70 ? 'success' : okrSatisfactionRate >= 50 ? 'warning' : 'danger'}
+              />
+            )}
+            {ksSatisfactionRate !== null && (
+              <KPICard
+                title="Konseptspeil Tilfredshet"
+                value={`${ksSatisfactionRate}%`}
+                subtitle={`${ksTotalFeedback} svar`}
+                icon={<Lightbulb className="w-5 h-5" />}
+                variant={ksSatisfactionRate >= 70 ? 'success' : ksSatisfactionRate >= 50 ? 'warning' : 'danger'}
               />
             )}
           </div>
