@@ -22,18 +22,22 @@ export const prerender = false;
           Beskriv en tidlig idé – og få et speil som viser hva som er antatt vs. hva som er gjort eksplisitt.
         </p>
 
-        <!-- Value proposition box - reframed for reflection -->
-        <div class="p-4 bg-white border border-neutral-200 rounded-xl space-y-2">
+        <p class="text-sm md:text-base text-neutral-500 italic mt-1">
+          Ment som støtte til refleksjon – ikke fasit.
+        </p>
+
+        <!-- Value proposition box - green checklist style -->
+        <div class="mt-6 p-4 bg-feedback-success-light border border-feedback-success/30 rounded-xl space-y-2">
           <div class="flex items-start gap-2 text-sm text-neutral-700">
-            <span class="text-neutral-400 shrink-0">•</span>
+            <span class="text-feedback-success shrink-0">✓</span>
             <span>Avdekker antagelser du kanskje ikke ser selv</span>
           </div>
           <div class="flex items-start gap-2 text-sm text-neutral-700">
-            <span class="text-neutral-400 shrink-0">•</span>
+            <span class="text-feedback-success shrink-0">✓</span>
             <span>Viser hull i beskrivelsen – ikke hull i ideen</span>
           </div>
           <div class="flex items-start gap-2 text-sm text-neutral-700">
-            <span class="text-neutral-400 shrink-0">•</span>
+            <span class="text-feedback-success shrink-0">✓</span>
             <span>Hjelper deg tenke høyt uten å bli evaluert</span>
           </div>
         </div>
@@ -98,9 +102,6 @@ export const prerender = false;
       disabled
     >
       <span>Avdekk antagelser</span>
-      <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-      </svg>
     </button>
   </div>
 
@@ -137,12 +138,7 @@ export const prerender = false;
             <span>Speiler tankene dine…</span>
           `;
         } else {
-          mobileBtn.innerHTML = `
-            <span>Avdekk antagelser</span>
-            <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-          `;
+          mobileBtn.innerHTML = `<span>Avdekk antagelser</span>`;
         }
       }) as EventListener);
 

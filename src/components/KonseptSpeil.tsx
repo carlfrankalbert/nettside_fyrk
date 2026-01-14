@@ -460,7 +460,7 @@ export default function KonseptSpeil() {
             )}>
               {input.length}
             </span>
-            <span> / {INPUT_VALIDATION.MAX_LENGTH}</span>
+            <span> / {INPUT_VALIDATION.MAX_LENGTH} tegn</span>
           </span>
         </div>
       </section>
@@ -489,12 +489,7 @@ export default function KonseptSpeil() {
                 <span>Speiler tankene dine…</span>
               </>
             ) : (
-              <>
-                <span>Avdekk antagelser</span>
-                <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </>
+              <span>Avdekk antagelser</span>
             )}
           </button>
 
