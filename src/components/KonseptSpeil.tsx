@@ -387,8 +387,49 @@ export default function KonseptSpeil() {
   // Render
   // ---------------------------------------------------------------------------
 
+  /** Fill with short example for quick demo */
+  const handleFillShortExample = () => {
+    trackClick('konseptspeil_example');
+    setIsExampleAnimating(true);
+    const shortExample = 'Vi vil lage en ny onboarding-flow som øker aktivering.';
+    setInput(shortExample);
+    setError(null);
+
+    setTimeout(() => {
+      const textarea = textareaRef.current;
+      if (textarea) {
+        textarea.focus();
+        textarea.setSelectionRange(shortExample.length, shortExample.length);
+      }
+    }, 50);
+
+    setTimeout(() => {
+      setIsExampleAnimating(false);
+    }, 600);
+  };
+
   return (
     <div className="space-y-6" aria-busy={loading}>
+      {/* Example section - helps reduce blank page syndrome */}
+      {!input && !loading && !result && (
+        <section className="p-4 bg-neutral-100 border border-neutral-200 rounded-xl">
+          <p className="text-sm text-neutral-600 mb-2">
+            <span className="font-medium">Eksempel (typisk fra et produktteam):</span>{' '}
+            <span className="italic">"Vi vil lage en ny onboarding-flow som øker aktivering."</span>
+          </p>
+          <p className="text-xs text-neutral-500 mb-3">
+            Speilet vil typisk vise: uklar målgruppe, antatt effekt uten KPI, uavklart brukssituasjon og skjulte antakelser om beslutningsprosess.
+          </p>
+          <button
+            type="button"
+            onClick={handleFillShortExample}
+            className="text-sm text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded transition-colors"
+          >
+            Prøv dette eksempelet →
+          </button>
+        </section>
+      )}
+
       {/* Input section */}
       <section>
         <div className="flex items-center justify-between mb-2">
@@ -401,7 +442,7 @@ export default function KonseptSpeil() {
               onClick={handleFillExample}
               className="text-sm text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded transition-colors"
             >
-              Prøv med eksempel
+              Lengre eksempel
             </button>
           )}
         </div>
@@ -489,7 +530,7 @@ export default function KonseptSpeil() {
                 <span>Speiler tankene dine…</span>
               </>
             ) : (
-              <span>Avdekk antagelser</span>
+              <span>Start speiling – det tar 1 min</span>
             )}
           </button>
 

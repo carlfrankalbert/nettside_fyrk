@@ -6,70 +6,81 @@ export const prerender = false;
 ---
 
 <MinimalLayout
-  title="Konseptspeilet | FYRK"
-  description="Test konseptet ditt før du bygger. Få et strukturert speil tilbake på 30 sekunder."
+  title="Test og forbedre produktidéer – avdekk antakelser tidlig"
+  description="Gratis verktøy for å teste og forbedre produktidéer. Avdekker skjulte antakelser og hull i tidlige konsepter – på 1 min, uten registrering."
   toolName="Konseptspeilet"
 >
   <main id="main-content" class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
     <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-8 md:py-12 w-full pb-24 md:pb-12">
 
-      <!-- Hero: Reframed to emphasize reflection, not assessment -->
+      <!-- Hero: Clear value proposition -->
       <header class="mb-8" id="skriv">
         <h1 class="text-h3 md:text-h2 font-semibold text-brand-navy mb-3 leading-tight">
-          Se hva du tar for gitt
+          Forstå ideen din bedre – før noen andre gjør det
         </h1>
-        <p class="text-base text-neutral-600 leading-relaxed mb-6">
-          Beskriv en tidlig idé – og få et speil som viser hva som er antatt vs. hva som er gjort eksplisitt.
+        <p class="text-base text-neutral-600 leading-relaxed mb-4">
+          Skriv inn ideen din. AI-en analyserer teksten og avslører blindsoner, manglende logikk og skjulte antakelser på sekunder.
         </p>
 
-        <p class="text-sm md:text-base text-neutral-500 italic mt-1">
-          Ment som støtte til refleksjon – ikke fasit.
+        <p class="text-xs text-neutral-500">
+          Ingen registrering · Ingen salg · Faktisk nyttig
         </p>
-
-        <!-- Value proposition box - green checklist style -->
-        <div class="mt-6 p-4 bg-feedback-success-light border border-feedback-success/30 rounded-xl space-y-2">
-          <div class="flex items-start gap-2 text-sm text-neutral-700">
-            <span class="text-feedback-success shrink-0">✓</span>
-            <span>Avdekker antagelser du kanskje ikke ser selv</span>
-          </div>
-          <div class="flex items-start gap-2 text-sm text-neutral-700">
-            <span class="text-feedback-success shrink-0">✓</span>
-            <span>Viser hull i beskrivelsen – ikke hull i ideen</span>
-          </div>
-          <div class="flex items-start gap-2 text-sm text-neutral-700">
-            <span class="text-feedback-success shrink-0">✓</span>
-            <span>Hjelper deg tenke høyt uten å bli evaluert</span>
-          </div>
-        </div>
 
       </header>
+
+      <!-- Når bør du bruke dette? -->
+      <section class="mb-8 p-4 bg-white border border-neutral-200 rounded-xl">
+        <h2 class="text-base font-semibold text-brand-navy mb-3">Når bør du bruke dette?</h2>
+        <ul class="text-neutral-600 space-y-2 text-sm">
+          <li class="flex items-start gap-2">
+            <span class="text-brand-cyan-darker shrink-0">•</span>
+            <span>Når du har en produktidé, men er usikker på om den holder</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-brand-cyan-darker shrink-0">•</span>
+            <span>Før du pitcher en idé internt eller eksternt</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-brand-cyan-darker shrink-0">•</span>
+            <span>I tidlig produkt discovery / konseptfase</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-brand-cyan-darker shrink-0">•</span>
+            <span>Når du vil få feedback uten møter, konsulenter eller bias</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Hva får du tilbake? -->
+      <section class="mb-8 p-4 bg-feedback-success-light border border-feedback-success/30 rounded-xl">
+        <h2 class="text-base font-semibold text-brand-navy mb-3">Hva får du tilbake?</h2>
+        <ul class="text-neutral-700 space-y-2 text-sm">
+          <li class="flex items-start gap-2">
+            <span class="text-feedback-success shrink-0">✓</span>
+            <span>Feedback på hva som er antatt vs eksplisitt formulert</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-feedback-success shrink-0">✓</span>
+            <span>Avdekking av typiske hull: målgruppe, verdi, effekt, KPI</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-feedback-success shrink-0">✓</span>
+            <span>Et bedre beslutningsgrunnlag før videre arbeid</span>
+          </li>
+        </ul>
+        <p class="text-sm text-neutral-500 italic mt-4">
+          Ingen scoring. Ingen fasit. Bare et ærlig speil.
+        </p>
+      </section>
 
       <!-- Dynamic content (input, CTA, result) -->
       <div class="mt-8">
         <KonseptSpeil client:load />
       </div>
 
-      <!-- Når er dette nyttig + Kontakt - matching OKR-sjekken style -->
+      <!-- Kontakt -->
       <section class="pt-6 border-t border-neutral-200">
-        <h2 class="text-lg font-semibold text-brand-navy mb-3">
-          Når er dette nyttig?
-        </h2>
-        <ul class="text-neutral-600 space-y-1.5 text-sm mb-6">
-          <li class="flex items-start gap-2">
-            <span class="text-neutral-500">•</span>
-            <span>Før du presenterer en idé, for å forstå hvilke spørsmål som kan komme</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-neutral-500">•</span>
-            <span>Når du vil tenke høyt i en tidlig fase uten å forplikte deg</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-neutral-500">•</span>
-            <span>Når du vil skille mellom det du faktisk vet og det du tror</span>
-          </li>
-        </ul>
-
-        <div class="flex flex-col sm:flex-row sm:items-center gap-3 pt-4 border-t border-neutral-100">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
           <span class="text-sm text-neutral-600">Vil du ha et menneskelig blikk i tillegg?</span>
           <a
             href="mailto:hei@fyrk.no"
@@ -101,7 +112,7 @@ export const prerender = false;
       class="w-full inline-flex items-center justify-center px-6 py-3.5 text-base font-semibold text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 disabled:bg-neutral-200 disabled:text-neutral-400 disabled:cursor-not-allowed transition-all"
       disabled
     >
-      <span>Avdekk antagelser</span>
+      <span>Start speiling</span>
     </button>
   </div>
 
@@ -138,7 +149,7 @@ export const prerender = false;
             <span>Speiler tankene dine…</span>
           `;
         } else {
-          mobileBtn.innerHTML = `<span>Avdekk antagelser</span>`;
+          mobileBtn.innerHTML = `<span>Start speiling</span>`;
         }
       }) as EventListener);
 
