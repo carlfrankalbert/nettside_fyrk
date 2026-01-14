@@ -68,13 +68,13 @@ const visibleTools = toolsContent.tools.filter((tool: ToolDefinition) => {
       type="website"
     />
   </head>
-  <body class="bg-neutral-50 text-neutral-700">
+  <body class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
     <!-- Skip link for accessibility -->
     <a href={`#${ELEMENT_IDS.MAIN}`} class="skip-link">Hopp til hovedinnhold</a>
 
     <LandingHeader navLinks={navLinks} />
 
-    <main id={ELEMENT_IDS.MAIN}>
+    <main id={ELEMENT_IDS.MAIN} class="flex-1">
       <HeroSection {...heroContent} />
 
       <SituationsSection
