@@ -3,6 +3,69 @@
  * Provides reusable validation functions with accessibility support
  */
 
+import { INPUT_VALIDATION } from './constants';
+
+// ============================================================================
+// Text Input Validation (for React components)
+// ============================================================================
+
+/**
+ * Generic text input validation
+ * Returns error message if invalid, null if valid
+ */
+export function validateTextInput(
+  input: string,
+  options: {
+    minLength?: number;
+    maxLength?: number;
+    minLengthMessage?: string;
+    maxLengthMessage?: string;
+  } = {}
+): string | null {
+  const {
+    minLength = INPUT_VALIDATION.MIN_LENGTH,
+    maxLength = INPUT_VALIDATION.MAX_LENGTH,
+    minLengthMessage = `Teksten må være minst ${minLength} tegn.`,
+    maxLengthMessage = `Teksten kan ikke være lengre enn ${maxLength} tegn.`,
+  } = options;
+
+  const trimmedInput = input.trim();
+
+  if (trimmedInput.length < minLength) {
+    return minLengthMessage;
+  }
+
+  if (trimmedInput.length > maxLength) {
+    return maxLengthMessage;
+  }
+
+  return null;
+}
+
+/**
+ * Validate konsept input for Konseptspeilet
+ */
+export function validateKonseptInput(input: string): string | null {
+  return validateTextInput(input, {
+    minLengthMessage: `Beskriv konseptet med minst ${INPUT_VALIDATION.MIN_LENGTH} tegn for å få en god refleksjon.`,
+    maxLengthMessage: `Konseptbeskrivelsen kan ikke være lengre enn ${INPUT_VALIDATION.MAX_LENGTH} tegn.`,
+  });
+}
+
+/**
+ * Validate decision input for Antakelseskart
+ */
+export function validateBeslutningInput(input: string): string | null {
+  return validateTextInput(input, {
+    minLengthMessage: `Beskriv beslutningen med minst ${INPUT_VALIDATION.MIN_LENGTH} tegn for å få gode antakelser.`,
+    maxLengthMessage: `Beslutningsbeskrivelsen kan ikke være lengre enn ${INPUT_VALIDATION.MAX_LENGTH} tegn.`,
+  });
+}
+
+// ============================================================================
+// DOM-based Form Validation (for Astro components)
+// ============================================================================
+
 export interface ValidationResult {
   isValid: boolean;
   errorMessage?: string;

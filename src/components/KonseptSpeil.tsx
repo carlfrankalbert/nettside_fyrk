@@ -3,58 +3,17 @@ import { speileKonseptStreaming, ERROR_MESSAGES, isValidOutput } from '../servic
 import KonseptSpeilResultDisplayV2 from './KonseptSpeilResultDisplayV2';
 import { SpinnerIcon, ChevronRightIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
-import { INPUT_VALIDATION, EXAMPLE_KONSEPT } from '../utils/constants';
+import { INPUT_VALIDATION, EXAMPLE_KONSEPT, STREAMING_CONSTANTS, type StreamingErrorType } from '../utils/constants';
 import { trackClick, logEvent } from '../utils/tracking';
-import { debounce } from '../hooks/useCopyToClipboard';
+import { debounce } from '../utils/debounce';
+import { isUrlEncoded, safeDecodeURIComponent } from '../utils/url-decoding';
+import { validateKonseptInput } from '../utils/form-validation';
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-/** Minimum characters required for button to be enabled (higher than MIN_LENGTH for UX) */
-const SUBMIT_THRESHOLD = 50;
-
-/** Timeout threshold in milliseconds */
-const HARD_TIMEOUT_MS = 45000;  // 45 seconds - aborts request (higher than server's 30s timeout)
-
-/** Error types for logging */
-type ErrorType = 'timeout' | 'network' | 'invalid_output' | 'validation' | null;
-
-// ============================================================================
-// Input Helpers
-// ============================================================================
-
-/** Check if text appears to be URL-encoded */
-function isUrlEncoded(text: string): boolean {
-  const urlEncodedPattern = /%[0-9A-Fa-f]{2}/;
-  if (!urlEncodedPattern.test(text)) return false;
-  const commonEncodings = ['%20', '%0A', '%0D', '%C3'];
-  return commonEncodings.some((enc) => text.includes(enc));
-}
-
-/** Safely decode URL-encoded text */
-function safeDecodeURIComponent(text: string): string {
-  try {
-    return decodeURIComponent(text);
-  } catch {
-    return text;
-  }
-}
-
-/** Validates konsept input and returns an error message if invalid */
-function validateKonseptInput(input: string): string | null {
-  const trimmedInput = input.trim();
-
-  if (trimmedInput.length < INPUT_VALIDATION.MIN_LENGTH) {
-    return `Beskriv konseptet med minst ${INPUT_VALIDATION.MIN_LENGTH} tegn for å få en god refleksjon.`;
-  }
-
-  if (trimmedInput.length > INPUT_VALIDATION.MAX_LENGTH) {
-    return `Konseptbeskrivelsen kan ikke være lengre enn ${INPUT_VALIDATION.MAX_LENGTH} tegn.`;
-  }
-
-  return null;
-}
+const { SUBMIT_THRESHOLD, HARD_TIMEOUT_MS } = STREAMING_CONSTANTS;
 
 // ============================================================================
 // Component
@@ -67,7 +26,7 @@ export default function KonseptSpeil() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [errorType, setErrorType] = useState<ErrorType>(null);
+  const [errorType, setErrorType] = useState<StreamingErrorType>(null);
   const [result, setResult] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
@@ -125,7 +84,7 @@ export default function KonseptSpeil() {
   }, []);
 
   /** Set an error with type tracking for logging */
-  const setErrorWithType = useCallback((message: string, type: ErrorType) => {
+  const setErrorWithType = useCallback((message: string, type: StreamingErrorType) => {
     setError(message);
     setErrorType(type);
     if (type) {
@@ -230,7 +189,7 @@ export default function KonseptSpeil() {
         clearTimeouts();
         isSubmittingRef.current = false;
         // Determine error type based on message
-        const type: ErrorType = errorMsg.includes('koble til') ? 'network' : 'network';
+        const type: StreamingErrorType = errorMsg.includes('koble til') ? 'network' : 'unknown';
         setErrorWithType(errorMsg, type);
         setLoading(false);
         setIsStreaming(false);

@@ -80,6 +80,26 @@ export const INPUT_VALIDATION = {
 } as const;
 
 /**
+ * Streaming form constants
+ * Shared across streaming AI tool components
+ */
+export const STREAMING_CONSTANTS = {
+  /** Minimum characters required for submit button to be enabled */
+  SUBMIT_THRESHOLD: 50,
+  /** Hard timeout for streaming requests (ms) - aborts request */
+  HARD_TIMEOUT_MS: 45000,
+  /** Interval for rotating loader messages (ms) */
+  LOADER_MESSAGE_INTERVAL_MS: 2000,
+  /** Threshold for showing "slow request" indicator (ms) */
+  SLOW_THRESHOLD_MS: 8000,
+} as const;
+
+/**
+ * Error types for streaming form components
+ */
+export type StreamingErrorType = 'timeout' | 'network' | 'invalid_output' | 'validation' | 'unknown' | null;
+
+/**
  * Anthropic API configuration
  *
  * Timeout coordination:

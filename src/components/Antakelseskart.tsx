@@ -3,18 +3,17 @@ import { generateAssumptionsStreaming, ERROR_MESSAGES, isValidOutput } from '../
 import AntakelseskartResultDisplay from './AntakelseskartResultDisplay';
 import { SpinnerIcon, ChevronRightIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
-import { INPUT_VALIDATION } from '../utils/constants';
+import { INPUT_VALIDATION, STREAMING_CONSTANTS, type StreamingErrorType } from '../utils/constants';
 import { trackClick, logEvent } from '../utils/tracking';
-import { debounce } from '../hooks/useCopyToClipboard';
+import { debounce } from '../utils/debounce';
+import { isUrlEncoded, safeDecodeURIComponent } from '../utils/url-decoding';
+import { validateBeslutningInput } from '../utils/form-validation';
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const SUBMIT_THRESHOLD = 50;
-const HARD_TIMEOUT_MS = 45000;
-
-type ErrorType = 'timeout' | 'network' | 'invalid_output' | 'validation' | null;
+const { SUBMIT_THRESHOLD, HARD_TIMEOUT_MS } = STREAMING_CONSTANTS;
 
 // Example decision for the tool
 const EXAMPLE_DECISION = `Vi vurderer å lansere en abonnementsbasert tjeneste for produktteam som vil ha raskere tilgang til brukerinnsikt.
@@ -22,39 +21,6 @@ const EXAMPLE_DECISION = `Vi vurderer å lansere en abonnementsbasert tjeneste f
 Tanken er at produktledere i mellomstore selskaper sliter med å få nok tid til å snakke med brukere, og at en AI-drevet løsning kan analysere eksisterende kundedata og generere innsikt automatisk.
 
 Vi tror dette kan redusere tiden fra "idé til validert innsikt" betydelig, og at teamene vil betale for å spare tid. Planen er å starte med en gratisversjon for å bygge brukermasse, og deretter konvertere til betalende kunder.`;
-
-// ============================================================================
-// Input Helpers
-// ============================================================================
-
-function isUrlEncoded(text: string): boolean {
-  const urlEncodedPattern = /%[0-9A-Fa-f]{2}/;
-  if (!urlEncodedPattern.test(text)) return false;
-  const commonEncodings = ['%20', '%0A', '%0D', '%C3'];
-  return commonEncodings.some((enc) => text.includes(enc));
-}
-
-function safeDecodeURIComponent(text: string): string {
-  try {
-    return decodeURIComponent(text);
-  } catch {
-    return text;
-  }
-}
-
-function validateInput(input: string): string | null {
-  const trimmedInput = input.trim();
-
-  if (trimmedInput.length < INPUT_VALIDATION.MIN_LENGTH) {
-    return `Beskriv beslutningen med minst ${INPUT_VALIDATION.MIN_LENGTH} tegn for å få gode antakelser.`;
-  }
-
-  if (trimmedInput.length > INPUT_VALIDATION.MAX_LENGTH) {
-    return `Beslutningsbeskrivelsen kan ikke være lengre enn ${INPUT_VALIDATION.MAX_LENGTH} tegn.`;
-  }
-
-  return null;
-}
 
 // ============================================================================
 // Component
@@ -67,7 +33,7 @@ export default function Antakelseskart() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [errorType, setErrorType] = useState<ErrorType>(null);
+  const [errorType, setErrorType] = useState<StreamingErrorType>(null);
   const [result, setResult] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
@@ -118,7 +84,7 @@ export default function Antakelseskart() {
     }
   }, []);
 
-  const setErrorWithType = useCallback((message: string, type: ErrorType) => {
+  const setErrorWithType = useCallback((message: string, type: StreamingErrorType) => {
     setError(message);
     setErrorType(type);
     if (type) {
@@ -130,7 +96,7 @@ export default function Antakelseskart() {
     if (isSubmittingRef.current || loading) return;
     isSubmittingRef.current = true;
 
-    const validationError = validateInput(input);
+    const validationError = validateBeslutningInput(input);
     if (validationError) {
       setErrorWithType(validationError, 'validation');
       isSubmittingRef.current = false;
@@ -207,7 +173,7 @@ export default function Antakelseskart() {
       (errorMsg) => {
         clearTimeouts();
         isSubmittingRef.current = false;
-        const type: ErrorType = errorMsg.includes('koble til') ? 'network' : 'network';
+        const type: StreamingErrorType = errorMsg.includes('koble til') ? 'network' : 'unknown';
         setErrorWithType(errorMsg, type);
         setLoading(false);
         setIsStreaming(false);

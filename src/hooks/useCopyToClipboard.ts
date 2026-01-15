@@ -1,5 +1,8 @@
 import { useState, useCallback } from 'react';
 
+// Re-export debounce from its new location for backwards compatibility
+export { debounce } from '../utils/debounce';
+
 interface UseCopyToClipboardReturn {
   copied: boolean;
   copyToClipboard: (text: string) => Promise<boolean>;
@@ -56,24 +59,4 @@ export function useCopyToClipboard(resetDelay = 2000): UseCopyToClipboardReturn 
   }, [resetDelay]);
 
   return { copied, copyToClipboard, reset };
-}
-
-/**
- * Debounce utility for performance optimization
- */
-export function debounce<T extends (...args: Parameters<T>) => void>(
-  fn: T,
-  delay: number
-): (...args: Parameters<T>) => void {
-  let timeoutId: ReturnType<typeof setTimeout> | null = null;
-
-  return (...args: Parameters<T>) => {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-    timeoutId = setTimeout(() => {
-      fn(...args);
-      timeoutId = null;
-    }, delay);
-  };
 }
