@@ -1,0 +1,140 @@
+---
+import MinimalLayout from '../layouts/MinimalLayout.astro';
+import BeslutningsloggForm from '../components/Beslutningslogg';
+
+export const prerender = false;
+---
+
+<MinimalLayout
+  title="Beslutningslogg – dokumenter beslutninger med klarhet"
+  description="Gratis verktøy for å dokumentere beslutninger på en strukturert måte. Eksporter til Markdown for Notion, Confluence eller GitHub."
+  toolName="Beslutningslogg"
+>
+  <main id="main-content" class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
+    <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-8 md:py-12 w-full pb-24 md:pb-12">
+
+      <!-- Hero: Clear value proposition -->
+      <header class="mb-8" id="skriv">
+        <h1 class="text-h3 md:text-h2 font-semibold text-brand-navy mb-3 leading-tight">
+          Dokumenter beslutninger med klarhet
+        </h1>
+        <p class="text-base text-neutral-600 leading-relaxed mb-4">
+          Fyll inn hva dere har besluttet, hvilke antakelser som ligger til grunn og hva dere vet at dere ikke vet. Få ut en strukturert Markdown-logg du kan lime inn hvor som helst.
+        </p>
+
+        <p class="text-xs text-neutral-500">
+          Ingen AI · Ingen lagring · Eksporter til Notion, Confluence eller GitHub
+        </p>
+
+      </header>
+
+      <!-- Når bør du bruke dette? -->
+      <section class="mb-8 p-4 bg-white border border-neutral-200 rounded-xl">
+        <h2 class="text-base font-semibold text-brand-navy mb-3">Når bør du bruke dette?</h2>
+        <ul class="text-neutral-600 space-y-2 text-sm">
+          <li class="flex items-start gap-2">
+            <span class="text-brand-cyan-darker shrink-0">•</span>
+            <span>Etter en viktig produktbeslutning eller prioritering</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-brand-cyan-darker shrink-0">•</span>
+            <span>Når teamet har valgt én vei blant flere alternativer</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-brand-cyan-darker shrink-0">•</span>
+            <span>For å skape sporbarhet og ansvarlighet i beslutninger</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-brand-cyan-darker shrink-0">•</span>
+            <span>Som avslutning etter en refleksjon med Konseptspeilet</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Hva får du? -->
+      <section class="mb-8 p-4 bg-feedback-success-light border border-feedback-success/30 rounded-xl">
+        <h2 class="text-base font-semibold text-brand-navy mb-3">Hva får du?</h2>
+        <ul class="text-neutral-700 space-y-2 text-sm">
+          <li class="flex items-start gap-2">
+            <span class="text-feedback-success shrink-0">✓</span>
+            <span>En strukturert Markdown-logg du kan lime inn hvor som helst</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-feedback-success shrink-0">✓</span>
+            <span>Tydelig dokumentasjon av beslutning, grunnlag og usikkerhet</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-feedback-success shrink-0">✓</span>
+            <span>Sporbarhet for fremtidig referanse og læring</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Dynamic content (form and preview) -->
+      <div class="mt-8">
+        <BeslutningsloggForm client:load />
+      </div>
+
+    </div>
+
+    <footer class="py-6 border-t border-neutral-200 text-center text-sm text-neutral-500">
+      <p>Laget av <a href="https://fyrk.no" class="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 font-medium focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded">FYRK</a> · <a href="/personvern" class="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 font-medium focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded">Personvern</a></p>
+    </footer>
+  </main>
+
+  <!-- Mobile sticky bottom bar -->
+  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-neutral-200 px-4 py-3 safe-area-inset-bottom" id="mobile-cta-bar">
+    <button
+      type="button"
+      id="mobile-generate-btn"
+      class="w-full inline-flex items-center justify-center px-6 py-3.5 text-base font-semibold text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 disabled:bg-neutral-200 disabled:text-neutral-400 disabled:cursor-not-allowed transition-all"
+      disabled
+    >
+      <span>Lag Markdown</span>
+    </button>
+  </div>
+
+  <script>
+    import { initPageViewTracking } from '../scripts/pageview-tracking';
+    import { initTrackingHelpers } from '../scripts/tracking-exclusion';
+    initPageViewTracking('beslutningslogg');
+    initTrackingHelpers();
+
+    // Sync mobile CTA with main form
+    const mobileBtn = document.getElementById('mobile-generate-btn') as HTMLButtonElement | null;
+    const mobileCTABar = document.getElementById('mobile-cta-bar');
+
+    if (mobileBtn && mobileCTABar) {
+      // Listen for custom events from React component
+      window.addEventListener('beslutningslogg:inputChange', ((e: CustomEvent) => {
+        const { isValid, hasPreview } = e.detail;
+        mobileBtn.disabled = !isValid;
+
+        // Hide bar when preview is shown
+        if (hasPreview) {
+          mobileCTABar.classList.add('translate-y-full');
+        } else {
+          mobileCTABar.classList.remove('translate-y-full');
+        }
+      }) as EventListener);
+
+      // Forward click to main form
+      mobileBtn.addEventListener('click', () => {
+        window.dispatchEvent(new CustomEvent('beslutningslogg:generate'));
+      });
+    }
+
+  </script>
+
+  <style>
+    /* Safe area for mobile devices with home indicator */
+    .safe-area-inset-bottom {
+      padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    }
+
+    /* Smooth transition for mobile bar */
+    #mobile-cta-bar {
+      transition: transform 0.3s ease-out;
+    }
+  </style>
+</MinimalLayout>

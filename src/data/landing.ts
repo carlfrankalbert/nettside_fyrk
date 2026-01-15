@@ -139,6 +139,12 @@ export const toolsContent = {
       featureId: 'antakelseskart',
       isBeta: true,
     },
+    {
+      title: 'Beslutningsloggen',
+      description: 'Dokumenter beslutninger med klarhet. Fyll inn hva dere besluttet, hvilke antakelser som ligger til grunn, og eksporter som Markdown.',
+      href: PAGE_ROUTES.BESLUTNINGSLOGG,
+      buttonText: 'Lag beslutningslogg',
+    },
   ] as ToolDefinition[],
   comingSoonText: 'Flere verktøy er på vei. Følg med.',
 } as const;
