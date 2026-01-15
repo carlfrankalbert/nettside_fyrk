@@ -16,6 +16,11 @@ Dokumentasjon for utviklere:
 - `BRANCH_GUIDE.md` - Arbeide med branches
 - `TESTMILJO.md` - Testmiljø setup
 - `TESTING.md` - Testing dokumentasjon
+- `MONITORING.md` - Error tracking og performance monitoring
+
+### Security (`docs/security/`)
+Sikkerhetsdokumentasjon:
+- `SECURITY_TESTS.md` - Sikkerhetssjekker og prompt injection-beskyttelse
 
 ### Design (`docs/design/`)
 Design-relatert dokumentasjon:

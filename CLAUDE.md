@@ -8,7 +8,8 @@ Fyrk is a consulting website with AI-powered tools, deployed on **Cloudflare Pag
 
 - **Landing page** (`/`) - Main marketing site
 - **OKR-sjekken** (`/okr-sjekken`) - AI-powered OKR review tool using Anthropic SDK
-- **Konseptspeilet** (`/konseptspeilet`) - Concept analysis tool
+- **Konseptspeilet** (`/konseptspeilet`) - Concept reflection tool for product ideas
+- **Antakelseskart** (`/antakelseskart`) - Assumption mapping tool for decisions
 - **Feature toggles** (`/feature-toggles`) - Feature flag management
 - **API routes** in `src/pages/api/` - Serverless functions for AI tools
 
@@ -19,12 +20,13 @@ src/
 ├── components/     # Astro & React components
 │   ├── landing/    # Landing page sections
 │   ├── layout/     # Header, Footer, ThemeToggle
-│   ├── ui/         # Reusable UI primitives
+│   ├── ui/         # Reusable UI primitives (ValidationError, StreamingError, PrivacyAccordion)
 │   └── forms/      # Form components
+├── hooks/          # React hooks (useStreamingForm, useCopyToClipboard)
 ├── pages/          # Routes and API endpoints
 │   └── api/        # Serverless API routes
 ├── services/       # Business logic (API clients, data fetching)
-├── utils/          # Pure utility functions
+├── utils/          # Pure utility functions (constants, form-validation, url-decoding, debounce)
 ├── lib/            # Third-party integrations (Sentry)
 ├── data/           # Static data and content
 ├── layouts/        # Page layout templates

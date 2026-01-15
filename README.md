@@ -22,19 +22,35 @@ npm run build
 npm run preview
 ```
 
-## ✨ Hovedfunksjoner
+## ✨ AI-verktøy
 
-### OKR-sjekken (AI-drevet OKR Reviewer)
-Et interaktivt verktøy for å evaluere kvaliteten på OKR-er (Objectives and Key Results):
+Fyrk tilbyr tre AI-drevne verktøy for produktteam:
+
+### OKR-sjekken (`/okr-sjekken`)
+Evaluerer kvaliteten på OKR-er (Objectives and Key Results):
 - **AI-analyse:** Bruker Claude API for kvalitetsvurdering
 - **Scoring:** 1-10 skala med detaljert tilbakemelding
 - **Streaming:** Sanntids-respons under evaluering
+
+### Konseptspeilet (`/konseptspeilet`)
+Refleksjonsverktøy for produktkonsepter:
+- **Strukturert analyse:** Basert på de fire produktrisikoene (verdi, brukbarhet, gjennomførbarhet, levedyktighet)
+- **Antakelsesavdekking:** Identifiserer implisitte forutsetninger
+- **Streaming:** Sanntids-respons med progressiv visning
+
+### Antakelseskart (`/antakelseskart`)
+Kartlegger implisitte antakelser i beslutninger:
+- **Kategorisering:** Sorterer antakelser etter type (målgruppe, behov, løsning, forretningsmodell)
+- **Risikovurdering:** Markerer kritiske antakelser
+- **Eksport:** Kopier til utklippstavle for videre bruk
+
+### Felles egenskaper
 - **Personvern:** Ingen data lagres permanent
 - **Sikkerhet:** Prompt injection-beskyttelse med XML-tagging
+- **Tilgjengelighet:** WCAG 2.1 AA compliant
 
-Tilgjengelig på `/okr-sjekken`
+## 🌐 Nettsiden
 
-### Nettsiden
 - **Responsivt design** - Mobile-first tilnærming
 - **Dark mode** - Automatisk system preference detection
 - **WCAG 2.1 AA** - Tilgjengelig for alle brukere
@@ -45,35 +61,55 @@ Tilgjengelig på `/okr-sjekken`
 ```
 nettside_fyrk/
 ├── src/
-│   ├── components/          # Gjenbrukbare komponenter
-│   │   ├── landing/        # Landing page seksjoner
-│   │   ├── layout/         # Header, Footer, ThemeToggle
-│   │   ├── forms/          # Skjema-komponenter
-│   │   ├── ui/             # Basis UI-elementer
-│   │   ├── seo/            # SEO-komponenter
-│   │   └── OKRReviewer.tsx # OKR-sjekken verktøy (React)
-│   ├── pages/              # Astro sider
-│   │   ├── index.astro     # Hjemmeside
+│   ├── components/           # Gjenbrukbare komponenter
+│   │   ├── landing/          # Landing page seksjoner
+│   │   ├── layout/           # Header, Footer, ThemeToggle
+│   │   ├── forms/            # Skjema-komponenter
+│   │   ├── ui/               # Basis UI-elementer
+│   │   │   ├── ValidationError.tsx   # Inline feilmelding
+│   │   │   ├── StreamingError.tsx    # Feil i resultatområde
+│   │   │   └── PrivacyAccordion.tsx  # Personvern-accordion
+│   │   ├── seo/              # SEO-komponenter
+│   │   ├── OKRReviewer.tsx   # OKR-sjekken (React)
+│   │   ├── KonseptSpeil.tsx  # Konseptspeilet (React)
+│   │   └── Antakelseskart.tsx # Antakelseskart (React)
+│   ├── pages/                # Astro sider
+│   │   ├── index.astro       # Hjemmeside
 │   │   ├── okr-sjekken.astro
+│   │   ├── konseptspeilet.astro
+│   │   ├── antakelseskart.astro
+│   │   ├── feature-toggles.astro
+│   │   ├── personvern.astro
 │   │   ├── 404.astro
 │   │   ├── 500.astro
 │   │   └── api/
-│   │       └── okr-sjekken.ts  # OKR API endpoint
-│   ├── layouts/            # Side-layouts
-│   ├── content/            # Content collections (blogg)
-│   ├── styles/             # Globale stiler
-│   ├── utils/              # Hjelpefunksjoner
-│   ├── services/           # Business logic
-│   ├── scripts/            # Client-side scripts
-│   ├── types/              # TypeScript types
-│   ├── config/             # App-konfigurasjon
-│   └── data/               # Statiske data
-├── tests/                  # Playwright E2E tester
-├── docs/                   # Dokumentasjon
-│   ├── deployment/         # Deployment-guides
-│   ├── development/        # Utvikler-dokumentasjon
-│   └── design/             # Design-dokumentasjon
-└── public/                 # Statiske assets
+│   │       ├── okr-sjekken.ts
+│   │       ├── konseptspeilet.ts
+│   │       ├── antakelseskart.ts
+│   │       └── feature-toggles.ts
+│   ├── hooks/                # React hooks
+│   │   ├── useStreamingForm.ts    # Delt streaming-logikk
+│   │   └── useCopyToClipboard.ts  # Kopier til utklippstavle
+│   ├── services/             # Business logic
+│   │   ├── okr-service.ts
+│   │   ├── konseptspeil-service.ts
+│   │   └── antakelseskart-service.ts
+│   ├── utils/                # Hjelpefunksjoner
+│   │   ├── constants.ts      # Delte konstanter
+│   │   ├── form-validation.ts
+│   │   ├── url-decoding.ts
+│   │   └── debounce.ts
+│   ├── layouts/              # Side-layouts
+│   ├── styles/               # Globale stiler
+│   ├── types/                # TypeScript types
+│   ├── config/               # App-konfigurasjon
+│   └── data/                 # Statiske data
+├── tests/                    # Playwright E2E tester
+├── docs/                     # Dokumentasjon
+│   ├── deployment/           # Deployment-guides
+│   ├── development/          # Utvikler-dokumentasjon
+│   └── design/               # Design-dokumentasjon
+└── public/                   # Statiske assets
 ```
 
 ## 🎨 Design System
@@ -154,7 +190,7 @@ Følgende miljøvariabler må settes i Cloudflare Pages:
 
 | Variabel | Beskrivelse | Påkrevd |
 |----------|-------------|---------|
-| `ANTHROPIC_API_KEY` | API-nøkkel for Claude (OKR-sjekken) | Ja |
+| `ANTHROPIC_API_KEY` | API-nøkkel for Claude (AI-verktøy) | Ja |
 | `PUBLIC_SENTRY_DSN` | Sentry DSN for error tracking | Nei |
 | `PUBLIC_SENTRY_ENVIRONMENT` | Miljønavn (production/staging) | Nei |
 | `PUBLIC_SENTRY_RELEASE` | Release-versjon for tracking | Nei |
@@ -178,7 +214,7 @@ Se [docs/deployment/](./docs/deployment/) for detaljerte instruksjoner.
 - **[k6](https://k6.io)** - Load testing
 
 ### Integrasjoner
-- **[Anthropic Claude API](https://anthropic.com)** - AI for OKR-evaluering
+- **[Anthropic Claude API](https://anthropic.com)** - AI for alle verktøy
 
 ### Monitoring
 - **[Sentry](https://sentry.io)** - Error tracking og performance monitoring
