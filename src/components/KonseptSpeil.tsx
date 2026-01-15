@@ -1,7 +1,10 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { speileKonseptStreaming, ERROR_MESSAGES, isValidOutput } from '../services/konseptspeil-service';
 import KonseptSpeilResultDisplayV2 from './KonseptSpeilResultDisplayV2';
-import { SpinnerIcon, ChevronRightIcon } from './ui/Icon';
+import { SpinnerIcon } from './ui/Icon';
+import { ValidationError } from './ui/ValidationError';
+import { StreamingError } from './ui/StreamingError';
+import { PrivacyAccordion } from './ui/PrivacyAccordion';
 import { cn } from '../utils/classes';
 import { INPUT_VALIDATION, EXAMPLE_KONSEPT, STREAMING_CONSTANTS } from '../utils/constants';
 import { trackClick } from '../utils/tracking';
@@ -50,7 +53,6 @@ export default function KonseptSpeil() {
   // ---------------------------------------------------------------------------
   // UI State (component-specific)
   // ---------------------------------------------------------------------------
-  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isExampleAnimating, setIsExampleAnimating] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
 
@@ -377,24 +379,14 @@ Hvis dette ikke gir tydelig verdi, bør vi sannsynligvis ikke bygge det videre.`
 
         {/* Validation errors (input length) shown inline near button */}
         {error && errorType === 'validation' && (
-          <div id="konsept-error" role="alert" className="p-4 bg-neutral-50 border border-neutral-200 rounded-lg flex items-start gap-3">
-            <svg className="w-5 h-5 text-neutral-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p className="text-sm text-neutral-700">{error}</p>
-          </div>
+          <ValidationError message={error} id="konsept-error" />
         )}
       </div>
 
       {/* Mobile: Show validation error inline */}
       <div className="md:hidden">
         {error && errorType === 'validation' && (
-          <div id="konsept-error" role="alert" className="p-4 bg-neutral-50 border border-neutral-200 rounded-lg flex items-start gap-3">
-            <svg className="w-5 h-5 text-neutral-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p className="text-sm text-neutral-700">{error}</p>
-          </div>
+          <ValidationError message={error} id="konsept-error" />
         )}
       </div>
 
@@ -408,25 +400,7 @@ Hvis dette ikke gir tydelig verdi, bør vi sannsynligvis ikke bygge det videre.`
       >
         {/* Error display in results area */}
         {error && !loading && !result && errorType !== 'validation' && (
-          <div className="p-6 bg-neutral-50 border border-neutral-200 rounded-xl">
-            <div className="flex flex-col items-center text-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-neutral-100 flex items-center justify-center">
-                <svg className="w-6 h-6 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-[15px] text-neutral-700 leading-[1.5] mb-4">{error}</p>
-                <button
-                  type="button"
-                  onClick={handleSubmit}
-                  className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-brand-navy bg-white border border-neutral-300 hover:bg-neutral-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
-                >
-                  Prøv igjen
-                </button>
-              </div>
-            </div>
-          </div>
+          <StreamingError message={error} onRetry={handleSubmit} />
         )}
 
         {/* Result display - also handles loading state with NarrativeLoader */}
@@ -444,56 +418,12 @@ Hvis dette ikke gir tydelig verdi, bør vi sannsynligvis ikke bygge det videre.`
         )}
       </div>
 
-      {/* AI og personvern - matching OKR-sjekken style */}
-      <div className="border-t border-neutral-200 pt-6">
-        <p className="text-sm text-neutral-500 mb-3">
-          Teksten du skriver brukes kun til å generere refleksjonen. Unngå å lime inn konfidensiell eller sensitiv informasjon.
-        </p>
-        <button
-          type="button"
-          onClick={() => {
-            if (!isPrivacyOpen) {
-              trackClick('konseptspeil_privacy_toggle');
-            }
-            setIsPrivacyOpen(!isPrivacyOpen);
-          }}
-          aria-expanded={isPrivacyOpen}
-          aria-controls="privacy-content"
-          className="flex items-center gap-2 text-sm text-brand-navy hover:text-brand-cyan-darker focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded py-2"
-        >
-          <ChevronRightIcon className={cn('w-4 h-4 transition-transform', isPrivacyOpen && 'rotate-90')} />
-          Les mer om AI og personvern
-        </button>
-        {isPrivacyOpen && (
-          <div
-            id="privacy-content"
-            className="mt-3 p-4 bg-neutral-100 rounded-lg text-sm text-neutral-700 space-y-3"
-          >
-            <p>
-              <strong>Hvordan fungerer det?</strong><br />
-              Refleksjonen genereres av Claude (Anthropic), strukturert rundt de fire produktrisikoene (verdi, brukbarhet, gjennomførbarhet, levedyktighet).
-            </p>
-            <p>
-              <strong>Hva skjer med dataene?</strong><br />
-              Teksten sendes til Claude API for å generere refleksjonen. Vi lagrer ikke innholdet, og det brukes ikke til å trene AI-modeller.
-            </p>
-            <p>
-              <strong>Er det trygt?</strong><br />
-              Du trenger ikke logge inn. Ikke del personopplysninger, forretningshemmeligheter eller annen sensitiv informasjon i teksten du sender inn.
-            </p>
-            <p className="pt-2 border-t border-neutral-200">
-              <a
-                href="https://fyrk.no/personvern"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2"
-              >
-                Les FYRKs personvernerklæring
-              </a>
-            </p>
-          </div>
-        )}
-      </div>
+      {/* AI og personvern */}
+      <PrivacyAccordion
+        toolName="konseptspeil"
+        introText="Teksten du skriver brukes kun til å generere refleksjonen. Unngå å lime inn konfidensiell eller sensitiv informasjon."
+        howItWorks="Refleksjonen genereres av Claude (Anthropic), strukturert rundt de fire produktrisikoene (verdi, brukbarhet, gjennomførbarhet, levedyktighet)."
+      />
     </div>
   );
 }
