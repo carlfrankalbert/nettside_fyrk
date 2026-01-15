@@ -1,8 +1,20 @@
 import type { APIRoute } from 'astro';
-import type { AnthropicResponse, AnthropicStreamEvent, AnthropicErrorResponse } from '../../types';
+import type { AnthropicResponse, AnthropicErrorResponse } from '../../types';
 import { hashInput, createServerCacheManager, createRateLimiter } from '../../utils/cache';
-import { ERROR_MESSAGES, ANTHROPIC_CONFIG, HTTP_HEADERS, CACHE_HEADERS, INPUT_VALIDATION } from '../../utils/constants';
+import { ERROR_MESSAGES, ANTHROPIC_CONFIG, HTTP_HEADERS, INPUT_VALIDATION } from '../../utils/constants';
 import { getMockResponseJson } from '../../data/konseptspeil-mock';
+import {
+  createAnthropicHeaders,
+  getClientIP,
+  fetchWithRetry,
+  resolveAnthropicConfig,
+} from '../../lib/anthropic-client';
+import {
+  createAnthropicStreamingResponse,
+  createCachedStreamingResponse,
+  createJsonResponse,
+  createErrorResponse,
+} from '../../lib/streaming-response';
 
 export const prerender = false;
 
@@ -91,28 +103,10 @@ const rateLimiter = createRateLimiter();
 let lastCleanupTime = Date.now();
 
 /**
- * Get client IP from request headers
- */
-function getClientIP(request: Request): string {
-  const cfConnectingIP = request.headers.get('cf-connecting-ip');
-  if (cfConnectingIP) return cfConnectingIP;
-
-  const xForwardedFor = request.headers.get('x-forwarded-for');
-  if (xForwardedFor) return xForwardedFor.split(',')[0].trim();
-
-  const xRealIP = request.headers.get('x-real-ip');
-  if (xRealIP) return xRealIP;
-
-  return 'unknown';
-}
-
-/**
  * Sanitize user input to prevent XML delimiter breakout attacks.
  * Replaces closing tags that could break out of the <konsept_input> wrapper.
  */
-function sanitizeInput(input: string): string {
-  // Neutralize any attempts to close the konsept_input tag
-  // This prevents prompt injection via delimiter breakout
+function sanitizeKonseptInput(input: string): string {
   return input
     .replace(/<\/konsept_input>/gi, '&lt;/konsept_input&gt;')
     .replace(/<konsept_input>/gi, '&lt;konsept_input&gt;');
@@ -121,8 +115,6 @@ function sanitizeInput(input: string): string {
 /**
  * Validate that the model output conforms to the expected JSON format.
  * Returns true if the output appears to be a valid reflection response.
- * This provides server-side defense against prompt injection attacks
- * that attempt to change the output format.
  */
 function isValidOutputFormat(output: string): boolean {
   if (!output || output.trim().length === 0) return false;
@@ -143,7 +135,6 @@ function isValidOutputFormat(output: string): boolean {
   try {
     const parsed = JSON.parse(content);
 
-    // Check for required top-level fields
     const hasRefleksjonStatus = parsed.refleksjon_status &&
       typeof parsed.refleksjon_status.kommentar === 'string' &&
       typeof parsed.refleksjon_status.antagelser_funnet === 'number';
@@ -161,150 +152,20 @@ function isValidOutputFormat(output: string): boolean {
 
     return hasRefleksjonStatus && hasFokusSporsmal && hasDimensjoner && hasAntagelserListe;
   } catch {
-    // Not valid JSON
     return false;
   }
 }
 
 /**
- * Create an Anthropic API request body
+ * Create user message with input wrapped in XML tags for prompt injection protection
  */
-function createAnthropicRequestBody(input: string, model: string, stream: boolean) {
-  const sanitizedInput = sanitizeInput(input.trim());
-
-  const wrappedInput = `<konsept_input>
+function createUserMessage(input: string): string {
+  const sanitizedInput = sanitizeKonseptInput(input.trim());
+  return `<konsept_input>
 ${sanitizedInput}
 </konsept_input>
 
 Speil teksten over. Svar KUN med JSON-objektet, ingen tekst før eller etter.`;
-
-  return {
-    model,
-    max_tokens: ANTHROPIC_CONFIG.MAX_TOKENS,
-    system: SYSTEM_PROMPT_BASE,
-    stream,
-    messages: [
-      {
-        role: 'user',
-        content: wrappedInput,
-      },
-    ],
-  };
-}
-
-/**
- * Create Anthropic API request headers
- */
-function createAnthropicHeaders(apiKey: string) {
-  return {
-    'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
-    'x-api-key': apiKey,
-    'anthropic-version': ANTHROPIC_CONFIG.VERSION,
-  };
-}
-
-/**
- * Retry configuration for Anthropic API calls
- */
-const RETRY_CONFIG = {
-  MAX_RETRIES: 2,
-  INITIAL_DELAY_MS: 1000,
-  MAX_DELAY_MS: 5000,
-  BACKOFF_MULTIPLIER: 2,
-  // Status codes that should trigger a retry
-  RETRYABLE_STATUS_CODES: [429, 500, 502, 503, 504],
-} as const;
-
-/**
- * Sleep for a specified duration
- */
-function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-/**
- * Calculate delay with exponential backoff and jitter
- */
-function calculateBackoffDelay(attempt: number): number {
-  const baseDelay = RETRY_CONFIG.INITIAL_DELAY_MS * Math.pow(RETRY_CONFIG.BACKOFF_MULTIPLIER, attempt);
-  const jitter = Math.random() * 0.3 * baseDelay; // Add up to 30% jitter
-  return Math.min(baseDelay + jitter, RETRY_CONFIG.MAX_DELAY_MS);
-}
-
-/**
- * Check if an HTTP status code is retryable
- */
-function isRetryableStatusCode(status: number): boolean {
-  return (RETRY_CONFIG.RETRYABLE_STATUS_CODES as readonly number[]).includes(status);
-}
-
-/**
- * Fetch with retry logic and exponential backoff
- * Only retries on transient errors (429, 5xx)
- */
-async function fetchWithRetry(
-  url: string,
-  options: RequestInit,
-  timeoutMs: number
-): Promise<Response> {
-  let lastError: Error | null = null;
-  let lastResponse: Response | null = null;
-
-  for (let attempt = 0; attempt <= RETRY_CONFIG.MAX_RETRIES; attempt++) {
-    // Create timeout for this attempt
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-
-    try {
-      const response = await fetch(url, {
-        ...options,
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      // If response is OK or not retryable, return it
-      if (response.ok || !isRetryableStatusCode(response.status)) {
-        return response;
-      }
-
-      // Store for potential return after all retries exhausted
-      lastResponse = response;
-
-      // Don't retry if we've exhausted attempts
-      if (attempt >= RETRY_CONFIG.MAX_RETRIES) {
-        return response;
-      }
-
-      // Log retry attempt
-      const retryDelay = calculateBackoffDelay(attempt);
-      console.warn(`Anthropic API returned ${response.status}, retrying in ${Math.round(retryDelay)}ms (attempt ${attempt + 1}/${RETRY_CONFIG.MAX_RETRIES})`);
-
-      await sleep(retryDelay);
-    } catch (error) {
-      clearTimeout(timeoutId);
-      lastError = error as Error;
-
-      // Don't retry on abort (timeout) - let it propagate
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw error;
-      }
-
-      // Don't retry if we've exhausted attempts
-      if (attempt >= RETRY_CONFIG.MAX_RETRIES) {
-        throw error;
-      }
-
-      const retryDelay = calculateBackoffDelay(attempt);
-      console.warn(`Anthropic API request failed, retrying in ${Math.round(retryDelay)}ms (attempt ${attempt + 1}/${RETRY_CONFIG.MAX_RETRIES}):`, error);
-
-      await sleep(retryDelay);
-    }
-  }
-
-  // Should not reach here, but return last response or throw last error
-  if (lastResponse) return lastResponse;
-  throw lastError || new Error('Unknown error during fetch retry');
 }
 
 export const POST: APIRoute = async ({ request, locals }) => {
@@ -312,37 +173,25 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // Validate Content-Type header
     const contentType = request.headers.get('content-type');
     if (!contentType?.includes('application/json')) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid Content-Type. Expected application/json' }),
-        { status: 415, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
-      );
+      return createErrorResponse('Invalid Content-Type. Expected application/json', 415);
     }
 
     const { input, stream = false } = (await request.json()) as { input?: string; stream?: boolean };
 
     // Basic presence check
     if (!input?.trim()) {
-      return new Response(
-        JSON.stringify({ error: 'Skriv inn en konseptbeskrivelse for å få refleksjon.' }),
-        { status: 400, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
-      );
+      return createErrorResponse('Skriv inn en konseptbeskrivelse for å få refleksjon.', 400);
     }
 
     const trimmedInput = input.trim();
 
     // Server-side input length validation
     if (trimmedInput.length < INPUT_VALIDATION.MIN_LENGTH) {
-      return new Response(
-        JSON.stringify({ error: `Input må være minst ${INPUT_VALIDATION.MIN_LENGTH} tegn` }),
-        { status: 400, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
-      );
+      return createErrorResponse(`Input må være minst ${INPUT_VALIDATION.MIN_LENGTH} tegn`, 400);
     }
 
     if (trimmedInput.length > INPUT_VALIDATION.MAX_LENGTH) {
-      return new Response(
-        JSON.stringify({ error: `Input kan ikke være lengre enn ${INPUT_VALIDATION.MAX_LENGTH} tegn` }),
-        { status: 400, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
-      );
+      return createErrorResponse(`Input kan ikke være lengre enn ${INPUT_VALIDATION.MAX_LENGTH} tegn`, 400);
     }
 
     // Rate limiting
@@ -372,50 +221,16 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
       // Handle streaming mock response
       if (stream) {
-        const encoder = new TextEncoder();
-        const mockChunks = mockOutput.match(/.{1,50}/g) || [mockOutput];
-
-        const mockStream = new ReadableStream({
-          async start(controller) {
-            for (const chunk of mockChunks) {
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: chunk })}\n\n`));
-              // Small delay to simulate streaming
-              await new Promise((resolve) => setTimeout(resolve, 20));
-            }
-            controller.enqueue(encoder.encode('data: [DONE]\n\n'));
-            controller.close();
-          },
-        });
-
-        return new Response(mockStream, {
-          headers: {
-            'Content-Type': HTTP_HEADERS.CONTENT_TYPE_SSE,
-            'Cache-Control': HTTP_HEADERS.CACHE_CONTROL_NO_CACHE,
-            'Connection': HTTP_HEADERS.CONNECTION_KEEP_ALIVE,
-            'X-Mock': 'true',
-          },
-        });
+        return createCachedStreamingResponse(mockOutput);
       }
 
-      // Non-streaming mock response
-      return new Response(
-        JSON.stringify({ output: mockOutput, cached: false, mock: true }),
-        {
-          status: 200,
-          headers: {
-            'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
-            'X-Mock': 'true',
-          },
-        }
-      );
+      return createJsonResponse({ output: mockOutput, cached: false, mock: true });
     }
 
     // Probabilistic cache cleanup (every ~5 minutes or 1% of requests)
-    // Avoids latency spike from synchronous cleanup on every request
     const now = Date.now();
     if (now - lastCleanupTime > 300000 || Math.random() < 0.01) {
       lastCleanupTime = now;
-      // Run cleanup async to not block the request
       Promise.resolve().then(() => cacheManager.cleanup());
     }
 
@@ -424,162 +239,29 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const cachedEntry = cacheManager.get(cacheKey);
 
     if (cachedEntry) {
-      // If client requested streaming, return cached result as SSE stream
       if (stream) {
-        const encoder = new TextEncoder();
-        const cachedChunks = cachedEntry.output.match(/.{1,50}/g) || [cachedEntry.output];
-
-        const cachedStream = new ReadableStream({
-          async start(controller) {
-            for (const chunk of cachedChunks) {
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: chunk })}\n\n`));
-              // Small delay to simulate streaming
-              await new Promise((resolve) => setTimeout(resolve, 5));
-            }
-            controller.enqueue(encoder.encode('data: [DONE]\n\n'));
-            controller.close();
-          },
-        });
-
-        return new Response(cachedStream, {
-          headers: {
-            'Content-Type': HTTP_HEADERS.CONTENT_TYPE_SSE,
-            'Cache-Control': HTTP_HEADERS.CACHE_CONTROL_NO_CACHE,
-            'Connection': HTTP_HEADERS.CONNECTION_KEEP_ALIVE,
-            'X-Cache': CACHE_HEADERS.HIT,
-          },
-        });
+        return createCachedStreamingResponse(cachedEntry.output);
       }
-
-      // Non-streaming: return JSON response
-      return new Response(
-        JSON.stringify({
-          output: cachedEntry.output,
-          cached: true
-        }),
-        {
-          status: 200,
-          headers: {
-            'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
-            'X-Cache': CACHE_HEADERS.HIT
-          }
-        }
-      );
+      return createJsonResponse({ output: cachedEntry.output, cached: true }, { cacheStatus: 'HIT' });
     }
 
-    // Access environment variables from Cloudflare runtime (cloudflareEnv declared above in mock check)
-    const apiKey = cloudflareEnv?.ANTHROPIC_API_KEY || import.meta.env.ANTHROPIC_API_KEY;
-    const model = cloudflareEnv?.ANTHROPIC_MODEL || import.meta.env.ANTHROPIC_MODEL || ANTHROPIC_CONFIG.DEFAULT_MODEL;
+    // Resolve API configuration
+    const { apiKey, model } = resolveAnthropicConfig(locals as App.Locals);
 
     if (!apiKey) {
       console.error('ANTHROPIC_API_KEY not configured');
-      return new Response(
-        JSON.stringify({ error: ERROR_MESSAGES.SERVER_NOT_CONFIGURED }),
-        { status: 500, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
-      );
+      return createErrorResponse(ERROR_MESSAGES.SERVER_NOT_CONFIGURED, 500);
     }
 
     // Handle streaming response
     if (stream) {
-      const encoder = new TextEncoder();
-      let fullOutput = '';
-
-      const customReadable = new ReadableStream({
-        async start(controller) {
-          try {
-            // Create AbortController with timeout for Anthropic API request
-            const timeoutController = new AbortController();
-            const timeoutId = setTimeout(() => {
-              timeoutController.abort();
-            }, ANTHROPIC_CONFIG.REQUEST_TIMEOUT_MS);
-
-            let anthropicResponse: Response;
-            try {
-              anthropicResponse = await fetch(ANTHROPIC_CONFIG.API_URL, {
-                method: 'POST',
-                headers: createAnthropicHeaders(apiKey),
-                body: JSON.stringify(createAnthropicRequestBody(input, model, true)),
-                signal: timeoutController.signal,
-              });
-            } finally {
-              clearTimeout(timeoutId);
-            }
-
-            if (!anthropicResponse.ok) {
-              const errorData = await anthropicResponse.json() as AnthropicErrorResponse;
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({
-                error: true,
-                message: errorData?.error?.message || ERROR_MESSAGES.API_ERROR
-              })}\n\n`));
-              controller.close();
-              return;
-            }
-
-            const reader = anthropicResponse.body?.getReader();
-            if (!reader) {
-              controller.close();
-              return;
-            }
-
-            const decoder = new TextDecoder();
-            let buffer = '';
-
-            while (true) {
-              const { done, value } = await reader.read();
-              if (done) break;
-
-              buffer += decoder.decode(value, { stream: true });
-              const lines = buffer.split('\n');
-              buffer = lines.pop() || '';
-
-              for (const line of lines) {
-                if (line.startsWith('data: ')) {
-                  const data = line.slice(6);
-                  if (data === '[DONE]') continue;
-
-                  try {
-                    const event = JSON.parse(data) as AnthropicStreamEvent;
-                    if (event.type === 'content_block_delta' && event.delta?.type === 'text_delta') {
-                      const text = event.delta.text || '';
-                      fullOutput += text;
-                      controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
-                    }
-                  } catch (e) {
-                    console.error('Error parsing SSE data:', e);
-                  }
-                }
-              }
-            }
-
-            // Validate and cache the complete output (only cache valid responses)
-            if (isValidOutputFormat(fullOutput)) {
-              cacheManager.set(cacheKey, fullOutput);
-            } else {
-              console.warn('Streaming output format validation failed - not caching');
-            }
-
-            controller.enqueue(encoder.encode('data: [DONE]\n\n'));
-            controller.close();
-          } catch (error) {
-            console.error('Streaming error:', error);
-            // Check if this was a timeout error
-            const isTimeout = error instanceof Error && error.name === 'AbortError';
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({
-              error: true,
-              message: isTimeout ? 'Forespørselen tok for lang tid. Prøv igjen.' : ERROR_MESSAGES.STREAMING_FAILED
-            })}\n\n`));
-            controller.close();
-          }
-        },
-      });
-
-      return new Response(customReadable, {
-        headers: {
-          'Content-Type': HTTP_HEADERS.CONTENT_TYPE_SSE,
-          'Cache-Control': HTTP_HEADERS.CACHE_CONTROL_NO_CACHE,
-          'Connection': HTTP_HEADERS.CONNECTION_KEEP_ALIVE,
-          'X-Cache': CACHE_HEADERS.MISS,
-        },
+      return createAnthropicStreamingResponse({
+        apiKey,
+        model,
+        systemPrompt: SYSTEM_PROMPT_BASE,
+        userMessage: createUserMessage(input),
+        validateOutput: isValidOutputFormat,
+        onCache: (output) => cacheManager.set(cacheKey, output),
       });
     }
 
@@ -591,20 +273,19 @@ export const POST: APIRoute = async ({ request, locals }) => {
         {
           method: 'POST',
           headers: createAnthropicHeaders(apiKey),
-          body: JSON.stringify(createAnthropicRequestBody(input, model, false)),
+          body: JSON.stringify({
+            model,
+            max_tokens: ANTHROPIC_CONFIG.MAX_TOKENS,
+            system: SYSTEM_PROMPT_BASE,
+            stream: false,
+            messages: [{ role: 'user', content: createUserMessage(input) }],
+          }),
         },
         ANTHROPIC_CONFIG.REQUEST_TIMEOUT_MS
       );
     } catch (error) {
-      // Check if this was a timeout error
       if (error instanceof Error && error.name === 'AbortError') {
-        return new Response(
-          JSON.stringify({
-            error: 'Forespørselen tok for lang tid',
-            details: 'Prøv igjen om litt'
-          }),
-          { status: 504, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
-        );
+        return createErrorResponse('Forespørselen tok for lang tid', 504, 'Prøv igjen om litt');
       }
       throw error;
     }
@@ -612,12 +293,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
     if (!anthropicResponse.ok) {
       const errorData = await anthropicResponse.json() as AnthropicErrorResponse;
       console.error('Anthropic API error:', anthropicResponse.status, errorData);
-      return new Response(
-        JSON.stringify({
-          error: 'Kunne ikke speile konseptet',
-          details: errorData?.error?.message || `API returned ${anthropicResponse.status}`,
-        }),
-        { status: 500, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
+      return createErrorResponse(
+        'Kunne ikke speile konseptet',
+        500,
+        errorData?.error?.message || `API returned ${anthropicResponse.status}`
       );
     }
 
@@ -627,31 +306,19 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // Server-side output validation (defense-in-depth against prompt injection)
     if (!isValidOutputFormat(output)) {
       console.warn('Output format validation failed - possible prompt injection attempt');
-      return new Response(
-        JSON.stringify({
-          error: 'Kunne ikke generere gyldig refleksjon',
-          details: 'Vennligst prøv igjen med en annen konseptbeskrivelse'
-        }),
-        { status: 422, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
+      return createErrorResponse(
+        'Kunne ikke generere gyldig refleksjon',
+        422,
+        'Vennligst prøv igjen med en annen konseptbeskrivelse'
       );
     }
 
     // Cache the result (only valid outputs)
     cacheManager.set(cacheKey, output);
 
-    return new Response(
-      JSON.stringify({ output, cached: false }),
-      {
-        status: 200,
-        headers: {
-          'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
-          'X-Cache': CACHE_HEADERS.MISS
-        }
-      }
-    );
+    return createJsonResponse({ output, cached: false }, { cacheStatus: 'MISS' });
 
   } catch (err) {
-    // Log error details - stack trace only in development for security
     const isDev = import.meta.env.DEV;
     console.error('Konseptspeil error:', err instanceof Error ? err.message : err);
 
@@ -661,12 +328,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     const errorMessage = err instanceof Error ? err.message : ERROR_MESSAGES.UNKNOWN_ERROR;
-    return new Response(
-      JSON.stringify({
-        error: 'Kunne ikke speile konseptet',
-        details: errorMessage
-      }),
-      { status: 500, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
-    );
+    return createErrorResponse('Kunne ikke speile konseptet', 500, errorMessage);
   }
 };

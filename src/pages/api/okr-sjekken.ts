@@ -1,7 +1,19 @@
 import type { APIRoute } from 'astro';
-import type { AnthropicResponse, AnthropicStreamEvent, AnthropicErrorResponse } from '../../types';
+import type { AnthropicResponse, AnthropicErrorResponse } from '../../types';
 import { hashInput, createServerCacheManager, createRateLimiter } from '../../utils/cache';
-import { ERROR_MESSAGES, ANTHROPIC_CONFIG, HTTP_HEADERS, CACHE_HEADERS, INPUT_VALIDATION } from '../../utils/constants';
+import { ERROR_MESSAGES, ANTHROPIC_CONFIG, HTTP_HEADERS, INPUT_VALIDATION } from '../../utils/constants';
+import {
+  createAnthropicHeaders,
+  getClientIP,
+  fetchWithRetry,
+  resolveAnthropicConfig,
+  createCircuitBreaker,
+} from '../../lib/anthropic-client';
+import {
+  createAnthropicStreamingResponse,
+  createJsonResponse,
+  createErrorResponse,
+} from '../../lib/streaming-response';
 
 export const prerender = false;
 
@@ -45,87 +57,10 @@ Returner ALLTID nøyaktig disse fire seksjonene, uansett input:
 ## Tone
 Vær ærlig, kortfattet og konstruktiv. Ingen buzzwords. Ingen lange avsnitt.`;
 
-// Create shared cache and rate limiter instances (persist across requests in same Worker)
+// Create shared cache, rate limiter, and circuit breaker instances (persist across requests in same Worker)
 const cacheManager = createServerCacheManager();
 const rateLimiter = createRateLimiter();
-
-/**
- * Retry configuration for Anthropic API calls
- */
-const RETRY_CONFIG = {
-  MAX_RETRIES: 2,
-  INITIAL_DELAY_MS: 1000,
-  MAX_DELAY_MS: 5000,
-  BACKOFF_MULTIPLIER: 2,
-  RETRYABLE_STATUS_CODES: [429, 500, 502, 503, 504],
-} as const;
-
-/**
- * Simple circuit breaker state (shared across requests in same Worker)
- */
-const circuitBreaker = {
-  failures: 0,
-  lastFailure: 0,
-  isOpen: false,
-  FAILURE_THRESHOLD: 5,
-  RESET_TIMEOUT_MS: 30000, // 30 seconds
-};
-
-/**
- * Check if circuit breaker allows request
- */
-function checkCircuitBreaker(): boolean {
-  if (!circuitBreaker.isOpen) return true;
-
-  // Check if we should reset (half-open state)
-  if (Date.now() - circuitBreaker.lastFailure > circuitBreaker.RESET_TIMEOUT_MS) {
-    circuitBreaker.isOpen = false;
-    circuitBreaker.failures = 0;
-    return true;
-  }
-
-  return false;
-}
-
-/**
- * Record circuit breaker result
- */
-function recordCircuitBreakerResult(success: boolean): void {
-  if (success) {
-    circuitBreaker.failures = 0;
-    circuitBreaker.isOpen = false;
-  } else {
-    circuitBreaker.failures++;
-    circuitBreaker.lastFailure = Date.now();
-    if (circuitBreaker.failures >= circuitBreaker.FAILURE_THRESHOLD) {
-      circuitBreaker.isOpen = true;
-      console.warn(`Circuit breaker opened after ${circuitBreaker.failures} failures`);
-    }
-  }
-}
-
-/**
- * Sleep for a specified duration
- */
-function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-/**
- * Calculate delay with exponential backoff and jitter
- */
-function calculateBackoffDelay(attempt: number): number {
-  const baseDelay = RETRY_CONFIG.INITIAL_DELAY_MS * Math.pow(RETRY_CONFIG.BACKOFF_MULTIPLIER, attempt);
-  const jitter = Math.random() * 0.3 * baseDelay;
-  return Math.min(baseDelay + jitter, RETRY_CONFIG.MAX_DELAY_MS);
-}
-
-/**
- * Check if an HTTP status code is retryable
- */
-function isRetryableStatusCode(status: number): boolean {
-  return (RETRY_CONFIG.RETRYABLE_STATUS_CODES as readonly number[]).includes(status);
-}
+const circuitBreaker = createCircuitBreaker();
 
 /**
  * Validate OKR output has expected sections
@@ -147,117 +82,14 @@ function isValidOKROutput(output: string): boolean {
 }
 
 /**
- * Fetch with retry logic and exponential backoff
+ * Create user message with input wrapped in XML tags for prompt injection protection
  */
-async function fetchWithRetry(
-  url: string,
-  options: RequestInit,
-  timeoutMs: number
-): Promise<Response> {
-  let lastError: Error | null = null;
-  let lastResponse: Response | null = null;
-
-  for (let attempt = 0; attempt <= RETRY_CONFIG.MAX_RETRIES; attempt++) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-
-    try {
-      const response = await fetch(url, {
-        ...options,
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (response.ok || !isRetryableStatusCode(response.status)) {
-        return response;
-      }
-
-      lastResponse = response;
-
-      if (attempt >= RETRY_CONFIG.MAX_RETRIES) {
-        return response;
-      }
-
-      const retryDelay = calculateBackoffDelay(attempt);
-      console.warn(`Anthropic API returned ${response.status}, retrying in ${Math.round(retryDelay)}ms (attempt ${attempt + 1}/${RETRY_CONFIG.MAX_RETRIES})`);
-
-      await sleep(retryDelay);
-    } catch (error) {
-      clearTimeout(timeoutId);
-      lastError = error as Error;
-
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw error;
-      }
-
-      if (attempt >= RETRY_CONFIG.MAX_RETRIES) {
-        throw error;
-      }
-
-      const retryDelay = calculateBackoffDelay(attempt);
-      console.warn(`Anthropic API request failed, retrying in ${Math.round(retryDelay)}ms (attempt ${attempt + 1}/${RETRY_CONFIG.MAX_RETRIES})`);
-
-      await sleep(retryDelay);
-    }
-  }
-
-  if (lastResponse) return lastResponse;
-  throw lastError || new Error('Unknown error during fetch retry');
-}
-
-/**
- * Get client IP from request headers
- */
-function getClientIP(request: Request): string {
-  // Try Cloudflare headers first
-  const cfConnectingIP = request.headers.get('cf-connecting-ip');
-  if (cfConnectingIP) return cfConnectingIP;
-
-  const xForwardedFor = request.headers.get('x-forwarded-for');
-  if (xForwardedFor) return xForwardedFor.split(',')[0].trim();
-
-  const xRealIP = request.headers.get('x-real-ip');
-  if (xRealIP) return xRealIP;
-
-  return 'unknown';
-}
-
-/**
- * Create an Anthropic API request body
- */
-function createAnthropicRequestBody(input: string, model: string, stream: boolean) {
-  // Wrap user input in XML tags to clearly separate it from instructions
-  // This helps prevent prompt injection attacks
-  const wrappedInput = `<okr_input>
+function createUserMessage(input: string): string {
+  return `<okr_input>
 ${input.trim()}
 </okr_input>
 
 Vurder OKR-settet over. Følg output-formatet fra system-prompten.`;
-
-  return {
-    model,
-    max_tokens: ANTHROPIC_CONFIG.MAX_TOKENS,
-    system: SYSTEM_PROMPT,
-    stream,
-    messages: [
-      {
-        role: 'user',
-        content: wrappedInput,
-      },
-    ],
-  };
-}
-
-/**
- * Create Anthropic API request headers
- */
-function createAnthropicHeaders(apiKey: string) {
-  return {
-    'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
-    'x-api-key': apiKey,
-    'anthropic-version': ANTHROPIC_CONFIG.VERSION,
-  };
 }
 
 export const POST: APIRoute = async ({ request, locals }) => {
@@ -265,37 +97,25 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // Validate Content-Type header
     const contentType = request.headers.get('content-type');
     if (!contentType?.includes('application/json')) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid Content-Type. Expected application/json' }),
-        { status: 415, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
-      );
+      return createErrorResponse('Invalid Content-Type. Expected application/json', 415);
     }
 
     const { input, stream = false } = (await request.json()) as { input?: string; stream?: boolean };
 
     // Basic presence check
     if (!input?.trim()) {
-      return new Response(
-        JSON.stringify({ error: ERROR_MESSAGES.MISSING_INPUT_API }),
-        { status: 400, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
-      );
+      return createErrorResponse(ERROR_MESSAGES.MISSING_INPUT_API, 400);
     }
 
     const trimmedInput = input.trim();
 
     // Server-side input length validation (defense in depth)
     if (trimmedInput.length < INPUT_VALIDATION.MIN_LENGTH) {
-      return new Response(
-        JSON.stringify({ error: `Input must be at least ${INPUT_VALIDATION.MIN_LENGTH} characters` }),
-        { status: 400, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
-      );
+      return createErrorResponse(`Input must be at least ${INPUT_VALIDATION.MIN_LENGTH} characters`, 400);
     }
 
     if (trimmedInput.length > INPUT_VALIDATION.MAX_LENGTH) {
-      return new Response(
-        JSON.stringify({ error: `Input cannot exceed ${INPUT_VALIDATION.MAX_LENGTH} characters` }),
-        { status: 400, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
-      );
+      return createErrorResponse(`Input cannot exceed ${INPUT_VALIDATION.MAX_LENGTH} characters`, 400);
     }
 
     // Rate limiting
@@ -317,7 +137,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     // Circuit breaker check
-    if (!checkCircuitBreaker()) {
+    if (!circuitBreaker.check()) {
       return new Response(
         JSON.stringify({
           error: 'Service temporarily unavailable',
@@ -339,122 +159,28 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const cachedEntry = cacheManager.get(cacheKey);
 
     if (cachedEntry) {
-      return new Response(
-        JSON.stringify({
-          output: cachedEntry.output,
-          cached: true
-        }),
-        {
-          status: 200,
-          headers: {
-            'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
-            'X-Cache': CACHE_HEADERS.HIT
-          }
-        }
-      );
+      return createJsonResponse({ output: cachedEntry.output, cached: true }, { cacheStatus: 'HIT' });
     }
 
-    // Access environment variables from Cloudflare runtime
-    const cloudflareEnv = (locals as App.Locals).runtime?.env;
-    const apiKey = cloudflareEnv?.ANTHROPIC_API_KEY || import.meta.env.ANTHROPIC_API_KEY;
-    const model = cloudflareEnv?.ANTHROPIC_MODEL || import.meta.env.ANTHROPIC_MODEL || ANTHROPIC_CONFIG.DEFAULT_MODEL;
+    // Resolve API configuration
+    const { apiKey, model } = resolveAnthropicConfig(locals as App.Locals);
 
     if (!apiKey) {
       console.error('ANTHROPIC_API_KEY not configured');
-      return new Response(
-        JSON.stringify({ error: ERROR_MESSAGES.SERVER_NOT_CONFIGURED }),
-        { status: 500, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
-      );
+      return createErrorResponse(ERROR_MESSAGES.SERVER_NOT_CONFIGURED, 500);
     }
 
     // Handle streaming response
     if (stream) {
-      const encoder = new TextEncoder();
-      let fullOutput = '';
-
-      const customReadable = new ReadableStream({
-        async start(controller) {
-          try {
-            const anthropicResponse = await fetch(ANTHROPIC_CONFIG.API_URL, {
-              method: 'POST',
-              headers: createAnthropicHeaders(apiKey),
-              body: JSON.stringify(createAnthropicRequestBody(input, model, true)),
-            });
-
-            if (!anthropicResponse.ok) {
-              recordCircuitBreakerResult(false);
-              const errorData = await anthropicResponse.json() as AnthropicErrorResponse;
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({
-                error: true,
-                message: errorData?.error?.message || ERROR_MESSAGES.API_ERROR
-              })}\n\n`));
-              controller.close();
-              return;
-            }
-
-            const reader = anthropicResponse.body?.getReader();
-            if (!reader) {
-              controller.close();
-              return;
-            }
-
-            const decoder = new TextDecoder();
-            let buffer = '';
-
-            while (true) {
-              const { done, value } = await reader.read();
-              if (done) break;
-
-              buffer += decoder.decode(value, { stream: true });
-              const lines = buffer.split('\n');
-              buffer = lines.pop() || '';
-
-              for (const line of lines) {
-                if (line.startsWith('data: ')) {
-                  const data = line.slice(6);
-                  if (data === '[DONE]') continue;
-
-                  try {
-                    const event = JSON.parse(data) as AnthropicStreamEvent;
-                    if (event.type === 'content_block_delta' && event.delta?.type === 'text_delta') {
-                      const text = event.delta.text || '';
-                      fullOutput += text;
-                      controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
-                    }
-                  } catch (e) {
-                    console.error('Error parsing SSE data:', e);
-                  }
-                }
-              }
-            }
-
-            // Record success and cache only if output is valid
-            recordCircuitBreakerResult(true);
-            if (isValidOKROutput(fullOutput)) {
-              cacheManager.set(cacheKey, fullOutput);
-            }
-
-            controller.enqueue(encoder.encode('data: [DONE]\n\n'));
-            controller.close();
-          } catch (error) {
-            recordCircuitBreakerResult(false);
-            console.error('Streaming error:', error);
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({
-              error: true,
-              message: ERROR_MESSAGES.STREAMING_FAILED
-            })}\n\n`));
-            controller.close();
-          }
-        },
-      });
-
-      return new Response(customReadable, {
-        headers: {
-          'Content-Type': HTTP_HEADERS.CONTENT_TYPE_SSE,
-          'Cache-Control': HTTP_HEADERS.CACHE_CONTROL_NO_CACHE,
-          'Connection': HTTP_HEADERS.CONNECTION_KEEP_ALIVE,
-          'X-Cache': CACHE_HEADERS.MISS,
-        },
+      return createAnthropicStreamingResponse({
+        apiKey,
+        model,
+        systemPrompt: SYSTEM_PROMPT,
+        userMessage: createUserMessage(input),
+        validateOutput: isValidOKROutput,
+        onCache: (output) => cacheManager.set(cacheKey, output),
+        onSuccess: () => circuitBreaker.recordSuccess(),
+        onFailure: () => circuitBreaker.recordFailure(),
       });
     }
 
@@ -464,25 +190,29 @@ export const POST: APIRoute = async ({ request, locals }) => {
       {
         method: 'POST',
         headers: createAnthropicHeaders(apiKey),
-        body: JSON.stringify(createAnthropicRequestBody(input, model, false)),
+        body: JSON.stringify({
+          model,
+          max_tokens: ANTHROPIC_CONFIG.MAX_TOKENS,
+          system: SYSTEM_PROMPT,
+          stream: false,
+          messages: [{ role: 'user', content: createUserMessage(input) }],
+        }),
       },
       ANTHROPIC_CONFIG.REQUEST_TIMEOUT_MS
     );
 
     if (!anthropicResponse.ok) {
-      recordCircuitBreakerResult(false);
+      circuitBreaker.recordFailure();
       const errorData = await anthropicResponse.json() as AnthropicErrorResponse;
       console.error('Anthropic API error:', anthropicResponse.status, errorData);
-      return new Response(
-        JSON.stringify({
-          error: ERROR_MESSAGES.FAILED_TO_EVALUATE,
-          details: errorData?.error?.message || `API returned ${anthropicResponse.status}`,
-        }),
-        { status: 500, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
+      return createErrorResponse(
+        ERROR_MESSAGES.FAILED_TO_EVALUATE,
+        500,
+        errorData?.error?.message || `API returned ${anthropicResponse.status}`
       );
     }
 
-    recordCircuitBreakerResult(true);
+    circuitBreaker.recordSuccess();
     const data = await anthropicResponse.json() as AnthropicResponse;
     const output = data.content[0]?.type === 'text' ? data.content[0].text : '';
 
@@ -491,16 +221,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       cacheManager.set(cacheKey, output);
     }
 
-    return new Response(
-      JSON.stringify({ output, cached: false }),
-      {
-        status: 200,
-        headers: {
-          'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
-          'X-Cache': CACHE_HEADERS.MISS
-        }
-      }
-    );
+    return createJsonResponse({ output, cached: false }, { cacheStatus: 'MISS' });
 
   } catch (err) {
     console.error('OKR review error:', err);
@@ -512,12 +233,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     const errorMessage = err instanceof Error ? err.message : ERROR_MESSAGES.UNKNOWN_ERROR;
-    return new Response(
-      JSON.stringify({
-        error: ERROR_MESSAGES.FAILED_TO_EVALUATE,
-        details: errorMessage
-      }),
-      { status: 500, headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON } }
-    );
+    return createErrorResponse(ERROR_MESSAGES.FAILED_TO_EVALUATE, 500, errorMessage);
   }
 };

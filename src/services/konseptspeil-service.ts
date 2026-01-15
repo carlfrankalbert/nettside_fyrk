@@ -1,23 +1,18 @@
 /**
  * Client-side service for interacting with the Konseptspeil API
- * Handles streaming responses, caching, and request deduplication
+ * Handles streaming responses, caching, and request validation
  */
 
-import { hashInput, localStorageCache } from '../utils/cache';
-import { trackClick } from '../utils/tracking';
+import { createStreamingService, DEFAULT_ERROR_MESSAGES } from '../lib/streaming-service-client';
 
 const API_ENDPOINT = '/api/konseptspeilet';
-const MAX_RETRIES = 1; // Number of automatic retries for incomplete responses
+const CACHE_KEY_PREFIX = 'konseptspeil:v2:';
 
 /**
  * Error messages for the konseptspeil service
  */
 const ERROR_MESSAGES = {
-  DEFAULT: 'Noe gikk galt. Prøv igjen.',
-  RATE_LIMIT: 'For mange forespørsler. Vent litt før du prøver igjen.',
-  NETWORK: 'Kunne ikke koble til serveren. Sjekk nettverksforbindelsen.',
-  ABORTED: 'Forespørselen ble avbrutt.',
-  TIMEOUT: 'Det tok litt for lang tid. Prøv igjen.',
+  ...DEFAULT_ERROR_MESSAGES,
   INVALID_OUTPUT: 'Jeg fikk ikke et tydelig speil denne gangen. Prøv igjen.',
 } as const;
 
@@ -58,80 +53,15 @@ export function isValidOutput(output: string): boolean {
   return isResponseComplete(output);
 }
 
-// Track pending requests - Note: We no longer use this for deduplication
-// as it caused state corruption when multiple React callbacks shared state.
-// The localStorage cache provides sufficient deduplication for performance.
-// Keeping the Map for potential future use with proper isolation.
-
-/**
- * Internal function to perform a single streaming request
- */
-async function performStreamingRequest(
-  trimmedInput: string,
-  onChunk: (chunk: string) => void,
-  signal?: AbortSignal
-): Promise<string> {
-  const response = await fetch(API_ENDPOINT, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ input: trimmedInput, stream: true }),
-    signal,
-  });
-
-  if (!response.ok) {
-    const errorData = (await response.json().catch(() => ({}))) as { error?: string };
-    if (response.status === 429) {
-      throw new Error(ERROR_MESSAGES.RATE_LIMIT);
-    }
-    throw new Error(errorData.error || ERROR_MESSAGES.DEFAULT);
-  }
-
-  const reader = response.body?.getReader();
-  if (!reader) {
-    throw new Error(ERROR_MESSAGES.DEFAULT);
-  }
-
-  const decoder = new TextDecoder();
-  let buffer = '';
-  let fullOutput = '';
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split('\n');
-    buffer = lines.pop() || '';
-
-    for (const line of lines) {
-      if (line.startsWith('data: ')) {
-        const data = line.slice(6);
-        if (data === '[DONE]') continue;
-
-        try {
-          const event = JSON.parse(data) as { error?: boolean; message?: string; text?: string };
-          if (event.error) {
-            throw new Error(event.message || ERROR_MESSAGES.DEFAULT);
-          }
-          if (event.text) {
-            fullOutput += event.text;
-            onChunk(event.text);
-          }
-        } catch (e) {
-          if (e instanceof SyntaxError) {
-            // Skip invalid JSON lines
-            continue;
-          }
-          throw e;
-        }
-      }
-    }
-  }
-
-  return fullOutput;
-}
+// Create the streaming service instance
+const service = createStreamingService({
+  endpoint: API_ENDPOINT,
+  cacheKeyPrefix: CACHE_KEY_PREFIX,
+  isResponseComplete,
+  errorMessages: ERROR_MESSAGES,
+  maxRetries: 1,
+  retryEventName: 'konseptspeil_retry',
+});
 
 /**
  * Speile konsept with streaming response
@@ -143,130 +73,12 @@ export async function speileKonseptStreaming(
   onError: (error: string) => void,
   signal?: AbortSignal
 ): Promise<void> {
-  const trimmedInput = input.trim();
-  const cacheKey = await hashInput('konseptspeil:v2:' + trimmedInput);
-
-  // Check local cache first (only if complete)
-  const cachedResult = localStorageCache.get(cacheKey);
-  if (cachedResult && isResponseComplete(cachedResult)) {
-    // Simulate streaming for cached results (better UX)
-    const chunks = cachedResult.match(/.{1,50}/g) || [cachedResult];
-    for (const chunk of chunks) {
-      if (signal?.aborted) {
-        onError(ERROR_MESSAGES.ABORTED);
-        return;
-      }
-      onChunk(chunk);
-      await new Promise((resolve) => setTimeout(resolve, 10));
-    }
-    onComplete();
-    return;
-  }
-
-  // Clear potentially incomplete cached result
-  if (cachedResult && !isResponseComplete(cachedResult)) {
-    localStorageCache.remove(cacheKey);
-  }
-
-  // Note: We intentionally removed the pending request deduplication logic here.
-  // The previous implementation reused pending promises across React component calls,
-  // which caused state corruption: the first request's onChunk callbacks would update
-  // React state, then the second request's onChunk would append the full result again.
-  // The localStorage cache provides sufficient caching for performance.
-
-  // Create new request with retry logic
-  const requestPromise = (async (): Promise<string> => {
-    let lastOutput = '';
-    let retryCount = 0;
-
-    while (retryCount <= MAX_RETRIES) {
-      if (signal?.aborted) {
-        throw new Error(ERROR_MESSAGES.ABORTED);
-      }
-
-      // Note: On retry, we simply restart the stream
-      // The component's state will be reset by the new chunks arriving
-
-      lastOutput = await performStreamingRequest(trimmedInput, onChunk, signal);
-
-      // Check if response is complete
-      if (isResponseComplete(lastOutput)) {
-        // Cache the complete result
-        localStorageCache.set(cacheKey, lastOutput);
-        return lastOutput;
-      }
-
-      // Response is incomplete, retry if we haven't exceeded max retries
-      retryCount++;
-      if (retryCount <= MAX_RETRIES) {
-        console.warn(`Incomplete response detected, retrying (attempt ${retryCount}/${MAX_RETRIES})...`);
-        // Track retry for analytics visibility
-        trackClick('konseptspeil_retry');
-        // Short delay before retry
-        await new Promise((resolve) => setTimeout(resolve, 500));
-      }
-    }
-
-    // All retries exhausted, return what we have (even if incomplete)
-    // Don't cache incomplete responses
-    console.warn('Max retries reached, returning incomplete response');
-    return lastOutput;
-  })();
-
-  try {
-    await requestPromise;
-    onComplete();
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.name === 'AbortError') {
-        onError(ERROR_MESSAGES.ABORTED);
-      } else {
-        onError(error.message);
-      }
-    } else {
-      onError(ERROR_MESSAGES.DEFAULT);
-    }
-  }
+  return service.streamRequest(input, onChunk, onComplete, onError, signal);
 }
 
 /**
  * Speile konsept without streaming (for simple use cases)
  */
 export async function speileKonsept(input: string): Promise<{ output: string; cached: boolean }> {
-  const trimmedInput = input.trim();
-  const cacheKey = await hashInput('konseptspeil:v2:' + trimmedInput);
-
-  // Check local cache first
-  const cachedResult = localStorageCache.get(cacheKey);
-  if (cachedResult) {
-    return { output: cachedResult, cached: true };
-  }
-
-  const response = await fetch(API_ENDPOINT, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ input: trimmedInput, stream: false }),
-  });
-
-  if (!response.ok) {
-    const errorData = (await response.json().catch(() => ({}))) as { error?: string };
-    if (response.status === 429) {
-      throw new Error(ERROR_MESSAGES.RATE_LIMIT);
-    }
-    throw new Error(errorData.error || ERROR_MESSAGES.DEFAULT);
-  }
-
-  const data = (await response.json()) as { output?: string; cached?: boolean };
-
-  // Cache the result
-  if (data.output) {
-    localStorageCache.set(cacheKey, data.output);
-  }
-
-  return {
-    output: data.output ?? '',
-    cached: data.cached ?? false,
-  };
+  return service.request(input);
 }

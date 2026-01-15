@@ -207,6 +207,7 @@ describe('okr-service', () => {
       fetchMock.mockResolvedValue({
         ok: false,
         status: 429,
+        json: () => Promise.resolve({ error: 'Rate limited' }),
       });
 
       const onChunk = vi.fn();
@@ -222,6 +223,7 @@ describe('okr-service', () => {
       fetchMock.mockResolvedValue({
         ok: false,
         status: 500,
+        json: () => Promise.resolve({ error: 'Server error' }),
       });
 
       const onChunk = vi.fn();
@@ -230,7 +232,8 @@ describe('okr-service', () => {
 
       await reviewOKRStreaming('Test OKR', onChunk, onComplete, onError);
 
-      expect(onError).toHaveBeenCalledWith('Noe gikk galt under vurderingen. Prøv igjen om litt.');
+      // Uses shared error message from streaming-service-client
+      expect(onError).toHaveBeenCalledWith('Server error');
     });
 
     it('should handle missing response body', async () => {
@@ -245,7 +248,7 @@ describe('okr-service', () => {
 
       await reviewOKRStreaming('Test OKR', onChunk, onComplete, onError);
 
-      expect(onError).toHaveBeenCalledWith('Noe gikk galt under vurderingen. Prøv igjen om litt.');
+      expect(onError).toHaveBeenCalledWith('Noe gikk galt. Prøv igjen.');
     });
 
     it('should process SSE stream correctly', async () => {
@@ -299,7 +302,8 @@ describe('okr-service', () => {
 
       await reviewOKRStreaming('Test OKR', onChunk, onComplete, onError);
 
-      expect(onError).toHaveBeenCalledWith('Noe gikk galt under vurderingen. Prøv igjen om litt.');
+      // Error message is passed through from the exception
+      expect(onError).toHaveBeenCalledWith('Stream error');
     });
 
     it('should handle SSE error events', async () => {

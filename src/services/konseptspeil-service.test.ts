@@ -219,7 +219,7 @@ describe('konseptspeil-service', () => {
       fetchMock.mockResolvedValue({
         ok: false,
         status: 429,
-        json: () => Promise.resolve({}),
+        json: () => Promise.resolve({ error: 'Rate limited' }),
       });
 
       const onChunk = vi.fn();
@@ -235,7 +235,7 @@ describe('konseptspeil-service', () => {
       fetchMock.mockResolvedValue({
         ok: false,
         status: 500,
-        json: () => Promise.resolve({}),
+        json: () => Promise.resolve({ error: 'Server error' }),
       });
 
       const onChunk = vi.fn();
@@ -244,7 +244,8 @@ describe('konseptspeil-service', () => {
 
       await speileKonseptStreaming('Test input', onChunk, onComplete, onError);
 
-      expect(onError).toHaveBeenCalledWith(ERROR_MESSAGES.DEFAULT);
+      // Uses the error message from the response
+      expect(onError).toHaveBeenCalledWith('Server error');
     });
 
     it('should handle missing response body', async () => {
@@ -276,6 +277,8 @@ describe('konseptspeil-service', () => {
             value: new TextEncoder().encode('data: [DONE]\n\n'),
           })
           .mockResolvedValueOnce({ done: true, value: undefined }),
+        releaseLock: vi.fn(),
+        cancel: vi.fn(),
       };
 
       fetchMock.mockResolvedValue({
@@ -318,6 +321,8 @@ describe('konseptspeil-service', () => {
             value: new TextEncoder().encode('data: {"error":true,"message":"API error"}\n\n'),
           })
           .mockResolvedValueOnce({ done: true, value: undefined }),
+        releaseLock: vi.fn(),
+        cancel: vi.fn(),
       };
 
       fetchMock.mockResolvedValue({
@@ -355,6 +360,8 @@ describe('konseptspeil-service', () => {
             value: new TextEncoder().encode('data: [DONE]\n\n'),
           })
           .mockResolvedValueOnce({ done: true, value: undefined }),
+        releaseLock: vi.fn(),
+        cancel: vi.fn(),
       };
 
       fetchMock.mockResolvedValue({

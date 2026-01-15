@@ -3,16 +3,16 @@
  * Handles API communication for OKR analysis with caching and streaming support
  */
 
-import type { OKRReviewResponse, OKRReviewError, OKRReviewResult, OKRStreamEvent } from '../types';
+import type { OKRReviewResponse, OKRReviewError, OKRReviewResult } from '../types';
 import { hashInput, localStorageCache } from '../utils/cache';
 import { ERROR_MESSAGES, API_ROUTES, ANTHROPIC_CONFIG } from '../utils/constants';
+import { performStreamingRequest, DEFAULT_ERROR_MESSAGES } from '../lib/streaming-service-client';
 
 // In-memory cache for request deduplication
 const pendingRequests = new Map<string, Promise<OKRReviewResult>>();
 
 /**
  * Create a fetch request with timeout support
- * Returns an abort controller that can be used to cancel the request
  */
 function createFetchWithTimeout(url: string, options: RequestInit, timeoutMs: number): { promise: Promise<Response>; abort: () => void } {
   const controller = new AbortController();
@@ -101,7 +101,6 @@ export async function reviewOKR(input: string): Promise<OKRReviewResult> {
         cached: data.cached ?? false,
       };
     } catch (err) {
-      // Handle timeout specifically
       if (err instanceof Error && err.name === 'AbortError') {
         return {
           success: false,
@@ -123,11 +122,6 @@ export async function reviewOKR(input: string): Promise<OKRReviewResult> {
 
 /**
  * Submit an OKR for AI-powered review with streaming
- * @param input - The OKR text to review
- * @param onChunk - Callback for each streamed text chunk
- * @param onComplete - Callback when streaming is complete
- * @param onError - Callback for errors
- * @param signal - Optional AbortSignal for cancellation
  */
 export async function reviewOKRStreaming(
   input: string,
@@ -141,101 +135,37 @@ export async function reviewOKRStreaming(
   // Check localStorage cache first
   const cachedOutput = localStorageCache.get(cacheKey);
   if (cachedOutput) {
-    // Simulate streaming for cached results
+    // Simulate streaming for cached results using word-based chunks (OKR-specific UX)
     const words = cachedOutput.split(' ');
     for (let i = 0; i < words.length; i++) {
-      // Check if cancelled during cached streaming
       if (signal?.aborted) return;
-      setTimeout(() => {
-        if (signal?.aborted) return;
-        onChunk(words[i] + (i < words.length - 1 ? ' ' : ''));
-        if (i === words.length - 1) {
-          onComplete();
-        }
-      }, i * 10); // 10ms delay between words
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      if (signal?.aborted) return;
+      onChunk(words[i] + (i < words.length - 1 ? ' ' : ''));
     }
+    onComplete();
     return;
   }
 
   try {
-    const response = await fetch(API_ROUTES.OKR_REVIEW, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ input, stream: true }),
+    const output = await performStreamingRequest(
+      API_ROUTES.OKR_REVIEW,
+      input,
+      onChunk,
       signal,
-    });
+      DEFAULT_ERROR_MESSAGES
+    );
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        onError(ERROR_MESSAGES.RATE_LIMIT);
-      } else {
-        onError(ERROR_MESSAGES.OKR_REVIEW_DEFAULT);
-      }
-      return;
-    }
-
-    const reader = response.body?.getReader();
-    if (!reader) {
-      onError(ERROR_MESSAGES.OKR_REVIEW_DEFAULT);
-      return;
-    }
-
-    const decoder = new TextDecoder();
-    let buffer = '';
-    let fullOutput = '';
-
-    try {
-      while (true) {
-        // Check if cancelled
-        if (signal?.aborted) {
-          await reader.cancel();
-          return;
-        }
-
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
-            if (data === '[DONE]') {
-              // Cache the complete output
-              localStorageCache.set(cacheKey, fullOutput);
-              onComplete();
-              return;
-            }
-
-            try {
-              const event: OKRStreamEvent = JSON.parse(data);
-              if (event.error) {
-                onError(event.message || ERROR_MESSAGES.OKR_REVIEW_DEFAULT);
-                return;
-              }
-              if (event.text) {
-                fullOutput += event.text;
-                onChunk(event.text);
-              }
-            } catch (e) {
-              console.error('Error parsing SSE data:', e);
-            }
-          }
-        }
-      }
-    } finally {
-      // Ensure reader is released
-      reader.releaseLock();
-    }
+    // Cache the complete output
+    localStorageCache.set(cacheKey, output);
+    onComplete();
   } catch (error) {
     // Don't report errors for intentional cancellation
     if (error instanceof Error && error.name === 'AbortError') {
       return;
     }
     console.error('Streaming error:', error);
-    onError(ERROR_MESSAGES.OKR_REVIEW_DEFAULT);
+    onError(error instanceof Error ? error.message : ERROR_MESSAGES.OKR_REVIEW_DEFAULT);
   }
 }
 

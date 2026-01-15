@@ -21,6 +21,8 @@ export const ERROR_MESSAGES = {
   SERVER_NOT_CONFIGURED: 'Server not configured: Missing API key',
   /** Streaming failed error */
   STREAMING_FAILED: 'Streaming failed',
+  /** Request timeout error */
+  TIMEOUT: 'Forespørselen tok for lang tid. Prøv igjen.',
   /** API error fallback */
   API_ERROR: 'API error',
   /** Failed to evaluate OKR */
