@@ -41,7 +41,7 @@
     "@astrojs/node": "^8.3.4",
     "@astrojs/react": "^4.0.0",
     "@fontsource/inter": "^5.2.8",
-    "astro": "^4.0.0",
+    "astro": "^5.16.9",
     "lucide-react": "^0.562.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
