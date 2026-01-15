@@ -3,17 +3,18 @@ import { generateAssumptionsStreaming, ERROR_MESSAGES, isValidOutput } from '../
 import AntakelseskartResultDisplay from './AntakelseskartResultDisplay';
 import { SpinnerIcon, ChevronRightIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
-import { INPUT_VALIDATION, STREAMING_CONSTANTS, type StreamingErrorType } from '../utils/constants';
-import { trackClick, logEvent } from '../utils/tracking';
+import { INPUT_VALIDATION, STREAMING_CONSTANTS } from '../utils/constants';
+import { trackClick } from '../utils/tracking';
 import { debounce } from '../utils/debounce';
 import { isUrlEncoded, safeDecodeURIComponent } from '../utils/url-decoding';
 import { validateBeslutningInput } from '../utils/form-validation';
+import { useStreamingForm } from '../hooks/useStreamingForm';
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const { SUBMIT_THRESHOLD, HARD_TIMEOUT_MS } = STREAMING_CONSTANTS;
+const { SUBMIT_THRESHOLD } = STREAMING_CONSTANTS;
 
 // Example decision for the tool
 const EXAMPLE_DECISION = `Vi vurderer å lansere en abonnementsbasert tjeneste for produktteam som vil ha raskere tilgang til brukerinnsikt.
@@ -28,28 +29,43 @@ Vi tror dette kan redusere tiden fra "idé til validert innsikt" betydelig, og a
 
 export default function Antakelseskart() {
   // ---------------------------------------------------------------------------
-  // State
+  // Streaming Form Hook
   // ---------------------------------------------------------------------------
-  const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [errorType, setErrorType] = useState<StreamingErrorType>(null);
-  const [result, setResult] = useState<string | null>(null);
-  const [isStreaming, setIsStreaming] = useState(false);
+  const {
+    input,
+    setInput,
+    loading,
+    error,
+    errorType,
+    result,
+    isStreaming,
+    submittedInput,
+    trimmedLength,
+    isButtonEnabled,
+    handleSubmit,
+    clearError,
+    reset,
+    abortControllerRef,
+  } = useStreamingForm({
+    toolName: 'antakelseskart',
+    validateInput: validateBeslutningInput,
+    streamingService: generateAssumptionsStreaming,
+    isValidOutput,
+    errorMessages: ERROR_MESSAGES,
+  });
+
+  // ---------------------------------------------------------------------------
+  // UI State (component-specific)
+  // ---------------------------------------------------------------------------
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isExampleAnimating, setIsExampleAnimating] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const [submittedInput, setSubmittedInput] = useState<string | null>(null);
 
   // ---------------------------------------------------------------------------
-  // Refs
+  // Refs (component-specific)
   // ---------------------------------------------------------------------------
-  const abortControllerRef = useRef<AbortController | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const hardTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const isSubmittingRef = useRef(false);
-  const checkStartTimeRef = useRef<number>(0);
   const hasTrackedInputStartRef = useRef(false);
 
   // ---------------------------------------------------------------------------
@@ -57,8 +73,6 @@ export default function Antakelseskart() {
   // ---------------------------------------------------------------------------
   const charCountWarning = INPUT_VALIDATION.MAX_LENGTH * 0.9;
   const charCountDanger = INPUT_VALIDATION.MAX_LENGTH * 0.975;
-  const trimmedLength = input.trim().length;
-  const isButtonEnabled = trimmedLength >= SUBMIT_THRESHOLD && !loading;
   const showMinimumHelper = isFocused && trimmedLength >= 1 && trimmedLength < SUBMIT_THRESHOLD;
   const isNearingMinimum = trimmedLength >= 1 && trimmedLength < SUBMIT_THRESHOLD;
 
@@ -77,121 +91,11 @@ export default function Antakelseskart() {
     []
   );
 
-  const clearTimeouts = useCallback(() => {
-    if (hardTimeoutRef.current) {
-      clearTimeout(hardTimeoutRef.current);
-      hardTimeoutRef.current = null;
-    }
-  }, []);
-
-  const setErrorWithType = useCallback((message: string, type: StreamingErrorType) => {
-    setError(message);
-    setErrorType(type);
-    if (type) {
-      console.warn(`[Antakelseskart] Error: ${type}`);
-    }
-  }, []);
-
-  const handleSubmit = useCallback(async () => {
-    if (isSubmittingRef.current || loading) return;
-    isSubmittingRef.current = true;
-
-    const validationError = validateBeslutningInput(input);
-    if (validationError) {
-      setErrorWithType(validationError, 'validation');
-      isSubmittingRef.current = false;
-      return;
-    }
-
-    trackClick('antakelseskart_submit');
-    checkStartTimeRef.current = Date.now();
-    setSubmittedInput(input.trim());
-
-    setLoading(true);
-    setIsStreaming(true);
-    setError(null);
-    setErrorType(null);
-    setResult(null);
-    clearTimeouts();
-
-    abortControllerRef.current?.abort();
-    abortControllerRef.current = new AbortController();
-
-    hardTimeoutRef.current = setTimeout(() => {
-      clearTimeouts();
-      abortControllerRef.current?.abort();
-      setErrorWithType(ERROR_MESSAGES.TIMEOUT, 'timeout');
-      setLoading(false);
-      setIsStreaming(false);
-      setResult(null);
-      abortControllerRef.current = null;
-      isSubmittingRef.current = false;
-      logEvent('antakelseskart_error', {
-        charCount: input.trim().length,
-        processingTimeMs: Date.now() - checkStartTimeRef.current,
-      });
-    }, HARD_TIMEOUT_MS);
-
-    let finalResult = '';
-
-    await generateAssumptionsStreaming(
-      input.trim(),
-      (chunk) => {
-        finalResult += chunk;
-        setResult((prev) => (prev ?? '') + chunk);
-      },
-      () => {
-        clearTimeouts();
-        isSubmittingRef.current = false;
-
-        if (!isValidOutput(finalResult)) {
-          setErrorWithType(ERROR_MESSAGES.INVALID_OUTPUT, 'invalid_output');
-          setLoading(false);
-          setIsStreaming(false);
-          setResult(null);
-          abortControllerRef.current = null;
-          logEvent('antakelseskart_error', {
-            charCount: input.trim().length,
-            processingTimeMs: Date.now() - checkStartTimeRef.current,
-          });
-          return;
-        }
-
-        const processingTimeMs = Date.now() - checkStartTimeRef.current;
-        logEvent('antakelseskart_success', {
-          charCount: input.trim().length,
-          processingTimeMs,
-        });
-
-        setLoading(false);
-        setIsStreaming(false);
-        abortControllerRef.current = null;
-        setTimeout(() => {
-          resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
-      },
-      (errorMsg) => {
-        clearTimeouts();
-        isSubmittingRef.current = false;
-        const type: StreamingErrorType = errorMsg.includes('koble til') ? 'network' : 'unknown';
-        setErrorWithType(errorMsg, type);
-        setLoading(false);
-        setIsStreaming(false);
-        logEvent('antakelseskart_error', {
-          charCount: input.trim().length,
-          processingTimeMs: Date.now() - checkStartTimeRef.current,
-        });
-        setResult(null);
-        abortControllerRef.current = null;
-      },
-      abortControllerRef.current.signal
-    );
-  }, [input, loading, clearTimeouts, setErrorWithType]);
-
   // ---------------------------------------------------------------------------
   // Effects
   // ---------------------------------------------------------------------------
 
+  // Dispatch events for mobile CTA sync
   useEffect(() => {
     window.dispatchEvent(new CustomEvent('antakelseskart:inputChange', {
       detail: {
@@ -202,6 +106,7 @@ export default function Antakelseskart() {
     }));
   }, [trimmedLength, loading, result]);
 
+  // Listen for mobile submit trigger
   useEffect(() => {
     const handleMobileSubmit = () => {
       handleSubmit();
@@ -210,16 +115,26 @@ export default function Antakelseskart() {
     return () => window.removeEventListener('antakelseskart:submit', handleMobileSubmit);
   }, [handleSubmit]);
 
+  // Auto-resize textarea when input changes
   useEffect(() => {
     autoResizeTextarea();
   }, [input, autoResizeTextarea]);
 
+  // Cleanup abort controller on unmount
   useEffect(() => {
     return () => {
       abortControllerRef.current?.abort();
-      clearTimeouts();
     };
-  }, [clearTimeouts]);
+  }, [abortControllerRef]);
+
+  // Scroll to results when streaming completes
+  useEffect(() => {
+    if (!isStreaming && result) {
+      setTimeout(() => {
+        resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [isStreaming, result]);
 
   // ---------------------------------------------------------------------------
   // Event Handlers
@@ -238,7 +153,7 @@ export default function Antakelseskart() {
 
       const newValue = input.substring(0, start) + decodedText + input.substring(end);
       setInput(newValue);
-      if (error) setError(null);
+      if (error) clearError();
 
       setTimeout(() => {
         if (textareaRef.current) {
@@ -253,7 +168,7 @@ export default function Antakelseskart() {
     trackClick('antakelseskart_example');
     setIsExampleAnimating(true);
     setInput(EXAMPLE_DECISION);
-    setError(null);
+    clearError();
 
     setTimeout(() => {
       const textarea = textareaRef.current;
@@ -276,17 +191,14 @@ export default function Antakelseskart() {
     }, 300);
   };
 
-  const handleFullReset = () => {
+  const handleFullReset = useCallback(() => {
     trackClick('antakelseskart_reset');
-    setResult(null);
-    setSubmittedInput(null);
-    setError(null);
-    setInput('');
+    reset();
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setTimeout(() => {
       textareaRef.current?.focus();
     }, 100);
-  };
+  }, [reset]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
@@ -303,13 +215,14 @@ export default function Antakelseskart() {
       newValue = safeDecodeURIComponent(newValue);
     }
 
+    // Track first input (funnel start) - only fire once per session
     if (!hasTrackedInputStartRef.current && newValue.length > 0 && input.length === 0) {
       hasTrackedInputStartRef.current = true;
       trackClick('antakelseskart_input_started');
     }
 
     setInput(newValue);
-    if (error) setError(null);
+    if (error) clearError();
   };
 
   // ---------------------------------------------------------------------------

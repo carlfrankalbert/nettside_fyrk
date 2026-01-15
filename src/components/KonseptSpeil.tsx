@@ -3,17 +3,18 @@ import { speileKonseptStreaming, ERROR_MESSAGES, isValidOutput } from '../servic
 import KonseptSpeilResultDisplayV2 from './KonseptSpeilResultDisplayV2';
 import { SpinnerIcon, ChevronRightIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
-import { INPUT_VALIDATION, EXAMPLE_KONSEPT, STREAMING_CONSTANTS, type StreamingErrorType } from '../utils/constants';
-import { trackClick, logEvent } from '../utils/tracking';
+import { INPUT_VALIDATION, EXAMPLE_KONSEPT, STREAMING_CONSTANTS } from '../utils/constants';
+import { trackClick } from '../utils/tracking';
 import { debounce } from '../utils/debounce';
 import { isUrlEncoded, safeDecodeURIComponent } from '../utils/url-decoding';
 import { validateKonseptInput } from '../utils/form-validation';
+import { useStreamingForm } from '../hooks/useStreamingForm';
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const { SUBMIT_THRESHOLD, HARD_TIMEOUT_MS } = STREAMING_CONSTANTS;
+const { SUBMIT_THRESHOLD } = STREAMING_CONSTANTS;
 
 // ============================================================================
 // Component
@@ -21,32 +22,43 @@ const { SUBMIT_THRESHOLD, HARD_TIMEOUT_MS } = STREAMING_CONSTANTS;
 
 export default function KonseptSpeil() {
   // ---------------------------------------------------------------------------
-  // State
+  // Streaming Form Hook
   // ---------------------------------------------------------------------------
-  const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [errorType, setErrorType] = useState<StreamingErrorType>(null);
-  const [result, setResult] = useState<string | null>(null);
-  const [isStreaming, setIsStreaming] = useState(false);
+  const {
+    input,
+    setInput,
+    loading,
+    error,
+    errorType,
+    result,
+    isStreaming,
+    submittedInput,
+    trimmedLength,
+    isButtonEnabled,
+    handleSubmit,
+    clearError,
+    reset,
+    abortControllerRef,
+  } = useStreamingForm({
+    toolName: 'konseptspeil',
+    validateInput: validateKonseptInput,
+    streamingService: speileKonseptStreaming,
+    isValidOutput,
+    errorMessages: ERROR_MESSAGES,
+  });
+
+  // ---------------------------------------------------------------------------
+  // UI State (component-specific)
+  // ---------------------------------------------------------------------------
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isExampleAnimating, setIsExampleAnimating] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const [submittedInput, setSubmittedInput] = useState<string | null>(null);
 
   // ---------------------------------------------------------------------------
-  // Refs
+  // Refs (component-specific)
   // ---------------------------------------------------------------------------
-  const abortControllerRef = useRef<AbortController | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const hardTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // Synchronous guard to prevent race conditions with concurrent submissions
-  // (React state updates are async, so we need a ref for immediate check)
-  const isSubmittingRef = useRef(false);
-  // Track start time for processing duration measurement
-  const checkStartTimeRef = useRef<number>(0);
-  // Track if input_started has been fired (only fire once per session)
   const hasTrackedInputStartRef = useRef(false);
 
   // ---------------------------------------------------------------------------
@@ -54,16 +66,13 @@ export default function KonseptSpeil() {
   // ---------------------------------------------------------------------------
   const charCountWarning = INPUT_VALIDATION.MAX_LENGTH * 0.9;
   const charCountDanger = INPUT_VALIDATION.MAX_LENGTH * 0.975;
-  const trimmedLength = input.trim().length;
-  const isButtonEnabled = trimmedLength >= SUBMIT_THRESHOLD && !loading;
   const showMinimumHelper = isFocused && trimmedLength >= 1 && trimmedLength < SUBMIT_THRESHOLD;
   const isNearingMinimum = trimmedLength >= 1 && trimmedLength < SUBMIT_THRESHOLD;
 
   // ---------------------------------------------------------------------------
-  // Callbacks (defined before effects that use them)
+  // Callbacks
   // ---------------------------------------------------------------------------
 
-  /** Auto-resize textarea to fit content (debounced for performance) */
   const autoResizeTextarea = useMemo(
     () =>
       debounce(() => {
@@ -71,139 +80,9 @@ export default function KonseptSpeil() {
         if (!textarea) return;
         textarea.style.height = 'auto';
         textarea.style.height = `${textarea.scrollHeight}px`;
-      }, 16), // ~60fps, smooth enough for typing
+      }, 16),
     []
   );
-
-  /** Clear pending timeout */
-  const clearTimeouts = useCallback(() => {
-    if (hardTimeoutRef.current) {
-      clearTimeout(hardTimeoutRef.current);
-      hardTimeoutRef.current = null;
-    }
-  }, []);
-
-  /** Set an error with type tracking for logging */
-  const setErrorWithType = useCallback((message: string, type: StreamingErrorType) => {
-    setError(message);
-    setErrorType(type);
-    if (type) {
-      console.warn(`[Konseptspeil] Error: ${type}`);
-    }
-  }, []);
-
-  /** Submit the konsept for AI reflection */
-  const handleSubmit = useCallback(async () => {
-    // Use synchronous ref check to prevent race conditions
-    // (React's loading state update is async, so rapid clicks could bypass it)
-    if (isSubmittingRef.current || loading) return;
-    isSubmittingRef.current = true;
-
-    const validationError = validateKonseptInput(input);
-    if (validationError) {
-      setErrorWithType(validationError, 'validation');
-      isSubmittingRef.current = false;
-      return;
-    }
-
-    trackClick('konseptspeil_submit');
-
-    // Record start time for processing duration tracking
-    checkStartTimeRef.current = Date.now();
-
-    // Save the submitted input for display in results
-    setSubmittedInput(input.trim());
-
-    // Clear previous state - reset result to null first to ensure clean state
-    setLoading(true);
-    setIsStreaming(true);
-    setError(null);
-    setErrorType(null);
-    setResult(null); // Use null instead of '' to ensure clean state detection
-    clearTimeouts();
-
-    // Abort any previous request
-    abortControllerRef.current?.abort();
-    abortControllerRef.current = new AbortController();
-
-    // Set up hard timeout
-    hardTimeoutRef.current = setTimeout(() => {
-      clearTimeouts();
-      abortControllerRef.current?.abort();
-      setErrorWithType(ERROR_MESSAGES.TIMEOUT, 'timeout');
-      setLoading(false);
-      setIsStreaming(false);
-      setResult(null);
-      abortControllerRef.current = null;
-      isSubmittingRef.current = false;
-      // Track timeout error
-      logEvent('konseptspeil_error', {
-        charCount: input.trim().length,
-        processingTimeMs: Date.now() - checkStartTimeRef.current,
-      });
-    }, HARD_TIMEOUT_MS);
-
-    let finalResult = '';
-
-    await speileKonseptStreaming(
-      input.trim(),
-      (chunk) => {
-        finalResult += chunk;
-        // Use functional update to safely append chunks to previous state
-        setResult((prev) => (prev ?? '') + chunk);
-      },
-      () => {
-        clearTimeouts();
-        isSubmittingRef.current = false;
-
-        // Validate output format
-        if (!isValidOutput(finalResult)) {
-          setErrorWithType(ERROR_MESSAGES.INVALID_OUTPUT, 'invalid_output');
-          setLoading(false);
-          setIsStreaming(false);
-          setResult(null);
-          abortControllerRef.current = null;
-          // Track invalid output as error
-          logEvent('konseptspeil_error', {
-            charCount: input.trim().length,
-            processingTimeMs: Date.now() - checkStartTimeRef.current,
-          });
-          return;
-        }
-
-        // Track successful completion
-        const processingTimeMs = Date.now() - checkStartTimeRef.current;
-        logEvent('konseptspeil_success', {
-          charCount: input.trim().length,
-          processingTimeMs,
-        });
-
-        setLoading(false);
-        setIsStreaming(false);
-        abortControllerRef.current = null;
-        setTimeout(() => {
-          resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
-      },
-      (errorMsg) => {
-        clearTimeouts();
-        isSubmittingRef.current = false;
-        // Determine error type based on message
-        const type: StreamingErrorType = errorMsg.includes('koble til') ? 'network' : 'unknown';
-        setErrorWithType(errorMsg, type);
-        setLoading(false);
-        setIsStreaming(false);
-        // Track error
-        logEvent('konseptspeil_error', {
-          charCount: input.trim().length,
-          processingTimeMs: Date.now() - checkStartTimeRef.current,
-        });
-        setResult(null);
-        abortControllerRef.current = null;
-      },
-      abortControllerRef.current.signal
-    );
-  }, [input, loading, clearTimeouts, setErrorWithType]);
 
   // ---------------------------------------------------------------------------
   // Effects
@@ -234,19 +113,26 @@ export default function KonseptSpeil() {
     autoResizeTextarea();
   }, [input, autoResizeTextarea]);
 
-  // Cleanup abort controller and timeouts on unmount
+  // Cleanup abort controller on unmount
   useEffect(() => {
     return () => {
       abortControllerRef.current?.abort();
-      clearTimeouts();
     };
-  }, [clearTimeouts]);
+  }, [abortControllerRef]);
+
+  // Scroll to results when streaming completes
+  useEffect(() => {
+    if (!isStreaming && result) {
+      setTimeout(() => {
+        resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [isStreaming, result]);
 
   // ---------------------------------------------------------------------------
   // Event Handlers
   // ---------------------------------------------------------------------------
 
-  /** Handle paste events to decode URL-encoded text */
   const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const pastedText = e.clipboardData.getData('text/plain');
 
@@ -260,7 +146,7 @@ export default function KonseptSpeil() {
 
       const newValue = input.substring(0, start) + decodedText + input.substring(end);
       setInput(newValue);
-      if (error) setError(null);
+      if (error) clearError();
 
       setTimeout(() => {
         if (textareaRef.current) {
@@ -271,12 +157,11 @@ export default function KonseptSpeil() {
     }
   };
 
-  /** Fill in example text */
   const handleFillExample = () => {
     trackClick('konseptspeil_example');
     setIsExampleAnimating(true);
     setInput(EXAMPLE_KONSEPT);
-    setError(null);
+    clearError();
 
     setTimeout(() => {
       const textarea = textareaRef.current;
@@ -291,62 +176,6 @@ export default function KonseptSpeil() {
     }, 600);
   };
 
-  /** Edit input while keeping results visible (Juster tekst) */
-  const handleEditInput = () => {
-    trackClick('konseptspeil_edit');
-    // Scroll to input area
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    // Focus the textarea after scroll
-    setTimeout(() => {
-      textareaRef.current?.focus();
-    }, 300);
-  };
-
-  /** Full reset - clear everything (Nullstill) */
-  const handleFullReset = () => {
-    trackClick('konseptspeil_reset');
-    setResult(null);
-    setSubmittedInput(null);
-    setError(null);
-    setInput('');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(() => {
-      textareaRef.current?.focus();
-    }, 100);
-  };
-
-  /** Handle keyboard shortcuts (Cmd/Ctrl+Enter to submit) */
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-      e.preventDefault();
-      if (isButtonEnabled) {
-        handleSubmit();
-      }
-    }
-  };
-
-  /** Handle input change with URL decoding */
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    let newValue = e.target.value;
-    if (isUrlEncoded(newValue)) {
-      newValue = safeDecodeURIComponent(newValue);
-    }
-
-    // Track first input (funnel start) - only fire once per session
-    if (!hasTrackedInputStartRef.current && newValue.length > 0 && input.length === 0) {
-      hasTrackedInputStartRef.current = true;
-      trackClick('konseptspeil_input_started');
-    }
-
-    setInput(newValue);
-    if (error) setError(null);
-  };
-
-  // ---------------------------------------------------------------------------
-  // Render
-  // ---------------------------------------------------------------------------
-
-  /** Fill with short example for quick demo */
   const handleFillShortExample = () => {
     trackClick('konseptspeil_example');
     setIsExampleAnimating(true);
@@ -355,7 +184,7 @@ Tanken er at det skal brukes tidlig i en beslutningsprosess for å avdekke uklar
 Målgruppen er erfarne produktledere, men vi er usikre på om dette løser et reelt problem eller bare føles nyttig.
 Hvis dette ikke gir tydelig verdi, bør vi sannsynligvis ikke bygge det videre.`;
     setInput(shortExample);
-    setError(null);
+    clearError();
 
     setTimeout(() => {
       const textarea = textareaRef.current;
@@ -369,6 +198,52 @@ Hvis dette ikke gir tydelig verdi, bør vi sannsynligvis ikke bygge det videre.`
       setIsExampleAnimating(false);
     }, 600);
   };
+
+  const handleEditInput = () => {
+    trackClick('konseptspeil_edit');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      textareaRef.current?.focus();
+    }, 300);
+  };
+
+  const handleFullReset = useCallback(() => {
+    trackClick('konseptspeil_reset');
+    reset();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      textareaRef.current?.focus();
+    }, 100);
+  }, [reset]);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      e.preventDefault();
+      if (isButtonEnabled) {
+        handleSubmit();
+      }
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    let newValue = e.target.value;
+    if (isUrlEncoded(newValue)) {
+      newValue = safeDecodeURIComponent(newValue);
+    }
+
+    // Track first input (funnel start) - only fire once per session
+    if (!hasTrackedInputStartRef.current && newValue.length > 0 && input.length === 0) {
+      hasTrackedInputStartRef.current = true;
+      trackClick('konseptspeil_input_started');
+    }
+
+    setInput(newValue);
+    if (error) clearError();
+  };
+
+  // ---------------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------------
 
   return (
     <div className="space-y-6" aria-busy={loading}>
