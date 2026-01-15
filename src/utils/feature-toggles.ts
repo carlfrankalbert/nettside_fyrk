@@ -36,6 +36,12 @@ export const BETA_COOKIE_MAX_AGE = 30 * 24 * 60 * 60;
  */
 export const DEFAULT_FEATURES: FeatureToggle[] = [
   {
+    id: 'okr-sjekken',
+    name: 'OKR-sjekken',
+    description: 'AI-drevet verktøy for å vurdere kvaliteten på OKR-sett',
+    status: 'on',
+  },
+  {
     id: 'konseptspeilet',
     name: 'Konseptspeilet',
     description: 'Refleksjonsverktøy for produktkonsepter – hjelper brukere å se antakelser og modenhet i idéer',
@@ -45,6 +51,12 @@ export const DEFAULT_FEATURES: FeatureToggle[] = [
     id: 'antakelseskart',
     name: 'Antakelseskartet',
     description: 'Avdekker implisitte antakelser i produkt- og strategibeslutninger',
+    status: 'on',
+  },
+  {
+    id: 'beslutningslogg',
+    name: 'Beslutningsloggen',
+    description: 'Dokumenter beslutninger med klarhet – eksporter som Markdown',
     status: 'on',
   },
 ];

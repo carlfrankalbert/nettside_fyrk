@@ -122,6 +122,7 @@ export const toolsContent = {
       description: 'Få et raskt, strukturert blikk på kvaliteten i OKR-ene deres. Uten workshop, styringsgrupper eller lange dokumenter.',
       href: PAGE_ROUTES.OKR_REVIEWER,
       buttonText: 'Prøv OKR-sjekken',
+      featureId: 'okr-sjekken',
     },
     {
       title: 'Konseptspeilet',
@@ -137,13 +138,13 @@ export const toolsContent = {
       href: PAGE_ROUTES.ANTAKELSESKART,
       buttonText: 'Prøv antakelseskartet',
       featureId: 'antakelseskart',
-      isBeta: true,
     },
     {
       title: 'Beslutningsloggen',
       description: 'Dokumenter beslutninger med klarhet. Fyll inn hva dere besluttet, hvilke antakelser som ligger til grunn, og eksporter som Markdown.',
       href: PAGE_ROUTES.BESLUTNINGSLOGG,
       buttonText: 'Lag beslutningslogg',
+      featureId: 'beslutningslogg',
     },
   ] as ToolDefinition[],
   comingSoonText: 'Flere verktøy er på vei. Følg med.',
