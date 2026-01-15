@@ -3,7 +3,7 @@ dist/
 .output/
 
 # astro generated files
-.astro/integrations/
+.astro/
 
 # dependencies
 node_modules/
