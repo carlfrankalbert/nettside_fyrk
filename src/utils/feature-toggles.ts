@@ -45,7 +45,7 @@ export const DEFAULT_FEATURES: FeatureToggle[] = [
     id: 'antakelseskart',
     name: 'Antakelseskartet',
     description: 'Avdekker implisitte antakelser i produkt- og strategibeslutninger',
-    status: 'beta',
+    status: 'on',
   },
 ];
 
