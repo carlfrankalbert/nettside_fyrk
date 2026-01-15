@@ -107,6 +107,8 @@ export interface ToolDefinition {
   featureId?: string;
   /** If true, shows a beta badge */
   isBeta?: boolean;
+  /** SVG path for the tool icon */
+  iconPath?: string;
 }
 
 /**
@@ -123,6 +125,8 @@ export const toolsContent = {
       href: PAGE_ROUTES.OKR_REVIEWER,
       buttonText: 'Prøv OKR-sjekken',
       featureId: 'okr-sjekken',
+      // Target icon - goals and objectives
+      iconPath: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z',
     },
     {
       title: 'Konseptspeilet',
@@ -131,6 +135,8 @@ export const toolsContent = {
       buttonText: 'Prøv konseptspeilet',
       featureId: 'konseptspeilet',
       isBeta: true,
+      // Lightbulb icon - insight and ideas
+      iconPath: 'M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 0 1 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z',
     },
     {
       title: 'Antakelseskartet',
@@ -138,6 +144,9 @@ export const toolsContent = {
       href: PAGE_ROUTES.ANTAKELSESKART,
       buttonText: 'Prøv antakelseskartet',
       featureId: 'antakelseskart',
+      isBeta: true,
+      // Search/magnify icon - uncovering hidden assumptions
+      iconPath: 'M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z',
     },
     {
       title: 'Beslutningsloggen',
@@ -145,6 +154,9 @@ export const toolsContent = {
       href: PAGE_ROUTES.BESLUTNINGSLOGG,
       buttonText: 'Lag beslutningslogg',
       featureId: 'beslutningslogg',
+      isBeta: true,
+      // Document with checkmark - documented decisions
+      iconPath: 'M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6zm10.97-6.83l-4.24 4.24-2.12-2.12-1.41 1.41 3.54 3.54 5.65-5.66-1.42-1.41z',
     },
   ] as ToolDefinition[],
   comingSoonText: 'Flere verktøy er på vei. Følg med.',

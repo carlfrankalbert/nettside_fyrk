@@ -45,7 +45,7 @@ export const DEFAULT_FEATURES: FeatureToggle[] = [
     id: 'konseptspeilet',
     name: 'Konseptspeilet',
     description: 'Refleksjonsverktøy for produktkonsepter – hjelper brukere å se antakelser og modenhet i idéer',
-    status: 'beta',
+    status: 'on',
   },
   {
     id: 'antakelseskart',
