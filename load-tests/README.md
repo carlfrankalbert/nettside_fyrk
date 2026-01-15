@@ -1,6 +1,8 @@
 # Load Testing
 
-This directory contains load tests for the Fyrk website, specifically targeting the OKR evaluation API endpoint.
+This directory contains load tests for the Fyrk website, specifically targeting the AI-powered API endpoints.
+
+> **Note:** The same testing patterns apply to all AI tools (OKR-sjekken, Konseptspeilet, Antakelseskart) since they all use the Claude API with similar latency characteristics.
 
 ## Prerequisites
 
@@ -147,7 +149,7 @@ Test results are saved to:
 | 10-15s | Acceptable |
 | > 15s | Poor |
 
-Note: The OKR endpoint calls the Anthropic Claude API, which has inherent latency of 3-10 seconds per request. This is expected behavior.
+Note: All AI endpoints call the Anthropic Claude API, which has inherent latency of 3-10 seconds per request. This is expected behavior for OKR-sjekken, Konseptspeilet, and Antakelseskart.
 
 ## CI/CD Integration
 

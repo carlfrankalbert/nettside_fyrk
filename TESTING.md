@@ -27,7 +27,7 @@ Vitest tester forretningslogikk isolert fra UI. Alle eksterne avhengigheter (API
 ### End-to-end-tester
 Playwright simulerer ekte brukerreiser i en faktisk nettleser. API-kall mockes for stabilitet og hastighet.
 
-- **Beskytter:** Kritiske brukerflyter (landing → CTA, OKR-sjekken, Konseptspeilet)
+- **Beskytter:** Kritiske brukerflyter (landing → CTA, OKR-sjekken, Konseptspeilet, Antakelseskart)
 - **Effekt:** Verifiserer at systemet fungerer som helhet fra brukerens perspektiv
 
 ### Tilgjengelighet (lett)
@@ -96,8 +96,9 @@ Kjører hele kvalitetssuiten: typecheck → lint → unit → E2E smoke.
 
 ### E2E-tester
 - **Playwright** med prosjekter for smoke, a11y, visual, og spesifikke features
-- Konseptspeilet har full E2E-dekning med API-mocking (6 tester)
+- Konseptspeilet har full E2E-dekning med API-mocking
 - OKR-sjekken dekkes via smoke-tester og dedikert spec
+- Antakelseskart følger samme mønster som Konseptspeilet
 
 ### CI/CD
 - **PR-workflow** kjører alle quality gates parallelt

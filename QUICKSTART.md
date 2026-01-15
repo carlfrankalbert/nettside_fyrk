@@ -15,13 +15,13 @@
 
 ## Miljøvariabler
 
-For å bruke OKR-sjekken lokalt, opprett en `.env`-fil i rot-mappen:
+For å bruke AI-verktøyene lokalt, opprett en `.env`-fil i rot-mappen:
 
 ```bash
 ANTHROPIC_API_KEY=din-api-nøkkel-her
 ```
 
-> **Merk:** OKR-sjekken fungerer kun med en gyldig Anthropic API-nøkkel.
+> **Merk:** AI-verktøyene (OKR-sjekken, Konseptspeilet, Antakelseskart) fungerer kun med en gyldig Anthropic API-nøkkel.
 
 ## Bygging
 
@@ -69,10 +69,11 @@ GitHub Pages støtter kun statiske sider (OKR-sjekken vil ikke fungere):
 | Side | URL | Beskrivelse |
 |------|-----|-------------|
 | Hjem | `/` | Landing page med hero og tjenester |
-| Om oss | `/om` | Informasjon om Fyrk |
-| Kontakt | `/kontakt` | Kontaktinformasjon |
-| Blogg | `/blogg` | Blogginnlegg |
 | OKR-sjekken | `/okr-sjekken` | AI-drevet OKR-evaluering |
+| Konseptspeilet | `/konseptspeilet` | AI-drevet konseptrefleksjon |
+| Antakelseskart | `/antakelseskart` | AI-drevet antakelseskartlegging |
+| Personvern | `/personvern` | Personvernerklæring |
+| Feature toggles | `/feature-toggles` | Administrasjon av feature flags |
 
 ## Testing
 

@@ -58,15 +58,15 @@ try {
   riskyOperation();
 } catch (error) {
   captureException(error, {
-    tags: { component: 'OKRReviewer' },
+    tags: { component: 'OKRReviewer' }, // or 'KonseptSpeil', 'Antakelseskart'
     extra: { input: userInput },
   });
 }
 
 // Report a message
-captureMessage('User completed OKR evaluation', {
+captureMessage('User completed evaluation', {
   level: 'info',
-  tags: { feature: 'okr-sjekken' },
+  tags: { feature: 'okr-sjekken' }, // or 'konseptspeilet', 'antakelseskart'
 });
 
 // Add breadcrumb for debugging
@@ -265,6 +265,8 @@ Recommended tools:
 Monitor these endpoints:
 - `https://fyrk.no/` - Homepage
 - `https://fyrk.no/okr-sjekken` - OKR tool page
+- `https://fyrk.no/konseptspeilet` - Konseptspeilet tool page
+- `https://fyrk.no/antakelseskart` - Antakelseskart tool page
 
 ## Dashboard
 
