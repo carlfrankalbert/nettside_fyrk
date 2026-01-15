@@ -78,9 +78,9 @@ test.describe('Konseptspeilet', () => {
     await page.waitForLoadState('networkidle');
 
     // Check page title and main heading
-    await expect(page).toHaveTitle(/Konseptspeilet/);
-    // Main h1 says "Se hva du tar for gitt"
-    await expect(page.getByRole('heading', { level: 1 }).first()).toContainText('Se hva du tar for gitt');
+    await expect(page).toHaveTitle(/produktidéer|antakelser|Fyrk/i);
+    // Main h1 says "Forstå ideen din bedre"
+    await expect(page.getByRole('heading', { level: 1 }).first()).toContainText('Forstå ideen din bedre');
   });
 
   test('shows character counter and validation', async ({ page }) => {
@@ -89,7 +89,7 @@ test.describe('Konseptspeilet', () => {
 
     const textarea = page.locator('textarea').first();
     // Button uses type="button" not type="submit"
-    const submitButton = page.getByRole('button', { name: /Avdekk antagelser/i });
+    const submitButton = page.locator('#main-content').getByRole('button', { name: /Start speiling/i });
 
     // Initially button should be disabled (no input)
     await expect(submitButton).toBeDisabled();
@@ -109,7 +109,7 @@ test.describe('Konseptspeilet', () => {
     await page.waitForLoadState('networkidle');
 
     const textarea = page.locator('textarea').first();
-    const submitButton = page.getByRole('button', { name: /Avdekk antagelser/i });
+    const submitButton = page.locator('#main-content').getByRole('button', { name: /Start speiling/i });
 
     // Enter valid concept description
     const conceptDescription = `
@@ -134,9 +134,8 @@ test.describe('Konseptspeilet', () => {
     // Verify content from mock response antagelser
     await expect(page.locator('text=Målgruppen ønsker et enkelt verktøy')).toBeVisible();
 
-    // Verify action buttons are present
-    await expect(page.getByRole('button', { name: /Juster tekst/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Nullstill/i })).toBeVisible();
+    // Verify action button is present (Start på nytt - reset button)
+    await expect(page.getByRole('button', { name: /Start på nytt/i })).toBeVisible();
   });
 
   test('displays loading state during submission', async ({ page }) => {
@@ -156,7 +155,7 @@ test.describe('Konseptspeilet', () => {
     await page.waitForLoadState('networkidle');
 
     const textarea = page.locator('textarea').first();
-    const submitButton = page.getByRole('button', { name: /Avdekk antagelser/i });
+    const submitButton = page.locator('#main-content').getByRole('button', { name: /Start speiling/i });
 
     await textarea.fill('En lang nok tekst for å teste loading-tilstanden i appen vår.');
     await submitButton.click();
@@ -179,7 +178,7 @@ test.describe('Konseptspeilet', () => {
     await page.waitForLoadState('networkidle');
 
     const textarea = page.locator('textarea').first();
-    const submitButton = page.getByRole('button', { name: /Avdekk antagelser/i });
+    const submitButton = page.locator('#main-content').getByRole('button', { name: /Start speiling/i });
 
     await textarea.fill('En tekst som vil utløse en feil fra API-et for testing.');
     await submitButton.click();
@@ -193,7 +192,7 @@ test.describe('Konseptspeilet', () => {
     await page.waitForLoadState('networkidle');
 
     const textarea = page.locator('textarea').first();
-    const submitButton = page.getByRole('button', { name: /Avdekk antagelser/i });
+    const submitButton = page.locator('#main-content').getByRole('button', { name: /Start speiling/i });
 
     // First submission
     await textarea.fill('Første konseptbeskrivelse som er lang nok til analyse.');
@@ -201,8 +200,8 @@ test.describe('Konseptspeilet', () => {
     // Wait for v2 result summary to appear
     await expect(page.locator('text=Se antagelser i teksten nedenfor')).toBeVisible({ timeout: 10000 });
 
-    // "Nullstill" resets completely, "Juster tekst" keeps input for editing
-    const resetButton = page.getByRole('button', { name: /Nullstill/i });
+    // "Start på nytt" resets completely
+    const resetButton = page.getByRole('button', { name: /Start på nytt/i });
     await expect(resetButton).toBeVisible();
     await resetButton.click();
 
@@ -249,7 +248,7 @@ test.describe('Konseptspeilet', () => {
     await page.evaluate(() => localStorage.clear());
 
     const textarea = page.locator('textarea').first();
-    const submitButton = page.getByRole('button', { name: /Avdekk antagelser/i });
+    const submitButton = page.locator('#main-content').getByRole('button', { name: /Start speiling/i });
 
     const conceptText = 'Dette er et konsept som skal testes for gjentatt innsending uten endringer.';
 
@@ -273,12 +272,12 @@ test.describe('Konseptspeilet', () => {
     await expect(page.locator('text=Noe gikk galt')).not.toBeVisible();
   });
 
-  test('can edit input with "Juster tekst" button', async ({ page }) => {
+  test('preserves input after submission for further editing', async ({ page }) => {
     await page.goto('/konseptspeilet');
     await page.waitForLoadState('networkidle');
 
     const textarea = page.locator('textarea').first();
-    const submitButton = page.getByRole('button', { name: /Avdekk antagelser/i });
+    const submitButton = page.locator('#main-content').getByRole('button', { name: /Start speiling/i });
     const originalInput = 'Første konseptbeskrivelse som er lang nok til analyse.';
 
     // First submission
@@ -286,14 +285,12 @@ test.describe('Konseptspeilet', () => {
     await submitButton.click();
     await expect(page.locator('text=Se antagelser i teksten nedenfor')).toBeVisible({ timeout: 10000 });
 
-    // "Juster tekst" keeps input for editing
-    const editButton = page.getByRole('button', { name: /Juster tekst/i });
-    await expect(editButton).toBeVisible();
-    await editButton.click();
-
-    // After clicking "Juster tekst", textarea should be visible with original input preserved
+    // Textarea should still be visible with original input for further editing
     await expect(textarea).toBeVisible();
     await expect(textarea).toHaveValue(originalInput);
+
+    // Submit button should be enabled for resubmission
+    await expect(submitButton).toBeEnabled();
   });
 
   test('shows dimension cards with status indicators', async ({ page }) => {
@@ -301,7 +298,7 @@ test.describe('Konseptspeilet', () => {
     await page.waitForLoadState('networkidle');
 
     const textarea = page.locator('textarea').first();
-    const submitButton = page.getByRole('button', { name: /Avdekk antagelser/i });
+    const submitButton = page.locator('#main-content').getByRole('button', { name: /Start speiling/i });
 
     await textarea.fill('En konseptbeskrivelse for å teste dimensjonskort visning.');
     await submitButton.click();
@@ -319,7 +316,7 @@ test.describe('Konseptspeilet', () => {
     await page.waitForLoadState('networkidle');
 
     const textarea = page.locator('textarea').first();
-    const submitButton = page.getByRole('button', { name: /Avdekk antagelser/i });
+    const submitButton = page.locator('#main-content').getByRole('button', { name: /Start speiling/i });
 
     await textarea.fill('En konseptbeskrivelse for å teste kollapserbar input visning.');
     await submitButton.click();
@@ -329,21 +326,19 @@ test.describe('Konseptspeilet', () => {
     await expect(page.locator('text=Din tekst')).toBeVisible();
   });
 
-  test('shows copy buttons after result', async ({ page }) => {
+  test('shows copy buttons for each dimension after result', async ({ page }) => {
     await page.goto('/konseptspeilet');
     await page.waitForLoadState('networkidle');
 
     const textarea = page.locator('textarea').first();
-    const submitButton = page.getByRole('button', { name: /Avdekk antagelser/i });
+    const submitButton = page.locator('#main-content').getByRole('button', { name: /Start speiling/i });
 
     await textarea.fill('En konseptbeskrivelse for å teste kopieringsknapper.');
     await submitButton.click();
     await expect(page.locator('text=Se antagelser i teksten nedenfor')).toBeVisible({ timeout: 10000 });
 
-    // "Kopier hele analysen" button should be visible
-    await expect(page.getByRole('button', { name: /Kopier hele analysen/i })).toBeVisible();
-
-    // "Del funn med kollega" button should be visible in antagelser section
-    await expect(page.getByRole('button', { name: /Del funn med kollega/i })).toBeVisible();
+    // Each dimension card has a copy button (e.g., "Kopier Verdi", "Kopier Brukbarhet")
+    await expect(page.getByRole('button', { name: /Kopier Verdi/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Kopier Brukbarhet/i })).toBeVisible();
   });
 });
