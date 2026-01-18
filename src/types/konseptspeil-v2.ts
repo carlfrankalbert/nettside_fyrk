@@ -76,21 +76,25 @@ export interface ParsedKonseptSpeilResultV2 {
 /**
  * Dimension labels in Norwegian for display
  */
-export const DIMENSION_LABELS: Record<DimensionKey, { name: string; question: string }> = {
+export const DIMENSION_LABELS: Record<DimensionKey, { name: string; subtitle: string; question: string }> = {
   verdi: {
     name: 'Verdi',
+    subtitle: 'Hvem dette er for og hvorfor det betyr noe',
     question: 'Er problemet og behovet konkretisert?',
   },
   brukbarhet: {
     name: 'Brukbarhet',
+    subtitle: 'Når og hvordan dette brukes i praksis',
     question: 'Er situasjonen for bruk beskrevet?',
   },
   gjennomforbarhet: {
     name: 'Gjennomførbarhet',
+    subtitle: 'Hva som kreves for å få det til',
     question: 'Er ressurser, teknikk eller tid nevnt konkret?',
   },
   levedyktighet: {
     name: 'Levedyktighet',
+    subtitle: 'Ressurser, drift eller forretningslogikk',
     question: 'Er forretningsmodell eller bærekraft nevnt?',
   },
 };

@@ -249,18 +249,23 @@ Hvis dette ikke gir tydelig verdi, bør vi sannsynligvis ikke bygge det videre.`
 
   return (
     <div className="space-y-6" aria-busy={loading}>
-      {/* Example section - helps reduce blank page syndrome */}
+      {/* Example section - shows what mirroring actually does */}
       {!input && !loading && !result && (
         <section className="p-4 bg-neutral-100 border border-neutral-200 rounded-xl">
-          <p className="text-sm text-neutral-600 mb-2">
-            <span className="font-medium">Eksempel (typisk fra et produktteam):</span>
+          <p className="text-sm font-medium text-neutral-700 mb-3">
+            Slik ser en speiling ut:
           </p>
           <p className="text-sm text-neutral-600 italic mb-3 leading-relaxed">
             "Vi vurderer å bygge et enkelt refleksjonsverktøy for produktteam. Tanken er at det skal brukes tidlig i en beslutningsprosess..."
           </p>
-          <p className="text-xs text-neutral-500 mb-3">
-            Speilet vil typisk vise: uklar målgruppe, antatt effekt uten KPI, uavklart brukssituasjon og skjulte antakelser.
-          </p>
+          <div className="text-xs text-neutral-500 mb-3 space-y-1">
+            <p className="font-medium text-neutral-600">Speilet vil typisk:</p>
+            <ul className="space-y-0.5 ml-3">
+              <li>– stille spørsmål ved problemet</li>
+              <li>– peke på antagelser</li>
+              <li>– vise hva som ikke er konkretisert</li>
+            </ul>
+          </div>
           <button
             type="button"
             onClick={handleFillShortExample}
@@ -268,6 +273,27 @@ Hvis dette ikke gir tydelig verdi, bør vi sannsynligvis ikke bygge det videre.`
           >
             Prøv dette eksempelet →
           </button>
+        </section>
+      )}
+
+      {/* Preview - what user will get */}
+      {!result && !loading && (
+        <section className="text-sm text-neutral-600">
+          <p className="font-medium text-neutral-700 mb-2">Dette får du:</p>
+          <ul className="space-y-1">
+            <li className="flex items-start gap-2">
+              <span className="text-neutral-400">–</span>
+              <span>En speiling av ideen fra 4 perspektiver</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-neutral-400">–</span>
+              <span>Antagelser teksten din tar for gitt</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-neutral-400">–</span>
+              <span>1–2 områder som er mest uklare</span>
+            </li>
+          </ul>
         </section>
       )}
 
@@ -288,6 +314,11 @@ Hvis dette ikke gir tydelig verdi, bør vi sannsynligvis ikke bygge det videre.`
           )}
         </div>
 
+        {/* Encouragement for unfinished text */}
+        <p className="text-xs text-neutral-500 mb-2">
+          Skriv kort og uferdig. Dette speiler hull og antagelser – ikke kvaliteten på ideen.
+        </p>
+
         <textarea
           ref={textareaRef}
           id="konsept-input"
@@ -297,7 +328,7 @@ Hvis dette ikke gir tydelig verdi, bør vi sannsynligvis ikke bygge det videre.`
           onKeyDown={handleKeyDown}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          placeholder="Jeg vurderer å bygge... Problemet jeg vil løse er..."
+          placeholder="F.eks: Vi tror at... Problemet er... Målgruppen er..."
           maxLength={INPUT_VALIDATION.MAX_LENGTH}
           aria-describedby={error ? 'konsept-error konsept-help konsept-helper' : 'konsept-help konsept-helper'}
           aria-invalid={error ? 'true' : undefined}

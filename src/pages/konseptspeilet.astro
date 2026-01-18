@@ -14,7 +14,7 @@ export const prerender = false;
     <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-8 md:py-12 w-full pb-24 md:pb-12">
 
       <!-- Hero: Clear value proposition -->
-      <header class="mb-8" id="skriv">
+      <header class="mb-6" id="skriv">
         <h1 class="text-h3 md:text-h2 font-semibold text-brand-navy mb-3 leading-tight">
           Forstå ideen din bedre – før noen andre gjør det
         </h1>
@@ -25,56 +25,64 @@ export const prerender = false;
         <p class="text-xs text-neutral-500">
           Ingen registrering · Ingen salg · Faktisk nyttig
         </p>
-
       </header>
 
-      <!-- Når bør du bruke dette? -->
-      <section class="mb-8 p-4 bg-white border border-neutral-200 rounded-xl">
-        <h2 class="text-base font-semibold text-brand-navy mb-3">Når bør du bruke dette?</h2>
-        <ul class="text-neutral-600 space-y-2 text-sm">
-          <li class="flex items-start gap-2">
-            <span class="text-brand-cyan-darker shrink-0">•</span>
-            <span>Når du har en produktidé, men er usikker på om den holder</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-brand-cyan-darker shrink-0">•</span>
-            <span>Før du pitcher en idé internt eller eksternt</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-brand-cyan-darker shrink-0">•</span>
-            <span>I tidlig produkt discovery / konseptfase</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-brand-cyan-darker shrink-0">•</span>
-            <span>Når du vil få feedback uten møter, konsulenter eller bias</span>
-          </li>
-        </ul>
-      </section>
+      <!-- Collapsible explanation sections -->
+      <details class="mb-4 group">
+        <summary class="p-4 bg-white border border-neutral-200 rounded-xl cursor-pointer list-none flex items-center justify-between hover:bg-neutral-50 transition-colors">
+          <span class="text-base font-semibold text-brand-navy">Når bør du bruke dette?</span>
+          <svg class="w-5 h-5 text-neutral-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </summary>
+        <div class="px-4 pb-4 pt-2 bg-white border border-t-0 border-neutral-200 rounded-b-xl -mt-2">
+          <ul class="text-neutral-600 space-y-2 text-sm">
+            <li class="flex items-start gap-2">
+              <span class="text-brand-cyan-darker shrink-0">•</span>
+              <span>Når du har en produktidé, men er usikker på om den holder</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-brand-cyan-darker shrink-0">•</span>
+              <span>Før du pitcher en idé internt eller eksternt</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-brand-cyan-darker shrink-0">•</span>
+              <span>Når du vil få feedback uten møter eller bias</span>
+            </li>
+          </ul>
+        </div>
+      </details>
 
-      <!-- Hva får du tilbake? -->
-      <section class="mb-8 p-4 bg-feedback-success-light border border-feedback-success/30 rounded-xl">
-        <h2 class="text-base font-semibold text-brand-navy mb-3">Hva får du tilbake?</h2>
-        <ul class="text-neutral-700 space-y-2 text-sm">
-          <li class="flex items-start gap-2">
-            <span class="text-feedback-success shrink-0">✓</span>
-            <span>Feedback på hva som er antatt vs eksplisitt formulert</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-feedback-success shrink-0">✓</span>
-            <span>Avdekking av typiske hull: målgruppe, verdi, effekt, KPI</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-feedback-success shrink-0">✓</span>
-            <span>Et bedre beslutningsgrunnlag før videre arbeid</span>
-          </li>
-        </ul>
-        <p class="text-sm text-neutral-500 italic mt-4">
-          Ingen scoring. Ingen fasit. Bare et ærlig speil.
-        </p>
-      </section>
+      <details class="mb-6 group">
+        <summary class="p-4 bg-feedback-success-light border border-feedback-success/30 rounded-xl cursor-pointer list-none flex items-center justify-between hover:bg-feedback-success-light/80 transition-colors">
+          <span class="text-base font-semibold text-brand-navy">Hva får du tilbake?</span>
+          <svg class="w-5 h-5 text-neutral-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </summary>
+        <div class="px-4 pb-4 pt-2 bg-feedback-success-light border border-t-0 border-feedback-success/30 rounded-b-xl -mt-2">
+          <ul class="text-neutral-700 space-y-2 text-sm">
+            <li class="flex items-start gap-2">
+              <span class="text-feedback-success shrink-0">✓</span>
+              <span>Feedback på hva som er antatt vs eksplisitt formulert</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-feedback-success shrink-0">✓</span>
+              <span>Avdekking av hull: målgruppe, verdi, effekt</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-feedback-success shrink-0">✓</span>
+              <span>Et bedre beslutningsgrunnlag før videre arbeid</span>
+            </li>
+          </ul>
+          <p class="text-sm text-neutral-500 italic mt-3">
+            Ingen scoring. Ingen fasit. Bare et ærlig speil.
+          </p>
+        </div>
+      </details>
 
       <!-- Dynamic content (input, CTA, result) -->
-      <div class="mt-8">
+      <div id="input-section">
         <KonseptSpeil client:load />
       </div>
 
