@@ -169,6 +169,17 @@ npm run test:visual   # Visuell regresjon (manuelt)
 
 Se [TESTING.md](./TESTING.md) for komplett dokumentasjon.
 
+## 🤖 CI Repair Bot
+
+Prosjektet har en automatisk CI-reparasjonsbot som forsøker å fikse feilende nattlige tester:
+
+- **Trigger:** Aktiveres når "Nightly Full Suite" feiler på `main`
+- **Prosess:** Samler feil-logger, sender til Claude API, genererer en patch
+- **Verifisering:** Kjører typecheck, lint, unit-tester, build og E2E før PR
+- **Sikkerhet:** Maks 5 filer / 300 linjer, kan ikke endre workflows
+
+Se [docs/ci-repair-bot.md](./docs/ci-repair-bot.md) for komplett dokumentasjon.
+
 ## 🚢 Deployment
 
 Nettsiden er deployet på **Cloudflare Pages** med custom domain.
