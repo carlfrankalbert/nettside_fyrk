@@ -1,15 +1,15 @@
 name: CI Repair Bot
 
-  on:
+on:
     workflow_run:
       workflows: ["Nightly Full Suite"]
       types: [completed]
 
-  concurrency:
+concurrency:
     group: ci-repair
     cancel-in-progress: false
 
-  jobs:
+jobs:
     repair:
       name: Attempt Automated Repair
       runs-on: ubuntu-latest
