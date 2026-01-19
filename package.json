@@ -37,11 +37,11 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.2",
-    "@astrojs/cloudflare": "^11.2.0",
-    "@astrojs/node": "^8.3.4",
+    "@astrojs/cloudflare": "^12.6.12",
+    "@astrojs/node": "^9.5.2",
     "@astrojs/react": "^4.0.0",
     "@fontsource/inter": "^5.2.8",
-    "astro": "^4.0.0",
+    "astro": "^5.16.11",
     "lucide-react": "^0.562.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -65,7 +65,7 @@
     "tailwindcss": "^3.4.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.15",
-    "wrangler": "^4.55.0"
+    "wrangler": "^4.35.0"
   },
   "lint-staged": {
     "*.{ts,tsx,js}": "eslint --fix --max-warnings 0",
