@@ -120,6 +120,12 @@ export default defineConfig({
       testMatch: /konseptspeilet\.spec\.ts/,
       use: { ...devices['Desktop Chrome'] },
     },
+    // Security tests
+    {
+      name: 'security',
+      testMatch: /security\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
     // Add more configurations as needed based on analytics
   ],
 
