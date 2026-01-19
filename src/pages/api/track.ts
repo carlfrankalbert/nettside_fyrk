@@ -44,6 +44,12 @@ export const TRACKED_BUTTONS = {
   konseptspeil_feedback_up: { key: 'konseptspeil_feedback_up', label: 'Tilbakemelding: Nyttig' },
   konseptspeil_feedback_down: { key: 'konseptspeil_feedback_down', label: 'Tilbakemelding: Ikke nyttig' },
 
+  // Security / operational events
+  rate_limit_hit: { key: 'rate_limit_hits', label: 'Rate limit truffet' },
+  rate_limit_hit_okr: { key: 'rate_limit_hits_okr', label: 'Rate limit OKR' },
+  rate_limit_hit_konseptspeil: { key: 'rate_limit_hits_konseptspeil', label: 'Rate limit Konseptspeil' },
+  rate_limit_hit_antakelseskart: { key: 'rate_limit_hits_antakelseskart', label: 'Rate limit Antakelseskart' },
+
   // Landing page buttons
   hero_cta: { key: 'hero_cta_clicks', label: 'Kontakt FYRK (hero)' },
   tools_okr_cta: { key: 'tools_okr_cta_clicks', label: 'Prøv OKR-sjekken' },

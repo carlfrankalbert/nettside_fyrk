@@ -126,6 +126,18 @@ export default defineConfig({
       testMatch: /security\.spec\.ts/,
       use: { ...devices['Desktop Chrome'] },
     },
+    // Streaming resilience tests
+    {
+      name: 'streaming',
+      testMatch: /streaming-resilience\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    // Safari smoke tests (catches Safari-specific rendering bugs)
+    {
+      name: 'safari',
+      testMatch: /.*\.smoke\.ts/,
+      use: { ...devices['Desktop Safari'] },
+    },
     // Add more configurations as needed based on analytics
   ],
 

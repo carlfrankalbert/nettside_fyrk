@@ -9,6 +9,7 @@ import {
   fetchWithRetry,
   resolveAnthropicConfig,
 } from '../../lib/anthropic-client';
+import { logRateLimitHit } from '../../utils/rate-limit-logger';
 import {
   createAnthropicStreamingResponse,
   createCachedStreamingResponse,
@@ -194,9 +195,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return createErrorResponse(`Input kan ikke være lengre enn ${INPUT_VALIDATION.MAX_LENGTH} tegn`, 400);
     }
 
+    // Check for mock mode (for local testing)
+    const cloudflareEnv = (locals as App.Locals).runtime?.env;
+
     // Rate limiting
     const clientIP = getClientIP(request);
     if (!rateLimiter.checkAndUpdate(clientIP)) {
+      // Log rate limit hit (fire-and-forget)
+      logRateLimitHit(cloudflareEnv?.ANALYTICS_KV, 'konseptspeil').catch(() => {});
+
       return new Response(
         JSON.stringify({
           error: ERROR_MESSAGES.RATE_LIMIT_EXCEEDED,
@@ -211,9 +218,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
         }
       );
     }
-
-    // Check for mock mode (for local testing)
-    const cloudflareEnv = (locals as App.Locals).runtime?.env;
     const mockMode = cloudflareEnv?.KONSEPTSPEILET_MOCK || import.meta.env.KONSEPTSPEILET_MOCK;
 
     if (mockMode === 'true' || mockMode === true) {

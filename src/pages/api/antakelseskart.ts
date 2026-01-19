@@ -8,6 +8,7 @@ import {
   fetchWithRetry,
   resolveAnthropicConfig,
 } from '../../lib/anthropic-client';
+import { logRateLimitHit } from '../../utils/rate-limit-logger';
 import {
   createAnthropicStreamingResponse,
   createCachedStreamingResponse,
@@ -158,6 +159,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // Rate limiting
     const clientIP = getClientIP(request);
     if (!rateLimiter.checkAndUpdate(clientIP)) {
+      // Log rate limit hit (fire-and-forget)
+      const cloudflareEnv = (locals as App.Locals).runtime?.env;
+      logRateLimitHit(cloudflareEnv?.ANALYTICS_KV, 'antakelseskart').catch(() => {});
+
       return new Response(
         JSON.stringify({
           error: ERROR_MESSAGES.RATE_LIMIT_EXCEEDED,
