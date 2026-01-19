@@ -6,6 +6,7 @@
  */
 import SEOHead from '../components/seo/SEOHead.astro';
 import Logo from '../components/ui/Logo.astro';
+import ThemeToggle from '../components/layout/ThemeToggle.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -30,6 +31,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   </head>
   <body class="bg-neutral-50">
     <a href="#main-content" class="skip-link">Hopp til hovedinnhold</a>
+    <ThemeToggle />
     <header class="bg-white border-b border-neutral-200">
       <div class="relative max-w-2xl mx-auto px-4 sm:px-6 py-3 w-full flex items-center justify-between">
         <!-- Logo left-aligned -->
