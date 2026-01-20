@@ -117,7 +117,6 @@ export interface ToolDefinition {
 export const toolsContent = {
   title: 'Verktøy',
   description: 'Praktiske verktøy for bedre arbeid med strategi og mål.',
-  intro: 'OKR-sjekken viser hvordan jeg vurderer kvalitet i mål, prioriteringer og strategisk retning.',
   tools: [
     {
       title: 'OKR-sjekken',
