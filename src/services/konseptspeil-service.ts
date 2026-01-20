@@ -4,6 +4,7 @@
  */
 
 import { createStreamingService, DEFAULT_ERROR_MESSAGES } from '../lib/streaming-service-client';
+import { isKonseptspeilResponseComplete } from '../utils/response-validator';
 
 const API_ENDPOINT = '/api/konseptspeilet';
 const CACHE_KEY_PREFIX = 'konseptspeil:v2:';
@@ -19,45 +20,18 @@ const ERROR_MESSAGES = {
 export { ERROR_MESSAGES };
 
 /**
- * Check if a response has minimal required content
- * This helps detect truncated or incomplete AI responses
- *
- * For the JSON format, we check that it's valid JSON with required fields
- */
-function isResponseComplete(output: string): boolean {
-  if (!output || output.trim().length === 0) return false;
-
-  try {
-    // Extract JSON from potential markdown code blocks or surrounding text
-    const jsonMatch = output.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return false;
-
-    const parsed = JSON.parse(jsonMatch[0]);
-
-    // Check for required top-level fields
-    const hasRefleksjonStatus = parsed.refleksjon_status?.kommentar;
-    const hasFokusSporsmal = parsed.fokus_sporsmal?.sporsmal;
-    const hasDimensjoner = parsed.dimensjoner?.verdi && parsed.dimensjoner?.brukbarhet;
-
-    return !!(hasRefleksjonStatus && hasFokusSporsmal && hasDimensjoner);
-  } catch {
-    return false;
-  }
-}
-
-/**
  * Validate that the output conforms to the expected JSON format.
  * Returns true if valid, false if missing required sections.
  */
 export function isValidOutput(output: string): boolean {
-  return isResponseComplete(output);
+  return isKonseptspeilResponseComplete(output);
 }
 
 // Create the streaming service instance
 const service = createStreamingService({
   endpoint: API_ENDPOINT,
   cacheKeyPrefix: CACHE_KEY_PREFIX,
-  isResponseComplete,
+  isResponseComplete: isKonseptspeilResponseComplete,
   errorMessages: ERROR_MESSAGES,
   maxRetries: 1,
   retryEventName: 'konseptspeil_retry',

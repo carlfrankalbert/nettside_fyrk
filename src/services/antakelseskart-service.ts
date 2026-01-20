@@ -4,6 +4,7 @@
  */
 
 import { createStreamingService, DEFAULT_ERROR_MESSAGES } from '../lib/streaming-service-client';
+import { isAntakelseskartResponseComplete } from '../utils/response-validator';
 
 const API_ENDPOINT = '/api/antakelseskart';
 const CACHE_KEY_PREFIX = 'antakelseskart:v1:';
@@ -19,43 +20,17 @@ const ERROR_MESSAGES = {
 export { ERROR_MESSAGES };
 
 /**
- * Check if a response has minimal required content
- */
-function isResponseComplete(output: string): boolean {
-  if (!output || output.trim().length === 0) return false;
-
-  try {
-    const jsonMatch = output.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return false;
-
-    const parsed = JSON.parse(jsonMatch[0]);
-
-    const hasBeslutning = typeof parsed.beslutning_oppsummert === 'string' &&
-      parsed.beslutning_oppsummert.length > 0;
-    const hasAntakelser = parsed.antakelser &&
-      (Array.isArray(parsed.antakelser.målgruppe_behov) ||
-       Array.isArray(parsed.antakelser.løsning_produkt) ||
-       Array.isArray(parsed.antakelser.marked_konkurranse) ||
-       Array.isArray(parsed.antakelser.forretning_skalering));
-
-    return !!(hasBeslutning && hasAntakelser);
-  } catch {
-    return false;
-  }
-}
-
-/**
  * Validate that the output conforms to the expected JSON format.
  */
 export function isValidOutput(output: string): boolean {
-  return isResponseComplete(output);
+  return isAntakelseskartResponseComplete(output);
 }
 
 // Create the streaming service instance
 const service = createStreamingService({
   endpoint: API_ENDPOINT,
   cacheKeyPrefix: CACHE_KEY_PREFIX,
-  isResponseComplete,
+  isResponseComplete: isAntakelseskartResponseComplete,
   errorMessages: ERROR_MESSAGES,
   maxRetries: 1,
   retryEventName: 'antakelseskart_retry',

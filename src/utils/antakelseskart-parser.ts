@@ -8,6 +8,7 @@ import type {
   Assumption,
   AntakelseskartJsonResponse,
 } from '../types/antakelseskart';
+import { extractJson } from './json-extraction';
 
 /**
  * Default empty grouped assumptions
@@ -35,27 +36,17 @@ export function parseAntakelseskartResult(raw: string): ParsedAntakelseskartResu
     return result;
   }
 
-  // Try to extract JSON from the raw string
-  const trimmed = raw.trim();
-  let jsonString = trimmed;
+  // Extract JSON using shared utility
+  const jsonString = extractJson(raw);
 
-  // Handle case where JSON might be wrapped in markdown code blocks
-  const jsonMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (jsonMatch) {
-    jsonString = jsonMatch[1].trim();
-  }
-
-  // Find the JSON object boundaries
-  const jsonStart = jsonString.indexOf('{');
-  const jsonEnd = jsonString.lastIndexOf('}');
-
-  if (jsonStart === -1 || jsonEnd === -1 || jsonEnd < jsonStart) {
+  // Check if we found valid JSON boundaries
+  if (!jsonString.startsWith('{') || !jsonString.endsWith('}')) {
     // Try partial parse - might be streaming
     return result;
   }
 
   try {
-    const parsed = JSON.parse(jsonString.substring(jsonStart, jsonEnd + 1)) as AntakelseskartJsonResponse;
+    const parsed = JSON.parse(jsonString) as AntakelseskartJsonResponse;
 
     // Extract beslutning_oppsummert
     if (typeof parsed.beslutning_oppsummert === 'string') {

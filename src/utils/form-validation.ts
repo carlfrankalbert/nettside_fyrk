@@ -62,6 +62,43 @@ export function validateBeslutningInput(input: string): string | null {
   });
 }
 
+/**
+ * Validate OKR input for OKR-sjekken
+ * Includes additional structure validation for OKR format
+ */
+export function validateOKRInput(input: string): string | null {
+  const trimmedInput = input.trim();
+
+  // Check minimum length
+  if (trimmedInput.length < INPUT_VALIDATION.MIN_LENGTH) {
+    return `Input må være minst ${INPUT_VALIDATION.MIN_LENGTH} tegn. Skriv inn et komplett OKR-sett.`;
+  }
+
+  // Check maximum length
+  if (trimmedInput.length > INPUT_VALIDATION.MAX_LENGTH) {
+    return `Input kan ikke være lengre enn ${INPUT_VALIDATION.MAX_LENGTH} tegn. Forkort OKR-settet ditt.`;
+  }
+
+  // Check for OKR-like content (case-insensitive)
+  const lowerInput = trimmedInput.toLowerCase();
+  const hasObjective = lowerInput.includes('objective') || lowerInput.includes('mål');
+  const hasKeyResult =
+    lowerInput.includes('key result') ||
+    lowerInput.includes('kr') ||
+    lowerInput.includes('nøkkelresultat') ||
+    /\d+\./.test(trimmedInput);
+
+  if (!hasObjective) {
+    return 'Input ser ikke ut som en OKR. Inkluder minst ett "Objective" eller "Mål".';
+  }
+
+  if (!hasKeyResult) {
+    return 'Input ser ikke ut som en OKR. Inkluder minst ett "Key Result" eller nøkkelresultat.';
+  }
+
+  return null;
+}
+
 // ============================================================================
 // DOM-based Form Validation (for Astro components)
 // ============================================================================

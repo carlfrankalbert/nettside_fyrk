@@ -5,6 +5,8 @@ import { CheckIcon, ErrorIcon, SpinnerIcon, ChevronRightIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
 import { INPUT_VALIDATION } from '../utils/constants';
 import { trackClick, logEvent } from '../utils/tracking';
+import { validateOKRInput } from '../utils/form-validation';
+import { isUrlEncoded, safeDecodeURIComponent } from '../utils/url-decoding';
 
 const EXAMPLE_OKR = `Objective:
 Gjøre det enkelt og trygt for brukere å komme i gang med produktet.
@@ -13,71 +15,6 @@ Key Results:
 1. Øke aktiveringsraten (fullført onboarding) fra 45 % til 70 %.
 2. Redusere tid til første verdi fra 10 minutter til under 3 minutter.
 3. Redusere onboarding-relaterte supporthenvendelser med 50 %.`;
-
-/**
- * Check if text appears to be URL-encoded
- * Looks for common URL encoding patterns like %20 (space), %0A (newline), etc.
- */
-function isUrlEncoded(text: string): boolean {
-  // Check for URL-encoded patterns: %XX where XX is hex
-  const urlEncodedPattern = /%[0-9A-Fa-f]{2}/;
-  if (!urlEncodedPattern.test(text)) return false;
-
-  // Additional check: common URL-encoded characters that shouldn't appear in normal OKR text
-  const commonEncodings = ['%20', '%0A', '%0D', '%C3']; // space, newline, carriage return, UTF-8 start
-  return commonEncodings.some(enc => text.includes(enc));
-}
-
-/**
- * Safely decode URL-encoded text
- * Falls back to original text if decoding fails
- */
-function safeDecodeURIComponent(text: string): string {
-  try {
-    return decodeURIComponent(text);
-  } catch {
-    // If decoding fails, return original text
-    return text;
-  }
-}
-
-// Input validation constants (from shared config)
-const MIN_INPUT_LENGTH = INPUT_VALIDATION.MIN_LENGTH;
-const MAX_INPUT_LENGTH = INPUT_VALIDATION.MAX_LENGTH;
-
-/**
- * Validates OKR input for basic structure and length
- * Returns error message if invalid, null if valid
- */
-function validateOKRInput(input: string): string | null {
-  const trimmedInput = input.trim();
-
-  // Check minimum length
-  if (trimmedInput.length < MIN_INPUT_LENGTH) {
-    return `Input må være minst ${MIN_INPUT_LENGTH} tegn. Skriv inn et komplett OKR-sett.`;
-  }
-
-  // Check maximum length
-  if (trimmedInput.length > MAX_INPUT_LENGTH) {
-    return `Input kan ikke være lengre enn ${MAX_INPUT_LENGTH} tegn. Forkort OKR-settet ditt.`;
-  }
-
-  // Check for OKR-like content (case-insensitive)
-  const lowerInput = trimmedInput.toLowerCase();
-  const hasObjective = lowerInput.includes('objective') || lowerInput.includes('mål');
-  const hasKeyResult = lowerInput.includes('key result') || lowerInput.includes('kr') ||
-                       lowerInput.includes('nøkkelresultat') || /\d+\./.test(trimmedInput);
-
-  if (!hasObjective) {
-    return 'Input ser ikke ut som en OKR. Inkluder minst ett "Objective" eller "Mål".';
-  }
-
-  if (!hasKeyResult) {
-    return 'Input mangler Key Results. Legg til målbare resultater (f.eks. "1. Øke X fra Y til Z").';
-  }
-
-  return null;
-}
 
 export default function OKRReviewer() {
   const [input, setInput] = useState('');
@@ -321,7 +258,7 @@ Key Results:
 1. Første målbare resultat
 2. Andre målbare resultat
 3. Tredje målbare resultat"
-          maxLength={MAX_INPUT_LENGTH}
+          maxLength={INPUT_VALIDATION.MAX_LENGTH}
           aria-describedby={error ? 'okr-error okr-help okr-char-count' : 'okr-help okr-char-count'}
           aria-invalid={error ? 'true' : undefined}
           className={cn(
@@ -337,10 +274,10 @@ Key Results:
           disabled={loading}
         />
         <div id="okr-char-count" className="mt-1 text-xs text-neutral-500 text-right">
-          <span className={cn(input.length > MAX_INPUT_LENGTH * 0.9 && 'text-feedback-warning')}>
+          <span className={cn(input.length > INPUT_VALIDATION.MAX_LENGTH * 0.9 && 'text-feedback-warning')}>
             {input.length}
           </span>
-          {' / '}{MAX_INPUT_LENGTH} tegn
+          {' / '}{INPUT_VALIDATION.MAX_LENGTH} tegn
         </div>
       </div>
 

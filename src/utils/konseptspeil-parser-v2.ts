@@ -11,6 +11,7 @@ import type {
   DimensionData,
   DimensionStatus,
 } from '../types/konseptspeil-v2';
+import { extractJson } from './json-extraction';
 
 /**
  * Default empty reflection status
@@ -78,27 +79,6 @@ function parseDimensionData(data: unknown): DimensionData {
     status: normalizeDimensionStatus(d.status as string),
     observasjon: typeof d.observasjon === 'string' ? d.observasjon : '',
   };
-}
-
-/**
- * Extract JSON from text that might contain markdown code blocks or extra text
- */
-function extractJson(text: string): string {
-  const trimmed = text.trim();
-
-  // Try to extract JSON from markdown code block
-  const jsonBlockMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (jsonBlockMatch) {
-    return jsonBlockMatch[1].trim();
-  }
-
-  // Try to find JSON object in the text
-  const jsonMatch = trimmed.match(/\{[\s\S]*\}/);
-  if (jsonMatch) {
-    return jsonMatch[0];
-  }
-
-  return trimmed;
 }
 
 /**
