@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { reviewOKRStreaming } from '../services/okr-service';
 import OKRResultDisplay from './OKRResultDisplay';
-import { CheckIcon, ErrorIcon, SpinnerIcon, ChevronRightIcon } from './ui/Icon';
+import { CheckIcon, ErrorIcon, SpinnerIcon } from './ui/Icon';
+import { PrivacyAccordion } from './ui/PrivacyAccordion';
 import { cn } from '../utils/classes';
 import { INPUT_VALIDATION } from '../utils/constants';
 import { trackClick, logEvent } from '../utils/tracking';
@@ -22,7 +23,6 @@ export default function OKRReviewer() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isExampleAnimating, setIsExampleAnimating] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
@@ -301,59 +301,12 @@ Key Results:
         )}
       </div>
 
-      {/* AI og personvern accordion */}
-      <div className="border-t border-neutral-200 pt-6">
-        <p className="text-sm text-neutral-500 mb-3">
-          OKR-ene du legger inn brukes kun til å generere vurderingen. Unngå å lime inn konfidensiell eller sensitiv informasjon.
-        </p>
-        <button
-          type="button"
-          onClick={() => {
-            if (!isPrivacyOpen) {
-              // Only track when opening (not closing)
-              trackClick('okr_privacy_toggle');
-            }
-            setIsPrivacyOpen(!isPrivacyOpen);
-          }}
-          aria-expanded={isPrivacyOpen}
-          aria-controls="privacy-content"
-          className="flex items-center gap-2 text-sm text-brand-navy hover:text-brand-cyan-darker focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded py-2"
-        >
-          <ChevronRightIcon className={cn('w-4 h-4 transition-transform', isPrivacyOpen && 'rotate-90')} />
-          Les mer om AI og personvern
-        </button>
-        {isPrivacyOpen && (
-          <div
-            id="privacy-content"
-            className="mt-3 p-4 bg-neutral-100 rounded-lg text-sm text-neutral-700 space-y-3"
-          >
-            <p>
-              <strong>Hvordan fungerer det?</strong><br />
-              Vurderingen genereres av Claude (Anthropic), en AI-modell som analyserer
-              OKR-settet ditt basert på etablerte prinsipper for god målsetting.
-            </p>
-            <p>
-              <strong>Hva skjer med dataene?</strong><br />
-              OKR-ene dine sendes til Anthropics API for å generere vurderingen.
-              Vi lagrer ikke innholdet du sender inn, og det brukes ikke til å trene AI-modeller.
-            </p>
-            <p>
-              <strong>Er det trygt?</strong><br />
-              Du trenger ikke logge inn. Ikke del personopplysninger, forretningshemmeligheter eller annen sensitiv informasjon i teksten du sender inn.
-            </p>
-            <p className="pt-2 border-t border-neutral-200">
-              <a
-                href="https://fyrk.no/personvern"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2"
-              >
-                Les FYRKs personvernerklæring
-              </a>
-            </p>
-          </div>
-        )}
-      </div>
+      {/* AI og personvern */}
+      <PrivacyAccordion
+        toolName="okr"
+        introText="OKR-ene du legger inn brukes kun til å generere vurderingen. Unngå å lime inn konfidensiell eller sensitiv informasjon."
+        howItWorks="Vurderingen genereres av Claude (Anthropic), en AI-modell som analyserer OKR-settet ditt basert på etablerte prinsipper for god målsetting."
+      />
     </div>
   );
 }
