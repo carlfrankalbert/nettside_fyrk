@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { generateAssumptionsStreaming, ERROR_MESSAGES, isValidOutput } from '../services/antakelseskart-service';
 import AntakelseskartResultDisplay from './AntakelseskartResultDisplay';
 import { SpinnerIcon } from './ui/Icon';
@@ -8,10 +8,9 @@ import { PrivacyAccordion } from './ui/PrivacyAccordion';
 import { cn } from '../utils/classes';
 import { INPUT_VALIDATION, STREAMING_CONSTANTS } from '../utils/constants';
 import { trackClick } from '../utils/tracking';
-import { debounce } from '../utils/debounce';
-import { isUrlEncoded, safeDecodeURIComponent } from '../utils/url-decoding';
 import { validateBeslutningInput } from '../utils/form-validation';
 import { useStreamingForm } from '../hooks/useStreamingForm';
+import { useFormInputHandlers } from '../hooks/useFormInputHandlers';
 
 // ============================================================================
 // Constants
@@ -68,7 +67,27 @@ export default function Antakelseskart() {
   // ---------------------------------------------------------------------------
   const resultRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const hasTrackedInputStartRef = useRef(false);
+
+  // ---------------------------------------------------------------------------
+  // Form Input Handlers Hook
+  // ---------------------------------------------------------------------------
+  const {
+    handlePaste,
+    handleKeyDown,
+    handleInputChange,
+  } = useFormInputHandlers({
+    toolName: 'antakelseskart',
+    input,
+    setInput,
+    error,
+    clearError,
+    isButtonEnabled,
+    handleSubmit,
+    textareaRef,
+    loading,
+    result,
+    trimmedLength,
+  });
 
   // ---------------------------------------------------------------------------
   // Derived Values
@@ -79,48 +98,8 @@ export default function Antakelseskart() {
   const isNearingMinimum = trimmedLength >= 1 && trimmedLength < SUBMIT_THRESHOLD;
 
   // ---------------------------------------------------------------------------
-  // Callbacks
-  // ---------------------------------------------------------------------------
-
-  const autoResizeTextarea = useMemo(
-    () =>
-      debounce(() => {
-        const textarea = textareaRef.current;
-        if (!textarea) return;
-        textarea.style.height = 'auto';
-        textarea.style.height = `${textarea.scrollHeight}px`;
-      }, 16),
-    []
-  );
-
-  // ---------------------------------------------------------------------------
   // Effects
   // ---------------------------------------------------------------------------
-
-  // Dispatch events for mobile CTA sync
-  useEffect(() => {
-    window.dispatchEvent(new CustomEvent('antakelseskart:inputChange', {
-      detail: {
-        length: trimmedLength,
-        isLoading: loading,
-        hasResult: !!result,
-      }
-    }));
-  }, [trimmedLength, loading, result]);
-
-  // Listen for mobile submit trigger
-  useEffect(() => {
-    const handleMobileSubmit = () => {
-      handleSubmit();
-    };
-    window.addEventListener('antakelseskart:submit', handleMobileSubmit);
-    return () => window.removeEventListener('antakelseskart:submit', handleMobileSubmit);
-  }, [handleSubmit]);
-
-  // Auto-resize textarea when input changes
-  useEffect(() => {
-    autoResizeTextarea();
-  }, [input, autoResizeTextarea]);
 
   // Cleanup abort controller on unmount
   useEffect(() => {
@@ -141,30 +120,6 @@ export default function Antakelseskart() {
   // ---------------------------------------------------------------------------
   // Event Handlers
   // ---------------------------------------------------------------------------
-
-  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    const pastedText = e.clipboardData.getData('text/plain');
-
-    if (isUrlEncoded(pastedText)) {
-      e.preventDefault();
-      const decodedText = safeDecodeURIComponent(pastedText);
-
-      const textarea = e.currentTarget;
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-
-      const newValue = input.substring(0, start) + decodedText + input.substring(end);
-      setInput(newValue);
-      if (error) clearError();
-
-      setTimeout(() => {
-        if (textareaRef.current) {
-          const newPosition = start + decodedText.length;
-          textareaRef.current.setSelectionRange(newPosition, newPosition);
-        }
-      }, 0);
-    }
-  };
 
   const handleFillExample = () => {
     trackClick('antakelseskart_example');
@@ -201,31 +156,6 @@ export default function Antakelseskart() {
       textareaRef.current?.focus();
     }, 100);
   }, [reset]);
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-      e.preventDefault();
-      if (isButtonEnabled) {
-        handleSubmit();
-      }
-    }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    let newValue = e.target.value;
-    if (isUrlEncoded(newValue)) {
-      newValue = safeDecodeURIComponent(newValue);
-    }
-
-    // Track first input (funnel start) - only fire once per session
-    if (!hasTrackedInputStartRef.current && newValue.length > 0 && input.length === 0) {
-      hasTrackedInputStartRef.current = true;
-      trackClick('antakelseskart_input_started');
-    }
-
-    setInput(newValue);
-    if (error) clearError();
-  };
 
   // ---------------------------------------------------------------------------
   // Render

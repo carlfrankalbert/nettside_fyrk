@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { parseAntakelseskartResult, hasContent, getAllAssumptions } from '../utils/antakelseskart-parser';
 import type {
   AssumptionCategory,
@@ -15,9 +15,11 @@ import {
   ASSUMPTION_STATUS_LABELS,
 } from '../types/antakelseskart';
 import { SpinnerIcon, ChevronRightIcon } from './ui/Icon';
+import { Toast } from './ui/Toast';
+import { NarrativeLoader, ANTAKELSESKART_LOADER_MESSAGES } from './ui/NarrativeLoader';
 import { cn } from '../utils/classes';
 import { trackClick } from '../utils/tracking';
-import { useCopyToClipboard } from '../hooks/useCopyToClipboard';
+import { useCopyWithToast } from '../hooks/useCopyWithToast';
 
 // ============================================================================
 // Types
@@ -41,75 +43,6 @@ interface AssumptionAssignments {
   };
 }
 
-// ============================================================================
-// Constants
-// ============================================================================
-
-const LOADER_MESSAGES = [
-  'Leser gjennom beskrivelsen ...',
-  'Identifiserer implisitte antakelser ...',
-  'Grupperer etter kategori ...',
-  'Ferdigstiller ...',
-];
-
-const LOADER_INTERVAL_MS = 2000;
-const SLOW_THRESHOLD_MS = 8000;
-
-// ============================================================================
-// Toast Component
-// ============================================================================
-
-function Toast({ message, isVisible }: { message: string; isVisible: boolean }) {
-  return (
-    <div
-      className={cn(
-        'fixed z-50 px-4 py-2 bg-neutral-800 text-white text-sm rounded-lg shadow-lg transition-all duration-300',
-        'md:top-4 md:right-4 bottom-20 md:bottom-auto left-1/2 md:left-auto -translate-x-1/2 md:translate-x-0',
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
-      )}
-      role="status"
-      aria-live="assertive"
-    >
-      {message}
-    </div>
-  );
-}
-
-// ============================================================================
-// Narrative Loader Component
-// ============================================================================
-
-function NarrativeLoader() {
-  const [messageIndex, setMessageIndex] = useState(0);
-  const [isSlow, setIsSlow] = useState(false);
-
-  useEffect(() => {
-    const messageInterval = setInterval(() => {
-      setMessageIndex((prev) => (prev + 1) % LOADER_MESSAGES.length);
-    }, LOADER_INTERVAL_MS);
-
-    const slowTimeout = setTimeout(() => {
-      setIsSlow(true);
-    }, SLOW_THRESHOLD_MS);
-
-    return () => {
-      clearInterval(messageInterval);
-      clearTimeout(slowTimeout);
-    };
-  }, []);
-
-  return (
-    <div className="flex items-center gap-3 text-neutral-600 py-4">
-      <SpinnerIcon className="animate-spin h-5 w-5 text-brand-cyan-darker" />
-      <div>
-        <p className="text-sm">{LOADER_MESSAGES[messageIndex]}</p>
-        {isSlow && (
-          <p className="text-xs text-neutral-500 mt-1">Dette tar litt lenger tid enn vanlig ...</p>
-        )}
-      </div>
-    </div>
-  );
-}
 
 // ============================================================================
 // Assumption Card Component
@@ -302,18 +235,9 @@ export default function AntakelseskartResultDisplay({
 }: AntakelseskartResultDisplayProps) {
   const [assignments, setAssignments] = useState<AssumptionAssignments>({});
   const [showAssignments, setShowAssignments] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  const [showToast, setShowToast] = useState(false);
 
   const parsed = parseAntakelseskartResult(result);
-  const { copyToClipboard: copy } = useCopyToClipboard();
-
-  const copyToClipboard = async (text: string, feedbackMessage = 'Kopiert!') => {
-    const success = await copy(text);
-    setToastMessage(success ? feedbackMessage : 'Kunne ikke kopiere');
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 2000);
-  };
+  const { toastMessage, showToast, copyWithToast: copyToClipboard } = useCopyWithToast();
 
   const handleAssign = (id: string, field: 'certainty' | 'consequence' | 'status', value: string) => {
     setAssignments((prev) => ({
@@ -370,7 +294,7 @@ export default function AntakelseskartResultDisplay({
 
   // During streaming, show narrative loader if we don't have enough content yet
   if (isStreaming && !hasContent(parsed)) {
-    return <NarrativeLoader />;
+    return <NarrativeLoader messages={ANTAKELSESKART_LOADER_MESSAGES} />;
   }
 
   // Show parse error if any

@@ -143,6 +143,16 @@ export const CACHE_HEADERS = {
 } as const;
 
 /**
+ * Cache key prefixes for AI tools
+ * Versioned to allow cache invalidation when prompts change
+ */
+export const CACHE_KEY_PREFIXES = {
+  OKR: 'okr:v1',
+  KONSEPTSPEIL: 'konseptspeil:v2',
+  ANTAKELSESKART: 'antakelseskart:v1',
+} as const;
+
+/**
  * Example text for Konseptspeilet
  * Centralized to ensure consistency across UI
  */
