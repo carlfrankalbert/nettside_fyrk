@@ -104,3 +104,32 @@ export function isValidOKROutput(output: string): boolean {
 
   return hasScore || hasSections;
 }
+
+/**
+ * Validate Pre-Mortem Brief output format
+ * Expects markdown text with specific sections
+ */
+export function isValidPreMortemOutput(output: string): boolean {
+  if (!output || output.trim().length < 200) return false;
+
+  const content = output.toLowerCase();
+
+  if (containsSuspiciousPatterns(content)) return false;
+
+  // Check for required section headers (case-insensitive)
+  const requiredSections = [
+    'beslutning',
+    'ramme',
+    'pre-mortem',
+    'indikatorer',
+    'kontroller',
+    'stopp',
+    'eierskap',
+    'god beslutning',
+  ];
+
+  // Require at least 5 of the 8 main sections to be present
+  const foundSections = requiredSections.filter((section) => content.includes(section));
+
+  return foundSections.length >= 5;
+}

@@ -41,6 +41,13 @@ export function sanitizeOkrInput(input: string): string {
 }
 
 /**
+ * Sanitize input for Pre-Mortem Brief (uses <premortem_input> wrapper)
+ */
+export function sanitizePreMortemInput(input: string): string {
+  return sanitizeXmlTag(input, 'premortem_input');
+}
+
+/**
  * Create a user message wrapped in XML tags for prompt injection protection
  */
 export function createWrappedUserMessage(

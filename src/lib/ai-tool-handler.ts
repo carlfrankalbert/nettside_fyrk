@@ -34,7 +34,7 @@ import {
 /**
  * Tool name type for rate limit logging
  */
-export type ToolName = 'okr' | 'konseptspeil' | 'antakelseskart';
+export type ToolName = 'okr' | 'konseptspeil' | 'antakelseskart' | 'pre-mortem';
 
 /**
  * Configuration for an AI tool handler

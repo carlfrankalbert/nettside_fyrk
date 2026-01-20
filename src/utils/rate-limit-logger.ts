@@ -5,7 +5,7 @@
  * Fire-and-forget - doesn't block the response.
  */
 
-type ToolName = 'okr' | 'konseptspeil' | 'antakelseskart';
+type ToolName = 'okr' | 'konseptspeil' | 'antakelseskart' | 'pre-mortem';
 
 /**
  * Log a rate limit hit to KV analytics

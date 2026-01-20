@@ -59,6 +59,12 @@ export const DEFAULT_FEATURES: FeatureToggle[] = [
     description: 'Dokumenter beslutninger med klarhet – eksporter som Markdown',
     status: 'on',
   },
+  {
+    id: 'pre-mortem',
+    name: 'Pre-Mortem Brief',
+    description: 'Tenk gjennom hva som kan gå galt før du tar irreversible beslutninger',
+    status: 'beta',
+  },
 ];
 
 /**

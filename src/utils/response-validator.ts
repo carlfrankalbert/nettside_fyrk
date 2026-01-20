@@ -91,3 +91,35 @@ export const isAntakelseskartResponseComplete = createResponseValidator<{
 
   return hasBeslutning && !!hasAntakelser;
 });
+
+/**
+ * Pre-built validator for Pre-Mortem Brief responses.
+ * Checks for key section headers in markdown output.
+ */
+export function isPreMortemResponseComplete(output: string): boolean {
+  if (!output || output.trim().length < 200) {
+    return false;
+  }
+
+  const content = output.toLowerCase();
+
+  // Check for key structural elements that indicate completeness
+  const hasBeslutning = content.includes('beslutning');
+  const hasPreMortem = content.includes('pre-mortem');
+  const hasIndikatorer = content.includes('indikatorer');
+  const hasStoppKriterier = content.includes('stopp');
+  const hasEierskap = content.includes('eierskap');
+  const hasGodBeslutning = content.includes('god beslutning');
+
+  // Require at least 4 of the 6 key sections to consider it complete
+  const foundSections = [
+    hasBeslutning,
+    hasPreMortem,
+    hasIndikatorer,
+    hasStoppKriterier,
+    hasEierskap,
+    hasGodBeslutning,
+  ].filter(Boolean).length;
+
+  return foundSections >= 4;
+}

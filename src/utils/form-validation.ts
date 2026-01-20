@@ -3,7 +3,7 @@
  * Provides reusable validation functions with accessibility support
  */
 
-import { INPUT_VALIDATION } from './constants';
+import { INPUT_VALIDATION, PRE_MORTEM_VALIDATION } from './constants';
 
 // ============================================================================
 // Text Input Validation (for React components)
@@ -97,6 +97,95 @@ export function validateOKRInput(input: string): string | null {
   }
 
   return null;
+}
+
+/**
+ * Pre-Mortem Brief form data interface
+ */
+export interface PreMortemFormData {
+  beslutning: string;
+  bransje: string;
+  kontekst: string;
+  risikoniva: string;
+  risikoForklaring?: string;
+  kundetype: string;
+  beslutningsfrist: string;
+  effekthorisont: string;
+  tidligereForsok?: string;
+  interessenter?: string;
+  konfidensialitet?: string;
+}
+
+/**
+ * Validate Pre-Mortem Brief form data
+ * Returns error message if invalid, null if valid
+ */
+export function validatePreMortemInput(formData: PreMortemFormData): string | null {
+  const { beslutning, bransje, kontekst, risikoniva, kundetype, beslutningsfrist, effekthorisont } = formData;
+
+  // Validate required beslutning field
+  const trimmedBeslutning = beslutning?.trim() || '';
+  if (trimmedBeslutning.length < PRE_MORTEM_VALIDATION.MIN_DECISION_LENGTH) {
+    return `Beskriv beslutningen med minst ${PRE_MORTEM_VALIDATION.MIN_DECISION_LENGTH} tegn.`;
+  }
+  if (trimmedBeslutning.length > PRE_MORTEM_VALIDATION.MAX_DECISION_LENGTH) {
+    return `Beslutningen kan ikke være lengre enn ${PRE_MORTEM_VALIDATION.MAX_DECISION_LENGTH} tegn.`;
+  }
+
+  // Validate required bransje field
+  if (!bransje || bransje.trim() === '') {
+    return 'Velg en bransje eller domene.';
+  }
+
+  // Validate required kontekst field
+  const trimmedKontekst = kontekst?.trim() || '';
+  if (trimmedKontekst.length < PRE_MORTEM_VALIDATION.MIN_CONTEXT_LENGTH) {
+    return `Beskriv konteksten med minst ${PRE_MORTEM_VALIDATION.MIN_CONTEXT_LENGTH} tegn.`;
+  }
+  if (trimmedKontekst.length > PRE_MORTEM_VALIDATION.MAX_CONTEXT_LENGTH) {
+    return `Konteksten kan ikke være lengre enn ${PRE_MORTEM_VALIDATION.MAX_CONTEXT_LENGTH} tegn.`;
+  }
+
+  // Validate required risikoniva field
+  if (!risikoniva || risikoniva.trim() === '') {
+    return 'Velg et regulatorisk/risikonivå.';
+  }
+
+  // Validate required kundetype field
+  if (!kundetype || kundetype.trim() === '') {
+    return 'Velg en kundetype.';
+  }
+
+  // Validate required beslutningsfrist field
+  if (!beslutningsfrist || beslutningsfrist.trim() === '') {
+    return 'Angi beslutningsfrist.';
+  }
+
+  // Validate required effekthorisont field
+  if (!effekthorisont || effekthorisont.trim() === '') {
+    return 'Angi effekthorisont.';
+  }
+
+  // Calculate total length for all fields
+  const totalLength =
+    trimmedBeslutning.length +
+    trimmedKontekst.length +
+    (formData.tidligereForsok?.trim().length || 0) +
+    (formData.interessenter?.trim().length || 0) +
+    (formData.risikoForklaring?.trim().length || 0);
+
+  if (totalLength > PRE_MORTEM_VALIDATION.MAX_TOTAL_LENGTH) {
+    return `Total tekstlengde kan ikke overstige ${PRE_MORTEM_VALIDATION.MAX_TOTAL_LENGTH} tegn.`;
+  }
+
+  return null;
+}
+
+/**
+ * Serialize Pre-Mortem form data to JSON string for API
+ */
+export function serializePreMortemInput(formData: PreMortemFormData): string {
+  return JSON.stringify(formData);
 }
 
 // ============================================================================

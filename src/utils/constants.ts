@@ -58,6 +58,8 @@ export const API_ROUTES = {
   OKR_REVIEW: '/api/okr-sjekken',
   /** Konseptspeil API endpoint */
   KONSEPTSPEIL: '/api/konseptspeilet',
+  /** Pre-Mortem Brief API endpoint */
+  PRE_MORTEM: '/api/pre-mortem',
 } as const;
 
 /**
@@ -69,6 +71,7 @@ export const PAGE_ROUTES = {
   KONSEPTSPEIL: '/konseptspeilet',
   ANTAKELSESKART: '/antakelseskart',
   BESLUTNINGSLOGG: '/beslutningslogg',
+  PRE_MORTEM: '/verktoy/pre-mortem',
   SPLASH: '/splash',
 } as const;
 
@@ -80,6 +83,23 @@ export const INPUT_VALIDATION = {
   MIN_LENGTH: 20,
   /** Maximum input length in characters */
   MAX_LENGTH: 2000,
+} as const;
+
+/**
+ * Pre-Mortem Brief input validation
+ * Higher limits due to multiple structured fields
+ */
+export const PRE_MORTEM_VALIDATION = {
+  /** Maximum total input length */
+  MAX_TOTAL_LENGTH: 5000,
+  /** Minimum decision description length */
+  MIN_DECISION_LENGTH: 30,
+  /** Maximum decision description length */
+  MAX_DECISION_LENGTH: 1000,
+  /** Minimum context length */
+  MIN_CONTEXT_LENGTH: 20,
+  /** Maximum context length */
+  MAX_CONTEXT_LENGTH: 1500,
 } as const;
 
 /**
@@ -150,6 +170,7 @@ export const CACHE_KEY_PREFIXES = {
   OKR: 'okr:v1',
   KONSEPTSPEIL: 'konseptspeil:v2',
   ANTAKELSESKART: 'antakelseskart:v1',
+  PRE_MORTEM: 'premortem:v1',
 } as const;
 
 /**
