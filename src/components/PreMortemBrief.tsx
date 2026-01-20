@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { generatePreMortemStreaming, ERROR_MESSAGES } from '../services/pre-mortem-service';
 import PreMortemResultDisplay from './PreMortemResultDisplay';
+import { FormField, FormTextarea, FormSelect, FormInput } from './form';
 import { SpinnerIcon, ErrorIcon } from './ui/Icon';
 import { PrivacyAccordion } from './ui/PrivacyAccordion';
-import { cn } from '../utils/classes';
 import { PRE_MORTEM_VALIDATION, STREAMING_CONSTANTS } from '../utils/constants';
 import { trackClick, logEvent } from '../utils/tracking';
 import {
@@ -60,167 +60,6 @@ const INITIAL_FORM_STATE: PreMortemFormData = {
 };
 
 /**
- * Form field component for text inputs
- */
-function FormField({
-  label,
-  id,
-  required = false,
-  helpText,
-  children,
-}: {
-  label: string;
-  id: string;
-  required?: boolean;
-  helpText?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <label htmlFor={id} className="block text-sm font-medium text-neutral-700 mb-1">
-        {label}
-        {required && <span className="text-feedback-error ml-1">*</span>}
-      </label>
-      {children}
-      {helpText && (
-        <p className="mt-1 text-xs text-neutral-500">{helpText}</p>
-      )}
-    </div>
-  );
-}
-
-/**
- * Textarea component with consistent styling
- */
-function FormTextarea({
-  id,
-  value,
-  onChange,
-  placeholder,
-  maxLength,
-  rows = 3,
-  disabled = false,
-  error = false,
-}: {
-  id: string;
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  maxLength?: number;
-  rows?: number;
-  disabled?: boolean;
-  error?: boolean;
-}) {
-  return (
-    <div>
-      <textarea
-        id={id}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        maxLength={maxLength}
-        rows={rows}
-        disabled={disabled}
-        className={cn(
-          'w-full px-3 py-2 text-sm text-neutral-700 bg-white border-2 rounded-lg',
-          'resize-none placeholder:text-neutral-400',
-          'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker',
-          'disabled:opacity-60 disabled:cursor-not-allowed',
-          error ? 'border-feedback-error' : 'border-neutral-300'
-        )}
-      />
-      {maxLength && (
-        <div className="mt-1 text-xs text-neutral-500 text-right">
-          <span className={cn(value.length > maxLength * 0.9 && 'text-feedback-warning')}>
-            {value.length}
-          </span>
-          {' / '}{maxLength} tegn
-        </div>
-      )}
-    </div>
-  );
-}
-
-/**
- * Select component with consistent styling
- */
-function FormSelect({
-  id,
-  value,
-  onChange,
-  options,
-  disabled = false,
-  error = false,
-}: {
-  id: string;
-  value: string;
-  onChange: (value: string) => void;
-  options: readonly { value: string; label: string }[];
-  disabled?: boolean;
-  error?: boolean;
-}) {
-  return (
-    <select
-      id={id}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      disabled={disabled}
-      className={cn(
-        'w-full px-3 py-2 text-sm text-neutral-700 bg-white border-2 rounded-lg',
-        'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker',
-        'disabled:opacity-60 disabled:cursor-not-allowed',
-        error ? 'border-feedback-error' : 'border-neutral-300'
-      )}
-    >
-      {options.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </select>
-  );
-}
-
-/**
- * Text input component with consistent styling
- */
-function FormInput({
-  id,
-  value,
-  onChange,
-  placeholder,
-  type = 'text',
-  disabled = false,
-  error = false,
-}: {
-  id: string;
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  type?: 'text' | 'date';
-  disabled?: boolean;
-  error?: boolean;
-}) {
-  return (
-    <input
-      id={id}
-      type={type}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      disabled={disabled}
-      className={cn(
-        'w-full px-3 py-2 text-sm text-neutral-700 bg-white border-2 rounded-lg',
-        'placeholder:text-neutral-400',
-        'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker',
-        'disabled:opacity-60 disabled:cursor-not-allowed',
-        error ? 'border-feedback-error' : 'border-neutral-300'
-      )}
-    />
-  );
-}
-
-/**
  * Main Pre-Mortem Brief component
  */
 export default function PreMortemBrief() {
@@ -242,10 +81,13 @@ export default function PreMortemBrief() {
   }, []);
 
   // Update form field
-  const updateField = useCallback((field: keyof PreMortemFormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (error) setError(null);
-  }, [error]);
+  const updateField = useCallback(
+    (field: keyof PreMortemFormData, value: string) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+      if (error) setError(null);
+    },
+    [error]
+  );
 
   // Reset form
   const handleReset = useCallback(() => {
@@ -433,11 +275,7 @@ export default function PreMortemBrief() {
 
         {/* Risikonivå */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField
-            label="Regulatorisk / Risikonivå"
-            id="risikoniva"
-            required
-          >
+          <FormField label="Regulatorisk / Risikonivå" id="risikoniva" required>
             <FormSelect
               id="risikoniva"
               value={formData.risikoniva}
@@ -501,10 +339,7 @@ export default function PreMortemBrief() {
             Valgfrie felt (klikk for å utvide)
           </summary>
           <div className="mt-4 space-y-4 pl-4 border-l-2 border-neutral-200">
-            <FormField
-              label="Tidligere forsøk eller relevant erfaring"
-              id="tidligereForsok"
-            >
+            <FormField label="Tidligere forsøk eller relevant erfaring" id="tidligereForsok">
               <FormTextarea
                 id="tidligereForsok"
                 value={formData.tidligereForsok || ''}
@@ -515,10 +350,7 @@ export default function PreMortemBrief() {
               />
             </FormField>
 
-            <FormField
-              label="Nøkkelinteressenter"
-              id="interessenter"
-            >
+            <FormField label="Nøkkelinteressenter" id="interessenter">
               <FormTextarea
                 id="interessenter"
                 value={formData.interessenter || ''}
