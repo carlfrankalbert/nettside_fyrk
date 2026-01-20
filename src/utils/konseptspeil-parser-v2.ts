@@ -11,7 +11,7 @@ import type {
   DimensionData,
   DimensionStatus,
 } from '../types/konseptspeil-v2';
-import { extractJson } from './json-extraction';
+import { extractJson, safeJsonParse } from './json-extraction';
 
 /**
  * Default empty reflection status
@@ -96,11 +96,21 @@ export function parseKonseptSpeilResultV2(text: string): ParsedKonseptSpeilResul
     };
   }
 
-  try {
-    const jsonText = extractJson(text);
-    const parsed = JSON.parse(jsonText) as KonseptspeilJsonResponse;
+  const jsonText = extractJson(text);
+  const parsed = safeJsonParse<KonseptspeilJsonResponse>(jsonText);
 
-    // Parse refleksjon_status
+  if (!parsed) {
+    return {
+      refleksjonStatus: createDefaultRefleksjonStatus(),
+      fokusSporsmal: createDefaultFokusSporsmal(),
+      dimensjoner: createDefaultDimensjoner(),
+      antagelserListe: [],
+      isComplete: false,
+      parseError: 'Kunne ikke tolke svaret som JSON',
+    };
+  }
+
+  // Parse refleksjon_status
     const refleksjonStatus: RefleksjonStatus = {
       kommentar: parsed.refleksjon_status?.kommentar || '',
       antagelser_funnet: typeof parsed.refleksjon_status?.antagelser_funnet === 'number'
@@ -137,25 +147,14 @@ export function parseKonseptSpeilResultV2(text: string): ParsedKonseptSpeilResul
         dimensjoner.gjennomforbarhet.observasjon.length > 0 ||
         dimensjoner.levedyktighet.observasjon.length > 0);
 
-    return {
-      refleksjonStatus,
-      fokusSporsmal,
-      dimensjoner,
-      antagelserListe,
-      isComplete,
-      parseError: null,
-    };
-  } catch (error) {
-    console.error('Failed to parse KonseptSpeil v2 JSON result:', error);
-    return {
-      refleksjonStatus: createDefaultRefleksjonStatus(),
-      fokusSporsmal: createDefaultFokusSporsmal(),
-      dimensjoner: createDefaultDimensjoner(),
-      antagelserListe: [],
-      isComplete: false,
-      parseError: 'Kunne ikke tolke svaret som JSON',
-    };
-  }
+  return {
+    refleksjonStatus,
+    fokusSporsmal,
+    dimensjoner,
+    antagelserListe,
+    isComplete,
+    parseError: null,
+  };
 }
 
 /**

@@ -8,7 +8,7 @@ import type {
   Assumption,
   AntakelseskartJsonResponse,
 } from '../types/antakelseskart';
-import { extractJson } from './json-extraction';
+import { extractJson, safeJsonParse } from './json-extraction';
 
 /**
  * Default empty grouped assumptions
@@ -45,10 +45,17 @@ export function parseAntakelseskartResult(raw: string): ParsedAntakelseskartResu
     return result;
   }
 
-  try {
-    const parsed = JSON.parse(jsonString) as AntakelseskartJsonResponse;
+  const parsed = safeJsonParse<AntakelseskartJsonResponse>(jsonString);
 
-    // Extract beslutning_oppsummert
+  // During streaming, incomplete JSON is expected
+  if (!parsed) {
+    if (jsonString.includes('[DONE]')) {
+      result.parseError = 'Kunne ikke tolke svaret fra AI-en. Vennligst prøv igjen.';
+    }
+    return result;
+  }
+
+  // Extract beslutning_oppsummert
     if (typeof parsed.beslutning_oppsummert === 'string') {
       result.beslutningOppsummert = parsed.beslutning_oppsummert;
     }
@@ -84,14 +91,6 @@ export function parseAntakelseskartResult(raw: string): ParsedAntakelseskartResu
     result.isComplete =
       result.beslutningOppsummert.length > 0 &&
       totalFromCategories > 0;
-
-  } catch {
-    // During streaming, incomplete JSON is expected
-    // Only set parseError if we're clearly done streaming
-    if (jsonString.includes('[DONE]')) {
-      result.parseError = 'Kunne ikke tolke svaret fra AI-en. Vennligst prøv igjen.';
-    }
-  }
 
   return result;
 }

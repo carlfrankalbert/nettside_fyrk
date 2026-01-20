@@ -8,6 +8,7 @@
  */
 
 import { containsSuspiciousPatterns } from './input-sanitization';
+import { safeJsonParse } from './json-extraction';
 
 /**
  * Validate konseptspeilet output format
@@ -20,30 +21,33 @@ export function isValidKonseptspeilOutput(output: string): boolean {
 
   if (containsSuspiciousPatterns(content)) return false;
 
-  try {
-    const parsed = JSON.parse(content);
+  const parsed = safeJsonParse<{
+    refleksjon_status?: { kommentar?: unknown; antagelser_funnet?: unknown };
+    fokus_sporsmal?: { sporsmal?: unknown };
+    dimensjoner?: { verdi?: unknown; brukbarhet?: unknown; gjennomforbarhet?: unknown; levedyktighet?: unknown };
+    antagelser_liste?: unknown;
+  }>(content);
 
-    const hasRefleksjonStatus =
-      parsed.refleksjon_status &&
-      typeof parsed.refleksjon_status.kommentar === 'string' &&
-      typeof parsed.refleksjon_status.antagelser_funnet === 'number';
+  if (!parsed) return false;
 
-    const hasFokusSporsmal =
-      parsed.fokus_sporsmal && typeof parsed.fokus_sporsmal.sporsmal === 'string';
+  const hasRefleksjonStatus =
+    parsed.refleksjon_status &&
+    typeof parsed.refleksjon_status.kommentar === 'string' &&
+    typeof parsed.refleksjon_status.antagelser_funnet === 'number';
 
-    const hasDimensjoner =
-      parsed.dimensjoner &&
-      parsed.dimensjoner.verdi &&
-      parsed.dimensjoner.brukbarhet &&
-      parsed.dimensjoner.gjennomforbarhet &&
-      parsed.dimensjoner.levedyktighet;
+  const hasFokusSporsmal =
+    parsed.fokus_sporsmal && typeof parsed.fokus_sporsmal.sporsmal === 'string';
 
-    const hasAntagelserListe = Array.isArray(parsed.antagelser_liste);
+  const hasDimensjoner =
+    parsed.dimensjoner &&
+    parsed.dimensjoner.verdi &&
+    parsed.dimensjoner.brukbarhet &&
+    parsed.dimensjoner.gjennomforbarhet &&
+    parsed.dimensjoner.levedyktighet;
 
-    return hasRefleksjonStatus && hasFokusSporsmal && hasDimensjoner && hasAntagelserListe;
-  } catch {
-    return false;
-  }
+  const hasAntagelserListe = Array.isArray(parsed.antagelser_liste);
+
+  return !!(hasRefleksjonStatus && hasFokusSporsmal && hasDimensjoner && hasAntagelserListe);
 }
 
 /**
@@ -57,22 +61,29 @@ export function isValidAntakelseskartOutput(output: string): boolean {
 
   if (containsSuspiciousPatterns(content)) return false;
 
-  try {
-    const parsed = JSON.parse(content);
+  const parsed = safeJsonParse<{
+    beslutning_oppsummert?: unknown;
+    antakelser?: {
+      målgruppe_behov?: unknown;
+      løsning_produkt?: unknown;
+      marked_konkurranse?: unknown;
+      forretning_skalering?: unknown;
+    };
+    antall_totalt?: unknown;
+  }>(content);
 
-    const hasBeslutning = typeof parsed.beslutning_oppsummert === 'string';
-    const hasAntakelser =
-      parsed.antakelser &&
-      Array.isArray(parsed.antakelser.målgruppe_behov) &&
-      Array.isArray(parsed.antakelser.løsning_produkt) &&
-      Array.isArray(parsed.antakelser.marked_konkurranse) &&
-      Array.isArray(parsed.antakelser.forretning_skalering);
-    const hasAntall = typeof parsed.antall_totalt === 'number';
+  if (!parsed) return false;
 
-    return hasBeslutning && hasAntakelser && hasAntall;
-  } catch {
-    return false;
-  }
+  const hasBeslutning = typeof parsed.beslutning_oppsummert === 'string';
+  const hasAntakelser =
+    parsed.antakelser &&
+    Array.isArray(parsed.antakelser.målgruppe_behov) &&
+    Array.isArray(parsed.antakelser.løsning_produkt) &&
+    Array.isArray(parsed.antakelser.marked_konkurranse) &&
+    Array.isArray(parsed.antakelser.forretning_skalering);
+  const hasAntall = typeof parsed.antall_totalt === 'number';
+
+  return !!(hasBeslutning && hasAntakelser && hasAntall);
 }
 
 /**

@@ -6,7 +6,7 @@ import { cn } from '../utils/classes';
 import { INPUT_VALIDATION } from '../utils/constants';
 import { trackClick, logEvent } from '../utils/tracking';
 import { validateOKRInput } from '../utils/form-validation';
-import { isUrlEncoded, safeDecodeURIComponent } from '../utils/url-decoding';
+import { useFormInputHandlers } from '../hooks/useFormInputHandlers';
 
 const EXAMPLE_OKR = `Objective:
 Gjøre det enkelt og trygt for brukere å komme i gang med produktet.
@@ -29,66 +29,9 @@ export default function OKRReviewer() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const checkStartTimeRef = useRef<number>(0);
 
-  /**
-   * Auto-resize textarea to fit content
-   * Resets height to auto first to properly calculate scrollHeight
-   */
-  const autoResizeTextarea = useCallback(() => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    // Reset height to auto to get accurate scrollHeight
-    textarea.style.height = 'auto';
-    // Set height to scrollHeight to fit all content
-    textarea.style.height = `${textarea.scrollHeight}px`;
-  }, []);
-
-  // Auto-resize textarea when input changes
-  useEffect(() => {
-    autoResizeTextarea();
-  }, [input, autoResizeTextarea]);
-
-  // Dispatch events for mobile CTA sync
-  useEffect(() => {
-    window.dispatchEvent(new CustomEvent('okr:inputChange', {
-      detail: {
-        length: input.trim().length,
-        isLoading: loading,
-        hasResult: !!result,
-      }
-    }));
-  }, [input, loading, result]);
-
-  /**
-   * Handle paste events to decode URL-encoded text
-   * This fixes an iOS Safari bug where copied text sometimes gets URL-encoded
-   */
-  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    const pastedText = e.clipboardData.getData('text/plain');
-
-    if (isUrlEncoded(pastedText)) {
-      e.preventDefault();
-      const decodedText = safeDecodeURIComponent(pastedText);
-
-      // Get current cursor position
-      const textarea = e.currentTarget;
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-
-      // Insert decoded text at cursor position
-      const newValue = input.substring(0, start) + decodedText + input.substring(end);
-      setInput(newValue);
-      if (error) setError(null);
-
-      // Reset cursor position after state update
-      setTimeout(() => {
-        if (textareaRef.current) {
-          const newPosition = start + decodedText.length;
-          textareaRef.current.setSelectionRange(newPosition, newPosition);
-        }
-      }, 0);
-    }
-  };
+  const clearError = useCallback(() => setError(null), []);
+  const trimmedLength = input.trim().length;
+  const isButtonEnabled = !loading && trimmedLength >= INPUT_VALIDATION.MIN_LENGTH;
 
   // Cleanup abort controller on unmount
   useEffect(() => {
@@ -188,14 +131,24 @@ export default function OKRReviewer() {
     );
   }, [input, loading]);
 
-  // Listen for mobile submit trigger
-  useEffect(() => {
-    const handleMobileSubmit = () => {
-      handleSubmit();
-    };
-    window.addEventListener('okr:submit', handleMobileSubmit);
-    return () => window.removeEventListener('okr:submit', handleMobileSubmit);
-  }, [handleSubmit]);
+  // Form input handlers (URL decoding, keyboard shortcuts, mobile events, auto-resize)
+  const {
+    handlePaste,
+    handleKeyDown,
+    handleInputChange,
+  } = useFormInputHandlers({
+    toolName: 'okr',
+    input,
+    setInput,
+    error,
+    clearError,
+    isButtonEnabled,
+    handleSubmit,
+    textareaRef,
+    loading,
+    result,
+    trimmedLength,
+  });
 
   return (
     <div className="space-y-6" aria-busy={loading}>
@@ -240,17 +193,9 @@ export default function OKRReviewer() {
           ref={textareaRef}
           id="okr-input"
           value={input}
-          onChange={(e) => {
-            let newValue = e.target.value;
-            // Fallback: decode URL-encoded text on change
-            // This handles cases where paste event prevention doesn't work (iOS Safari/Chrome)
-            if (isUrlEncoded(newValue)) {
-              newValue = safeDecodeURIComponent(newValue);
-            }
-            setInput(newValue);
-            if (error) setError(null);
-          }}
+          onChange={handleInputChange}
           onPaste={handlePaste}
+          onKeyDown={handleKeyDown}
           placeholder="Objective:
 Ditt mål her...
 

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useCopyToClipboard } from './useCopyToClipboard';
 
 interface UseCopyWithToastOptions {
@@ -34,17 +34,33 @@ export function useCopyWithToast(
 
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { copyToClipboard } = useCopyToClipboard();
 
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
   const copyWithToast = useCallback(
     async (text: string, feedbackMessage?: string): Promise<boolean> => {
+      // Clear any existing timeout
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
       const success = await copyToClipboard(text);
       setToastMessage(success ? (feedbackMessage ?? successMessage) : errorMessage);
       setShowToast(true);
 
-      setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         setShowToast(false);
+        timeoutRef.current = null;
       }, toastDuration);
 
       return success;
