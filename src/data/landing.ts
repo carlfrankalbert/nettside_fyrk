@@ -158,6 +158,16 @@ export const toolsContent = {
       // Document with checkmark - documented decisions
       iconPath: 'M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6zm10.97-6.83l-4.24 4.24-2.12-2.12-1.41 1.41 3.54 3.54 5.65-5.66-1.42-1.41z',
     },
+    {
+      title: 'Pre-Mortem Brief',
+      description: 'Tenk gjennom hva som kan gå galt før du tar irreversible beslutninger. Få failure modes, varselsignaler og stopp-kriterier.',
+      href: PAGE_ROUTES.PRE_MORTEM,
+      buttonText: 'Lag Pre-Mortem Brief',
+      featureId: 'pre-mortem',
+      isBeta: true,
+      // Shield with exclamation - risk prevention and protection
+      iconPath: 'M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z',
+    },
   ] as ToolDefinition[],
   comingSoonText: 'Flere verktøy er på vei. Følg med.',
 } as const;
