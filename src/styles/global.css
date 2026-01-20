@@ -16,8 +16,7 @@
   }
   
   body {
-    @apply font-body text-base text-neutral-700 dark:text-neutral-200 bg-white dark:bg-neutral-900 leading-relaxed;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    @apply font-body text-base text-neutral-700 bg-white leading-relaxed;
   }
   
   p {
@@ -25,7 +24,7 @@
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-primary font-semibold text-brand-navy dark:text-white;
+    @apply font-primary font-semibold text-brand-navy;
   }
   
   h1 {
@@ -53,11 +52,11 @@
   }
   
   a {
-    @apply text-brand-navy dark:text-brand-cyan underline-offset-4 transition-colors duration-fast;
+    @apply text-brand-navy underline-offset-4 transition-colors duration-fast;
   }
-  
+
   a:hover {
-    @apply text-brand-cyan-darker dark:text-brand-cyan-light transition-colors duration-fast;
+    @apply text-brand-cyan-darker transition-colors duration-fast;
   }
   
   a:focus-visible {
@@ -88,17 +87,17 @@
   }
 
   .btn-outline {
-    @apply border-2 border-brand-navy dark:border-brand-cyan-darker text-brand-navy dark:text-brand-cyan-darker bg-transparent hover:bg-brand-navy dark:hover:bg-brand-cyan-darker hover:text-white visited:text-brand-navy dark:visited:text-brand-cyan-darker transition-colors duration-normal;
+    @apply border-2 border-brand-navy text-brand-navy bg-transparent hover:bg-brand-navy hover:text-white visited:text-brand-navy transition-colors duration-normal;
   }
-  
+
   .card {
-    @apply bg-white dark:bg-neutral-800 rounded-xl shadow-lg dark:shadow-xl dark:shadow-neutral-900/50 p-8 md:p-10 transition-all duration-normal;
+    @apply bg-white rounded-xl shadow-lg p-8 md:p-10 transition-all duration-normal;
   }
-  
+
   .input {
-    @apply w-full min-h-[48px] px-4 py-3 border-2 border-neutral-300 dark:border-neutral-700 rounded-lg;
-    @apply font-body text-base text-neutral-700 dark:text-neutral-200 bg-white dark:bg-neutral-800;
-    @apply focus:border-brand-cyan-darker dark:focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan-darker/20;
+    @apply w-full min-h-[48px] px-4 py-3 border-2 border-neutral-300 rounded-lg;
+    @apply font-body text-base text-neutral-700 bg-white;
+    @apply focus:border-brand-cyan-darker focus:ring-2 focus:ring-brand-cyan-darker/20;
     @apply transition-all duration-normal;
   }
   

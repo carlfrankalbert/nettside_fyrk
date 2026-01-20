@@ -19,7 +19,6 @@ import AboutSection from '../components/landing/AboutSection.astro';
 import ToolsSection from '../components/landing/ToolsSection.astro';
 import ContactSection from '../components/landing/ContactSection.astro';
 import LandingFooter from '../components/landing/LandingFooter.astro';
-import ThemeToggle from '../components/layout/ThemeToggle.astro';
 
 // Feature toggles
 import { getFeatureToggles, hasBetaAccess } from '../utils/feature-toggles';
@@ -72,7 +71,6 @@ const visibleTools = toolsContent.tools.filter((tool: ToolDefinition) => {
   <body class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
     <!-- Skip link for accessibility -->
     <a href={`#${ELEMENT_IDS.MAIN}`} class="skip-link">Hopp til hovedinnhold</a>
-    <ThemeToggle />
 
     <LandingHeader navLinks={navLinks} />
 
