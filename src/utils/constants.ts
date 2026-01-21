@@ -91,7 +91,7 @@ export const INPUT_VALIDATION = {
  */
 export const PRE_MORTEM_VALIDATION = {
   /** Maximum total input length */
-  MAX_TOTAL_LENGTH: 5000,
+  MAX_TOTAL_LENGTH: 8000,
   /** Minimum decision description length */
   MIN_DECISION_LENGTH: 30,
   /** Maximum decision description length */

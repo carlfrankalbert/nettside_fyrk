@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import { createAIToolHandler } from '../../lib/ai-tool-handler';
 import { createWrappedUserMessage } from '../../utils/input-sanitization';
 import { isValidPreMortemOutput } from '../../utils/output-validators';
-import { CACHE_KEY_PREFIXES, ANTHROPIC_CONFIG } from '../../utils/constants';
+import { CACHE_KEY_PREFIXES, ANTHROPIC_CONFIG, PRE_MORTEM_VALIDATION } from '../../utils/constants';
 
 export const prerender = false;
 
@@ -88,4 +88,5 @@ export const POST: APIRoute = createAIToolHandler({
   missingInputMessage: 'Fyll ut beslutningsinformasjonen for å generere Pre-Mortem Brief.',
   useCircuitBreaker: true,
   streamingTimeoutMs: ANTHROPIC_CONFIG.PRE_MORTEM_REQUEST_TIMEOUT_MS,
+  maxInputLength: PRE_MORTEM_VALIDATION.MAX_TOTAL_LENGTH + 500, // JSON overhead
 });

@@ -58,6 +58,8 @@ export interface AIToolConfig {
   useCircuitBreaker?: boolean;
   /** Custom streaming timeout in ms (default: ANTHROPIC_CONFIG.REQUEST_TIMEOUT_MS) */
   streamingTimeoutMs?: number;
+  /** Custom max input length (default: INPUT_VALIDATION.MAX_LENGTH) */
+  maxInputLength?: number;
   /** Mock mode getter (optional, for testing) */
   getMockResponse?: (input: string) => string | null;
 }
@@ -86,6 +88,7 @@ export function createAIToolHandler(config: AIToolConfig) {
     missingInputMessage,
     useCircuitBreaker = true,
     streamingTimeoutMs,
+    maxInputLength = INPUT_VALIDATION.MAX_LENGTH,
     getMockResponse,
   } = config;
 
@@ -126,9 +129,9 @@ export function createAIToolHandler(config: AIToolConfig) {
         );
       }
 
-      if (trimmedInput.length > INPUT_VALIDATION.MAX_LENGTH) {
+      if (trimmedInput.length > maxInputLength) {
         return createErrorResponse(
-          `Input kan ikke være lengre enn ${INPUT_VALIDATION.MAX_LENGTH} tegn`,
+          `Input kan ikke være lengre enn ${maxInputLength} tegn`,
           400
         );
       }
