@@ -102,12 +102,6 @@ export default defineConfig({
       testMatch: /okr-sjekken\.spec\.ts/,
       use: { ...devices['Desktop Chrome'] },
     },
-    // Theme toggle tests
-    {
-      name: 'theme',
-      testMatch: /theme-toggle\.spec\.ts/,
-      use: { ...devices['Desktop Chrome'] },
-    },
     // Accessibility tests with axe-core
     {
       name: 'a11y',

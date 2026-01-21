@@ -157,84 +157,17 @@ export const calculateElementContrast = `
 
 /**
  * Setup theme for testing
- * This function ensures the theme is properly set and waits for CSS to apply
- * 
- * Strategy: 
- * 1. Set localStorage BEFORE page loads (if possible) or immediately after
- * 2. Wait for ThemeToggle script to initialize and respect localStorage
- * 3. Force dark class and inject CSS if needed
+ * This function ensures the light theme is properly set and waits for CSS to apply
+ * Note: The theme parameter is kept for API compatibility but dark mode is no longer supported
  */
-export async function setupTheme(page: Page, theme: 'light' | 'dark'): Promise<void> {
+export async function setupTheme(page: Page, _theme: 'light' | 'dark'): Promise<void> {
   await page.waitForLoadState('networkidle');
-  
-  if (theme === 'dark') {
-    // Step 1: Set localStorage FIRST so ThemeToggle script picks it up
-    await page.evaluate(() => {
-      localStorage.setItem('theme', 'dark');
-    });
-    
-    // Step 2: Wait for ThemeToggle script to initialize (it reads localStorage on init)
-    await page.waitForTimeout(600);
-    
-    // Step 3: Ensure dark class is set (ThemeToggle should have set it, but verify)
-    await page.evaluate(() => {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    });
-    
-    // Step 4: Wait for CSS to apply
-    await page.waitForTimeout(500);
-    
-    // Step 5: Force reflow to trigger CSS recalculation
-    await page.evaluate(() => {
-      document.body.offsetHeight; // Force reflow
-      // Double-check dark class
-      if (!document.documentElement.classList.contains('dark')) {
-        document.documentElement.classList.add('dark');
-      }
-    });
-    
-    await page.waitForTimeout(300);
-    
-    // Step 6: Verify dark mode is actually applied by checking body background
-    const bodyBg = await page.evaluate(() => {
-      return window.getComputedStyle(document.body).backgroundColor;
-    });
-    
-    const bodyRgbMatch = bodyBg.match(/rgb\((\d+), (\d+), (\d+),? ?(\d+\.?\d*)?\)/);
-    const isDark = bodyRgbMatch ? {
-      r: Number(bodyRgbMatch[1]),
-      g: Number(bodyRgbMatch[2]),
-      b: Number(bodyRgbMatch[3])
-    } : null;
-    
-    // If body is still white/light, inject CSS directly to force dark mode
-    if (!isDark || (isDark.r > 200 && isDark.g > 200 && isDark.b > 200)) {
-      // Inject CSS to force dark mode styles
-      await page.addStyleTag({
-        content: `
-          html.dark,
-          html.dark body {
-            background-color: #0F1419 !important;
-            color-scheme: dark !important;
-          }
-          html.dark .card {
-            background-color: #1F2937 !important;
-          }
-          html.dark .input {
-            background-color: #1F2937 !important;
-            border-color: #4B5563 !important;
-          }
-        `
-      });
-      await page.waitForTimeout(200);
-    }
-  } else {
-    await page.evaluate(() => {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    });
-    await page.waitForTimeout(200);
-  }
+
+  // Only light mode is supported (dark mode was removed)
+  await page.evaluate(() => {
+    document.documentElement.classList.remove('dark');
+    localStorage.setItem('theme', 'light');
+  });
+  await page.waitForTimeout(200);
 }
 
