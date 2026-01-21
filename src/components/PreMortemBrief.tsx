@@ -1,207 +1,59 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { generatePreMortemStreaming, ERROR_MESSAGES } from '../services/pre-mortem-service';
+import { useCallback } from 'react';
 import PreMortemResultDisplay from './PreMortemResultDisplay';
 import { FormField, FormTextarea, FormSelect, FormInput } from './form';
 import { SpinnerIcon, ErrorIcon } from './ui/Icon';
 import { PrivacyAccordion } from './ui/PrivacyAccordion';
-import { PRE_MORTEM_VALIDATION, STREAMING_CONSTANTS } from '../utils/constants';
-import { trackClick, logEvent } from '../utils/tracking';
+import { PRE_MORTEM_VALIDATION } from '../utils/constants';
 import {
-  validatePreMortemInput,
-  serializePreMortemInput,
-  type PreMortemFormData,
-} from '../utils/form-validation';
-
-const { PRE_MORTEM_TIMEOUT_MS } = STREAMING_CONSTANTS;
-
-// Form field options
-const BRANSJE_OPTIONS = [
-  { value: '', label: 'Velg bransje...' },
-  { value: 'bank_finans', label: 'Bank / Finans' },
-  { value: 'offentlig', label: 'Offentlig sektor' },
-  { value: 'energi', label: 'Energi' },
-  { value: 'b2b_saas', label: 'B2B SaaS' },
-  { value: 'annet', label: 'Annet' },
-] as const;
-
-const RISIKONIVA_OPTIONS = [
-  { value: '', label: 'Velg nivå...' },
-  { value: 'lav', label: 'Lav' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'hoy', label: 'Høy' },
-] as const;
-
-const KUNDETYPE_OPTIONS = [
-  { value: '', label: 'Velg kundetype...' },
-  { value: 'b2c', label: 'B2C' },
-  { value: 'b2b', label: 'B2B' },
-  { value: 'offentlig', label: 'Offentlig' },
-] as const;
-
-const KONFIDENSIALITET_OPTIONS = [
-  { value: 'intern', label: 'Intern (normal detalj)' },
-  { value: 'begrenset', label: 'Begrenset (moderat detalj)' },
-  { value: 'styresensitiv', label: 'Styresensitiv (abstrakt)' },
-] as const;
-
-// Initial form state
-const INITIAL_FORM_STATE: PreMortemFormData = {
-  beslutning: '',
-  bransje: '',
-  kontekst: '',
-  risikoniva: '',
-  risikoForklaring: '',
-  kundetype: '',
-  beslutningsfrist: '',
-  effekthorisont: '',
-  tidligereForsok: '',
-  interessenter: '',
-  konfidensialitet: 'intern',
-};
+  usePreMortemForm,
+  useMobileSync,
+  BRANSJE_OPTIONS,
+  RISIKONIVA_OPTIONS,
+  KUNDETYPE_OPTIONS,
+  KONFIDENSIALITET_OPTIONS,
+} from '../hooks/usePreMortemForm';
+import { usePreMortemStreaming } from '../hooks/usePreMortemStreaming';
 
 /**
  * Main Pre-Mortem Brief component
  */
 export default function PreMortemBrief() {
-  const [formData, setFormData] = useState<PreMortemFormData>(INITIAL_FORM_STATE);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<string | null>(null);
-  const [isStreaming, setIsStreaming] = useState(false);
+  // Streaming state and actions
+  const streaming = usePreMortemStreaming();
 
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const resultRef = useRef<HTMLDivElement>(null);
-  const startTimeRef = useRef<number>(0);
+  // Form state and actions
+  const form = usePreMortemForm(streaming.clearError);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      abortControllerRef.current?.abort();
-    };
-  }, []);
-
-  // Update form field
-  const updateField = useCallback(
-    (field: keyof PreMortemFormData, value: string) => {
-      setFormData((prev) => ({ ...prev, [field]: value }));
-      if (error) setError(null);
-    },
-    [error]
-  );
-
-  // Reset form
-  const handleReset = useCallback(() => {
-    trackClick('premortem_reset');
-    setFormData(INITIAL_FORM_STATE);
-    setResult(null);
-    setError(null);
-  }, []);
-
-  // Submit form
-  const handleSubmit = useCallback(async () => {
-    if (loading) return;
-
-    // Validate form
-    const validationError = validatePreMortemInput(formData);
+  // Handle form submission
+  const handleSubmit = useCallback(() => {
+    const validationError = form.validateForm();
     if (validationError) {
-      setError(validationError);
+      streaming.setError(validationError);
       return;
     }
+    streaming.submit(form.serializeForm());
+  }, [form, streaming]);
 
-    trackClick('premortem_submit');
-    startTimeRef.current = Date.now();
+  // Handle combined reset
+  const handleReset = useCallback(() => {
+    form.resetForm();
+    streaming.reset();
+  }, [form, streaming]);
 
-    setLoading(true);
-    setIsStreaming(true);
-    setError(null);
-    setResult('');
+  // Mobile CTA bar sync
+  useMobileSync({
+    toolName: 'premortem',
+    hasRequiredFields: form.hasRequiredFields,
+    loading: streaming.loading,
+    hasResult: !!streaming.result,
+    isStreaming: streaming.isStreaming,
+    onSubmit: handleSubmit,
+  });
 
-    // Cancel any existing request
-    abortControllerRef.current?.abort();
-    abortControllerRef.current = new AbortController();
-
-    // Set up timeout
-    const timeoutId = setTimeout(() => {
-      abortControllerRef.current?.abort();
-      setError(ERROR_MESSAGES.TIMEOUT);
-      setLoading(false);
-      setIsStreaming(false);
-      logEvent('premortem_error', { errorType: 'timeout' });
-    }, PRE_MORTEM_TIMEOUT_MS);
-
-    try {
-      const serializedInput = serializePreMortemInput(formData);
-
-      await generatePreMortemStreaming(
-        serializedInput,
-        (chunk) => {
-          setResult((prev) => (prev || '') + chunk);
-        },
-        () => {
-          clearTimeout(timeoutId);
-          setLoading(false);
-          setIsStreaming(false);
-          abortControllerRef.current = null;
-
-          const processingTimeMs = Date.now() - startTimeRef.current;
-          logEvent('premortem_success', { processingTimeMs });
-
-          // Scroll to result
-          setTimeout(() => {
-            resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }, 100);
-        },
-        (errorMsg) => {
-          clearTimeout(timeoutId);
-          setError(errorMsg);
-          setLoading(false);
-          setIsStreaming(false);
-          setResult(null);
-          abortControllerRef.current = null;
-          logEvent('premortem_error', { errorType: 'streaming', message: errorMsg });
-        },
-        abortControllerRef.current.signal
-      );
-    } catch {
-      clearTimeout(timeoutId);
-      setError(ERROR_MESSAGES.DEFAULT);
-      setLoading(false);
-      setIsStreaming(false);
-      logEvent('premortem_error', { errorType: 'unknown' });
-    }
-  }, [formData, loading]);
-
-  // Dispatch events for mobile CTA bar sync
-  useEffect(() => {
-    const hasRequiredFields =
-      formData.beslutning.trim().length >= PRE_MORTEM_VALIDATION.MIN_DECISION_LENGTH &&
-      formData.bransje &&
-      formData.kontekst.trim().length >= PRE_MORTEM_VALIDATION.MIN_CONTEXT_LENGTH &&
-      formData.risikoniva &&
-      formData.kundetype &&
-      formData.beslutningsfrist &&
-      formData.effekthorisont;
-
-    window.dispatchEvent(
-      new CustomEvent('premortem:inputChange', {
-        detail: {
-          isValid: hasRequiredFields,
-          isLoading: loading,
-          hasResult: !!result && !isStreaming,
-        },
-      })
-    );
-  }, [formData, loading, result, isStreaming]);
-
-  // Listen for mobile submit
-  useEffect(() => {
-    const handleMobileSubmit = () => handleSubmit();
-    window.addEventListener('premortem:submit', handleMobileSubmit);
-    return () => window.removeEventListener('premortem:submit', handleMobileSubmit);
-  }, [handleSubmit]);
+  const displayError = streaming.error;
 
   return (
-    <div className="space-y-6" aria-busy={loading}>
+    <div className="space-y-6" aria-busy={streaming.loading}>
       {/* PII Warning */}
       <div className="p-3 bg-feedback-warning/10 border border-feedback-warning/20 rounded-lg">
         <p className="text-sm text-neutral-700">
@@ -226,12 +78,12 @@ export default function PreMortemBrief() {
         >
           <FormTextarea
             id="beslutning"
-            value={formData.beslutning}
-            onChange={(v) => updateField('beslutning', v)}
+            value={form.formData.beslutning}
+            onChange={(v) => form.updateField('beslutning', v)}
             placeholder="F.eks: Vi vurderer å bytte fra on-premise til cloud-basert infrastruktur for alle kundedatabaser..."
             maxLength={PRE_MORTEM_VALIDATION.MAX_DECISION_LENGTH}
             rows={4}
-            disabled={loading}
+            disabled={streaming.loading}
           />
         </FormField>
 
@@ -240,20 +92,20 @@ export default function PreMortemBrief() {
           <FormField label="Bransje / Domene" id="bransje" required>
             <FormSelect
               id="bransje"
-              value={formData.bransje}
-              onChange={(v) => updateField('bransje', v)}
+              value={form.formData.bransje}
+              onChange={(v) => form.updateField('bransje', v)}
               options={BRANSJE_OPTIONS}
-              disabled={loading}
+              disabled={streaming.loading}
             />
           </FormField>
 
           <FormField label="Kundetype" id="kundetype" required>
             <FormSelect
               id="kundetype"
-              value={formData.kundetype}
-              onChange={(v) => updateField('kundetype', v)}
+              value={form.formData.kundetype}
+              onChange={(v) => form.updateField('kundetype', v)}
               options={KUNDETYPE_OPTIONS}
-              disabled={loading}
+              disabled={streaming.loading}
             />
           </FormField>
         </div>
@@ -267,12 +119,12 @@ export default function PreMortemBrief() {
         >
           <FormTextarea
             id="kontekst"
-            value={formData.kontekst}
-            onChange={(v) => updateField('kontekst', v)}
+            value={form.formData.kontekst}
+            onChange={(v) => form.updateField('kontekst', v)}
             placeholder="F.eks: Vi har 50 000 aktive kunder og behandler ca. 2 millioner transaksjoner daglig. Dagens løsning er 8 år gammel..."
             maxLength={PRE_MORTEM_VALIDATION.MAX_CONTEXT_LENGTH}
             rows={3}
-            disabled={loading}
+            disabled={streaming.loading}
           />
         </FormField>
 
@@ -281,10 +133,10 @@ export default function PreMortemBrief() {
           <FormField label="Regulatorisk / Risikonivå" id="risikoniva" required>
             <FormSelect
               id="risikoniva"
-              value={formData.risikoniva}
-              onChange={(v) => updateField('risikoniva', v)}
+              value={form.formData.risikoniva}
+              onChange={(v) => form.updateField('risikoniva', v)}
               options={RISIKONIVA_OPTIONS}
-              disabled={loading}
+              disabled={streaming.loading}
             />
           </FormField>
 
@@ -295,10 +147,10 @@ export default function PreMortemBrief() {
           >
             <FormInput
               id="risikoForklaring"
-              value={formData.risikoForklaring || ''}
-              onChange={(v) => updateField('risikoForklaring', v)}
+              value={form.formData.risikoForklaring || ''}
+              onChange={(v) => form.updateField('risikoForklaring', v)}
               placeholder="F.eks: GDPR, PCI-DSS krav..."
-              disabled={loading}
+              disabled={streaming.loading}
             />
           </FormField>
         </div>
@@ -313,10 +165,10 @@ export default function PreMortemBrief() {
           >
             <FormInput
               id="beslutningsfrist"
-              value={formData.beslutningsfrist}
-              onChange={(v) => updateField('beslutningsfrist', v)}
+              value={form.formData.beslutningsfrist}
+              onChange={(v) => form.updateField('beslutningsfrist', v)}
               placeholder="F.eks: Innen Q2 2024, 15. mars..."
-              disabled={loading}
+              disabled={streaming.loading}
             />
           </FormField>
 
@@ -328,10 +180,10 @@ export default function PreMortemBrief() {
           >
             <FormInput
               id="effekthorisont"
-              value={formData.effekthorisont}
-              onChange={(v) => updateField('effekthorisont', v)}
+              value={form.formData.effekthorisont}
+              onChange={(v) => form.updateField('effekthorisont', v)}
               placeholder="F.eks: 6-24 måneder, 2-3 år..."
-              disabled={loading}
+              disabled={streaming.loading}
             />
           </FormField>
         </div>
@@ -345,22 +197,22 @@ export default function PreMortemBrief() {
             <FormField label="Tidligere forsøk eller relevant erfaring" id="tidligereForsok">
               <FormTextarea
                 id="tidligereForsok"
-                value={formData.tidligereForsok || ''}
-                onChange={(v) => updateField('tidligereForsok', v)}
+                value={form.formData.tidligereForsok || ''}
+                onChange={(v) => form.updateField('tidligereForsok', v)}
                 placeholder="Har lignende beslutninger vært tatt før? Hva skjedde?"
                 rows={2}
-                disabled={loading}
+                disabled={streaming.loading}
               />
             </FormField>
 
             <FormField label="Nøkkelinteressenter" id="interessenter">
               <FormTextarea
                 id="interessenter"
-                value={formData.interessenter || ''}
-                onChange={(v) => updateField('interessenter', v)}
+                value={form.formData.interessenter || ''}
+                onChange={(v) => form.updateField('interessenter', v)}
                 placeholder="Hvem påvirkes av beslutningen? Hvem har innflytelse?"
                 rows={2}
-                disabled={loading}
+                disabled={streaming.loading}
               />
             </FormField>
 
@@ -371,21 +223,21 @@ export default function PreMortemBrief() {
             >
               <FormSelect
                 id="konfidensialitet"
-                value={formData.konfidensialitet || 'intern'}
-                onChange={(v) => updateField('konfidensialitet', v)}
+                value={form.formData.konfidensialitet || 'intern'}
+                onChange={(v) => form.updateField('konfidensialitet', v)}
                 options={KONFIDENSIALITET_OPTIONS}
-                disabled={loading}
+                disabled={streaming.loading}
               />
             </FormField>
           </div>
         </details>
 
         {/* Error display */}
-        {error && (
+        {displayError && (
           <div className="p-3 bg-feedback-error/10 border border-feedback-error/20 rounded-lg">
             <p className="text-sm text-feedback-error flex items-center gap-2">
               <ErrorIcon className="w-4 h-4 flex-shrink-0" />
-              {error}
+              {displayError}
             </p>
           </div>
         )}
@@ -394,10 +246,10 @@ export default function PreMortemBrief() {
         <div className="hidden md:flex md:items-center gap-4">
           <button
             type="submit"
-            disabled={loading}
+            disabled={streaming.loading}
             className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? (
+            {streaming.loading ? (
               <>
                 <SpinnerIcon className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
                 Genererer brief...
@@ -407,7 +259,7 @@ export default function PreMortemBrief() {
             )}
           </button>
 
-          {result && !loading && (
+          {streaming.result && !streaming.loading && (
             <button
               type="button"
               onClick={handleReset}
@@ -421,18 +273,18 @@ export default function PreMortemBrief() {
 
       {/* Result display */}
       <div
-        ref={resultRef}
+        ref={streaming.resultRef}
         aria-live="polite"
         aria-atomic="false"
         role="region"
         aria-label="Pre-Mortem Brief resultat"
       >
-        {(result || isStreaming) && (
+        {(streaming.result || streaming.isStreaming) && (
           <div className="mt-8 p-6 bg-white border-2 border-neutral-200 rounded-lg shadow-sm">
-            <PreMortemResultDisplay result={result || ''} isStreaming={isStreaming} />
+            <PreMortemResultDisplay result={streaming.result || ''} isStreaming={streaming.isStreaming} />
 
             {/* Reset button after result */}
-            {result && !loading && (
+            {streaming.result && !streaming.loading && (
               <div className="mt-6 pt-6 border-t border-neutral-200">
                 <button
                   type="button"
