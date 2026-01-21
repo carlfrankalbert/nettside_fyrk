@@ -166,17 +166,8 @@ export function validatePreMortemInput(formData: PreMortemFormData): string | nu
     return 'Angi effekthorisont.';
   }
 
-  // Calculate total length for all fields
-  const totalLength =
-    trimmedBeslutning.length +
-    trimmedKontekst.length +
-    (formData.tidligereForsok?.trim().length || 0) +
-    (formData.interessenter?.trim().length || 0) +
-    (formData.risikoForklaring?.trim().length || 0);
-
-  if (totalLength > PRE_MORTEM_VALIDATION.MAX_TOTAL_LENGTH) {
-    return `Total tekstlengde kan ikke overstige ${PRE_MORTEM_VALIDATION.MAX_TOTAL_LENGTH} tegn.`;
-  }
+  // Note: Individual field length limits are enforced by FormTextarea maxLength
+  // Server-side also validates total input length
 
   return null;
 }
