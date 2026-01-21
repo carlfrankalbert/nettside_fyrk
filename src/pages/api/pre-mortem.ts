@@ -51,15 +51,23 @@ List 5-6 konkrete failure modes. For hver:
 - Beskriv scenarioet kort
 - Angi konsekvenskategori: økonomisk / regulatorisk / omdømme / operasjonell / strategisk
 
+VIKTIG for denne seksjonen:
+- Marker ÉN failure mode som mest kritisk med prefix "Mest kritisk: " (ingen begrunnelse, bare marker den)
+- Inkluder ALLTID én failure mode om "falsk trygghet" - at prosessen gir illusjon av kontroll uten reell forbedring. Varier formuleringen naturlig (f.eks. "dokumentert men ikke bedre", "risikoteater", "prosess uten substans"). Denne skal ha konsekvenskategori strategisk eller operasjonell.
+
 **4. TIDLIGE INDIKATORER**
 Top 3 målbare signaler som indikerer at noe går galt, før det blir kritisk.
 
-**5. REALISTISKE KONTROLLER/TILTAK**
-Top 3 tiltak som kan redusere sannsynlighet eller konsekvens av de viktigste failure modes.
+VIKTIG: Minst én indikator MÅ være kvantifiserbar med konkret målbart signal (tall, andel, frekvens). Eksempler: "Andel beslutninger som...", "Antall reverserte...", "Frekvens av...". Bruk brukerens tidshorisont i formuleringen hvis oppgitt. IKKE gi anbefalte måltall.
 
-**6. STOPP-KRITERIER**
+**5. STOPP-KRITERIER**
 - 2 kriterier for PAUSE (evaluering nødvendig)
 - 1 kriterium for FULL TILBAKETREKKING (avbryt umiddelbart)
+
+**6. REALISTISKE KONTROLLER/TILTAK**
+Top 3 tiltak som kan redusere sannsynlighet eller konsekvens av de viktigste failure modes.
+
+VIKTIG: Hvert tiltak skal avsluttes med én setning som presiserer: "Reduserer [risiko X], men adresserer ikke [risiko Y]." Hold det kort og presist.
 
 **7. EIERSKAP OG ANSVAR**
 - Beslutningseier:
@@ -68,7 +76,7 @@ Top 3 tiltak som kan redusere sannsynlighet eller konsekvens av de viktigste fai
 - Ansvar ved feil:
 
 **8. HVA KJENNETEGNER EN GOD BESLUTNING HER?**
-2-3 setninger om hva som kjennetegner en god beslutningsprosess i dette tilfellet (ikke hva beslutningen bør være).
+Maks 4 korte bullets. Hver bullet maks 1 setning. Skal kunne leses høyt i styremøte uten forklaring. Ikke moraliserende, ikke fluffy.
 
 ---
 Start output DIREKTE med "**1. BESLUTNING**" - ingen innledende tekst.`;

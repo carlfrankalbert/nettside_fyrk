@@ -242,6 +242,13 @@ export default function PreMortemResultDisplay({
         )}
       </div>
 
+      {/* Disclaimer */}
+      {!isStreaming && sections.length > 0 && (
+        <div className="px-3 py-2 bg-neutral-100 border-l-2 border-neutral-400 text-sm text-neutral-600 italic">
+          Dette er ikke en vurdering av om beslutningen er riktig – kun hvordan den kan feile.
+        </div>
+      )}
+
       {/* Rendered sections */}
       <div className="space-y-4">
         {sections.map((section, index) => {
