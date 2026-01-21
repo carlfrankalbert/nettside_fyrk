@@ -56,6 +56,8 @@ export interface AIToolConfig {
   missingInputMessage: string;
   /** Whether to use circuit breaker (default: true) */
   useCircuitBreaker?: boolean;
+  /** Custom streaming timeout in ms (default: ANTHROPIC_CONFIG.REQUEST_TIMEOUT_MS) */
+  streamingTimeoutMs?: number;
   /** Mock mode getter (optional, for testing) */
   getMockResponse?: (input: string) => string | null;
 }
@@ -83,6 +85,7 @@ export function createAIToolHandler(config: AIToolConfig) {
     errorMessage,
     missingInputMessage,
     useCircuitBreaker = true,
+    streamingTimeoutMs,
     getMockResponse,
   } = config;
 
@@ -193,6 +196,7 @@ export function createAIToolHandler(config: AIToolConfig) {
           model,
           systemPrompt,
           userMessage,
+          timeoutMs: streamingTimeoutMs,
           validateOutput,
           onCache: (output) => state.cacheManager.set(cacheKey, output),
           onSuccess: useCircuitBreaker ? () => state.circuitBreaker.recordSuccess() : undefined,

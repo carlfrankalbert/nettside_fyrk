@@ -12,7 +12,7 @@ import {
   type PreMortemFormData,
 } from '../utils/form-validation';
 
-const { HARD_TIMEOUT_MS } = STREAMING_CONSTANTS;
+const { PRE_MORTEM_TIMEOUT_MS } = STREAMING_CONSTANTS;
 
 // Form field options
 const BRANSJE_OPTIONS = [
@@ -126,7 +126,7 @@ export default function PreMortemBrief() {
       setError(ERROR_MESSAGES.TIMEOUT);
       setLoading(false);
       setIsStreaming(false);
-    }, HARD_TIMEOUT_MS);
+    }, PRE_MORTEM_TIMEOUT_MS);
 
     try {
       const serializedInput = serializePreMortemInput(formData);

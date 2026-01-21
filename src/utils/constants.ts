@@ -111,6 +111,8 @@ export const STREAMING_CONSTANTS = {
   SUBMIT_THRESHOLD: 50,
   /** Hard timeout for streaming requests (ms) - aborts request */
   HARD_TIMEOUT_MS: 45000,
+  /** Hard timeout for Pre-Mortem Brief (ms) - longer due to extensive output */
+  PRE_MORTEM_TIMEOUT_MS: 90000,
   /** Interval for rotating loader messages (ms) */
   LOADER_MESSAGE_INTERVAL_MS: 2000,
   /** Threshold for showing "slow request" indicator (ms) */
@@ -142,6 +144,8 @@ export const ANTHROPIC_CONFIG = {
   MAX_TOKENS: 4096,
   /** Request timeout in milliseconds (per attempt, before retries) */
   REQUEST_TIMEOUT_MS: 30000,
+  /** Extended timeout for Pre-Mortem Brief (generates more content) */
+  PRE_MORTEM_REQUEST_TIMEOUT_MS: 60000,
 } as const;
 
 /**
