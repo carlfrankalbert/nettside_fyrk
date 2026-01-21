@@ -114,6 +114,12 @@ export default defineConfig({
       testMatch: /konseptspeilet\.spec\.ts/,
       use: { ...devices['Desktop Chrome'] },
     },
+    // Pre-Mortem Brief E2E tests
+    {
+      name: 'pre-mortem',
+      testMatch: /pre-mortem\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
     // Security tests
     {
       name: 'security',

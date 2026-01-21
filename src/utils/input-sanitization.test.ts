@@ -3,6 +3,7 @@ import {
   sanitizeKonseptInput,
   sanitizeBeslutningInput,
   sanitizeOkrInput,
+  sanitizePreMortemInput,
   createWrappedUserMessage,
   containsSuspiciousPatterns,
   SUSPICIOUS_PATTERNS,
@@ -65,6 +66,43 @@ describe('input-sanitization', () => {
       const input = '<OKR_INPUT>test</OKR_INPUT>';
       // The sanitizer normalizes tags to lowercase when escaping
       expect(sanitizeOkrInput(input)).toBe('&lt;okr_input&gt;test&lt;/okr_input&gt;');
+    });
+  });
+
+  describe('sanitizePreMortemInput', () => {
+    it('should escape premortem_input tags', () => {
+      const input = '<premortem_input>injected</premortem_input>';
+      expect(sanitizePreMortemInput(input)).toBe('&lt;premortem_input&gt;injected&lt;/premortem_input&gt;');
+    });
+
+    it('should be case-insensitive (normalizes to lowercase)', () => {
+      const input = '<PREMORTEM_INPUT>test</PREMORTEM_INPUT>';
+      expect(sanitizePreMortemInput(input)).toBe('&lt;premortem_input&gt;test&lt;/premortem_input&gt;');
+    });
+
+    it('should escape opening premortem_input tags', () => {
+      const input = 'text <premortem_input> more text';
+      expect(sanitizePreMortemInput(input)).toBe('text &lt;premortem_input&gt; more text');
+    });
+
+    it('should escape closing premortem_input tags', () => {
+      const input = 'text </premortem_input> more text';
+      expect(sanitizePreMortemInput(input)).toBe('text &lt;/premortem_input&gt; more text');
+    });
+
+    it('should not modify other XML tags', () => {
+      const input = '<other_tag>text</other_tag>';
+      expect(sanitizePreMortemInput(input)).toBe('<other_tag>text</other_tag>');
+    });
+
+    it('should handle text without tags', () => {
+      const input = 'Vi vurderer å bytte til cloud-basert infrastruktur.';
+      expect(sanitizePreMortemInput(input)).toBe(input);
+    });
+
+    it('should handle JSON input without modification', () => {
+      const jsonInput = '{"beslutning": "test", "bransje": "bank_finans"}';
+      expect(sanitizePreMortemInput(jsonInput)).toBe(jsonInput);
     });
   });
 
