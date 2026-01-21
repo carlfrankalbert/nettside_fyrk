@@ -1,10 +1,14 @@
 /**
- * Output Validators for AI Tool Responses
+ * Output Validators for AI Tool Responses (Server-side)
  *
  * Validates that AI responses conform to expected formats.
  * Helps prevent prompt injection by rejecting malformed outputs.
+ * These are strict validators used before caching on the server.
  *
- * Used by: okr-sjekken, konseptspeilet, antakelseskart
+ * Note: Client-side completeness checks are in response-validator.ts
+ * (looser checks for determining when streaming is "done enough")
+ *
+ * Used by: okr-sjekken, konseptspeilet, antakelseskart, pre-mortem
  */
 
 import { containsSuspiciousPatterns } from './input-sanitization';

@@ -147,16 +147,6 @@ export async function fetchWithRetry(
 }
 
 /**
- * Sanitize user input to prevent XML/prompt injection
- */
-export function sanitizeInput(input: string): string {
-  return input
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/&(?!lt;|gt;|amp;|quot;|apos;)/g, '&amp;');
-}
-
-/**
  * Create Anthropic API request body
  */
 export function createAnthropicRequestBody(

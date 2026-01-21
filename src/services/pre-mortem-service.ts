@@ -5,9 +5,10 @@
 
 import { createStreamingService, DEFAULT_ERROR_MESSAGES } from '../lib/streaming-service-client';
 import { isPreMortemResponseComplete } from '../utils/response-validator';
+import { API_ROUTES, CACHE_KEY_PREFIXES } from '../utils/constants';
 
-const API_ENDPOINT = '/api/pre-mortem';
-const CACHE_KEY_PREFIX = 'premortem:v1:';
+const API_ENDPOINT = API_ROUTES.PRE_MORTEM;
+const CACHE_KEY_PREFIX = `${CACHE_KEY_PREFIXES.PRE_MORTEM}:`;
 
 /**
  * Error messages for the pre-mortem service
