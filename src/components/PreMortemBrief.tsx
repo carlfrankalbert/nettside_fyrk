@@ -126,6 +126,7 @@ export default function PreMortemBrief() {
       setError(ERROR_MESSAGES.TIMEOUT);
       setLoading(false);
       setIsStreaming(false);
+      logEvent('premortem_error', { errorType: 'timeout' });
     }, PRE_MORTEM_TIMEOUT_MS);
 
     try {
@@ -157,6 +158,7 @@ export default function PreMortemBrief() {
           setIsStreaming(false);
           setResult(null);
           abortControllerRef.current = null;
+          logEvent('premortem_error', { errorType: 'streaming', message: errorMsg });
         },
         abortControllerRef.current.signal
       );
@@ -165,6 +167,7 @@ export default function PreMortemBrief() {
       setError(ERROR_MESSAGES.DEFAULT);
       setLoading(false);
       setIsStreaming(false);
+      logEvent('premortem_error', { errorType: 'unknown' });
     }
   }, [formData, loading]);
 

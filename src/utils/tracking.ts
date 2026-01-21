@@ -7,11 +7,13 @@ import { signRequest } from './request-signing';
 import { fetchWithRetryFireAndForget } from './fetch-retry';
 
 /**
- * Metadata for check_success events (no PII)
+ * Metadata for events (no PII)
  */
 export interface EventMetadata {
   charCount?: number;
   processingTimeMs?: number;
+  errorType?: string;
+  message?: string;
 }
 
 /**
