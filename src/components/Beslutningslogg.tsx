@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { cn } from '../utils/classes';
 import { useCopyToClipboard } from '../hooks/useCopyToClipboard';
 import { UI_TIMING } from '../utils/constants';
+import { trackClick } from '../utils/tracking';
 import {
   formatBeslutningsloggMarkdown,
   formatDateNorwegian,
@@ -81,6 +82,7 @@ export default function Beslutningslogg() {
       beslutningRef.current?.focus();
       return;
     }
+    trackClick('beslutningslogg_generate');
     setValidationError(null);
     setShowPreview(true);
     setTimeout(() => {
@@ -112,6 +114,7 @@ export default function Beslutningslogg() {
   }, [handleGenerate]);
 
   const handleCopy = async () => {
+    trackClick('beslutningslogg_copy');
     await copyToClipboard(markdownOutput);
   };
 
@@ -124,6 +127,7 @@ export default function Beslutningslogg() {
   };
 
   const handleReset = () => {
+    trackClick('beslutningslogg_reset');
     setBeslutning('');
     setDato(new Date().toISOString().split('T')[0]);
     setDeltakere('');

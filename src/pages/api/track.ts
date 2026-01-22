@@ -22,9 +22,11 @@ export const TRACKED_BUTTONS = {
   okr_privacy_toggle: { key: 'okr_privacy_toggle_clicks', label: 'Les mer om AI og personvern' },
   okr_copy_suggestion: { key: 'okr_copy_suggestion_clicks', label: 'Kopier til utklippstavle' },
   okr_read_more: { key: 'okr_read_more_clicks', label: 'Les mer (vurdering)' },
+  okr_input_started: { key: 'okr_input_started', label: 'OKR startet å skrive' },
 
   // OKR-sjekken funnel events
   check_success: { key: 'okr_check_success', label: 'OKR-sjekk fullført' },
+  okr_error: { key: 'okr_error', label: 'OKR-sjekk feil' },
   feedback_up: { key: 'okr_feedback_up', label: 'Tilbakemelding: Nyttig' },
   feedback_down: { key: 'okr_feedback_down', label: 'Tilbakemelding: Ikke nyttig' },
 
@@ -44,11 +46,40 @@ export const TRACKED_BUTTONS = {
   konseptspeil_feedback_up: { key: 'konseptspeil_feedback_up', label: 'Tilbakemelding: Nyttig' },
   konseptspeil_feedback_down: { key: 'konseptspeil_feedback_down', label: 'Tilbakemelding: Ikke nyttig' },
 
+  // Antakelseskart page buttons
+  antakelseskart_submit: { key: 'antakelseskart_submit_clicks', label: 'Generer antakelseskart' },
+  antakelseskart_example: { key: 'antakelseskart_example_clicks', label: 'Prøv med eksempel' },
+  antakelseskart_reset: { key: 'antakelseskart_reset_clicks', label: 'Nullstill' },
+  antakelseskart_copy: { key: 'antakelseskart_copy_clicks', label: 'Kopier' },
+  antakelseskart_input_started: { key: 'antakelseskart_input_started', label: 'Startet å skrive' },
+  antakelseskart_privacy_toggle: { key: 'antakelseskart_privacy_toggle_clicks', label: 'Les mer om AI og personvern' },
+
+  // Antakelseskart funnel events
+  antakelseskart_success: { key: 'antakelseskart_success', label: 'Antakelseskart fullført' },
+  antakelseskart_error: { key: 'antakelseskart_error', label: 'Antakelseskart feil' },
+
+  // Beslutningslogg page buttons
+  beslutningslogg_generate: { key: 'beslutningslogg_generate_clicks', label: 'Lag Markdown' },
+  beslutningslogg_copy: { key: 'beslutningslogg_copy_clicks', label: 'Kopier Markdown' },
+  beslutningslogg_reset: { key: 'beslutningslogg_reset_clicks', label: 'Start på nytt' },
+
+  // Pre-Mortem page buttons
+  premortem_submit: { key: 'premortem_submit_clicks', label: 'Generer Pre-Mortem Brief' },
+  premortem_copy: { key: 'premortem_copy_clicks', label: 'Kopier brief' },
+  premortem_reset: { key: 'premortem_reset_clicks', label: 'Start på nytt' },
+  premortem_input_started: { key: 'premortem_input_started', label: 'Startet å fylle ut' },
+  premortem_privacy_toggle: { key: 'premortem_privacy_toggle_clicks', label: 'Les mer om AI og personvern' },
+
+  // Pre-Mortem funnel events
+  premortem_success: { key: 'premortem_success', label: 'Pre-Mortem fullført' },
+  premortem_error: { key: 'premortem_error', label: 'Pre-Mortem feil' },
+
   // Security / operational events
   rate_limit_hit: { key: 'rate_limit_hits', label: 'Rate limit truffet' },
   rate_limit_hit_okr: { key: 'rate_limit_hits_okr', label: 'Rate limit OKR' },
   rate_limit_hit_konseptspeil: { key: 'rate_limit_hits_konseptspeil', label: 'Rate limit Konseptspeil' },
   rate_limit_hit_antakelseskart: { key: 'rate_limit_hits_antakelseskart', label: 'Rate limit Antakelseskart' },
+  rate_limit_hit_premortem: { key: 'rate_limit_hits_premortem', label: 'Rate limit Pre-Mortem' },
 
   // Landing page buttons
   hero_cta: { key: 'hero_cta_clicks', label: 'Kontakt FYRK (hero)' },

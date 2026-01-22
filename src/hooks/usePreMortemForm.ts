@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { trackClick } from '../utils/tracking';
 import { PRE_MORTEM_VALIDATION } from '../utils/constants';
 import {
@@ -67,9 +67,15 @@ export function usePreMortemForm(
   clearError: () => void
 ): UsePreMortemFormReturn {
   const [formData, setFormData] = useState<PreMortemFormData>(INITIAL_FORM_STATE);
+  const hasTrackedInputStartRef = useRef(false);
 
   const updateField = useCallback(
     (field: keyof PreMortemFormData, value: string) => {
+      // Track first input (funnel start) - only fire once per session
+      if (!hasTrackedInputStartRef.current && value.length > 0) {
+        hasTrackedInputStartRef.current = true;
+        trackClick('premortem_input_started');
+      }
       setFormData((prev) => ({ ...prev, [field]: value }));
       clearError();
     },

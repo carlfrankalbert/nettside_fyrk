@@ -131,6 +131,12 @@ export default function OKRReviewer() {
         setResult(null);
         abortControllerRef.current = null;
         isSubmittingRef.current = false;
+
+        // Track error
+        logEvent('okr_error', {
+          charCount: input.trim().length,
+          processingTimeMs: Date.now() - checkStartTimeRef.current,
+        });
       },
       abortControllerRef.current.signal
     );

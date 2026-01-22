@@ -25,6 +25,8 @@ export const TRACKED_PAGES = {
   okr: { key: 'pageviews_okr', label: 'fyrk.no/okr-sjekken' },
   konseptspeil: { key: 'pageviews_konseptspeil', label: 'fyrk.no/konseptspeilet' },
   antakelseskart: { key: 'pageviews_antakelseskart', label: 'fyrk.no/antakelseskart' },
+  beslutningslogg: { key: 'pageviews_beslutningslogg', label: 'fyrk.no/beslutningslogg' },
+  premortem: { key: 'pageviews_premortem', label: 'fyrk.no/verktoy/pre-mortem' },
 } as const;
 
 export type PageId = keyof typeof TRACKED_PAGES;
