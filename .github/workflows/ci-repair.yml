@@ -155,7 +155,7 @@ jobs:
 
         - name: Upload context
           if: always()
-          uses: actions/upload-artifact@v4
+          uses: actions/upload-artifact@v6
           with:
             name: ci-repair-context-${{ github.event.workflow_run.id }}
             path: .ci_context/
