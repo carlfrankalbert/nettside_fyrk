@@ -143,7 +143,7 @@ export async function fetchWithRetry(
   }
 
   if (lastResponse) return lastResponse;
-  throw lastError || new Error('Unknown error during fetch retry');
+  throw lastError || new Error(`Fetch retry exhausted after ${config.MAX_RETRIES + 1} attempts to ${url}`);
 }
 
 /**

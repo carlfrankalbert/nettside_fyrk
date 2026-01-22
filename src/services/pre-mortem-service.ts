@@ -39,13 +39,15 @@ const service = createStreamingService({
 
 /**
  * Generate Pre-Mortem Brief with streaming response
+ * @param onRetry - Optional callback called before retry to reset accumulated state
  */
 export async function generatePreMortemStreaming(
   input: string,
   onChunk: (chunk: string) => void,
   onComplete: () => void,
   onError: (error: string) => void,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  onRetry?: () => void
 ): Promise<void> {
-  return service.streamRequest(input, onChunk, onComplete, onError, signal);
+  return service.streamRequest(input, onChunk, onComplete, onError, signal, onRetry);
 }

@@ -39,15 +39,17 @@ const service = createStreamingService({
 
 /**
  * Speile konsept with streaming response
+ * @param onRetry - Optional callback called before retry to reset accumulated state
  */
 export async function speileKonseptStreaming(
   input: string,
   onChunk: (chunk: string) => void,
   onComplete: () => void,
   onError: (error: string) => void,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  onRetry?: () => void
 ): Promise<void> {
-  return service.streamRequest(input, onChunk, onComplete, onError, signal);
+  return service.streamRequest(input, onChunk, onComplete, onError, signal, onRetry);
 }
 
 /**

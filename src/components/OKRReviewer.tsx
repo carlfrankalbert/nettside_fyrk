@@ -28,6 +28,7 @@ export default function OKRReviewer() {
   const resultRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const checkStartTimeRef = useRef<number>(0);
+  const isSubmittingRef = useRef(false);
 
   const clearError = useCallback(() => setError(null), []);
   const trimmedLength = input.trim().length;
@@ -70,13 +71,15 @@ export default function OKRReviewer() {
   };
 
   const handleSubmit = useCallback(async () => {
-    // Prevent duplicate submissions
-    if (loading) return;
+    // Prevent duplicate submissions using ref for synchronous check
+    if (isSubmittingRef.current || loading) return;
+    isSubmittingRef.current = true;
 
     // Validate input
     const validationError = validateOKRInput(input);
     if (validationError) {
       setError(validationError);
+      isSubmittingRef.current = false;
       return;
     }
 
@@ -106,6 +109,7 @@ export default function OKRReviewer() {
         setLoading(false);
         setIsStreaming(false);
         abortControllerRef.current = null;
+        isSubmittingRef.current = false;
 
         // Track successful completion with metadata
         const processingTimeMs = Date.now() - checkStartTimeRef.current;
@@ -126,6 +130,7 @@ export default function OKRReviewer() {
         setIsStreaming(false);
         setResult(null);
         abortControllerRef.current = null;
+        isSubmittingRef.current = false;
       },
       abortControllerRef.current.signal
     );

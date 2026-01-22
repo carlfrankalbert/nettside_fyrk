@@ -183,13 +183,15 @@ export function createStreamingService(config: StreamingServiceConfig) {
 
   /**
    * Stream a request with caching and retry support
+   * @param onRetry - Optional callback called before each retry to reset accumulated state
    */
   async function streamRequest(
     input: string,
     onChunk: (chunk: string) => void,
     onComplete: () => void,
     onError: (error: string) => void,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    onRetry?: () => void
   ): Promise<void> {
     const trimmedInput = input.trim();
     const cacheKey = await hashInput(`${cacheKeyPrefix}:${trimmedInput}`);
@@ -240,6 +242,8 @@ export function createStreamingService(config: StreamingServiceConfig) {
           if (retryEventName) {
             trackClick(retryEventName);
           }
+          // Allow caller to reset accumulated state before retry
+          onRetry?.();
           await new Promise((resolve) => setTimeout(resolve, 500));
         }
       }
