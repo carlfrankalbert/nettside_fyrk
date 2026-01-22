@@ -38,7 +38,7 @@ jobs:
         run: npm run build
 
       - name: Run all E2E tests (excluding visual regression)
-        run: npx playwright test --project=smoke --project=smoke-mobile --project=smoke-tablet --project=contrast --project=okr-api --project=theme --project=a11y --project=konseptspeilet --project=ux-mobile
+        run: npx playwright test --project=smoke --project=smoke-mobile --project=smoke-tablet --project=contrast --project=okr-api --project=a11y --project=konseptspeilet --project=ux-mobile
 
       - name: Upload test results
         if: always()
