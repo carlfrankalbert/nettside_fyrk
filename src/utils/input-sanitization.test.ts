@@ -223,8 +223,9 @@ Key Results:
   });
 
   describe('SUSPICIOUS_PATTERNS constant', () => {
-    it('should have exactly 3 patterns', () => {
-      expect(SUSPICIOUS_PATTERNS).toHaveLength(3);
+    it('should have multiple patterns for comprehensive protection', () => {
+      // Should have at least the original 3 patterns plus additional protection
+      expect(SUSPICIOUS_PATTERNS.length).toBeGreaterThanOrEqual(3);
     });
 
     it('should all be RegExp objects', () => {

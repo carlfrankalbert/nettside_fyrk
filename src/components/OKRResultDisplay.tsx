@@ -3,6 +3,7 @@ import { parseOKRResult, getScoreColor } from '../utils/okr-parser';
 import { CheckIcon, WarningIcon, LightbulbIcon, CopyIcon, ThumbsUpIcon, ThumbsDownIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
 import { trackClick } from '../utils/tracking';
+import { useCopyToClipboard } from '../hooks/useCopyToClipboard';
 
 interface OKRResultDisplayProps {
   result: string;
@@ -124,7 +125,7 @@ function FeedbackCard({
  * Suggestion box with copy-to-clipboard functionality
  */
 function SuggestionBox({ suggestion, isStreaming }: { suggestion: string; isStreaming: boolean }) {
-  const [copied, setCopied] = useState(false);
+  const { copied, copyToClipboard } = useCopyToClipboard();
 
   const handleCopy = async () => {
     if (!suggestion) return;
@@ -132,13 +133,7 @@ function SuggestionBox({ suggestion, isStreaming }: { suggestion: string; isStre
     // Track copy button click
     trackClick('okr_copy_suggestion');
 
-    try {
-      await navigator.clipboard.writeText(suggestion);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
+    await copyToClipboard(suggestion);
   };
 
   if (!suggestion && !isStreaming) {

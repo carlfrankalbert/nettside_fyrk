@@ -1,8 +1,5 @@
 import { useState, useCallback } from 'react';
 
-// Re-export debounce from its new location for backwards compatibility
-export { debounce } from '../utils/debounce';
-
 interface UseCopyToClipboardReturn {
   copied: boolean;
   copyToClipboard: (text: string) => Promise<boolean>;
@@ -28,8 +25,11 @@ export function useCopyToClipboard(resetDelay = 2000): UseCopyToClipboardReturn 
         setCopied(true);
         setTimeout(() => setCopied(false), resetDelay);
         return true;
-      } catch {
-        // Fall through to fallback
+      } catch (clipboardError) {
+        // Fall through to fallback - clipboard API may be blocked by permissions
+        if (import.meta.env?.DEV) {
+          console.warn('[clipboard] Clipboard API failed, trying fallback:', clipboardError);
+        }
       }
     }
 

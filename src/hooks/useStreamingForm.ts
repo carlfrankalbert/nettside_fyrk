@@ -1,6 +1,27 @@
 import { useState, useRef, useCallback } from 'react';
-import { STREAMING_CONSTANTS, type StreamingErrorType } from '../utils/constants';
+import { STREAMING_CONSTANTS, ERROR_MESSAGES, type StreamingErrorType } from '../utils/constants';
 import { trackClick, logEvent } from '../utils/tracking';
+
+/**
+ * Patterns that indicate a network-related error
+ */
+const NETWORK_ERROR_PATTERNS = [
+  /koble til/i,           // Norwegian: "couldn't connect"
+  /network/i,             // English: network error
+  /fetch/i,               // Fetch API errors
+  /failed to fetch/i,     // Common fetch error
+  /connection/i,          // Connection errors
+  /offline/i,             // Offline errors
+  /ECONNREFUSED/i,        // Node.js connection refused
+  /ETIMEDOUT/i,           // Node.js timeout
+];
+
+/**
+ * Check if an error message indicates a network error
+ */
+function isNetworkError(errorMsg: string): boolean {
+  return NETWORK_ERROR_PATTERNS.some(pattern => pattern.test(errorMsg));
+}
 
 const { SUBMIT_THRESHOLD, HARD_TIMEOUT_MS } = STREAMING_CONSTANTS;
 
@@ -222,8 +243,10 @@ export function useStreamingForm(config: UseStreamingFormConfig): UseStreamingFo
       (errorMsg) => {
         clearTimeouts();
         isSubmittingRef.current = false;
-        const type: StreamingErrorType = errorMsg.includes('koble til') ? 'network' : 'unknown';
-        setErrorWithType(errorMsg, type);
+        const type: StreamingErrorType = isNetworkError(errorMsg) ? 'network' : 'unknown';
+        // Use standardized network error message if it's a network error
+        const displayMessage = type === 'network' ? ERROR_MESSAGES.NETWORK_ERROR : errorMsg;
+        setErrorWithType(displayMessage, type);
         setLoading(false);
         setIsStreaming(false);
         logEvent(`${toolName}_error`, {

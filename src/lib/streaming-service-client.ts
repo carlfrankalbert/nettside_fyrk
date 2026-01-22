@@ -80,7 +80,13 @@ export async function performStreamingRequest(
   });
 
   if (!response.ok) {
-    const errorData = (await response.json().catch(() => ({}))) as { error?: string };
+    const errorData = (await response.json().catch((parseError) => {
+      // Log parse error in development for debugging
+      if (import.meta.env?.DEV) {
+        console.warn('[streaming-service] Failed to parse error response:', parseError);
+      }
+      return {};
+    })) as { error?: string };
     if (response.status === 429) {
       throw new Error(errorMessages.RATE_LIMIT);
     }
@@ -186,7 +192,7 @@ export function createStreamingService(config: StreamingServiceConfig) {
     signal?: AbortSignal
   ): Promise<void> {
     const trimmedInput = input.trim();
-    const cacheKey = await hashInput(cacheKeyPrefix + trimmedInput);
+    const cacheKey = await hashInput(`${cacheKeyPrefix}:${trimmedInput}`);
 
     // Check local cache first (only if complete)
     const cachedResult = localStorageCache.get(cacheKey);
@@ -266,7 +272,7 @@ export function createStreamingService(config: StreamingServiceConfig) {
     input: string
   ): Promise<{ output: string; cached: boolean }> {
     const trimmedInput = input.trim();
-    const cacheKey = await hashInput(cacheKeyPrefix + trimmedInput);
+    const cacheKey = await hashInput(`${cacheKeyPrefix}:${trimmedInput}`);
 
     // Check local cache first
     const cachedResult = localStorageCache.get(cacheKey);

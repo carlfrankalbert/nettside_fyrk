@@ -9,10 +9,12 @@
 export const ERROR_MESSAGES = {
   /** Default error message for OKR review failures */
   OKR_REVIEW_DEFAULT: 'Noe gikk galt under vurderingen. Prøv igjen om litt.',
-  /** Rate limit error message */
+  /** Rate limit error message (user-facing, Norwegian) */
   RATE_LIMIT: 'For mange forespørsler. Vent litt før du prøver igjen.',
-  /** Rate limit exceeded (API response) */
-  RATE_LIMIT_EXCEEDED: 'Rate limit exceeded',
+  /** Rate limit exceeded (API response key, English for consistency with HTTP standards) */
+  RATE_LIMIT_EXCEEDED: 'For mange forespørsler',
+  /** Service temporarily unavailable (circuit breaker, Norwegian) */
+  SERVICE_UNAVAILABLE: 'Tjenesten er midlertidig utilgjengelig',
   /** Missing input error message */
   MISSING_INPUT: 'Vennligst skriv inn et OKR-sett for vurdering.',
   /** Missing input (API response) */
@@ -29,6 +31,8 @@ export const ERROR_MESSAGES = {
   FAILED_TO_EVALUATE: 'Failed to evaluate OKR',
   /** Unknown error */
   UNKNOWN_ERROR: 'Unknown error',
+  /** Network error (Norwegian) */
+  NETWORK_ERROR: 'Kunne ikke koble til serveren',
 } as const;
 
 /**
@@ -181,6 +185,23 @@ export const CACHE_KEY_PREFIXES = {
  * Example text for Konseptspeilet
  * Centralized to ensure consistency across UI
  */
+/**
+ * UI timing constants
+ * Centralizes animation delays and scroll timing for consistency
+ */
+export const UI_TIMING = {
+  /** Delay before scrolling to result after streaming completes */
+  SCROLL_DELAY_MS: 100,
+  /** Debounce delay for input handlers */
+  DEBOUNCE_MS: 50,
+  /** Delay for animation transitions */
+  ANIMATION_DELAY_MS: 300,
+  /** Delay between streaming words for cached content */
+  CACHED_STREAM_WORD_DELAY_MS: 5,
+  /** Delay for textarea auto-resize */
+  TEXTAREA_RESIZE_DELAY_MS: 0,
+} as const;
+
 export const EXAMPLE_KONSEPT = `Vi vurderer å teste et enkelt, avgrenset refleksjonsverktøy for produktteam som ofte opplever at beslutninger tas på magefølelse eller basert på ufullstendig informasjon.
 
 Tanken er at verktøyet brukes tidlig i en beslutningsprosess, før man har låst seg til en løsning. Brukeren beskriver kort hva som vurderes, hvorfor det er viktig nå, og hva som oppleves uklart. Verktøyet returnerer et strukturert speil som tydeliggjør hva som er eksplisitt sagt, hvilke antakelser som ligger implisitt i teksten, og hvilke spørsmål som ikke er besvart.

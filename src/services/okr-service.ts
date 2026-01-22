@@ -5,7 +5,7 @@
 
 import type { OKRReviewResponse, OKRReviewError, OKRReviewResult } from '../types';
 import { hashInput, localStorageCache } from '../utils/cache';
-import { ERROR_MESSAGES, API_ROUTES, ANTHROPIC_CONFIG } from '../utils/constants';
+import { ERROR_MESSAGES, API_ROUTES, ANTHROPIC_CONFIG, UI_TIMING } from '../utils/constants';
 import { performStreamingRequest, DEFAULT_ERROR_MESSAGES } from '../lib/streaming-service-client';
 
 // In-memory cache for request deduplication
@@ -104,7 +104,7 @@ export async function reviewOKR(input: string): Promise<OKRReviewResult> {
       if (err instanceof Error && err.name === 'AbortError') {
         return {
           success: false,
-          error: 'Forespørselen tok for lang tid. Prøv igjen.',
+          error: ERROR_MESSAGES.TIMEOUT,
         };
       }
       return {
@@ -139,7 +139,7 @@ export async function reviewOKRStreaming(
     const words = cachedOutput.split(' ');
     for (let i = 0; i < words.length; i++) {
       if (signal?.aborted) return;
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, UI_TIMING.CACHED_STREAM_WORD_DELAY_MS));
       if (signal?.aborted) return;
       onChunk(words[i] + (i < words.length - 1 ? ' ' : ''));
     }

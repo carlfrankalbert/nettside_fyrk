@@ -81,19 +81,30 @@ export function validateOKRInput(input: string): string | null {
 
   // Check for OKR-like content (case-insensitive)
   const lowerInput = trimmedInput.toLowerCase();
-  const hasObjective = lowerInput.includes('objective') || lowerInput.includes('mål');
+
+  // Check for Objective indicators
+  const hasObjective =
+    lowerInput.includes('objective') ||
+    lowerInput.includes('mål:') ||
+    /\bmål\b/.test(lowerInput) ||  // "mål" as standalone word
+    /^o\d*:/im.test(trimmedInput);  // O1:, O2:, O: at start of line
+
+  // Check for Key Result indicators - more robust patterns
+  // Avoid false positives like "kroner", "kr." (currency), initials
   const hasKeyResult =
     lowerInput.includes('key result') ||
-    lowerInput.includes('kr') ||
     lowerInput.includes('nøkkelresultat') ||
-    /\d+\./.test(trimmedInput);
+    /^kr\s*\d/im.test(trimmedInput) ||      // KR1, KR 1 at start of line
+    /^kr\s*:/im.test(trimmedInput) ||       // KR: at start of line
+    /^\s*[-•]\s*.+%/m.test(trimmedInput) || // Bullet points with percentages
+    /^\s*\d+\.\s+.+%/m.test(trimmedInput);  // Numbered list with percentages (1. ...50%)
 
   if (!hasObjective) {
     return 'Input ser ikke ut som en OKR. Inkluder minst ett "Objective" eller "Mål".';
   }
 
   if (!hasKeyResult) {
-    return 'Input ser ikke ut som en OKR. Inkluder minst ett "Key Result" eller nøkkelresultat.';
+    return 'Input ser ikke ut som en OKR. Inkluder minst ett "Key Result" (KR1, KR2...) eller nøkkelresultat.';
   }
 
   return null;

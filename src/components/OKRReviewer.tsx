@@ -4,7 +4,7 @@ import OKRResultDisplay from './OKRResultDisplay';
 import { CheckIcon, ErrorIcon, SpinnerIcon } from './ui/Icon';
 import { PrivacyAccordion } from './ui/PrivacyAccordion';
 import { cn } from '../utils/classes';
-import { INPUT_VALIDATION } from '../utils/constants';
+import { INPUT_VALIDATION, UI_TIMING } from '../utils/constants';
 import { trackClick, logEvent } from '../utils/tracking';
 import { validateOKRInput } from '../utils/form-validation';
 import { useFormInputHandlers } from '../hooks/useFormInputHandlers';
@@ -52,12 +52,12 @@ export default function OKRReviewer() {
     // Focus textarea
     setTimeout(() => {
       textareaRef.current?.focus();
-    }, 50);
+    }, UI_TIMING.DEBOUNCE_MS);
 
     // Reset animation state after animation completes
     setTimeout(() => {
       setIsExampleAnimating(false);
-    }, 600);
+    }, UI_TIMING.ANIMATION_DELAY_MS * 2);
   };
 
   const handleClearResult = () => {
@@ -117,7 +117,7 @@ export default function OKRReviewer() {
         // Scroll to result
         setTimeout(() => {
           resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
+        }, UI_TIMING.SCROLL_DELAY_MS);
       },
       (errorMsg) => {
         // Error occurred

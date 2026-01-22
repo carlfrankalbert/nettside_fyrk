@@ -220,13 +220,52 @@ export function createRateLimiter() {
 }
 
 /**
+ * Check if localStorage is available (handles private browsing, SecurityError)
+ */
+function isLocalStorageAvailable(): boolean {
+  try {
+    const testKey = '__storage_test__';
+    localStorage.setItem(testKey, testKey);
+    localStorage.removeItem(testKey);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Log storage errors in development mode
+ */
+function logStorageError(operation: string, error: unknown): void {
+  if (typeof window !== 'undefined' && import.meta.env?.DEV) {
+    console.warn(`[localStorage] ${operation} failed:`, error instanceof Error ? error.message : error);
+  }
+}
+
+/**
  * Client-side localStorage cache utilities
+ * Gracefully handles private browsing mode and quota errors
  */
 export const localStorageCache = {
+  /** Whether localStorage is available (cached check) */
+  _available: null as boolean | null,
+
+  /**
+   * Check if localStorage is available (cached)
+   */
+  _isAvailable(): boolean {
+    if (this._available === null) {
+      this._available = isLocalStorageAvailable();
+    }
+    return this._available;
+  },
+
   /**
    * Get all cache keys from localStorage
    */
   _getCacheKeys(): string[] {
+    if (!this._isAvailable()) return [];
+
     const keys: string[] = [];
     try {
       for (let i = 0; i < localStorage.length; i++) {
@@ -235,8 +274,8 @@ export const localStorageCache = {
           keys.push(key);
         }
       }
-    } catch {
-      // Ignore errors
+    } catch (error) {
+      logStorageError('_getCacheKeys', error);
     }
     return keys;
   },
@@ -281,6 +320,8 @@ export const localStorageCache = {
    * Get cached result from localStorage
    */
   get(cacheKey: string): string | null {
+    if (!this._isAvailable()) return null;
+
     try {
       const cached = localStorage.getItem(CACHE_CONFIG.KEY_PREFIX + cacheKey);
       if (!cached) return null;
@@ -292,7 +333,8 @@ export const localStorageCache = {
       }
 
       return entry.output;
-    } catch {
+    } catch (error) {
+      logStorageError('get', error);
       return null;
     }
   },
@@ -301,6 +343,8 @@ export const localStorageCache = {
    * Save result to localStorage cache (with size limit enforcement)
    */
   set(cacheKey: string, output: string): void {
+    if (!this._isAvailable()) return;
+
     try {
       // Evict old entries before adding new one
       this._evictOldestEntries();
@@ -313,9 +357,9 @@ export const localStorageCache = {
         CACHE_CONFIG.KEY_PREFIX + cacheKey,
         JSON.stringify(entry)
       );
-    } catch (e) {
+    } catch (error) {
       // If we hit quota, try to evict more aggressively
-      if (e instanceof DOMException && e.name === 'QuotaExceededError') {
+      if (error instanceof DOMException && error.name === 'QuotaExceededError') {
         this._evictOldestEntries();
         try {
           const entry: LocalStorageCacheEntry = {
@@ -326,9 +370,11 @@ export const localStorageCache = {
             CACHE_CONFIG.KEY_PREFIX + cacheKey,
             JSON.stringify(entry)
           );
-        } catch {
-          // Give up silently
+        } catch (retryError) {
+          logStorageError('set (retry)', retryError);
         }
+      } else {
+        logStorageError('set', error);
       }
     }
   },
@@ -337,10 +383,12 @@ export const localStorageCache = {
    * Remove a specific entry from localStorage cache
    */
   remove(cacheKey: string): void {
+    if (!this._isAvailable()) return;
+
     try {
       localStorage.removeItem(CACHE_CONFIG.KEY_PREFIX + cacheKey);
-    } catch {
-      // Ignore errors
+    } catch (error) {
+      logStorageError('remove', error);
     }
   },
 

@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { cn } from '../utils/classes';
 import { useCopyToClipboard } from '../hooks/useCopyToClipboard';
+import { UI_TIMING } from '../utils/constants';
 import {
   formatBeslutningsloggMarkdown,
   formatDateNorwegian,
@@ -62,6 +63,32 @@ export default function Beslutningslogg() {
   }, [formData, isValid]);
 
   // ---------------------------------------------------------------------------
+  // Event Handlers (defined before effects that use them)
+  // ---------------------------------------------------------------------------
+
+  const handleBeslutningChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    if (value.length <= BESLUTNINGSLOGG_VALIDATION.MAX_BESLUTNING_LENGTH) {
+      setBeslutning(value);
+      if (validationError) setValidationError(null);
+    }
+  };
+
+  const handleGenerate = useCallback(() => {
+    const error = validateBeslutning(beslutning);
+    if (error) {
+      setValidationError(error);
+      beslutningRef.current?.focus();
+      return;
+    }
+    setValidationError(null);
+    setShowPreview(true);
+    setTimeout(() => {
+      previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, UI_TIMING.SCROLL_DELAY_MS);
+  }, [beslutning]);
+
+  // ---------------------------------------------------------------------------
   // Effects
   // ---------------------------------------------------------------------------
 
@@ -82,33 +109,7 @@ export default function Beslutningslogg() {
     };
     window.addEventListener('beslutningslogg:generate', handleMobileGenerate);
     return () => window.removeEventListener('beslutningslogg:generate', handleMobileGenerate);
-  }, [beslutning]);
-
-  // ---------------------------------------------------------------------------
-  // Event Handlers
-  // ---------------------------------------------------------------------------
-
-  const handleBeslutningChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
-    if (value.length <= BESLUTNINGSLOGG_VALIDATION.MAX_BESLUTNING_LENGTH) {
-      setBeslutning(value);
-      if (validationError) setValidationError(null);
-    }
-  };
-
-  const handleGenerate = () => {
-    const error = validateBeslutning(beslutning);
-    if (error) {
-      setValidationError(error);
-      beslutningRef.current?.focus();
-      return;
-    }
-    setValidationError(null);
-    setShowPreview(true);
-    setTimeout(() => {
-      previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
-  };
+  }, [handleGenerate]);
 
   const handleCopy = async () => {
     await copyToClipboard(markdownOutput);
@@ -119,7 +120,7 @@ export default function Beslutningslogg() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setTimeout(() => {
       beslutningRef.current?.focus();
-    }, 300);
+    }, UI_TIMING.ANIMATION_DELAY_MS);
   };
 
   const handleReset = () => {
@@ -133,7 +134,7 @@ export default function Beslutningslogg() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setTimeout(() => {
       beslutningRef.current?.focus();
-    }, 100);
+    }, UI_TIMING.SCROLL_DELAY_MS);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

@@ -19,6 +19,7 @@ export function Toast({ message, isVisible }: ToastProps) {
       )}
       role="status"
       aria-live="assertive"
+      aria-label="Statusmelding"
     >
       {message}
     </div>

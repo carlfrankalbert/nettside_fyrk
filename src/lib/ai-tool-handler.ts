@@ -308,8 +308,8 @@ function createRateLimitResponse(): Response {
 function createCircuitBreakerResponse(): Response {
   return new Response(
     JSON.stringify({
-      error: 'Service temporarily unavailable',
-      details: 'Please try again in a few moments',
+      error: ERROR_MESSAGES.SERVICE_UNAVAILABLE,
+      details: 'Vent litt før du prøver igjen',
     }),
     {
       status: 503,

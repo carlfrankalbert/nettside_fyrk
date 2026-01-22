@@ -65,11 +65,44 @@ ${instruction}`;
 
 /**
  * Suspicious patterns that may indicate prompt injection attempts
+ * Extended set to catch more sophisticated injection techniques
  */
 export const SUSPICIOUS_PATTERNS = [
+  // Direct instruction override attempts
   /system\s*prompt/i,
   /my\s*instructions/i,
-  /ignore\s*previous/i,
+  /ignore\s*(all\s*)?(previous|above|prior)/i,
+  /disregard\s*(all\s*)?(previous|above|prior)/i,
+  /forget\s*(all\s*)?(previous|above|prior)/i,
+
+  // Role manipulation
+  /you\s+are\s+now/i,
+  /act\s+as\s+(a|an)\s/i,
+  /pretend\s+(to\s+be|you're)/i,
+  /roleplay\s+as/i,
+
+  // Instruction injection markers
+  /\[INST\]/i,
+  /\[\/INST\]/i,
+  /<<SYS>>/i,
+  /<<\/SYS>>/i,
+  /<\|im_start\|>/i,
+  /<\|im_end\|>/i,
+
+  // Output manipulation
+  /print\s+the\s+(system|original)/i,
+  /reveal\s+(your|the)\s+(system|prompt)/i,
+  /show\s+me\s+(your|the)\s+(system|prompt)/i,
+
+  // Jailbreak attempts
+  /do\s+anything\s+now/i,
+  /dan\s+mode/i,
+  /developer\s+mode/i,
+  /jailbreak/i,
+
+  // Norwegian variations
+  /ignorer\s+(alle\s*)?(tidligere|forrige)/i,
+  /glem\s+(alle\s*)?(tidligere|forrige)/i,
 ] as const;
 
 /**
@@ -77,4 +110,24 @@ export const SUSPICIOUS_PATTERNS = [
  */
 export function containsSuspiciousPatterns(content: string): boolean {
   return SUSPICIOUS_PATTERNS.some((pattern) => pattern.test(content));
+}
+
+/**
+ * Escape common XML/HTML entities in input
+ * More comprehensive than tag-specific escaping
+ */
+export function escapeXmlEntities(input: string): string {
+  return input
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
+/**
+ * Check if input contains potential XML/CDATA injection
+ */
+export function containsXmlInjection(input: string): boolean {
+  return /(<!\[CDATA\[|<!\s*-|<\?xml)/i.test(input);
 }
