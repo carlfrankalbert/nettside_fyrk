@@ -107,7 +107,40 @@ function parsePreMortemSections(content: string): { title: string; content: stri
 }
 
 /**
+ * Parse text with inline bold markers (**text**) into React elements
+ * Safely handles content without XSS risk
+ */
+function parseInlineBold(text: string): React.ReactNode[] {
+  const parts: React.ReactNode[] = [];
+  const regex = /\*\*([^*]+)\*\*/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(text)) !== null) {
+    // Add text before the match
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+    // Add the bold text as a React element
+    parts.push(
+      <strong key={match.index} className="font-semibold text-neutral-800">
+        {match[1]}
+      </strong>
+    );
+    lastIndex = regex.lastIndex;
+  }
+
+  // Add remaining text after the last match
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts.length > 0 ? parts : [text];
+}
+
+/**
  * Render markdown content with basic formatting
+ * Uses React elements for safe rendering (no dangerouslySetInnerHTML)
  */
 function MarkdownContent({ content }: { content: string }) {
   // Process the content for basic markdown rendering
@@ -128,7 +161,7 @@ function MarkdownContent({ content }: { content: string }) {
           return (
             <div key={index} className="flex items-start gap-2 text-neutral-700">
               <span className="text-brand-cyan-darker mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-cyan-darker flex-shrink-0" />
-              <span className="flex-1">{trimmedLine.slice(2)}</span>
+              <span className="flex-1">{parseInlineBold(trimmedLine.slice(2))}</span>
             </div>
           );
         }
@@ -142,18 +175,11 @@ function MarkdownContent({ content }: { content: string }) {
           );
         }
 
-        // Regular text with inline bold handling
-        const processedText = trimmedLine.replace(
-          /\*\*([^*]+)\*\*/g,
-          '<strong class="font-semibold text-neutral-800">$1</strong>'
-        );
-
+        // Regular text with inline bold handling (safe React elements)
         return (
-          <p
-            key={index}
-            className="text-neutral-700"
-            dangerouslySetInnerHTML={{ __html: processedText }}
-          />
+          <p key={index} className="text-neutral-700">
+            {parseInlineBold(trimmedLine)}
+          </p>
         );
       })}
     </div>

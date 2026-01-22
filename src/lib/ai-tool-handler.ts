@@ -37,6 +37,33 @@ import {
 export type ToolName = 'okr' | 'konseptspeil' | 'antakelseskart' | 'pre-mortem';
 
 /**
+ * Expected request body shape
+ */
+interface AIToolRequestBody {
+  input?: string;
+  stream?: boolean;
+}
+
+/**
+ * Type guard to validate request body structure
+ */
+function isValidRequestBody(body: unknown): body is AIToolRequestBody {
+  if (typeof body !== 'object' || body === null) {
+    return false;
+  }
+  const obj = body as Record<string, unknown>;
+  // input must be undefined or string
+  if (obj.input !== undefined && typeof obj.input !== 'string') {
+    return false;
+  }
+  // stream must be undefined or boolean
+  if (obj.stream !== undefined && typeof obj.stream !== 'boolean') {
+    return false;
+  }
+  return true;
+}
+
+/**
  * Configuration for an AI tool handler
  */
 export interface AIToolConfig {
@@ -108,11 +135,12 @@ export function createAIToolHandler(config: AIToolConfig) {
         return createErrorResponse('Invalid Content-Type. Expected application/json', 415);
       }
 
-      // Parse request body
-      const { input, stream = false } = (await request.json()) as {
-        input?: string;
-        stream?: boolean;
-      };
+      // Parse and validate request body
+      const body: unknown = await request.json();
+      if (!isValidRequestBody(body)) {
+        return createErrorResponse('Invalid request body format', 400);
+      }
+      const { input, stream = false } = body;
 
       // Validate input presence
       if (!input?.trim()) {
@@ -141,7 +169,12 @@ export function createAIToolHandler(config: AIToolConfig) {
       // Rate limiting
       const clientIP = getClientIP(request);
       if (!state.rateLimiter.checkAndUpdate(clientIP)) {
-        logRateLimitHit(cloudflareEnv?.ANALYTICS_KV, toolName).catch(() => {});
+        logRateLimitHit(cloudflareEnv?.ANALYTICS_KV, toolName).catch((err) => {
+          // Log in dev, silently ignore in production (non-critical analytics)
+          if (import.meta.env.DEV) {
+            console.warn('[ai-tool-handler] Failed to log rate limit hit:', err);
+          }
+        });
         return createRateLimitResponse();
       }
 
@@ -165,7 +198,14 @@ export function createAIToolHandler(config: AIToolConfig) {
       const now = Date.now();
       if (now - state.lastCleanupTime > 300000 || Math.random() < 0.01) {
         state.lastCleanupTime = now;
-        Promise.resolve().then(() => state.cacheManager.cleanup());
+        Promise.resolve()
+          .then(() => state.cacheManager.cleanup())
+          .catch((err) => {
+            // Log in dev, silently ignore in production (non-critical cleanup)
+            if (import.meta.env.DEV) {
+              console.warn('[ai-tool-handler] Cache cleanup failed:', err);
+            }
+          });
       }
 
       // Check cache
