@@ -10,7 +10,10 @@ Fyrk is a consulting website with AI-powered tools, deployed on **Cloudflare Pag
 - **OKR-sjekken** (`/okr-sjekken`) - AI-powered OKR review tool using Anthropic SDK
 - **Konseptspeilet** (`/konseptspeilet`) - Concept reflection tool for product ideas
 - **Antakelseskart** (`/antakelseskart`) - Assumption mapping tool for decisions
+- **Beslutningslogg** (`/beslutningslogg`) - Decision documentation tool (no AI, exports to Markdown)
+- **Pre-Mortem Brief** (`/verktoy/pre-mortem`) - AI-powered failure mode analysis tool
 - **Feature toggles** (`/feature-toggles`) - Feature flag management
+- **Stats dashboard** (`/stats`) - Internal analytics dashboard (token-protected)
 - **API routes** in `src/pages/api/` - Serverless functions for AI tools
 
 ## 🗂 Project Structure
@@ -18,21 +21,67 @@ Fyrk is a consulting website with AI-powered tools, deployed on **Cloudflare Pag
 ```
 src/
 ├── components/     # Astro & React components
+│   ├── content/    # Content display components
+│   ├── dashboard/  # Analytics dashboard components
+│   ├── form/       # Form building blocks
+│   ├── forms/      # Complete form components
 │   ├── landing/    # Landing page sections
 │   ├── layout/     # Header, Footer, ThemeToggle
-│   ├── ui/         # Reusable UI primitives (ValidationError, StreamingError, PrivacyAccordion)
-│   └── forms/      # Form components
-├── hooks/          # React hooks (useStreamingForm, useCopyToClipboard)
+│   ├── seo/        # SEO-related components
+│   └── ui/         # Reusable UI primitives (ValidationError, StreamingError, PrivacyAccordion)
+├── hooks/          # React hooks (useStreamingForm, useCopyToClipboard, usePreMortemForm, etc.)
 ├── pages/          # Routes and API endpoints
-│   └── api/        # Serverless API routes
+│   ├── api/        # Serverless API routes
+│   └── verktoy/    # Tool subpages (pre-mortem)
 ├── services/       # Business logic (API clients, data fetching)
-├── utils/          # Pure utility functions (constants, form-validation, url-decoding, debounce)
+├── utils/          # Pure utility functions (constants, form-validation, input-sanitization, parsers)
 ├── lib/            # Third-party integrations (Sentry)
 ├── data/           # Static data and content
 ├── layouts/        # Page layout templates
 ├── styles/         # Global CSS
 └── types/          # TypeScript type definitions
 ```
+
+## 🎭 Review Personas & Commands
+
+This project uses **orchestrated persona reviews** via Claude Code slash commands. Personas are "lenses" that identify risks without proposing solutions.
+
+### Review Workflow
+
+| Phase | Command | When to Use |
+|-------|---------|-------------|
+| 1. Concept | `/review-concept` | Before coding - review idea/copy/flow |
+| 2. Change | `/review-change` | After coding - review diff/implementation |
+| 3. Release | `/review-release` | Before merge - final GO/NO-GO gate |
+
+### Orchestrated Review Output
+
+The orchestrated reviews run all personas sequentially and output:
+```
+UX RISKS → QA RISKS → FRONTEND RISKS → BACKEND RISKS → DATA RISKS → LEGAL RISKS → FYRK QUALITY RISKS → TRIAGE → DECISION
+```
+
+### Individual Personas
+
+Run a single lens for focused feedback:
+
+| Command | Focus Area |
+|---------|------------|
+| `/personas:ux` | Mental model, microcopy, friction, a11y basics |
+| `/personas:qa` | Edge cases, error states, timeouts, cross-platform |
+| `/personas:frontend` | State, semantics, responsiveness, performance |
+| `/personas:backend` | Robustness, timeouts, security, observability |
+| `/personas:data` | Events, funnels, PII in logging, metrics |
+| `/personas:legal` | GDPR, PII risk, liability, B2B vs B2C |
+| `/personas:fyrk-quality` | FYRK standards: mirror contract, minimalism, actionability |
+| `/personas:triage` | Categorize findings: Critical / Important / Can wait |
+| `/personas:go-no-go` | Final decision based on previous review |
+
+### Usage Tips
+
+- Always include **goal/scope/constraints** to avoid generic answers
+- Max 5 risk points per section, no solutions
+- Use `/review-release` after a full review for quick GO/NO-GO
 
 ## 🚀 Astro & Performance Standards
 
@@ -97,3 +146,65 @@ When asked to "check" or "refactor" the code:
 | `npm run test:visual` | Visual regression tests |
 | `npm run test:ui` | Open Playwright interactive UI |
 | `npm run test:load` | Run k6 load tests |
+
+## 🔐 Environment Variables
+
+Copy `.env.example` to `.env` for local development:
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `ANTHROPIC_API_KEY` | Yes (prod) | Anthropic API key for Claude |
+| `ANTHROPIC_MODEL` | No | Override default model (defaults to claude-sonnet-4-20250514) |
+| `KONSEPTSPEILET_MOCK` | No | Set to `true` for mock responses during local dev |
+| `PUBLIC_SENTRY_DSN` | No | Sentry DSN for error tracking |
+| `STATS_TOKEN` | No | Token for accessing `/stats` dashboard |
+
+## 🔄 API Patterns
+
+All AI-powered tools use **streaming responses** via the Anthropic SDK:
+
+- **Services Pattern:** API logic lives in `src/services/` (e.g., `okr-service.ts`)
+- **Streaming Client:** Use `src/lib/streaming-service-client.ts` for consistent streaming behavior
+- **Response Parsing:** Each tool has a dedicated parser in `src/utils/` (e.g., `okr-parser.ts`, `konseptspeil-parser-v2.ts`)
+- **Error Handling:** Use `StreamingError` component for user-friendly error display
+
+## 🛡️ Security
+
+- **Input Sanitization:** All user input is sanitized via `src/utils/input-sanitization.ts`
+- **Form Validation:** Use `src/utils/form-validation.ts` for consistent validation
+- **Output Validation:** AI responses are validated via `src/utils/output-validators.ts`
+- **Request Signing:** API requests can be signed via `src/utils/request-signing.ts`
+- **No Secrets in Code:** Environment variables only, never commit `.env`
+
+## 🧩 Common Patterns
+
+### Streaming Forms
+Use `useStreamingForm` hook for AI-powered forms:
+```tsx
+const { state, error, handleSubmit, reset } = useStreamingForm({
+  apiEndpoint: '/api/my-tool',
+  onStreamingComplete: (result) => setResult(result),
+});
+```
+
+### Copy to Clipboard
+Use `useCopyWithToast` for user feedback:
+```tsx
+const { copy, copied } = useCopyWithToast();
+```
+
+### Form Input Handlers
+Use `useFormInputHandlers` for consistent textarea behavior with auto-resize.
+
+## 🚀 Local Development
+
+1. `cp .env.example .env` and add your `ANTHROPIC_API_KEY`
+2. `npm install`
+3. `npm run dev` - starts dev server at `localhost:4321`
+
+**Mock Mode:** Set `KONSEPTSPEILET_MOCK=true` in `.env` to test UX without API calls.
+
+**Preview Production Build:**
+```bash
+npm run build && npm run preview
+```
