@@ -37,8 +37,9 @@ jobs:
       - name: Build site
         run: npm run build
 
-      - name: Run all E2E tests (excluding visual regression)
-        run: npx playwright test --project=smoke --project=smoke-mobile --project=smoke-tablet --project=contrast --project=okr-api --project=a11y --project=konseptspeilet --project=pre-mortem --project=ux-mobile --project=security --project=streaming
+      - name: Run all E2E tests (excluding visual regression and API tests)
+        # Note: okr-api and security projects excluded - they require local server with different config
+        run: npx playwright test --project=smoke --project=smoke-mobile --project=smoke-tablet --project=contrast --project=a11y --project=konseptspeilet --project=pre-mortem --project=ux-mobile --project=streaming
 
       - name: Upload test results
         if: always()
