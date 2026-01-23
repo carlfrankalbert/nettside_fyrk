@@ -106,7 +106,7 @@ export function usePreMortemStreaming(): UsePreMortemStreamingReturn {
           setIsStreaming(false);
           setResult(null);
           abortControllerRef.current = null;
-          logEvent('premortem_error', { errorType: 'streaming', message: errorMsg });
+          logEvent('premortem_error', { errorType: 'api_error' });
         },
         abortControllerRef.current.signal
       );

@@ -13,7 +13,8 @@
  */
 
 import type { APIContext } from 'astro';
-import type { AnthropicResponse, AnthropicErrorResponse } from '../types';
+import type { AnthropicErrorResponse } from '../types';
+import { isValidAnthropicResponse, extractAnthropicText } from '../types';
 import { hashInput, createServerCacheManager, createRateLimiter } from '../utils/cache';
 import { ERROR_MESSAGES, ANTHROPIC_CONFIG, HTTP_HEADERS, INPUT_VALIDATION } from '../utils/constants';
 import {
@@ -30,8 +31,10 @@ import {
   createJsonResponse,
   createErrorResponse,
 } from './streaming-response';
-import { createKVCacheManager, createKVRateLimiter } from './kv-cache';
+import { createKVCacheManager, createKVRateLimiter, createKVDailyBudget, createKVCircuitBreaker } from './kv-cache';
 import { createSLOMonitor } from './slo-monitoring';
+import { generateRequestId } from './request-utils';
+import { createContextLogger } from './structured-logger';
 
 /**
  * Tool name type for rate limit logging
@@ -122,6 +125,10 @@ export function createAIToolHandler(config: AIToolConfig) {
     getMockResponse,
   } = config;
 
+  // Extract version from cache key prefix (e.g., 'okr:v1' -> 'v1')
+  const versionMatch = cacheKeyPrefix.match(/:v(\d+)$/);
+  const toolVersion = versionMatch ? `v${versionMatch[1]}` : undefined;
+
   // Create shared state (persists across requests in same Worker isolate)
   // KV-backed cache and rate limiter are initialized lazily per-request
   // since we need access to the Cloudflare env
@@ -129,34 +136,40 @@ export function createAIToolHandler(config: AIToolConfig) {
     cacheManager: createServerCacheManager(),
     rateLimiter: createRateLimiter(),
     circuitBreaker: createCircuitBreaker(),
-    sloMonitor: createSLOMonitor(toolName),
+    sloMonitor: createSLOMonitor(toolName, undefined, toolVersion),
     lastCleanupTime: Date.now(),
   };
 
   // Track if KV resources have been initialized for this Worker isolate
+  // Using a flag to prevent race condition during initialization
+  let kvInitialized = false;
   let kvCacheManager: ReturnType<typeof createKVCacheManager> | null = null;
   let kvRateLimiter: ReturnType<typeof createKVRateLimiter> | null = null;
+  let kvDailyBudget: ReturnType<typeof createKVDailyBudget> | null = null;
+  let kvCircuitBreaker: ReturnType<typeof createKVCircuitBreaker> | null = null;
 
   return async function handler({ request, locals }: APIContext): Promise<Response> {
     const requestStartTime = Date.now();
+    const requestId = generateRequestId();
+    const log = createContextLogger({ requestId, tool: toolName });
 
     try {
       // Validate Content-Type
       const contentType = request.headers.get('content-type');
       if (!contentType?.includes('application/json')) {
-        return createErrorResponse('Invalid Content-Type. Expected application/json', 415);
+        return createErrorResponse('Invalid Content-Type. Expected application/json', 415, undefined, requestId);
       }
 
       // Parse and validate request body
       const body: unknown = await request.json();
       if (!isValidRequestBody(body)) {
-        return createErrorResponse('Invalid request body format', 400);
+        return createErrorResponse('Invalid request body format', 400, undefined, requestId);
       }
       const { input, stream = false } = body;
 
       // Validate input presence
       if (!input?.trim()) {
-        return createErrorResponse(missingInputMessage, 400);
+        return createErrorResponse(missingInputMessage, 400, undefined, requestId);
       }
 
       const trimmedInput = input.trim();
@@ -165,14 +178,18 @@ export function createAIToolHandler(config: AIToolConfig) {
       if (trimmedInput.length < INPUT_VALIDATION.MIN_LENGTH) {
         return createErrorResponse(
           `Input må være minst ${INPUT_VALIDATION.MIN_LENGTH} tegn`,
-          400
+          400,
+          undefined,
+          requestId
         );
       }
 
       if (trimmedInput.length > maxInputLength) {
         return createErrorResponse(
           `Input kan ikke være lengre enn ${maxInputLength} tegn`,
-          400
+          400,
+          undefined,
+          requestId
         );
       }
 
@@ -180,11 +197,15 @@ export function createAIToolHandler(config: AIToolConfig) {
       const analyticsKV = cloudflareEnv?.ANALYTICS_KV;
 
       // Initialize KV-backed resources lazily (once per Worker isolate)
-      if (analyticsKV && !kvCacheManager) {
+      // Use flag to prevent race condition from concurrent requests
+      if (analyticsKV && !kvInitialized) {
+        kvInitialized = true; // Set flag first to prevent re-initialization
         kvCacheManager = createKVCacheManager(analyticsKV, state.cacheManager);
         kvRateLimiter = createKVRateLimiter(analyticsKV, state.rateLimiter);
-        // Update SLO monitor with KV reference
-        state.sloMonitor = createSLOMonitor(toolName, analyticsKV);
+        kvDailyBudget = createKVDailyBudget(analyticsKV);
+        kvCircuitBreaker = createKVCircuitBreaker(analyticsKV, toolName, state.circuitBreaker);
+        // Update SLO monitor with KV reference and version
+        state.sloMonitor = createSLOMonitor(toolName, analyticsKV, toolVersion);
       }
 
       // Rate limiting (use KV-backed if available for distributed limiting)
@@ -195,28 +216,30 @@ export function createAIToolHandler(config: AIToolConfig) {
 
       if (!rateLimitAllowed) {
         state.sloMonitor.recordRateLimit();
-        logRateLimitHit(analyticsKV, toolName).catch((err) => {
-          // Log in dev, silently ignore in production (non-critical analytics)
-          if (import.meta.env.DEV) {
-            console.warn('[ai-tool-handler] Failed to log rate limit hit:', err);
-          }
-        });
-        return createRateLimitResponse();
+        log.warn('Rate limit exceeded', { action: 'rate_limit' });
+        logRateLimitHit(analyticsKV, toolName).catch(() => {/* ignore */});
+        return createRateLimitResponse(requestId);
       }
 
-      // Circuit breaker check
-      if (useCircuitBreaker && !state.circuitBreaker.check()) {
-        return createCircuitBreakerResponse();
+      // Circuit breaker check (use KV-backed if available, both are synchronous)
+      const circuitBreakerAllowed = kvCircuitBreaker
+        ? kvCircuitBreaker.check()
+        : useCircuitBreaker ? state.circuitBreaker.check() : true;
+
+      if (!circuitBreakerAllowed) {
+        log.warn('Circuit breaker open', { action: 'circuit_breaker' });
+        return createCircuitBreakerResponse(requestId);
       }
 
       // Mock mode (for local testing)
       if (getMockResponse) {
         const mockOutput = getMockResponse(trimmedInput);
         if (mockOutput) {
+          log.debug('Returning mock response', { action: 'mock' });
           if (stream) {
-            return createCachedStreamingResponse(mockOutput);
+            return createCachedStreamingResponse(mockOutput, { requestId });
           }
-          return createJsonResponse({ output: mockOutput, cached: false, mock: true });
+          return createJsonResponse({ output: mockOutput, cached: false, mock: true }, { requestId });
         }
       }
 
@@ -243,34 +266,46 @@ export function createAIToolHandler(config: AIToolConfig) {
       if (cachedEntry) {
         const latencyMs = Date.now() - requestStartTime;
         state.sloMonitor.recordRequest({ statusCode: 200, latencyMs, cached: true });
+        log.info('Cache hit', { action: 'cache_hit', durationMs: latencyMs, cached: true });
 
         if (stream) {
-          return createCachedStreamingResponse(cachedEntry.output);
+          return createCachedStreamingResponse(cachedEntry.output, { requestId });
         }
         return createJsonResponse(
           { output: cachedEntry.output, cached: true },
-          { cacheStatus: 'HIT' }
+          { cacheStatus: 'HIT', requestId }
         );
+      }
+
+      // Daily budget check (per-IP cost control)
+      // Placed after cache check so cached responses don't consume budget
+      if (kvDailyBudget) {
+        const withinBudget = await kvDailyBudget.checkAndIncrement(clientIP);
+        if (!withinBudget) {
+          log.warn('Daily budget exceeded', { action: 'budget_exceeded' });
+          return createDailyBudgetResponse(requestId);
+        }
       }
 
       // Resolve API configuration
       const { apiKey, model } = resolveAnthropicConfig(locals as App.Locals);
 
       if (!apiKey) {
-        console.error('ANTHROPIC_API_KEY not configured');
-        return createErrorResponse(ERROR_MESSAGES.SERVER_NOT_CONFIGURED, 500);
+        log.error('API key not configured', { action: 'config_error' });
+        return createErrorResponse(ERROR_MESSAGES.SERVER_NOT_CONFIGURED, 500, undefined, requestId);
       }
 
       const userMessage = createUserMessage(trimmedInput);
 
       // Handle streaming response
       if (stream) {
-        return createAnthropicStreamingResponse({
+        const streamingPromise = Promise.resolve(createAnthropicStreamingResponse({
           apiKey,
           model,
           systemPrompt,
           userMessage,
           timeoutMs: streamingTimeoutMs,
+          requestId,
           validateOutput,
           onCache: (output) => {
             // Use KV cache if available, falls back to in-memory
@@ -280,27 +315,31 @@ export function createAIToolHandler(config: AIToolConfig) {
               state.cacheManager.set(cacheKey, output);
             }
           },
-          onSuccess: useCircuitBreaker
-            ? () => {
-                state.circuitBreaker.recordSuccess();
-                const latencyMs = Date.now() - requestStartTime;
-                state.sloMonitor.recordRequest({ statusCode: 200, latencyMs, cached: false });
-              }
-            : () => {
-                const latencyMs = Date.now() - requestStartTime;
-                state.sloMonitor.recordRequest({ statusCode: 200, latencyMs, cached: false });
-              },
-          onFailure: useCircuitBreaker
-            ? () => {
-                state.circuitBreaker.recordFailure();
-                const latencyMs = Date.now() - requestStartTime;
-                state.sloMonitor.recordError(500, latencyMs);
-              }
-            : () => {
-                const latencyMs = Date.now() - requestStartTime;
-                state.sloMonitor.recordError(500, latencyMs);
-              },
-        });
+          onSuccess: () => {
+            const latencyMs = Date.now() - requestStartTime;
+            state.sloMonitor.recordRequest({ statusCode: 200, latencyMs, cached: false });
+            log.info('Streaming success', { action: 'stream_success', durationMs: latencyMs });
+            // Record success (prefer KV-backed if available, both are synchronous)
+            if (kvCircuitBreaker) {
+              kvCircuitBreaker.recordSuccess();
+            } else if (useCircuitBreaker) {
+              state.circuitBreaker.recordSuccess();
+            }
+          },
+          onFailure: () => {
+            const latencyMs = Date.now() - requestStartTime;
+            state.sloMonitor.recordError(500, latencyMs);
+            log.error('Streaming failed', { action: 'stream_failure', durationMs: latencyMs });
+            // Record failure (prefer KV-backed if available, both are synchronous)
+            if (kvCircuitBreaker) {
+              kvCircuitBreaker.recordFailure();
+            } else if (useCircuitBreaker) {
+              state.circuitBreaker.recordFailure();
+            }
+          },
+        }));
+
+        return streamingPromise;
       }
 
       // Non-streaming response with retry logic
@@ -319,54 +358,80 @@ export function createAIToolHandler(config: AIToolConfig) {
               messages: [{ role: 'user', content: userMessage }],
             }),
           },
-          ANTHROPIC_CONFIG.REQUEST_TIMEOUT_MS
+          ANTHROPIC_CONFIG.REQUEST_TIMEOUT_MS,
+          { requestId }
         );
       } catch (error) {
-        if (useCircuitBreaker) {
+        // Record failure (prefer KV-backed if available, both are synchronous)
+        if (kvCircuitBreaker) {
+          kvCircuitBreaker.recordFailure();
+        } else if (useCircuitBreaker) {
           state.circuitBreaker.recordFailure();
         }
         const latencyMs = Date.now() - requestStartTime;
         state.sloMonitor.recordError(504, latencyMs);
         if (error instanceof Error && error.name === 'AbortError') {
-          return createErrorResponse('Forespørselen tok for lang tid', 504, 'Prøv igjen om litt');
+          log.warn('Request timeout', { action: 'timeout', durationMs: latencyMs, statusCode: 504 });
+          return createErrorResponse('Forespørselen tok for lang tid', 504, 'Prøv igjen om litt', requestId);
         }
         throw error;
       }
 
       if (!anthropicResponse.ok) {
-        if (useCircuitBreaker) {
+        // Record failure (prefer KV-backed if available, both are synchronous)
+        if (kvCircuitBreaker) {
+          kvCircuitBreaker.recordFailure();
+        } else if (useCircuitBreaker) {
           state.circuitBreaker.recordFailure();
         }
         const latencyMs = Date.now() - requestStartTime;
         state.sloMonitor.recordError(anthropicResponse.status, latencyMs);
         const errorData = (await anthropicResponse.json()) as AnthropicErrorResponse;
-        console.error('Anthropic API error:', anthropicResponse.status, errorData);
+        log.error('Anthropic API error', { action: 'api_error', statusCode: anthropicResponse.status, durationMs: latencyMs });
         return createErrorResponse(
           errorMessage,
           500,
-          errorData?.error?.message || `API returned ${anthropicResponse.status}`
+          errorData?.error?.message || `API returned ${anthropicResponse.status}`,
+          requestId
         );
       }
 
-      if (useCircuitBreaker) {
+      // Record success (prefer KV-backed if available, both are synchronous)
+      if (kvCircuitBreaker) {
+        kvCircuitBreaker.recordSuccess();
+      } else if (useCircuitBreaker) {
         state.circuitBreaker.recordSuccess();
       }
 
-      const data = (await anthropicResponse.json()) as AnthropicResponse;
-      const output = data.content[0]?.type === 'text' ? data.content[0].text : '';
+      // Parse and validate response schema
+      const data: unknown = await anthropicResponse.json();
+      if (!isValidAnthropicResponse(data)) {
+        log.warn('Invalid Anthropic response schema', { action: 'schema_invalid', statusCode: 502 });
+        const latencyMs = Date.now() - requestStartTime;
+        state.sloMonitor.recordError(502, latencyMs);
+        return createErrorResponse(
+          errorMessage,
+          502,
+          'Ugyldig svar fra AI-tjenesten',
+          requestId
+        );
+      }
+      const output = extractAnthropicText(data);
 
       // Validate output format
       if (!validateOutput(output)) {
-        console.warn(`${toolName}: Output format validation failed - possible prompt injection`);
+                log.warn('Output validation failed', { action: 'validation_failed', statusCode: 422 });
         const latencyMs = Date.now() - requestStartTime;
         state.sloMonitor.recordError(422, latencyMs);
         return createErrorResponse(
           errorMessage,
           422,
-          'Vennligst prøv igjen med en annen beskrivelse'
+          'Vennligst prøv igjen med en annen beskrivelse',
+          requestId
         );
       }
 
+      
       // Cache valid output (KV-backed if available)
       if (kvCacheManager) {
         kvCacheManager.set(cacheKey, output).catch(() => {/* ignore */});
@@ -376,21 +441,21 @@ export function createAIToolHandler(config: AIToolConfig) {
 
       const latencyMs = Date.now() - requestStartTime;
       state.sloMonitor.recordRequest({ statusCode: 200, latencyMs, cached: false });
+      log.info('Request completed', { action: 'success', durationMs: latencyMs, statusCode: 200, cached: false });
 
-      return createJsonResponse({ output, cached: false }, { cacheStatus: 'MISS' });
+      return createJsonResponse({ output, cached: false }, { cacheStatus: 'MISS', requestId });
     } catch (err) {
-      const isDev = import.meta.env.DEV;
-      console.error(`${toolName} error:`, err instanceof Error ? err.message : err);
-
-      if (isDev && err instanceof Error) {
-        console.error('Error stack:', err.stack);
-      }
-
       const latencyMs = Date.now() - requestStartTime;
       state.sloMonitor.recordError(500, latencyMs);
 
+      log.error('Unhandled error', {
+        action: 'unhandled_error',
+        durationMs: latencyMs,
+        statusCode: 500,
+      });
+
       const errorDetails = err instanceof Error ? err.message : ERROR_MESSAGES.UNKNOWN_ERROR;
-      return createErrorResponse(errorMessage, 500, errorDetails);
+      return createErrorResponse(errorMessage, 500, errorDetails, requestId);
     }
   };
 }
@@ -398,37 +463,59 @@ export function createAIToolHandler(config: AIToolConfig) {
 /**
  * Create rate limit response
  */
-function createRateLimitResponse(): Response {
+function createRateLimitResponse(requestId?: string): Response {
+  const headers: Record<string, string> = {
+    'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
+    'Retry-After': '60',
+  };
+  if (requestId) {
+    headers['X-Request-ID'] = requestId;
+  }
   return new Response(
     JSON.stringify({
       error: ERROR_MESSAGES.RATE_LIMIT_EXCEEDED,
       details: 'Vent litt før du prøver igjen',
     }),
-    {
-      status: 429,
-      headers: {
-        'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
-        'Retry-After': '60',
-      },
-    }
+    { status: 429, headers }
   );
 }
 
 /**
  * Create circuit breaker response
  */
-function createCircuitBreakerResponse(): Response {
+function createCircuitBreakerResponse(requestId?: string): Response {
+  const headers: Record<string, string> = {
+    'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
+    'Retry-After': '30',
+  };
+  if (requestId) {
+    headers['X-Request-ID'] = requestId;
+  }
   return new Response(
     JSON.stringify({
       error: ERROR_MESSAGES.SERVICE_UNAVAILABLE,
       details: 'Vent litt før du prøver igjen',
     }),
-    {
-      status: 503,
-      headers: {
-        'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
-        'Retry-After': '30',
-      },
-    }
+    { status: 503, headers }
+  );
+}
+
+/**
+ * Create daily budget exceeded response
+ */
+function createDailyBudgetResponse(requestId?: string): Response {
+  const headers: Record<string, string> = {
+    'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
+    'Retry-After': '3600', // 1 hour
+  };
+  if (requestId) {
+    headers['X-Request-ID'] = requestId;
+  }
+  return new Response(
+    JSON.stringify({
+      error: 'Daglig grense nådd',
+      details: 'Du har brukt opp din daglige kvote. Prøv igjen i morgen.',
+    }),
+    { status: 429, headers }
   );
 }

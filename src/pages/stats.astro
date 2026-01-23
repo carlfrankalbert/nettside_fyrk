@@ -25,12 +25,27 @@ const hasAccess = expectedToken && providedToken === expectedToken;
 // Get all click counts if authorized
 type ButtonCounts = Record<string, { count: number; label: string }>;
 type PageStats = Record<string, { label: string; totalViews: number; totalVisitors: number; todayVisitors: number }>;
+type ToolMetrics = {
+  count: number;
+  totalCharCount: number;
+  totalProcessingTimeMs: number;
+  cachedCount: number;
+  freshCount: number;
+  errorTypes: Record<string, number>;
+  uniqueSessionCount: number;
+  hourlyDistribution: Record<string, number>;
+};
+type AllMetrics = Record<string, ToolMetrics>;
 
 let buttonCounts: ButtonCounts | null = null;
 let pageStats: PageStats | null = null;
+let toolMetrics: AllMetrics | null = null;
 let totalClicks = 0;
+let dataTimestamp: number | null = null;
 
 if (hasAccess) {
+  // Record when data fetch started
+  dataTimestamp = Date.now();
   const kv = cloudflareEnv?.ANALYTICS_KV;
   if (kv) {
     // Get button click counts
@@ -71,6 +86,55 @@ if (hasAccess) {
         totalVisitors: parseInt(totalVisitors || '0', 10) || 0,
         todayVisitors,
       };
+    }
+
+    // Get tool metrics (success events with aggregated data)
+    toolMetrics = {};
+    const metricsEvents = ['check_success', 'konseptspeil_success', 'antakelseskart_success', 'premortem_success'];
+    for (const eventId of metricsEvents) {
+      const metricsKey = `metrics:${eventId}:${today}`;
+      const metricsJson = await kv.get(metricsKey);
+      if (metricsJson) {
+        try {
+          const parsed = JSON.parse(metricsJson);
+          toolMetrics[eventId] = {
+            count: parsed.count || 0,
+            totalCharCount: parsed.totalCharCount || 0,
+            totalProcessingTimeMs: parsed.totalProcessingTimeMs || 0,
+            cachedCount: parsed.cachedCount || 0,
+            freshCount: parsed.freshCount || 0,
+            errorTypes: parsed.errorTypes || {},
+            uniqueSessionCount: parsed.uniqueSessionCount || (parsed.uniqueSessions?.length || 0),
+            hourlyDistribution: parsed.hourlyDistribution || {},
+          };
+        } catch {
+          // Skip invalid metrics
+        }
+      }
+    }
+
+    // Also get error metrics for each tool
+    const errorEvents = ['okr_error', 'konseptspeil_error', 'antakelseskart_error', 'premortem_error'];
+    for (const eventId of errorEvents) {
+      const metricsKey = `metrics:${eventId}:${today}`;
+      const metricsJson = await kv.get(metricsKey);
+      if (metricsJson) {
+        try {
+          const parsed = JSON.parse(metricsJson);
+          toolMetrics[eventId] = {
+            count: parsed.count || 0,
+            totalCharCount: parsed.totalCharCount || 0,
+            totalProcessingTimeMs: parsed.totalProcessingTimeMs || 0,
+            cachedCount: parsed.cachedCount || 0,
+            freshCount: parsed.freshCount || 0,
+            errorTypes: parsed.errorTypes || {},
+            uniqueSessionCount: parsed.uniqueSessionCount || (parsed.uniqueSessions?.length || 0),
+            hourlyDistribution: parsed.hourlyDistribution || {},
+          };
+        } catch {
+          // Skip invalid metrics
+        }
+      }
     }
   }
 }
@@ -129,6 +193,8 @@ if (hasAccess) {
       pageStats={pageStats}
       totalClicks={totalClicks}
       refreshToken={providedToken || ''}
+      toolMetrics={toolMetrics || {}}
+      dataTimestamp={dataTimestamp || Date.now()}
     />
   ) : (
     <div class="min-h-screen bg-slate-50 flex items-center justify-center p-4">

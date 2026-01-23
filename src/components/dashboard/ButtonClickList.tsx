@@ -20,6 +20,26 @@ interface ButtonClickListProps {
   icon?: React.ReactNode;
 }
 
+/** Primary actions that represent main tool usage */
+const PRIMARY_ACTIONS = new Set([
+  'okr_submit', 'konseptspeil_submit', 'antakelseskart_submit', 'premortem_submit',
+  'hero_cta', 'tools_okr_cta', 'tools_konseptspeilet_cta',
+  'okr_copy_suggestion', 'konseptspeil_copy_analysis', 'antakelseskart_copy', 'premortem_copy',
+]);
+
+/** Actions that indicate engagement */
+const ENGAGEMENT_ACTIONS = new Set([
+  'okr_example', 'konseptspeil_example', 'antakelseskart_example',
+  'okr_read_more', 'konseptspeil_share_colleague',
+  'contact_email', 'contact_linkedin', 'about_linkedin',
+]);
+
+function getActionType(id: string): 'primary' | 'engagement' | 'secondary' {
+  if (PRIMARY_ACTIONS.has(id)) return 'primary';
+  if (ENGAGEMENT_ACTIONS.has(id)) return 'engagement';
+  return 'secondary';
+}
+
 type Period = '24h' | 'week' | 'month' | 'year';
 
 interface TimeseriesPoint {
@@ -41,6 +61,7 @@ function ButtonRow({ button, maxCount }: { button: ButtonData; maxCount: number 
   const [loading, setLoading] = useState(false);
 
   const percentage = maxCount > 0 ? (button.count / maxCount) * 100 : 0;
+  const actionType = getActionType(button.id);
 
   const fetchChartData = useCallback(async () => {
     setLoading(true);
@@ -75,6 +96,18 @@ function ButtonRow({ button, maxCount }: { button: ButtonData; maxCount: number 
     return null;
   };
 
+  const gradientColors = {
+    primary: 'from-indigo-100 to-indigo-50',
+    engagement: 'from-emerald-100 to-emerald-50',
+    secondary: 'from-slate-100 to-slate-50',
+  };
+
+  const iconColors = {
+    primary: 'text-indigo-500',
+    engagement: 'text-emerald-500',
+    secondary: 'text-slate-400',
+  };
+
   return (
     <div className="group">
       <button
@@ -82,16 +115,23 @@ function ButtonRow({ button, maxCount }: { button: ButtonData; maxCount: number 
         className="w-full relative overflow-hidden rounded-xl transition-all hover:shadow-sm"
       >
         <div
-          className="absolute inset-0 bg-gradient-to-r from-indigo-100 to-indigo-50 transition-all"
+          className={`absolute inset-0 bg-gradient-to-r ${gradientColors[actionType]} transition-all`}
           style={{ width: `${percentage}%` }}
         />
         <div className="relative flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <MousePointer className="w-4 h-4 text-indigo-500" />
-            <span className="font-medium text-slate-700 text-left">{button.label}</span>
+            <MousePointer className={`w-4 h-4 ${iconColors[actionType]}`} />
+            <span className={`font-medium text-left ${actionType === 'secondary' ? 'text-slate-500' : 'text-slate-700'}`}>
+              {button.label}
+            </span>
+            {actionType === 'primary' && (
+              <span className="text-[10px] font-medium text-indigo-600 bg-indigo-100 px-1.5 py-0.5 rounded">
+                Hoved
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-3">
-            <span className={`font-bold text-lg ${button.count === 0 ? 'text-slate-300' : 'text-slate-900'}`}>
+            <span className={`font-bold text-lg ${button.count === 0 ? 'text-slate-300' : actionType === 'secondary' ? 'text-slate-600' : 'text-slate-900'}`}>
               {button.count}
             </span>
             {isExpanded ? (
@@ -167,7 +207,14 @@ function ButtonRow({ button, maxCount }: { button: ButtonData; maxCount: number 
 
 export function ButtonClickList({ title, buttons, icon }: ButtonClickListProps) {
   const maxCount = Math.max(...buttons.map(b => b.count), 1);
-  const sortedButtons = [...buttons].sort((a, b) => b.count - a.count);
+
+  // Sort by action type priority (primary > engagement > secondary), then by count
+  const actionTypePriority = { primary: 0, engagement: 1, secondary: 2 };
+  const sortedButtons = [...buttons].sort((a, b) => {
+    const priorityDiff = actionTypePriority[getActionType(a.id)] - actionTypePriority[getActionType(b.id)];
+    if (priorityDiff !== 0) return priorityDiff;
+    return b.count - a.count;
+  });
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">

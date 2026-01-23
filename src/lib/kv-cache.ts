@@ -6,6 +6,7 @@
  */
 
 import { CACHE_CONFIG, hashInput, type CacheEntry } from '../utils/cache';
+import type { CircuitBreakerState } from './anthropic-client';
 
 /**
  * KV cache key prefix to avoid collisions with analytics data
@@ -132,8 +133,10 @@ export function createKVCacheManager(
 /**
  * Create a KV-backed rate limiter
  *
- * Uses KV for distributed rate limiting across Worker isolates.
- * Falls back to in-memory when KV is unavailable.
+ * Uses a hybrid approach to avoid KV read-modify-write race conditions:
+ * - In-memory limiter is authoritative (synchronous, race-free within isolate)
+ * - KV provides cross-isolate awareness with eventual consistency
+ * - Combined limit: both must allow the request
  */
 export function createKVRateLimiter(
   kv: KVNamespace | undefined,
@@ -143,9 +146,6 @@ export function createKVRateLimiter(
 ) {
   const RATE_LIMIT_PREFIX = 'ratelimit:';
 
-  /**
-   * Check if KV is available
-   */
   function isKVAvailable(): boolean {
     return kv !== undefined;
   }
@@ -154,61 +154,310 @@ export function createKVRateLimiter(
     /**
      * Check if request is allowed and update rate limit
      *
-     * Note: For simplicity, we use KV as authoritative when available,
-     * with in-memory as fallback. This provides better protection against
-     * distributed attacks but may be slightly slower.
+     * Hybrid approach to handle KV's lack of atomic operations:
+     * 1. Check in-memory limiter first (race-free within isolate)
+     * 2. If allowed, check KV for cross-isolate limiting
+     * 3. Update KV in background (fire-and-forget) to reduce latency
      */
     async checkAndUpdate(identifier: string): Promise<boolean> {
-      // If no KV, use in-memory limiter
+      // Always check in-memory first (authoritative within isolate)
+      const inMemoryAllowed = inMemoryLimiter.checkAndUpdate(identifier);
+      if (!inMemoryAllowed) {
+        return false;
+      }
+
+      // If no KV, in-memory decision is final
       if (!isKVAvailable()) {
-        return inMemoryLimiter.checkAndUpdate(identifier);
+        return true;
       }
 
       const kvKey = RATE_LIMIT_PREFIX + identifier;
       const now = Date.now();
       const windowMs = CACHE_CONFIG.RATE_LIMIT_WINDOW_MS;
-      const maxRequests = CACHE_CONFIG.RATE_LIMIT_MAX_REQUESTS;
+      // Use slightly lower threshold for KV to account for race conditions
+      const kvMaxRequests = Math.floor(CACHE_CONFIG.RATE_LIMIT_MAX_REQUESTS * 1.5);
 
       try {
-        // Get current rate limit entry
+        // Read KV state for cross-isolate awareness
         const entry = await kv!.get(kvKey, 'json') as { count: number; resetTime: number } | null;
 
-        if (!entry || now > entry.resetTime) {
-          // New window - allow request and create entry
-          const newEntry = {
-            count: 1,
-            resetTime: now + windowMs,
-          };
-
-          // Set with expiration slightly longer than window to handle clock skew
-          const expirationTtl = Math.ceil(windowMs / 1000) + 10;
-          await kv!.put(kvKey, JSON.stringify(newEntry), { expirationTtl });
-          return true;
-        }
-
-        if (entry.count >= maxRequests) {
-          // Rate limited
+        // Check if over KV threshold (cross-isolate limit)
+        if (entry && now <= entry.resetTime && entry.count >= kvMaxRequests) {
           return false;
         }
 
-        // Increment counter
-        entry.count++;
-        const remainingMs = entry.resetTime - now;
-        const expirationTtl = Math.ceil(remainingMs / 1000) + 10;
-        await kv!.put(kvKey, JSON.stringify(entry), { expirationTtl });
+        // Update KV in background (fire-and-forget to avoid blocking)
+        const newCount = (entry && now <= entry.resetTime) ? entry.count + 1 : 1;
+        const resetTime = (entry && now <= entry.resetTime) ? entry.resetTime : now + windowMs;
+        const expirationTtl = Math.ceil(windowMs / 1000) + 10;
+
+        kv!.put(kvKey, JSON.stringify({ count: newCount, resetTime }), { expirationTtl })
+          .catch(() => {/* ignore - non-critical */});
+
         return true;
-      } catch (error) {
-        // KV errors - fall back to in-memory
-        if (import.meta.env.DEV) {
-          console.warn('[kv-cache] Rate limit KV error:', error);
-        }
-        return inMemoryLimiter.checkAndUpdate(identifier);
+      } catch {
+        // KV errors - in-memory already allowed, so allow request
+        return true;
       }
     },
 
     /**
      * Check if distributed rate limiting is active
      */
+    isDistributed(): boolean {
+      return isKVAvailable();
+    },
+  };
+}
+
+/**
+ * Daily budget configuration
+ * Limits total requests per IP per day to control costs
+ */
+const DAILY_BUDGET_CONFIG = {
+  /** Maximum requests per IP per day */
+  MAX_DAILY_REQUESTS: 100,
+  /** Budget window in milliseconds (24 hours) */
+  WINDOW_MS: 24 * 60 * 60 * 1000,
+} as const;
+
+/**
+ * Create a KV-backed daily budget tracker
+ *
+ * Provides per-IP daily request limits to control API costs.
+ * Falls back gracefully when KV is unavailable.
+ */
+export function createKVDailyBudget(kv: KVNamespace | undefined) {
+  const BUDGET_PREFIX = 'budget:';
+
+  function isKVAvailable(): boolean {
+    return kv !== undefined;
+  }
+
+  return {
+    /**
+     * Check if request is within daily budget and increment counter
+     * @returns true if within budget, false if exceeded
+     */
+    async checkAndIncrement(identifier: string): Promise<boolean> {
+      if (!isKVAvailable()) {
+        // No KV = no budget enforcement (fail open)
+        return true;
+      }
+
+      const kvKey = BUDGET_PREFIX + identifier;
+      const now = Date.now();
+
+      try {
+        const entry = await kv!.get(kvKey, 'json') as { count: number; resetTime: number } | null;
+
+        if (!entry || now > entry.resetTime) {
+          // New day - reset budget
+          const newEntry = {
+            count: 1,
+            resetTime: now + DAILY_BUDGET_CONFIG.WINDOW_MS,
+          };
+          // TTL slightly longer than window
+          const expirationTtl = Math.ceil(DAILY_BUDGET_CONFIG.WINDOW_MS / 1000) + 3600;
+          await kv!.put(kvKey, JSON.stringify(newEntry), { expirationTtl });
+          return true;
+        }
+
+        if (entry.count >= DAILY_BUDGET_CONFIG.MAX_DAILY_REQUESTS) {
+          return false;
+        }
+
+        // Increment counter
+        entry.count++;
+        const remainingMs = entry.resetTime - now;
+        const expirationTtl = Math.ceil(remainingMs / 1000) + 3600;
+        await kv!.put(kvKey, JSON.stringify(entry), { expirationTtl });
+        return true;
+      } catch {
+        // KV errors - fail open to not block users
+        return true;
+      }
+    },
+
+    /**
+     * Get remaining budget for an identifier
+     */
+    async getRemaining(identifier: string): Promise<number> {
+      if (!isKVAvailable()) {
+        return DAILY_BUDGET_CONFIG.MAX_DAILY_REQUESTS;
+      }
+
+      const kvKey = BUDGET_PREFIX + identifier;
+      try {
+        const entry = await kv!.get(kvKey, 'json') as { count: number; resetTime: number } | null;
+        if (!entry || Date.now() > entry.resetTime) {
+          return DAILY_BUDGET_CONFIG.MAX_DAILY_REQUESTS;
+        }
+        return Math.max(0, DAILY_BUDGET_CONFIG.MAX_DAILY_REQUESTS - entry.count);
+      } catch {
+        return DAILY_BUDGET_CONFIG.MAX_DAILY_REQUESTS;
+      }
+    },
+
+    isDistributed(): boolean {
+      return isKVAvailable();
+    },
+  };
+}
+
+/**
+ * KV-backed circuit breaker configuration
+ */
+const KV_CIRCUIT_BREAKER_CONFIG = {
+  FAILURE_THRESHOLD: 5,
+  RESET_TIMEOUT_MS: 30000,
+} as const;
+
+/**
+ * Create a KV-backed circuit breaker for cross-isolate state sharing
+ *
+ * Uses a hybrid approach for consistent latency:
+ * - In-memory breaker is authoritative (synchronous, no blocking)
+ * - KV provides cross-isolate awareness with eventual consistency
+ * - Both must allow the request (either open = blocked)
+ */
+export function createKVCircuitBreaker(
+  kv: KVNamespace | undefined,
+  toolName: string,
+  inMemoryBreaker: {
+    check: () => boolean;
+    recordSuccess: () => void;
+    recordFailure: () => void;
+    getState: () => CircuitBreakerState;
+  }
+) {
+  const CB_PREFIX = 'circuitbreaker:';
+  const kvKey = CB_PREFIX + toolName;
+
+  // Cache KV state locally to avoid blocking on every check
+  let cachedKVState: CircuitBreakerState | null = null;
+  let lastKVSync = 0;
+  const KV_SYNC_INTERVAL_MS = 5000; // Sync every 5 seconds
+
+  function isKVAvailable(): boolean {
+    return kv !== undefined;
+  }
+
+  function logKVError(operation: string, error: unknown): void {
+    if (import.meta.env.DEV) {
+      console.warn(`[kv-circuit-breaker] ${operation} failed:`, error);
+    }
+  }
+
+  return {
+    /**
+     * Check if circuit is closed (requests allowed)
+     *
+     * Non-blocking: uses in-memory as primary, syncs KV state in background
+     */
+    check(): boolean {
+      // In-memory is authoritative
+      const inMemoryAllowed = inMemoryBreaker.check();
+      if (!inMemoryAllowed) {
+        return false;
+      }
+
+      // Check cached KV state (non-blocking)
+      if (cachedKVState?.isOpen) {
+        const now = Date.now();
+        // Check if we should reset (half-open state)
+        if (now - cachedKVState.lastFailure > KV_CIRCUIT_BREAKER_CONFIG.RESET_TIMEOUT_MS) {
+          cachedKVState = null; // Reset cached state
+        } else {
+          return false; // KV circuit is open
+        }
+      }
+
+      // Sync KV state in background if stale
+      if (isKVAvailable() && Date.now() - lastKVSync > KV_SYNC_INTERVAL_MS) {
+        lastKVSync = Date.now();
+        kv!.get(kvKey, 'json')
+          .then((state) => {
+            cachedKVState = state as CircuitBreakerState | null;
+          })
+          .catch((error) => logKVError('background sync', error));
+      }
+
+      return true;
+    },
+
+    /**
+     * Record a successful request
+     */
+    recordSuccess(): void {
+      inMemoryBreaker.recordSuccess();
+      cachedKVState = null; // Clear cached state
+
+      if (!isKVAvailable()) return;
+
+      // Update KV in background (fire-and-forget)
+      const newState: CircuitBreakerState = {
+        failures: 0,
+        lastFailure: 0,
+        isOpen: false,
+      };
+      kv!.put(kvKey, JSON.stringify(newState), { expirationTtl: 3600 })
+        .catch((error) => logKVError('recordSuccess', error));
+    },
+
+    /**
+     * Record a failed request
+     */
+    recordFailure(): void {
+      inMemoryBreaker.recordFailure();
+
+      if (!isKVAvailable()) return;
+
+      // Update KV in background (fire-and-forget)
+      // Read current state, increment, and write back
+      kv!.get(kvKey, 'json')
+        .then((state) => {
+          const currentState = (state as CircuitBreakerState) || { failures: 0, lastFailure: 0, isOpen: false };
+          currentState.failures++;
+          currentState.lastFailure = Date.now();
+
+          if (currentState.failures >= KV_CIRCUIT_BREAKER_CONFIG.FAILURE_THRESHOLD) {
+            currentState.isOpen = true;
+          }
+
+          // Update cached state
+          cachedKVState = currentState;
+
+          return kv!.put(kvKey, JSON.stringify(currentState), { expirationTtl: 3600 });
+        })
+        .catch((error) => logKVError('recordFailure', error));
+    },
+
+    /**
+     * Get current state (for monitoring)
+     */
+    getState(): CircuitBreakerState {
+      // Return in-memory state (authoritative)
+      return inMemoryBreaker.getState();
+    },
+
+    /**
+     * Get KV state (for monitoring, async)
+     */
+    async getKVState(): Promise<CircuitBreakerState> {
+      if (!isKVAvailable()) {
+        return inMemoryBreaker.getState();
+      }
+
+      try {
+        const state = await kv!.get(kvKey, 'json') as CircuitBreakerState | null;
+        return state || { failures: 0, lastFailure: 0, isOpen: false };
+      } catch (error) {
+        logKVError('getKVState', error);
+        return inMemoryBreaker.getState();
+      }
+    },
+
     isDistributed(): boolean {
       return isKVAvailable();
     },

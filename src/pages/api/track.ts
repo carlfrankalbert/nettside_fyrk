@@ -25,6 +25,7 @@ export const TRACKED_BUTTONS = {
   okr_input_started: { key: 'okr_input_started', label: 'OKR startet å skrive' },
 
   // OKR-sjekken funnel events
+  okr_submit_attempted: { key: 'okr_submit_attempted', label: 'OKR innsending forsøkt' },
   check_success: { key: 'okr_check_success', label: 'OKR-sjekk fullført' },
   okr_error: { key: 'okr_error', label: 'OKR-sjekk feil' },
   feedback_up: { key: 'okr_feedback_up', label: 'Tilbakemelding: Nyttig' },
@@ -41,6 +42,7 @@ export const TRACKED_BUTTONS = {
   konseptspeil_copy_analysis: { key: 'konseptspeil_copy_analysis_clicks', label: 'Kopier analyse' },
 
   // Konseptspeilet funnel events
+  konseptspeil_submit_attempted: { key: 'konseptspeil_submit_attempted', label: 'Konseptspeil innsending forsøkt' },
   konseptspeil_success: { key: 'konseptspeil_success', label: 'Konseptspeil fullført' },
   konseptspeil_error: { key: 'konseptspeil_error', label: 'Konseptspeil feil' },
   konseptspeil_feedback_up: { key: 'konseptspeil_feedback_up', label: 'Tilbakemelding: Nyttig' },
@@ -55,6 +57,7 @@ export const TRACKED_BUTTONS = {
   antakelseskart_privacy_toggle: { key: 'antakelseskart_privacy_toggle_clicks', label: 'Les mer om AI og personvern' },
 
   // Antakelseskart funnel events
+  antakelseskart_submit_attempted: { key: 'antakelseskart_submit_attempted', label: 'Antakelseskart innsending forsøkt' },
   antakelseskart_success: { key: 'antakelseskart_success', label: 'Antakelseskart fullført' },
   antakelseskart_error: { key: 'antakelseskart_error', label: 'Antakelseskart feil' },
 
@@ -71,6 +74,7 @@ export const TRACKED_BUTTONS = {
   premortem_privacy_toggle: { key: 'premortem_privacy_toggle_clicks', label: 'Les mer om AI og personvern' },
 
   // Pre-Mortem funnel events
+  premortem_submit_attempted: { key: 'premortem_submit_attempted', label: 'Pre-Mortem innsending forsøkt' },
   premortem_success: { key: 'premortem_success', label: 'Pre-Mortem fullført' },
   premortem_error: { key: 'premortem_error', label: 'Pre-Mortem feil' },
 
@@ -111,11 +115,21 @@ function getHourKey(timestamp: number): string {
 }
 
 /**
- * Metadata for check_success events (no PII)
+ * Error types for analytics categorization
  */
-interface CheckSuccessMetadata {
+type ErrorType = 'timeout' | 'rate_limit' | 'budget_exceeded' | 'validation' | 'api_error' | 'network' | 'unknown';
+
+/**
+ * Metadata for events (no PII)
+ */
+interface EventMetadata {
   charCount?: number;
   processingTimeMs?: number;
+  errorType?: ErrorType;
+  cached?: boolean;
+  inputLength?: number;
+  toolVersion?: string;
+  sessionId?: string;
 }
 
 /**
@@ -149,12 +163,12 @@ export const POST: APIRoute = async ({ locals, request }) => {
 
     // Parse and verify signed request
     let buttonId: ButtonId = 'okr_submit'; // default for backwards compatibility
-    let metadata: CheckSuccessMetadata | undefined;
+    let metadata: EventMetadata | undefined;
     try {
       const rawBody = await request.json() as {
         payload?: {
           buttonId?: string;
-          metadata?: { charCount?: number; processingTimeMs?: number };
+          metadata?: EventMetadata;
         };
         _ts?: number;
         _sig?: string;
@@ -163,7 +177,7 @@ export const POST: APIRoute = async ({ locals, request }) => {
       // Verify request signature
       const verification = verifySignedRequest<{
         buttonId?: string;
-        metadata?: { charCount?: number; processingTimeMs?: number };
+        metadata?: EventMetadata;
       }>(rawBody);
 
       if (!verification.isValid) {
@@ -177,11 +191,16 @@ export const POST: APIRoute = async ({ locals, request }) => {
       if (body.buttonId && body.buttonId in TRACKED_BUTTONS) {
         buttonId = body.buttonId as ButtonId;
       }
-      // Extract metadata for check_success events (sanitized, no PII)
-      if (body.metadata && buttonId === 'check_success') {
+      // Extract and sanitize metadata (no PII)
+      if (body.metadata) {
         metadata = {
           charCount: typeof body.metadata.charCount === 'number' ? Math.round(body.metadata.charCount) : undefined,
           processingTimeMs: typeof body.metadata.processingTimeMs === 'number' ? Math.round(body.metadata.processingTimeMs) : undefined,
+          errorType: typeof body.metadata.errorType === 'string' ? body.metadata.errorType as ErrorType : undefined,
+          cached: typeof body.metadata.cached === 'boolean' ? body.metadata.cached : undefined,
+          inputLength: typeof body.metadata.inputLength === 'number' ? Math.round(body.metadata.inputLength) : undefined,
+          toolVersion: typeof body.metadata.toolVersion === 'string' ? body.metadata.toolVersion.slice(0, 20) : undefined,
+          sessionId: typeof body.metadata.sessionId === 'string' ? body.metadata.sessionId.slice(0, 30) : undefined,
         };
       }
     } catch {
@@ -220,14 +239,53 @@ export const POST: APIRoute = async ({ locals, request }) => {
       }),
     ];
 
-    // Store aggregated metadata for check_success events
-    if (buttonId === 'check_success' && metadata) {
-      const metricsKey = `metrics:check_success:${dateKey}`;
+    // Store aggregated metadata for events with metadata
+    if (metadata) {
+      const metricsKey = `metrics:${buttonId}:${dateKey}`;
       const existingMetricsJson = await kv.get(metricsKey);
-      let metrics = { count: 0, totalCharCount: 0, totalProcessingTimeMs: 0 };
+      let metrics: {
+        count: number;
+        totalCharCount: number;
+        totalProcessingTimeMs: number;
+        cachedCount: number;
+        freshCount: number;
+        errorTypes: Record<string, number>;
+        /** Estimated unique session count (not exact, uses hash-based deduplication) */
+        uniqueSessionCount: number;
+        /** Hash prefixes for deduplication (limited to 256 buckets for O(1) lookup) */
+        sessionHashBuckets: Record<string, boolean>;
+        /** Hourly distribution (0-23 UTC hours) */
+        hourlyDistribution: Record<string, number>;
+      } = {
+        count: 0,
+        totalCharCount: 0,
+        totalProcessingTimeMs: 0,
+        cachedCount: 0,
+        freshCount: 0,
+        errorTypes: {},
+        uniqueSessionCount: 0,
+        sessionHashBuckets: {},
+        hourlyDistribution: {},
+      };
+
       try {
         if (existingMetricsJson) {
-          metrics = JSON.parse(existingMetricsJson);
+          const parsed = JSON.parse(existingMetricsJson);
+          metrics = {
+            ...metrics,
+            ...parsed,
+          };
+          // Migrate old uniqueSessions array to count (backwards compat)
+          if (parsed.uniqueSessions && Array.isArray(parsed.uniqueSessions)) {
+            metrics.uniqueSessionCount = Math.max(
+              metrics.uniqueSessionCount || 0,
+              parsed.uniqueSessions.length
+            );
+          }
+          // Ensure new fields exist
+          if (!metrics.sessionHashBuckets) metrics.sessionHashBuckets = {};
+          if (!metrics.hourlyDistribution) metrics.hourlyDistribution = {};
+          if (!metrics.errorTypes) metrics.errorTypes = {};
         }
       } catch {
         // Reset if parsing fails
@@ -240,6 +298,28 @@ export const POST: APIRoute = async ({ locals, request }) => {
       if (metadata.processingTimeMs) {
         metrics.totalProcessingTimeMs += metadata.processingTimeMs;
       }
+      if (metadata.cached === true) {
+        metrics.cachedCount += 1;
+      } else if (metadata.cached === false) {
+        metrics.freshCount += 1;
+      }
+      if (metadata.errorType) {
+        metrics.errorTypes[metadata.errorType] = (metrics.errorTypes[metadata.errorType] || 0) + 1;
+      }
+
+      // Track unique sessions using hash buckets (constant memory, ~256 entries max)
+      // Uses first 2 chars of session ID as bucket key for O(1) deduplication
+      if (metadata.sessionId) {
+        const hashBucket = metadata.sessionId.slice(0, 2);
+        if (!metrics.sessionHashBuckets[hashBucket]) {
+          metrics.sessionHashBuckets[hashBucket] = true;
+          metrics.uniqueSessionCount += 1;
+        }
+      }
+
+      // Track hourly distribution (UTC hours 0-23)
+      const utcHour = String(new Date(timestamp).getUTCHours());
+      metrics.hourlyDistribution[utcHour] = (metrics.hourlyDistribution[utcHour] || 0) + 1;
 
       writePromises.push(
         kv.put(metricsKey, JSON.stringify(metrics), {

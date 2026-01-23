@@ -10,6 +10,7 @@ import { PAGE_ROUTES } from '../utils/constants';
  * Navigation links for the landing page
  */
 export const navLinks = [
+  { href: '#tjenester', label: 'Tjenester' },
   { href: '#om', label: 'Om' },
   { href: '#verktoy', label: 'Verktøy' },
   { href: '#kontakt', label: 'Kontakt' },
@@ -19,10 +20,11 @@ export const navLinks = [
  * Hero section content
  */
 export const heroContent = {
-  tagline: 'Når hverdagen er kompleks og kravene mange',
-  headline: 'Produktledelse som gjør strategi til handling',
-  description: 'FYRK hjelper team som vil levere, ikke bare planlegge. Med struktur som tåler endringer uten å miste fart.',
-  ctaText: 'Kontakt FYRK',
+  tagline: 'FYRK',
+  headline: 'Klarhet før du forplikter deg.',
+  description: 'Jeg hjelper ledergrupper og produktansvarlige med å ta bedre beslutninger før forpliktelse.',
+  subDescription: 'Når det trengs, går jeg også inn interim for å sikre gjennomføring.',
+  ctaText: 'Ta kontakt',
   ctaHref: '#kontakt',
 } as const;
 
@@ -40,7 +42,47 @@ export const situationsContent = {
 } as const;
 
 /**
- * Core competencies section content
+ * Services section content
+ * Decision Audit is primary, others are secondary
+ */
+export const servicesContent = {
+  title: 'Tjenester',
+  services: [
+    {
+      title: 'Decision Audit',
+      description: 'Når beslutningen er for viktig til å tas på magefølelse.',
+      details: 'En strukturert gjennomgang av én konkret beslutning – før antagelser blir forpliktelser.',
+      href: '/services/decision-audit',
+      ctaText: 'Les mer',
+      isPrimary: true,
+      // Target/checkmark icon - decision quality
+      iconPath: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
+    },
+    {
+      title: 'Interim Product Manager',
+      description: 'Senior produktledelse, hands-on fra uke 1.',
+      details: 'For team som trenger erfaren produktleder på kort varsel.',
+      href: '#kontakt',
+      ctaText: 'Avklar behov',
+      isPrimary: false,
+      // Chart/strategy icon
+      iconPath: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
+    },
+    {
+      title: 'Quality & Delivery Lead',
+      description: 'Kontroll på flyt, kvalitet og leveranser i komplekse miljøer.',
+      details: 'For organisasjoner som vil ha struktur uten å miste fart.',
+      href: '#kontakt',
+      ctaText: 'Avklar behov',
+      isPrimary: false,
+      // Quality checkmark icon
+      iconPath: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+    },
+  ],
+} as const;
+
+/**
+ * Core competencies section content (legacy, kept for reference)
  */
 export const competenciesContent = {
   title: 'Kjernekompetanse',
@@ -69,10 +111,10 @@ export const competenciesContent = {
 export const aboutContent = {
   title: 'Hvem står bak',
   whyFyrk: {
-    heading: 'Hvorfor FYRK?',
+    heading: 'Om FYRK',
     paragraphs: [
-      'Jeg startet FYRK fordi jeg vil drive forandring og forenkling. For mange team sitter fast i tunge prosesser, uklare prioriteringer og kvalitet som kommer for sent. Det trenger ikke være sånn.',
-      'FYRK skal bli et kompetansesenter for smidig produktutvikling med kvalitetsfokus – et sted der erfaring fra komplekse miljøer møter praktisk gjennomføringskraft.',
+      'Jeg har bakgrunn som senior produktleder og beslutningsstøtte i komplekse, regulerte miljøer innen bank og finans, og har jobbet med beslutninger som har hatt betydelige økonomiske og organisatoriske konsekvenser.',
+      'FYRK er bygget for én ting: å gi deg et bedre grunnlag før du forplikter deg.',
     ],
   },
   founder: {
@@ -83,11 +125,6 @@ export const aboutContent = {
       'Blir ofte brukt når det trengs tydelige prioriteringer uten å skape unødvendig uro.',
     ],
     experience: 'Bakgrunn fra bl.a. SpareBank 1, Vipps og offentlig sektor. Lang erfaring med å skape struktur som tåler endring – i komplekse, regulerte miljøer.',
-    testimonial: {
-      quote: 'Det har vært en fornøyelse å samarbeide med Carl. Han er tydelig, konkret, robust og god til å kommunisere med utviklingsteamet og interessenter rundt teamet. Som produktleder har han vist vei i en reorganisering av et stort team til to mindre team som dekker et komplekst og tungt domene (Betaling). Med høyt arbeidspress, krevende systemavhengigheter kombinert med mange interessenter ute i bank har Carl ledet an skyreisen på en solid måte.',
-      role: 'Utviklingsleder',
-      company: 'SpareBank 1',
-    },
     linkedinCta: {
       text: 'Se komplett CV på LinkedIn',
       href: EXTERNAL_LINKS.linkedinPersonal,

@@ -82,16 +82,27 @@ export function getClientIP(request: Request): string {
 }
 
 /**
+ * Options for fetch with retry
+ */
+export interface FetchWithRetryOptions {
+  config?: RetryConfig;
+  requestId?: string;
+}
+
+/**
  * Fetch with retry logic and exponential backoff
  */
 export async function fetchWithRetry(
   url: string,
   options: RequestInit,
   timeoutMs: number,
-  config: RetryConfig = RETRY_CONFIG
+  retryOptions: FetchWithRetryOptions = {}
 ): Promise<Response> {
+  const { config = RETRY_CONFIG, requestId } = retryOptions;
   let lastError: Error | null = null;
   let lastResponse: Response | null = null;
+
+  const logContext = requestId ? ` [${requestId}]` : '';
 
   for (let attempt = 0; attempt <= config.MAX_RETRIES; attempt++) {
     const controller = new AbortController();
@@ -117,7 +128,7 @@ export async function fetchWithRetry(
 
       const retryDelay = calculateBackoffDelay(attempt, config);
       console.warn(
-        `Anthropic API returned ${response.status}, retrying in ${Math.round(retryDelay)}ms (attempt ${attempt + 1}/${config.MAX_RETRIES})`
+        `${logContext} Anthropic API returned ${response.status}, retrying in ${Math.round(retryDelay)}ms (attempt ${attempt + 1}/${config.MAX_RETRIES})`
       );
 
       await sleep(retryDelay);
@@ -135,7 +146,7 @@ export async function fetchWithRetry(
 
       const retryDelay = calculateBackoffDelay(attempt, config);
       console.warn(
-        `Anthropic API request failed, retrying in ${Math.round(retryDelay)}ms (attempt ${attempt + 1}/${config.MAX_RETRIES})`
+        `${logContext} Anthropic API request failed, retrying in ${Math.round(retryDelay)}ms (attempt ${attempt + 1}/${config.MAX_RETRIES})`
       );
 
       await sleep(retryDelay);

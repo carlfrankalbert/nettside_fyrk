@@ -1,7 +1,7 @@
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 interface KPICardProps {
-  title: string;
+  title: React.ReactNode;
   value: number | string;
   subtitle?: string;
   icon?: React.ReactNode;

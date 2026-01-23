@@ -1,0 +1,47 @@
+---
+/**
+ * Breadcrumb navigation component
+ * Provides visual indication of page hierarchy
+ */
+
+interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  items: BreadcrumbItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<nav aria-label="Brødsmulesti" class="mb-8">
+  <ol class="flex items-center gap-1 text-sm text-neutral-500">
+    <li>
+      <a href="/" class="inline-flex items-center px-2 py-1.5 min-h-[44px] rounded hover:text-brand-navy hover:bg-neutral-100 transition-colors">
+        Hjem
+      </a>
+    </li>
+    {items.map((item) => (
+      <>
+        <li aria-hidden="true" class="text-neutral-400">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </li>
+        <li>
+          {item.href ? (
+            <a href={item.href} class="inline-flex items-center px-2 py-1.5 min-h-[44px] rounded hover:text-brand-navy hover:bg-neutral-100 transition-colors">
+              {item.label}
+            </a>
+          ) : (
+            <span class="inline-flex items-center px-2 py-1.5 min-h-[44px] text-brand-navy font-medium" aria-current="page">
+              {item.label}
+            </span>
+          )}
+        </li>
+      </>
+    ))}
+  </ol>
+</nav>

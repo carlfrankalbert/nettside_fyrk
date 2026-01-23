@@ -38,6 +38,8 @@ interface MetricsState {
 interface KVMetrics {
   /** ISO date string for the hour */
   hour: string;
+  /** Tool version (for before/after comparison) */
+  version?: string;
   /** Request counts by type */
   counts: Record<MetricType, number>;
   /** Latency histogram buckets */
@@ -48,9 +50,14 @@ interface KVMetrics {
 
 /**
  * Create SLO monitor for a specific tool
+ *
+ * @param toolName - Tool identifier
+ * @param kv - Optional KV namespace for persistence
+ * @param version - Optional version string for before/after comparison (e.g., 'v1', 'v2')
  */
-export function createSLOMonitor(toolName: ToolName, kv?: KVNamespace) {
-  const KV_PREFIX = `slo:${toolName}:`;
+export function createSLOMonitor(toolName: ToolName, kv?: KVNamespace, version?: string) {
+  const versionSuffix = version ? `:${version}` : '';
+  const KV_PREFIX = `slo:${toolName}${versionSuffix}:`;
   const FLUSH_INTERVAL_MS = 60_000; // Flush to KV every minute
 
   // In-memory state for current Worker isolate
@@ -139,6 +146,7 @@ export function createSLOMonitor(toolName: ToolName, kv?: KVNamespace) {
 
       const metrics: KVMetrics = {
         hour: hourKey,
+        version,
         counts: newCounts,
         latencyBuckets: newHistogram,
         updatedAt: Date.now(),
