@@ -30,6 +30,8 @@ import {
   createJsonResponse,
   createErrorResponse,
 } from './streaming-response';
+import { createKVCacheManager, createKVRateLimiter } from './kv-cache';
+import { createSLOMonitor } from './slo-monitoring';
 
 /**
  * Tool name type for rate limit logging
@@ -98,6 +100,7 @@ interface ToolState {
   cacheManager: ReturnType<typeof createServerCacheManager>;
   rateLimiter: ReturnType<typeof createRateLimiter>;
   circuitBreaker: ReturnType<typeof createCircuitBreaker>;
+  sloMonitor: ReturnType<typeof createSLOMonitor>;
   lastCleanupTime: number;
 }
 
@@ -120,14 +123,23 @@ export function createAIToolHandler(config: AIToolConfig) {
   } = config;
 
   // Create shared state (persists across requests in same Worker isolate)
+  // KV-backed cache and rate limiter are initialized lazily per-request
+  // since we need access to the Cloudflare env
   const state: ToolState = {
     cacheManager: createServerCacheManager(),
     rateLimiter: createRateLimiter(),
     circuitBreaker: createCircuitBreaker(),
+    sloMonitor: createSLOMonitor(toolName),
     lastCleanupTime: Date.now(),
   };
 
+  // Track if KV resources have been initialized for this Worker isolate
+  let kvCacheManager: ReturnType<typeof createKVCacheManager> | null = null;
+  let kvRateLimiter: ReturnType<typeof createKVRateLimiter> | null = null;
+
   return async function handler({ request, locals }: APIContext): Promise<Response> {
+    const requestStartTime = Date.now();
+
     try {
       // Validate Content-Type
       const contentType = request.headers.get('content-type');
@@ -165,11 +177,25 @@ export function createAIToolHandler(config: AIToolConfig) {
       }
 
       const cloudflareEnv = (locals as App.Locals).runtime?.env;
+      const analyticsKV = cloudflareEnv?.ANALYTICS_KV;
 
-      // Rate limiting
+      // Initialize KV-backed resources lazily (once per Worker isolate)
+      if (analyticsKV && !kvCacheManager) {
+        kvCacheManager = createKVCacheManager(analyticsKV, state.cacheManager);
+        kvRateLimiter = createKVRateLimiter(analyticsKV, state.rateLimiter);
+        // Update SLO monitor with KV reference
+        state.sloMonitor = createSLOMonitor(toolName, analyticsKV);
+      }
+
+      // Rate limiting (use KV-backed if available for distributed limiting)
       const clientIP = getClientIP(request);
-      if (!state.rateLimiter.checkAndUpdate(clientIP)) {
-        logRateLimitHit(cloudflareEnv?.ANALYTICS_KV, toolName).catch((err) => {
+      const rateLimitAllowed = kvRateLimiter
+        ? await kvRateLimiter.checkAndUpdate(clientIP)
+        : state.rateLimiter.checkAndUpdate(clientIP);
+
+      if (!rateLimitAllowed) {
+        state.sloMonitor.recordRateLimit();
+        logRateLimitHit(analyticsKV, toolName).catch((err) => {
           // Log in dev, silently ignore in production (non-critical analytics)
           if (import.meta.env.DEV) {
             console.warn('[ai-tool-handler] Failed to log rate limit hit:', err);
@@ -208,11 +234,16 @@ export function createAIToolHandler(config: AIToolConfig) {
           });
       }
 
-      // Check cache
+      // Check cache (KV-backed if available for distributed caching)
       const cacheKey = await hashInput(`${cacheKeyPrefix}:${trimmedInput}`);
-      const cachedEntry = state.cacheManager.get(cacheKey);
+      const cachedEntry = kvCacheManager
+        ? await kvCacheManager.get(cacheKey)
+        : state.cacheManager.get(cacheKey);
 
       if (cachedEntry) {
+        const latencyMs = Date.now() - requestStartTime;
+        state.sloMonitor.recordRequest({ statusCode: 200, latencyMs, cached: true });
+
         if (stream) {
           return createCachedStreamingResponse(cachedEntry.output);
         }
@@ -241,9 +272,34 @@ export function createAIToolHandler(config: AIToolConfig) {
           userMessage,
           timeoutMs: streamingTimeoutMs,
           validateOutput,
-          onCache: (output) => state.cacheManager.set(cacheKey, output),
-          onSuccess: useCircuitBreaker ? () => state.circuitBreaker.recordSuccess() : undefined,
-          onFailure: useCircuitBreaker ? () => state.circuitBreaker.recordFailure() : undefined,
+          onCache: (output) => {
+            // Use KV cache if available, falls back to in-memory
+            if (kvCacheManager) {
+              kvCacheManager.set(cacheKey, output).catch(() => {/* ignore */});
+            } else {
+              state.cacheManager.set(cacheKey, output);
+            }
+          },
+          onSuccess: useCircuitBreaker
+            ? () => {
+                state.circuitBreaker.recordSuccess();
+                const latencyMs = Date.now() - requestStartTime;
+                state.sloMonitor.recordRequest({ statusCode: 200, latencyMs, cached: false });
+              }
+            : () => {
+                const latencyMs = Date.now() - requestStartTime;
+                state.sloMonitor.recordRequest({ statusCode: 200, latencyMs, cached: false });
+              },
+          onFailure: useCircuitBreaker
+            ? () => {
+                state.circuitBreaker.recordFailure();
+                const latencyMs = Date.now() - requestStartTime;
+                state.sloMonitor.recordError(500, latencyMs);
+              }
+            : () => {
+                const latencyMs = Date.now() - requestStartTime;
+                state.sloMonitor.recordError(500, latencyMs);
+              },
         });
       }
 
@@ -269,6 +325,8 @@ export function createAIToolHandler(config: AIToolConfig) {
         if (useCircuitBreaker) {
           state.circuitBreaker.recordFailure();
         }
+        const latencyMs = Date.now() - requestStartTime;
+        state.sloMonitor.recordError(504, latencyMs);
         if (error instanceof Error && error.name === 'AbortError') {
           return createErrorResponse('Forespørselen tok for lang tid', 504, 'Prøv igjen om litt');
         }
@@ -279,6 +337,8 @@ export function createAIToolHandler(config: AIToolConfig) {
         if (useCircuitBreaker) {
           state.circuitBreaker.recordFailure();
         }
+        const latencyMs = Date.now() - requestStartTime;
+        state.sloMonitor.recordError(anthropicResponse.status, latencyMs);
         const errorData = (await anthropicResponse.json()) as AnthropicErrorResponse;
         console.error('Anthropic API error:', anthropicResponse.status, errorData);
         return createErrorResponse(
@@ -298,6 +358,8 @@ export function createAIToolHandler(config: AIToolConfig) {
       // Validate output format
       if (!validateOutput(output)) {
         console.warn(`${toolName}: Output format validation failed - possible prompt injection`);
+        const latencyMs = Date.now() - requestStartTime;
+        state.sloMonitor.recordError(422, latencyMs);
         return createErrorResponse(
           errorMessage,
           422,
@@ -305,8 +367,15 @@ export function createAIToolHandler(config: AIToolConfig) {
         );
       }
 
-      // Cache valid output
-      state.cacheManager.set(cacheKey, output);
+      // Cache valid output (KV-backed if available)
+      if (kvCacheManager) {
+        kvCacheManager.set(cacheKey, output).catch(() => {/* ignore */});
+      } else {
+        state.cacheManager.set(cacheKey, output);
+      }
+
+      const latencyMs = Date.now() - requestStartTime;
+      state.sloMonitor.recordRequest({ statusCode: 200, latencyMs, cached: false });
 
       return createJsonResponse({ output, cached: false }, { cacheStatus: 'MISS' });
     } catch (err) {
@@ -316,6 +385,9 @@ export function createAIToolHandler(config: AIToolConfig) {
       if (isDev && err instanceof Error) {
         console.error('Error stack:', err.stack);
       }
+
+      const latencyMs = Date.now() - requestStartTime;
+      state.sloMonitor.recordError(500, latencyMs);
 
       const errorDetails = err instanceof Error ? err.message : ERROR_MESSAGES.UNKNOWN_ERROR;
       return createErrorResponse(errorMessage, 500, errorDetails);
