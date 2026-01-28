@@ -1,0 +1,112 @@
+---
+/**
+ * Services section for the landing page
+ * Displays services with Beslutningsgjennomgang as primary anchor
+ */
+
+interface Service {
+  title: string;
+  description: string;
+  details?: string;
+  href: string;
+  ctaText: string;
+  isPrimary?: boolean;
+  iconPath?: string;
+}
+
+interface Props {
+  title: string;
+  services: readonly Service[];
+}
+
+const { title, services } = Astro.props;
+---
+
+<section id="tjenester" class="py-20 md:py-28 px-6 bg-white relative overflow-hidden scroll-mt-20">
+  <!-- Subtle diagonal FYRK signature element -->
+  <div class="absolute inset-0 pointer-events-none">
+    <div class="absolute -right-1/4 top-1/4 w-[800px] h-[400px] bg-gradient-to-br from-brand-navy/[0.04] to-transparent rotate-[-25deg] rounded-[100px]"></div>
+  </div>
+
+  <div class="max-w-4xl mx-auto relative z-10">
+    <h2 class="text-h2 font-semibold text-brand-navy mb-12 text-center">
+      {title}
+    </h2>
+
+    <div class="space-y-6 mb-8">
+      {services.map((service) => (
+        <article
+          class:list={[
+            'relative rounded-xl border transition-all',
+            service.isPrimary
+              ? 'bg-brand-navy text-white border-brand-navy p-8 md:p-10 shadow-lg'
+              : 'bg-white text-neutral-700 border-neutral-200 p-6 md:p-8 hover:border-neutral-300 hover:shadow-sm'
+          ]}
+        >
+          <div class="flex flex-col md:flex-row md:items-start gap-4 md:gap-6">
+            {service.iconPath && (
+              <div class:list={[
+                'flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center',
+                service.isPrimary ? 'bg-white/10' : 'bg-neutral-100'
+              ]}>
+                <svg
+                  class:list={['w-6 h-6', service.isPrimary ? 'text-white' : 'text-brand-navy']}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d={service.iconPath} />
+                </svg>
+              </div>
+            )}
+
+            <div class="flex-1">
+              <h3 class:list={[
+                'font-semibold mb-2',
+                service.isPrimary ? 'text-h3 text-white' : 'text-h4 text-brand-navy'
+              ]}>
+                {service.title}
+              </h3>
+
+              <p class:list={[
+                'mb-3',
+                service.isPrimary ? 'text-lg text-white/90' : 'text-neutral-600'
+              ]}>
+                {service.description}
+              </p>
+
+              {service.details && (
+                <p class:list={[
+                  'mb-4',
+                  service.isPrimary ? 'text-white/80' : 'text-neutral-500'
+                ]}>
+                  {service.details}
+                </p>
+              )}
+
+              <a
+                href={service.href}
+                class:list={[
+                  'inline-flex items-center gap-1 font-medium transition-colors py-2 px-3 -ml-3 rounded-lg min-h-[44px]',
+                  service.isPrimary
+                    ? 'text-white hover:bg-white/10'
+                    : 'text-brand-navy hover:bg-neutral-100'
+                ]}
+              >
+                {service.ctaText}
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <p class="text-sm text-neutral-500 text-center">
+      Tjenestene er beslutningsstøtte for virksomheter (B2B). Endelige beslutninger tas av kunden. <a href="/personvern" class="underline hover:text-brand-navy">Personvern</a>.
+    </p>
+  </div>
+</section>

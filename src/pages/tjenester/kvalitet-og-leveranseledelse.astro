@@ -1,0 +1,169 @@
+---
+/**
+ * Kvalitet og leveranseledelse service page
+ * Secondary service offering from FYRK
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/ui/Breadcrumb.astro';
+import { EXTERNAL_LINKS } from '../../utils/links';
+
+const breadcrumbItems = [
+  { label: 'Tjenester', href: '/#tjenester' },
+  { label: 'Kvalitet og leveranseledelse' },
+];
+---
+
+<BaseLayout
+  title="Kvalitet og leveranseledelse | FYRK"
+  description="Kvalitet og leveranseledelse i komplekse miljøer. Mer forutsigbar flyt, færre overraskelser og tydeligere ansvar."
+>
+  <article class="py-16 md:py-24 px-6">
+    <div class="max-w-3xl mx-auto">
+      <Breadcrumb items={breadcrumbItems} />
+
+      <!-- Header -->
+      <header class="mb-12">
+        <h1 class="text-h2 md:text-h1 font-semibold text-brand-navy mb-4 leading-tight">
+          Kvalitet og leveranseledelse
+        </h1>
+        <p class="text-xl md:text-2xl text-neutral-600 leading-relaxed">
+          Kvalitet og leveranseledelse i komplekse IT-miljøer – med fokus på forutsigbarhet og kontroll.
+        </p>
+      </header>
+
+      <!-- Når dette er aktuelt -->
+      <section class="mb-12">
+        <h2 class="text-h3 font-semibold text-brand-navy mb-6">
+          Når dette er aktuelt
+        </h2>
+        <ul class="space-y-4 text-neutral-700">
+          <li class="flex items-start gap-3">
+            <span class="text-brand-navy font-semibold">•</span>
+            <span>Feil er dyre, og risiko må håndteres før release.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-brand-navy font-semibold">•</span>
+            <span>Leveranser stopper opp i avhengigheter og friksjon.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-brand-navy font-semibold">•</span>
+            <span>Kvalitet og flyt er uforutsigbar.</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Hva jeg tar ansvar for -->
+      <section class="mb-12">
+        <h2 class="text-h3 font-semibold text-brand-navy mb-6">
+          Hva jeg tar ansvar for
+        </h2>
+        <ul class="space-y-4 text-neutral-700">
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-brand-navy flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span>Tydeliggjøre flyt og ansvar i leveranseløpet</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-brand-navy flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span>Redusere overraskelser med enkel, effektiv kvalitetssikring</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-brand-navy flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span>Forbedre prioritering, triage og beslutningsflyt</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-brand-navy flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span>Skape forutsigbarhet uten å senke tempo</span>
+          </li>
+        </ul>
+        <p class="mt-6 text-neutral-700">
+          Målet er forbedring av leveranseflyt og kvalitet uten å senke tempo – slik at teamet kan levere tryggere og raskere.
+        </p>
+      </section>
+
+      <!-- Oppstart -->
+      <section class="mb-12">
+        <h2 class="text-h3 font-semibold text-brand-navy mb-6">
+          Oppstart
+        </h2>
+        <ol class="space-y-6 text-neutral-700">
+          <li class="flex items-start gap-4">
+            <span class="flex-shrink-0 w-8 h-8 bg-brand-navy text-white rounded-full flex items-center justify-center text-sm font-semibold">1</span>
+            <div>
+              <p class="font-semibold text-brand-navy mb-1">Kort avklaringssamtale</p>
+              <p>Vi går gjennom situasjonen og avklarer om det er grunnlag for samarbeid.</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-4">
+            <span class="flex-shrink-0 w-8 h-8 bg-brand-navy text-white rounded-full flex items-center justify-center text-sm font-semibold">2</span>
+            <div>
+              <p class="font-semibold text-brand-navy mb-1">Rask gjennomgang</p>
+              <p>Jeg kartlegger leveranseløp og risikopunkter.</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-4">
+            <span class="flex-shrink-0 w-8 h-8 bg-brand-navy text-white rounded-full flex items-center justify-center text-sm font-semibold">3</span>
+            <div>
+              <p class="font-semibold text-brand-navy mb-1">Plan for første forbedringer</p>
+              <p>Konkret plan for de første 1–2 ukene med synlige forbedringer.</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <!-- FAQ -->
+      <section class="mb-12">
+        <h2 class="text-h3 font-semibold text-brand-navy mb-6">
+          Vanlige spørsmål
+        </h2>
+        <div class="space-y-6">
+          <div class="border-b border-neutral-200 pb-6">
+            <h3 class="font-semibold text-brand-navy mb-2">Er dette testledelse?</h3>
+            <p class="text-neutral-700">Delvis, men bredere. Det handler om hele leveranseløpet – fra prioritering til release – ikke bare test. Målet er forutsigbarhet og kvalitet i hele flyten.</p>
+          </div>
+          <div class="border-b border-neutral-200 pb-6">
+            <h3 class="font-semibold text-brand-navy mb-2">Hvordan måler vi effekt de første ukene?</h3>
+            <p class="text-neutral-700">Vi definerer enkle, konkrete mål sammen – for eksempel redusert ledetid, færre blokkerte saker, eller tydeligere ansvarsfordeling. Effekten skal være synlig raskt.</p>
+          </div>
+          <div class="pb-6">
+            <h3 class="font-semibold text-brand-navy mb-2">Passer dette i regulerte miljøer?</h3>
+            <p class="text-neutral-700">Ja. Jeg har erfaring fra bank, finans og offentlig sektor, og jobber aktivt med mer forutsigbare leveranser i regulerte og risikoutsatte miljøer der compliance er en del av hverdagen.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Internal link -->
+      <section class="mb-12">
+        <p class="text-neutral-700">
+          Hvis dere står foran en vanskelig beslutning, start med <a href="/tjenester/beslutningsgjennomgang" class="text-brand-navy underline hover:text-brand-cyan-darker">Beslutningsgjennomgang</a>.
+        </p>
+      </section>
+
+      <!-- CTA -->
+      <section class="p-8 bg-white rounded-xl border border-neutral-200 text-center shadow-sm">
+        <h2 class="text-h3 font-semibold text-brand-navy mb-4">
+          Klar for en samtale?
+        </h2>
+        <p class="text-neutral-700 mb-6">
+          En kort avklaringssamtale gir raskt svar på om dette er riktig match.
+        </p>
+        <a
+          href={EXTERNAL_LINKS.email}
+          class="btn btn-primary no-underline"
+        >
+          Avklar behov
+        </a>
+        <p class="text-sm text-neutral-500 mt-6">
+          Informasjon delt i samtalen behandles konfidensielt. <a href="/personvern" class="underline hover:text-brand-navy">Les mer om personvern</a>.
+        </p>
+      </section>
+    </div>
+  </article>
+</BaseLayout>
