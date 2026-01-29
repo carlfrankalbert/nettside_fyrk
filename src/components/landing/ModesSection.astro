@@ -1,0 +1,94 @@
+---
+/**
+ * Modes section component
+ * Explains the two operating modes: advisory vs operational
+ */
+
+interface Mode {
+  title: string;
+  subtitle: string;
+  description: string;
+  characteristics: readonly string[];
+  isHighlight?: boolean;
+}
+
+interface Props {
+  title?: string;
+  intro?: string;
+  modes: readonly Mode[];
+  footnote?: string;
+}
+
+const { title, intro, modes, footnote } = Astro.props;
+---
+
+<section class="py-16 md:py-20 px-6 bg-white">
+  <div class="max-w-4xl mx-auto">
+    {title && (
+      <h2 class="text-h3 font-semibold text-brand-navy mb-4 text-center">
+        {title}
+      </h2>
+    )}
+
+    {intro && (
+      <p class="text-neutral-600 text-center mb-10 max-w-2xl mx-auto">
+        {intro}
+      </p>
+    )}
+
+    <div class="grid md:grid-cols-2 gap-6">
+      {modes.map((mode) => (
+        <div
+          class:list={[
+            'rounded-xl p-6 md:p-8 border',
+            mode.isHighlight
+              ? 'bg-brand-navy text-white border-brand-navy'
+              : 'bg-neutral-50 border-neutral-200'
+          ]}
+        >
+          <p class:list={[
+            'text-sm font-medium uppercase tracking-wide mb-2',
+            mode.isHighlight ? 'text-white/70' : 'text-neutral-500'
+          ]}>
+            {mode.subtitle}
+          </p>
+
+          <h3 class:list={[
+            'text-h4 font-semibold mb-3',
+            mode.isHighlight ? 'text-white' : 'text-brand-navy'
+          ]}>
+            {mode.title}
+          </h3>
+
+          <p class:list={[
+            'mb-4',
+            mode.isHighlight ? 'text-white/90' : 'text-neutral-600'
+          ]}>
+            {mode.description}
+          </p>
+
+          <ul class:list={[
+            'space-y-2 text-sm',
+            mode.isHighlight ? 'text-white/80' : 'text-neutral-500'
+          ]}>
+            {mode.characteristics.map((char) => (
+              <li class="flex items-start gap-2">
+                <span class:list={[
+                  'mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0',
+                  mode.isHighlight ? 'bg-white/60' : 'bg-brand-navy/40'
+                ]}></span>
+                {char}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+
+    {footnote && (
+      <p class="text-sm text-neutral-500 text-center mt-8 max-w-2xl mx-auto">
+        {footnote}
+      </p>
+    )}
+  </div>
+</section>

@@ -1,0 +1,45 @@
+---
+/**
+ * Choice callout component
+ * 3-line brutal choice logic to help visitors find the right service
+ */
+
+interface Choice {
+  condition: string;
+  action: string;
+  href: string;
+}
+
+interface Props {
+  title?: string;
+  choices: readonly Choice[];
+}
+
+const { title = "Finn riktig tjeneste", choices } = Astro.props;
+---
+
+<section class="py-12 px-6 bg-brand-navy/[0.03] border-y border-neutral-200">
+  <div class="max-w-3xl mx-auto">
+    {title && (
+      <h2 class="text-lg font-semibold text-brand-navy mb-6 text-center">
+        {title}
+      </h2>
+    )}
+
+    <div class="space-y-4">
+      {choices.map((choice) => (
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-4 bg-white rounded-lg border border-neutral-200 hover:border-brand-navy/30 transition-colors">
+          <p class="flex-1 text-neutral-700">
+            <span class="font-medium text-brand-navy">{choice.condition}</span>
+          </p>
+          <a
+            href={choice.href}
+            class="inline-flex items-center gap-1 text-brand-navy font-medium hover:text-brand-cyan-darker transition-colors whitespace-nowrap"
+          >
+            → {choice.action}
+          </a>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

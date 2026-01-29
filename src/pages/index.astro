@@ -13,8 +13,10 @@ import { ELEMENT_IDS } from '../utils/constants';
 // Landing page components
 import LandingHeader from '../components/landing/LandingHeader.astro';
 import HeroSection from '../components/landing/HeroSection.astro';
+import ChoiceCallout from '../components/landing/ChoiceCallout.astro';
+import ModesSection from '../components/landing/ModesSection.astro';
 import SituationsSection from '../components/landing/SituationsSection.astro';
-import CompetenciesSection from '../components/landing/CompetenciesSection.astro';
+import ServicesSection from '../components/landing/ServicesSection.astro';
 import AboutSection from '../components/landing/AboutSection.astro';
 import ToolsSection from '../components/landing/ToolsSection.astro';
 import ContactSection from '../components/landing/ContactSection.astro';
@@ -27,8 +29,10 @@ import { getFeatureToggles, hasBetaAccess } from '../utils/feature-toggles';
 import {
   navLinks,
   heroContent,
+  choiceCalloutContent,
+  modesContent,
   situationsContent,
-  competenciesContent,
+  servicesContent,
   aboutContent,
   toolsContent,
   contactContent,
@@ -39,6 +43,7 @@ import {
 // Filter tools based on feature toggles
 const cloudflareEnv = Astro.locals.runtime?.env;
 const kv = cloudflareEnv?.ANALYTICS_KV;
+const isDev = import.meta.env.DEV;
 
 let enabledFeatures: Set<string> = new Set();
 const userHasBeta = hasBetaAccess(Astro.cookies);
@@ -53,7 +58,9 @@ if (kv) {
 }
 
 // Filter tools: show if no featureId OR if feature is enabled
+// In dev mode, show all tools regardless of feature toggles
 const visibleTools = toolsContent.tools.filter((tool: ToolDefinition) => {
+  if (isDev) return true;
   if (!tool.featureId) return true;
   return enabledFeatures.has(tool.featureId);
 });
@@ -63,8 +70,8 @@ const visibleTools = toolsContent.tools.filter((tool: ToolDefinition) => {
 <html lang="no" class="scroll-smooth">
   <head>
     <SEOHead
-      title={`${SITE_CONFIG.name} | Produktledelse`}
-      description="Produktledelse for team som vil levere, ikke bare planlegge. FYRK hjelper med strategi, prosess og kvalitet når hverdagen er kompleks."
+      title={`${SITE_CONFIG.name} | Tydeligere beslutningsgrunnlag. Operativ kapasitet.`}
+      description="FYRK gir tydeligere beslutningsgrunnlag og operativ kapasitet. Rådgivning før viktige beslutninger eller operativt ansvar som interim produktleder eller kvalitetsleder."
       type="website"
     />
   </head>
@@ -77,14 +84,26 @@ const visibleTools = toolsContent.tools.filter((tool: ToolDefinition) => {
     <main id={ELEMENT_IDS.MAIN} class="flex-1">
       <HeroSection {...heroContent} />
 
+      <ChoiceCallout
+        title={choiceCalloutContent.title}
+        choices={choiceCalloutContent.choices}
+      />
+
+      <ModesSection
+        title={modesContent.title}
+        intro={modesContent.intro}
+        modes={modesContent.modes}
+        footnote={modesContent.footnote}
+      />
+
       <SituationsSection
         title={situationsContent.title}
         situations={situationsContent.situations}
       />
 
-      <CompetenciesSection
-        title={competenciesContent.title}
-        competencies={competenciesContent.competencies}
+      <ServicesSection
+        title={servicesContent.title}
+        services={servicesContent.services}
       />
 
       <AboutSection

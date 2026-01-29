@@ -21,11 +21,70 @@ export const navLinks = [
  */
 export const heroContent = {
   tagline: 'FYRK',
-  headline: 'Klarhet før du forplikter deg.',
-  description: 'Jeg hjelper ledergrupper og produktansvarlige med å ta bedre beslutninger før forpliktelse.',
-  subDescription: 'Når det trengs, går jeg også inn interim for å sikre gjennomføring.',
+  headline: 'Tydeligere beslutningsgrunnlag. Operativ kapasitet.',
+  description: 'Rådgivning før viktige beslutninger – eller operativt ansvar når dere trenger forsterkning.',
+  subDescription: 'Én ansvarlig rådgiver. Senior erfaring. Ingen mellomledd.',
   ctaText: 'Ta kontakt',
   ctaHref: '#kontakt',
+} as const;
+
+/**
+ * Choice callout content - 3-line brutal choice logic
+ */
+export const choiceCalloutContent = {
+  title: 'Finn riktig tjeneste',
+  choices: [
+    {
+      condition: 'Har dere én konkret beslutning med reell risiko?',
+      action: 'Beslutningsgjennomgang',
+      href: '/tjenester/beslutningsgjennomgang',
+    },
+    {
+      condition: 'Mangler dere produktleder- eller teamledelseskapasitet i en periode?',
+      action: 'Interim produktleder',
+      href: '/tjenester/interim-produktleder',
+    },
+    {
+      condition: 'Stopper leveranser opp pga. friksjon, kvalitet eller uklar flyt?',
+      action: 'Kvalitet og leveranseledelse',
+      href: '/tjenester/kvalitet-og-leveranseledelse',
+    },
+  ],
+} as const;
+
+/**
+ * Two modes section content
+ */
+export const modesContent = {
+  title: 'To måter å jobbe på',
+  intro: 'FYRK kan brukes ulikt avhengig av behov. Beslutningsgjennomgang kan også være første trinn før et operativt oppdrag.',
+  modes: [
+    {
+      title: 'Beslutningsklarhet',
+      subtitle: 'Rådgivning',
+      description: 'Strukturert gjennomgang av én konkret beslutning. Lav forpliktelse, fast format.',
+      characteristics: [
+        'Avgrenset oppdrag (typisk 1–3 uker)',
+        'Fast pris avtales på forhånd',
+        'Du får rapport med antakelser, risiko og anbefalinger',
+        'Beslutningen er fortsatt deres',
+      ],
+      isHighlight: true,
+    },
+    {
+      title: 'Leveranse og ledelse',
+      subtitle: 'Operativ rolle',
+      description: 'Midlertidig ansvar i team som produktleder, kvalitetsleder eller teamleder.',
+      characteristics: [
+        'Lengre oppdrag (typisk 3–6 mnd)',
+        'Time- eller fastpris per periode',
+        'Jeg tar operativt ansvar, ikke bare rådgivning',
+        'Planlagt overlevering og exit-plan',
+      ],
+      isHighlight: false,
+    },
+  ],
+  footnote: '',
 } as const;
 
 /**
@@ -50,7 +109,7 @@ export const servicesContent = {
   services: [
     {
       title: 'Beslutningsgjennomgang',
-      description: 'Når beslutningen er for viktig til å tas på magefølelse.',
+      description: 'Klarhet før du forplikter deg.',
       details: 'En strukturert gjennomgang av én konkret beslutning – før antagelser blir forpliktelser.',
       href: '/tjenester/beslutningsgjennomgang',
       ctaText: 'Les hvordan beslutningsgjennomgangen fungerer',
@@ -60,7 +119,7 @@ export const servicesContent = {
     },
     {
       title: 'Interim produktleder',
-      description: 'Senior produktledelse, operativ fra uke 1.',
+      description: 'Senior produktledelse når dere trenger det.',
       details: 'For team som trenger erfaren produktleder på kort varsel.',
       href: '/tjenester/interim-produktleder',
       ctaText: 'Les mer',
@@ -114,7 +173,7 @@ export const aboutContent = {
     heading: 'Om FYRK',
     paragraphs: [
       'Jeg har bakgrunn som senior produktleder og beslutningsstøtte i komplekse, regulerte miljøer innen bank og finans, og har jobbet med beslutninger som har hatt betydelige økonomiske og organisatoriske konsekvenser.',
-      'FYRK er bygget for én ting: å gi deg et bedre grunnlag før du forplikter deg.',
+      'FYRK tilbyr tre ulike tjenester – beslutningsgjennomgang, interim produktledelse og kvalitetsledelse. De løser forskjellige problemer og trenger ikke presses inn under én merkelapp.',
     ],
   },
   founder: {
@@ -153,7 +212,7 @@ export interface ToolDefinition {
  */
 export const toolsContent = {
   title: 'Verktøy',
-  description: 'Praktiske verktøy for bedre arbeid med strategi og mål.',
+  description: 'Gratis verktøy som gir deg en smakebit på arbeidsformen. For beslutninger med større konsekvenser, ta kontakt.',
   tools: [
     {
       title: 'OKR-sjekken',
