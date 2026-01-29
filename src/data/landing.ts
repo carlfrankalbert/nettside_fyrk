@@ -10,10 +10,10 @@ import { PAGE_ROUTES } from '../utils/constants';
  * Navigation links for the landing page
  */
 export const navLinks = [
-  { href: '#tjenester', label: 'Tjenester' },
-  { href: '#om', label: 'Om' },
-  { href: '#verktoy', label: 'Verktøy' },
-  { href: '#kontakt', label: 'Kontakt' },
+  { href: '/#tjenester', label: 'Tjenester' },
+  { href: '/#om', label: 'Om' },
+  { href: '/verktoy', label: 'Verktøy' },
+  { href: '/#kontakt', label: 'Kontakt' },
 ] as const;
 
 /**
@@ -57,7 +57,7 @@ export const choiceCalloutContent = {
  */
 export const modesContent = {
   title: 'To måter å jobbe på',
-  intro: 'FYRK kan brukes ulikt avhengig av behov. Beslutningsgjennomgang kan også være første trinn før et operativt oppdrag.',
+  intro: 'Typisk effekt: spissede prioriteringer, færre parallelle initiativ og tydeligere eierskap til beslutninger. FYRK kan brukes ulikt avhengig av behov – beslutningsgjennomgang kan også være første trinn før et operativt oppdrag.',
   modes: [
     {
       title: 'Beslutningsklarhet',
@@ -110,7 +110,7 @@ export const servicesContent = {
     {
       title: 'Beslutningsgjennomgang',
       description: 'Klarhet før du forplikter deg.',
-      details: 'En strukturert gjennomgang av én konkret beslutning – før antagelser blir forpliktelser.',
+      details: 'En strukturert gjennomgang av én konkret beslutning – fra antakelser til tydelig anbefaling.',
       href: '/tjenester/beslutningsgjennomgang',
       ctaText: 'Les hvordan beslutningsgjennomgangen fungerer',
       isPrimary: true,
@@ -272,7 +272,7 @@ export const toolsContent = {
  */
 export const contactContent = {
   title: 'Ta kontakt',
-  description: 'Usikker på hvor du skal starte? En kort samtale avklarer raskt om det er grunnlag for samarbeid. Helt uforpliktende. Ingen salg, bare avklaring.',
+  description: 'Usikker på hvor du skal starte? Kort, uforpliktende avklaringssamtale – 30 minutter. Ingen salg, bare avklaring.',
   subtitle: '',
   emailHref: EXTERNAL_LINKS.email,
   emailLabel: 'hei@fyrk.no',
