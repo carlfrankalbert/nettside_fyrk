@@ -16,6 +16,8 @@ export interface StreamingResponseConfig {
   userMessage: string;
   maxTokens?: number;
   timeoutMs?: number;
+  /** Request ID for tracing */
+  requestId?: string;
   /** Validate output before caching. Return false to skip caching. */
   validateOutput?: (output: string) => boolean;
   /** Called with validated output to cache it */
@@ -39,6 +41,7 @@ export function createAnthropicStreamingResponse(
     userMessage,
     maxTokens = ANTHROPIC_CONFIG.MAX_TOKENS,
     timeoutMs = ANTHROPIC_CONFIG.REQUEST_TIMEOUT_MS,
+    requestId,
     validateOutput,
     onCache,
     onSuccess,
@@ -159,14 +162,17 @@ export function createAnthropicStreamingResponse(
     },
   });
 
-  return new Response(customReadable, {
-    headers: {
-      'Content-Type': HTTP_HEADERS.CONTENT_TYPE_SSE,
-      'Cache-Control': HTTP_HEADERS.CACHE_CONTROL_NO_CACHE,
-      Connection: HTTP_HEADERS.CONNECTION_KEEP_ALIVE,
-      'X-Cache': CACHE_HEADERS.MISS,
-    },
-  });
+  const headers: Record<string, string> = {
+    'Content-Type': HTTP_HEADERS.CONTENT_TYPE_SSE,
+    'Cache-Control': HTTP_HEADERS.CACHE_CONTROL_NO_CACHE,
+    Connection: HTTP_HEADERS.CONNECTION_KEEP_ALIVE,
+    'X-Cache': CACHE_HEADERS.MISS,
+  };
+  if (requestId) {
+    headers['X-Request-ID'] = requestId;
+  }
+
+  return new Response(customReadable, { headers });
 }
 
 /**
@@ -175,9 +181,9 @@ export function createAnthropicStreamingResponse(
  */
 export function createCachedStreamingResponse(
   cachedOutput: string,
-  chunkSize: number = 50,
-  delayMs: number = 15
+  options: { chunkSize?: number; delayMs?: number; requestId?: string } = {}
 ): Response {
+  const { chunkSize = 50, delayMs = 15, requestId } = options;
   const encoder = new TextEncoder();
   const chunks = cachedOutput.match(new RegExp(`.{1,${chunkSize}}`, 'g')) || [
     cachedOutput,
@@ -196,14 +202,17 @@ export function createCachedStreamingResponse(
     },
   });
 
-  return new Response(stream, {
-    headers: {
-      'Content-Type': HTTP_HEADERS.CONTENT_TYPE_SSE,
-      'Cache-Control': HTTP_HEADERS.CACHE_CONTROL_NO_CACHE,
-      Connection: HTTP_HEADERS.CONNECTION_KEEP_ALIVE,
-      'X-Cache': CACHE_HEADERS.HIT,
-    },
-  });
+  const headers: Record<string, string> = {
+    'Content-Type': HTTP_HEADERS.CONTENT_TYPE_SSE,
+    'Cache-Control': HTTP_HEADERS.CACHE_CONTROL_NO_CACHE,
+    Connection: HTTP_HEADERS.CONNECTION_KEEP_ALIVE,
+    'X-Cache': CACHE_HEADERS.HIT,
+  };
+  if (requestId) {
+    headers['X-Request-ID'] = requestId;
+  }
+
+  return new Response(stream, { headers });
 }
 
 /**
@@ -211,28 +220,33 @@ export function createCachedStreamingResponse(
  */
 export function createJsonResponse(
   data: unknown,
-  options: { status?: number; cacheStatus?: 'HIT' | 'MISS' } = {}
+  options: { status?: number; cacheStatus?: 'HIT' | 'MISS'; requestId?: string } = {}
 ): Response {
-  const { status = 200, cacheStatus = 'MISS' } = options;
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
-      'X-Cache': cacheStatus === 'HIT' ? CACHE_HEADERS.HIT : CACHE_HEADERS.MISS,
-    },
-  });
+  const { status = 200, cacheStatus = 'MISS', requestId } = options;
+  const headers: Record<string, string> = {
+    'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
+    'X-Cache': cacheStatus === 'HIT' ? CACHE_HEADERS.HIT : CACHE_HEADERS.MISS,
+  };
+  if (requestId) {
+    headers['X-Request-ID'] = requestId;
+  }
+  return new Response(JSON.stringify(data), { status, headers });
 }
 
 export function createErrorResponse(
   message: string,
   status: number = 500,
-  details?: string
+  details?: string,
+  requestId?: string
 ): Response {
+  const headers: Record<string, string> = {
+    'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
+  };
+  if (requestId) {
+    headers['X-Request-ID'] = requestId;
+  }
   return new Response(
     JSON.stringify({ error: message, ...(details && { details }) }),
-    {
-      status,
-      headers: { 'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON },
-    }
+    { status, headers }
   );
 }

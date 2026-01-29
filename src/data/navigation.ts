@@ -1,12 +1,9 @@
 import type { NavItem } from '../types';
+import { navLinks } from './landing';
 
 export type { NavItem };
 
-export const mainNavigation: NavItem[] = [
-  { href: '/', label: 'Hjem' },
-  { href: '/#tjenester', label: 'Tjenester' },
-  { href: '/#om', label: 'Om' },
-  { href: '/#verktoy', label: 'Verktøy' },
-  { href: '/#kontakt', label: 'Kontakt', isPrimary: true },
-];
-
+export const mainNavigation: NavItem[] = navLinks.map((link) => ({
+  href: link.href,
+  label: link.label,
+}));

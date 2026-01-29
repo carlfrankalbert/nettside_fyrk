@@ -13,57 +13,24 @@ import { ELEMENT_IDS } from '../utils/constants';
 // Landing page components
 import LandingHeader from '../components/landing/LandingHeader.astro';
 import HeroSection from '../components/landing/HeroSection.astro';
-import ChoiceCallout from '../components/landing/ChoiceCallout.astro';
 import ModesSection from '../components/landing/ModesSection.astro';
 import SituationsSection from '../components/landing/SituationsSection.astro';
 import ServicesSection from '../components/landing/ServicesSection.astro';
 import AboutSection from '../components/landing/AboutSection.astro';
-import ToolsSection from '../components/landing/ToolsSection.astro';
 import ContactSection from '../components/landing/ContactSection.astro';
 import LandingFooter from '../components/landing/LandingFooter.astro';
-
-// Feature toggles
-import { getFeatureToggles, hasBetaAccess } from '../utils/feature-toggles';
 
 // Content data
 import {
   navLinks,
   heroContent,
-  choiceCalloutContent,
   modesContent,
   situationsContent,
   servicesContent,
   aboutContent,
-  toolsContent,
   contactContent,
   footerContent,
-  type ToolDefinition,
 } from '../data/landing';
-
-// Filter tools based on feature toggles
-const cloudflareEnv = Astro.locals.runtime?.env;
-const kv = cloudflareEnv?.ANALYTICS_KV;
-const isDev = import.meta.env.DEV;
-
-let enabledFeatures: Set<string> = new Set();
-const userHasBeta = hasBetaAccess(Astro.cookies);
-
-if (kv) {
-  const togglesData = await getFeatureToggles(kv);
-  for (const feature of togglesData.features) {
-    if (feature.status === 'on' || (feature.status === 'beta' && userHasBeta)) {
-      enabledFeatures.add(feature.id);
-    }
-  }
-}
-
-// Filter tools: show if no featureId OR if feature is enabled
-// In dev mode, show all tools regardless of feature toggles
-const visibleTools = toolsContent.tools.filter((tool: ToolDefinition) => {
-  if (isDev) return true;
-  if (!tool.featureId) return true;
-  return enabledFeatures.has(tool.featureId);
-});
 ---
 
 <!doctype html>
@@ -83,11 +50,6 @@ const visibleTools = toolsContent.tools.filter((tool: ToolDefinition) => {
 
     <main id={ELEMENT_IDS.MAIN} class="flex-1">
       <HeroSection {...heroContent} />
-
-      <ChoiceCallout
-        title={choiceCalloutContent.title}
-        choices={choiceCalloutContent.choices}
-      />
 
       <ModesSection
         title={modesContent.title}
@@ -110,13 +72,6 @@ const visibleTools = toolsContent.tools.filter((tool: ToolDefinition) => {
         title={aboutContent.title}
         whyFyrk={aboutContent.whyFyrk}
         founder={aboutContent.founder}
-      />
-
-      <ToolsSection
-        title={toolsContent.title}
-        description={toolsContent.description}
-        tools={visibleTools}
-        comingSoonText={toolsContent.comingSoonText}
       />
 
       <ContactSection {...contactContent} />

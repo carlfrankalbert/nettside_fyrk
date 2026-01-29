@@ -31,14 +31,9 @@ interface Props {
 const { title, whyFyrk, founder } = Astro.props;
 ---
 
-<section id="om" class="py-20 md:py-28 px-6 bg-gradient-to-b from-neutral-50 to-white relative overflow-hidden scroll-mt-20">
-  <!-- Warm decorative element -->
-  <div class="absolute inset-0 pointer-events-none">
-    <div class="absolute -right-1/4 top-1/4 w-[800px] h-[400px] bg-gradient-to-br from-brand-navy/[0.03] via-brand-cyan/[0.02] to-transparent rotate-[-25deg] rounded-[100px]"></div>
-  </div>
-
-  <div class="max-w-3xl mx-auto relative z-10">
-    <h2 class="text-h2 font-semibold text-brand-navy mb-12 text-center">
+<section id="om" class="py-16 md:py-20 px-6 bg-neutral-50 scroll-mt-20">
+  <div class="max-w-3xl mx-auto">
+    <h2 class="text-h3 font-semibold text-brand-navy mb-10 text-center">
       {title}
     </h2>
 
@@ -55,7 +50,7 @@ const { title, whyFyrk, founder } = Astro.props;
     </div>
 
     <!-- Carl Johnson, grunnlegger -->
-    <div class="bg-white rounded-xl p-8 border border-neutral-100 shadow-sm">
+    <div class="bg-white rounded-xl p-8 border border-neutral-200">
       <div class="flex flex-col md:flex-row gap-6 mb-6">
         {founder.image && (
           <div class="flex-shrink-0">

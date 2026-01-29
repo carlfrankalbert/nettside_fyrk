@@ -17,22 +17,19 @@ interface Props {
 const { title, description, subtitle, emailHref, emailLabel, linkedinHref, linkedinLabel } = Astro.props;
 ---
 
-<section id="kontakt" class="min-h-[80vh] py-20 md:py-28 px-6 relative overflow-hidden bg-gradient-to-b from-neutral-50/50 to-white flex items-center scroll-mt-20">
-  <!-- Subtle diagonal FYRK signature element -->
-  <div class="absolute inset-0 pointer-events-none">
-    <div class="absolute -left-1/4 bottom-0 w-[600px] h-[300px] bg-gradient-to-tr from-brand-navy/[0.03] to-transparent rotate-[-25deg] rounded-[100px]"></div>
-  </div>
-
-  <div class="max-w-2xl mx-auto text-center relative z-10 w-full">
-    <h2 class="text-h2 font-semibold text-brand-navy mb-4">
+<section id="kontakt" class="py-16 md:py-20 px-6 bg-white scroll-mt-20">
+  <div class="max-w-2xl mx-auto text-center">
+    <h2 class="text-h3 font-semibold text-brand-navy mb-4">
       {title}
     </h2>
-    <p class="text-lg text-neutral-600 mb-4">
+    <p class:list={["text-lg text-neutral-600", subtitle ? "mb-4" : "mb-8"]}>
       {description}
     </p>
-    <p class="text-base text-neutral-500 mb-10">
-      {subtitle}
-    </p>
+    {subtitle && (
+      <p class="text-base text-neutral-500 mb-8">
+        {subtitle}
+      </p>
+    )}
 
     <div class="flex flex-col sm:flex-row gap-4 justify-center">
       <a href={emailHref} class="btn btn-primary no-underline inline-flex items-center gap-2" data-track-button="contact_email">

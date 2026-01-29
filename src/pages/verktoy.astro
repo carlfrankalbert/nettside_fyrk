@@ -1,0 +1,103 @@
+---
+/**
+ * Dedicated tools page
+ * Groups all FYRK tools by intent with disclaimers and service bridge
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Verktøy | FYRK"
+  description="Arbeidsverktøy for reelle beslutninger i komplekse miljøer. Refleksjon, antakelsesanalyse, beslutningslogg og pre-mortem – gratis og uten innlogging."
+>
+  <article class="py-16 md:py-24 px-6">
+    <div class="max-w-3xl mx-auto">
+
+      <!-- Header -->
+      <header class="mb-16">
+        <h1 class="text-h2 md:text-h1 font-semibold text-brand-navy mb-4 leading-tight">
+          Verktøy
+        </h1>
+        <p class="text-xl md:text-2xl text-neutral-600 leading-relaxed">
+          Dette er arbeidsverktøy utviklet for reelle beslutninger i komplekse miljøer. De hjelper deg å se tydeligere — raskere — før du forplikter deg.
+        </p>
+      </header>
+
+      <!-- Før beslutning -->
+      <section class="mb-16">
+        <h2 class="text-h3 font-semibold text-brand-navy mb-6">Før beslutning</h2>
+        <div class="space-y-4">
+          <div class="bg-white rounded-xl p-6 md:p-8 border border-neutral-200 hover:border-neutral-300 transition-colors">
+            <h3 class="text-h4 font-semibold text-brand-navy mb-2">Konseptspeilet</h3>
+            <p class="text-neutral-600 mb-4">Et rolig refleksjonsverktøy for produktkonsepter.</p>
+            <a href="/konseptspeilet" class="btn btn-primary no-underline inline-flex">
+              Prøv konseptspeilet
+            </a>
+          </div>
+
+          <div class="bg-white rounded-xl p-6 md:p-8 border border-neutral-200 hover:border-neutral-300 transition-colors">
+            <h3 class="text-h4 font-semibold text-brand-navy mb-2">Antakelseskart</h3>
+            <p class="text-neutral-600 mb-4">Avdekker implisitte antakelser i produkt- og strategibeslutninger.</p>
+            <a href="/antakelseskart" class="btn btn-primary no-underline inline-flex">
+              Prøv antakelseskartet
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Når beslutningen tas -->
+      <section class="mb-16">
+        <h2 class="text-h3 font-semibold text-brand-navy mb-6">Når beslutningen tas</h2>
+        <div class="space-y-4">
+          <div class="bg-white rounded-xl p-6 md:p-8 border border-neutral-200 hover:border-neutral-300 transition-colors">
+            <h3 class="text-h4 font-semibold text-brand-navy mb-2">Beslutningslogg</h3>
+            <p class="text-neutral-600 mb-4">Dokumenter beslutninger med klarhet. Eksporter som Markdown.</p>
+            <a href="/beslutningslogg" class="btn btn-primary no-underline inline-flex">
+              Lag beslutningslogg
+            </a>
+          </div>
+
+          <div class="bg-white rounded-xl p-6 md:p-8 border border-neutral-200 hover:border-neutral-300 transition-colors">
+            <h3 class="text-h4 font-semibold text-brand-navy mb-2">Pre-Mortem Brief</h3>
+            <p class="text-neutral-600 mb-4">Tenk gjennom hva som kan gå galt før du tar irreversible beslutninger.</p>
+            <a href="/verktoy/pre-mortem" class="btn btn-primary no-underline inline-flex">
+              Lag Pre-Mortem Brief
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Retning og styring -->
+      <section class="mb-16">
+        <h2 class="text-h3 font-semibold text-brand-navy mb-6">Retning og styring</h2>
+        <div class="space-y-4">
+          <div class="bg-white rounded-xl p-6 md:p-8 border border-neutral-200 hover:border-neutral-300 transition-colors">
+            <h3 class="text-h4 font-semibold text-brand-navy mb-2">OKR-sjekken</h3>
+            <p class="text-neutral-600 mb-4">Få et raskt, strukturert blikk på kvaliteten i OKR-ene deres.</p>
+            <a href="/okr-sjekken" class="btn btn-primary no-underline inline-flex">
+              Prøv OKR-sjekken
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Disclaimer -->
+      <p class="text-sm text-neutral-500 mb-16">
+        Verktøyene erstatter ikke ansvar, kontekst eller erfaring. De er laget for å gi deg bedre beslutningsgrunnlag — ikke «fasiten». Ingen data lagres – teksten slettes umiddelbart etter analyse. <a href="/personvern" class="underline hover:text-brand-navy">Personvern</a>.
+      </p>
+
+      <!-- Bridge CTA -->
+      <section class="bg-neutral-50 rounded-xl p-8 md:p-10 border border-neutral-200">
+        <h2 class="text-h4 font-semibold text-brand-navy mb-3">Trenger du dette brukt i praksis?</h2>
+        <p class="text-neutral-600 mb-6">
+          Hvis beslutningen er viktig, kan jeg også bidra operativt — fra beslutningsgjennomgang til interim produktledelse.
+        </p>
+        <div class="flex flex-wrap gap-3">
+          <a href="/#tjenester" class="btn btn-primary no-underline inline-flex">Se tjenester</a>
+          <a href="/#kontakt" class="btn btn-secondary no-underline inline-flex">Ta kontakt</a>
+        </div>
+      </section>
+
+    </div>
+  </article>
+</BaseLayout>

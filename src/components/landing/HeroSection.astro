@@ -1,7 +1,7 @@
 ---
 /**
  * Hero section for the landing page
- * Features headline, tagline, and call-to-action
+ * Features headline and call-to-action
  */
 
 interface Props {
@@ -13,22 +13,11 @@ interface Props {
   ctaHref: string;
 }
 
-const { tagline, headline, description, subDescription, ctaText, ctaHref } = Astro.props;
+const { headline, description, subDescription, ctaText, ctaHref } = Astro.props;
 ---
 
-<section class="pt-32 pb-20 md:pt-40 md:pb-28 px-6 relative overflow-hidden bg-gradient-to-br from-neutral-50 via-white to-neutral-100">
-  <!-- Decorative F watermark -->
-  <div class="absolute -right-20 -top-20 opacity-[0.03] pointer-events-none">
-    <svg width="500" height="500" viewBox="0 0 31 47" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M30.8184 8.11475H9.84082V19.2056H28.7725V27.3188H9.84082V46.5464H0V15.5005L15.499 0.00146484H30.8184V8.11475ZM0 11.2583V0.00146484H11.2568L0 11.2583Z" fill="#001F3F" />
-    </svg>
-  </div>
-
-  <div class="max-w-4xl mx-auto text-center relative z-10">
-    <p class="text-base md:text-lg text-neutral-500 mb-4 tracking-wide uppercase font-medium">
-      {tagline}
-    </p>
-
+<section class="pt-28 pb-16 md:pt-36 md:pb-20 px-6 bg-white">
+  <div class="max-w-4xl mx-auto text-center">
     <h1 class="text-h1 md:text-display font-semibold text-brand-navy mb-6 leading-tight">
       {headline}
     </h1>
@@ -49,7 +38,4 @@ const { tagline, headline, description, subDescription, ctaText, ctaHref } = Ast
       {ctaText}
     </a>
   </div>
-
-  <!-- Bottom accent line -->
-  <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-brand-navy/20 to-transparent"></div>
 </section>

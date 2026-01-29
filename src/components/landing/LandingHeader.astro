@@ -37,7 +37,7 @@ const { navLinks } = Astro.props;
     {navLinks.length > 0 && (
       <button
         id={ELEMENT_IDS.MOBILE_MENU_BUTTON}
-        class="md:hidden p-3 min-h-[48px] min-w-[48px] flex items-center justify-center text-neutral-700"
+        class="md:hidden p-3 min-h-[48px] min-w-[48px] flex items-center justify-center text-neutral-700 focus-visible:ring-2 focus-visible:ring-brand-cyan-darker focus-visible:ring-offset-2 rounded-md"
         aria-label="Åpne meny"
         aria-expanded="false"
         aria-controls={ELEMENT_IDS.MOBILE_MENU}
