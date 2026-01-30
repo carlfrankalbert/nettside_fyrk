@@ -18,7 +18,7 @@ test.describe('Contact Section Smoke Tests', () => {
   test('contact section has email link', async ({ page }) => {
     await page.goto('/#kontakt');
 
-    const emailLink = page.getByRole('link', { name: /hei@fyrk\.no/i });
+    const emailLink = page.getByRole('link', { name: /Ta kontakt/i }).first();
     await expect(emailLink).toBeVisible();
     await expect(emailLink).toHaveAttribute('href', 'mailto:hei@fyrk.no');
   });
