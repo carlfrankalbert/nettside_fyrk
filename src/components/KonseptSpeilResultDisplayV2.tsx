@@ -8,6 +8,7 @@ import { NarrativeLoader, KONSEPTSPEIL_LOADER_MESSAGES } from './ui/NarrativeLoa
 import { cn } from '../utils/classes';
 import { trackClick } from '../utils/tracking';
 import { useCopyWithToast } from '../hooks/useCopyWithToast';
+import { CONTACT_LABEL } from '../utils/links';
 
 // ============================================================================
 // Types
@@ -696,12 +697,9 @@ export default function KonseptSpeilResultDisplayV2({
           </p>
           <a
             href="mailto:hei@fyrk.no?subject=Oppfølging fra Konseptspeilet"
-            className="shrink-0 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-brand-navy hover:text-brand-cyan-darker transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded"
+            className="shrink-0 inline-flex items-center px-4 py-2 text-sm font-medium text-brand-navy hover:text-brand-cyan-darker transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-            Ta kontakt
+            {CONTACT_LABEL}
           </a>
         </section>
       )}

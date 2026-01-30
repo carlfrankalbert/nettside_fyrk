@@ -42,10 +42,10 @@ const sentryRelease = import.meta.env.PUBLIC_SENTRY_RELEASE;
     <meta name="sentry-environment" content={sentryEnvironment} />
     {sentryRelease && <meta name="sentry-release" content={sentryRelease} />}
   </head>
-  <body>
+  <body class="min-h-screen flex flex-col">
     <a href="#main-content" class="skip-link">Hopp til hovedinnhold</a>
     <LandingHeader navLinks={navLinks} />
-    <main id="main-content" role="main" class="pt-16">
+    <main id="main-content" role="main" class="pt-16 flex-1">
       <slot />
     </main>
     <LandingFooter {...footerContent} />

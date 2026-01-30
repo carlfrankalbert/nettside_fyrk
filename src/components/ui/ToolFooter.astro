@@ -1,0 +1,25 @@
+---
+/**
+ * Shared footer for tool pages (okr-sjekken, konseptspeilet, etc.)
+ * Keeps footer links consistent across all tool pages.
+ */
+
+interface Props {
+  showClaude?: boolean;
+}
+
+const { showClaude = true } = Astro.props;
+
+const linkClass = 'text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 font-medium focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded';
+---
+
+<footer class="py-6 border-t border-neutral-200 text-center text-sm text-neutral-500">
+  <p>
+    Laget av <a href="https://fyrk.no" class={linkClass}>FYRK</a>
+    {showClaude && (
+      <Fragment> · Drevet av <a href="https://www.anthropic.com/claude" target="_blank" rel="noopener noreferrer" class={linkClass}>Claude</a></Fragment>
+    )}
+    {' '}· <a href="/personvern" class={linkClass}>Personvern</a>
+    {' '}· <a href="/vilkar" class={linkClass}>Vilkår</a>
+  </p>
+</footer>

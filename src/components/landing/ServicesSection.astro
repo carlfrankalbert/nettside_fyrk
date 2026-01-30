@@ -17,25 +17,46 @@ interface Service {
 interface Props {
   title: string;
   services: readonly Service[];
+  situations?: readonly string[];
+  situationsTitle?: string;
 }
 
-const { title, services } = Astro.props;
+const { title, services, situations, situationsTitle } = Astro.props;
 ---
 
 <section id="tjenester" class="py-16 md:py-20 px-6 bg-white scroll-mt-20">
   <div class="max-w-4xl mx-auto">
-    <h2 class="text-h3 font-semibold text-brand-navy mb-10 text-center">
+    <h2 class="text-h3 font-semibold text-brand-navy mb-6 text-center">
       {title}
     </h2>
 
+    {situations && situations.length > 0 && (
+      <div class="mb-10">
+        {situationsTitle && (
+          <p class="text-sm font-medium uppercase tracking-wide text-neutral-500 text-center mb-4">{situationsTitle}</p>
+        )}
+        <div class="grid md:grid-cols-2 gap-3 max-w-3xl mx-auto">
+          {situations.map((situation) => (
+            <div class="flex items-start gap-2 text-sm text-neutral-600">
+              <svg class="w-4 h-4 text-brand-navy flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+              <span>{situation}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
     <div class="space-y-6">
       {services.map((service) => (
-        <article
+        <a
+          href={service.href}
           class:list={[
-            'relative rounded-xl border transition-all',
+            'block rounded-lg border transition-all no-underline',
             service.isPrimary
-              ? 'bg-brand-navy text-white border-brand-navy p-8 md:p-10 shadow-lg'
-              : 'bg-white text-neutral-700 border-neutral-200 p-6 md:p-8 hover:border-neutral-300 hover:shadow-sm'
+              ? 'bg-brand-navy text-white border-brand-navy p-8 md:p-10 shadow-lg hover:shadow-xl'
+              : 'bg-white text-neutral-700 border-neutral-200 p-6 md:p-8 shadow-sm hover:border-neutral-300'
           ]}
         >
           <div class="flex flex-col md:flex-row md:items-start gap-4 md:gap-6">
@@ -73,30 +94,14 @@ const { title, services } = Astro.props;
 
               {service.details && (
                 <p class:list={[
-                  'mb-4',
                   service.isPrimary ? 'text-white/80' : 'text-neutral-500'
                 ]}>
                   {service.details}
                 </p>
               )}
-
-              <a
-                href={service.href}
-                class:list={[
-                  'inline-flex items-center gap-1 font-medium transition-colors py-2 px-3 -ml-3 rounded-lg min-h-[44px]',
-                  service.isPrimary
-                    ? 'text-white hover:bg-white/10'
-                    : 'text-brand-navy hover:bg-neutral-100'
-                ]}
-              >
-                {service.ctaText}
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </a>
             </div>
           </div>
-        </article>
+        </a>
       ))}
     </div>
   </div>

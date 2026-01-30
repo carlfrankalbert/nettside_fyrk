@@ -10,6 +10,8 @@ interface Mode {
   description: string;
   characteristics: readonly string[];
   isHighlight?: boolean;
+  ctaText?: string;
+  ctaHref?: string;
 }
 
 interface Props {
@@ -22,7 +24,7 @@ interface Props {
 const { title, intro, modes, footnote } = Astro.props;
 ---
 
-<section class="py-16 md:py-20 px-6 bg-white">
+<section class="py-12 md:py-16 px-6 bg-neutral-100 border-y border-neutral-200">
   <div class="max-w-4xl mx-auto">
     {title && (
       <h2 class="text-h3 font-semibold text-brand-navy mb-4 text-center" id="modes">
@@ -81,6 +83,21 @@ const { title, intro, modes, footnote } = Astro.props;
               </li>
             ))}
           </ul>
+
+          {mode.ctaHref && mode.ctaText && (
+            <a
+              href={mode.ctaHref}
+              class:list={[
+                'inline-flex items-center gap-1 font-medium mt-4 transition-colors',
+                mode.isHighlight ? 'text-white hover:text-white/80' : 'text-brand-navy hover:text-brand-navy/80'
+              ]}
+            >
+              {mode.ctaText}
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </a>
+          )}
         </div>
       ))}
     </div>

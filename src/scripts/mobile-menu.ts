@@ -73,6 +73,14 @@ export function initMobileMenu(options: MobileMenuOptions = {}): void {
       link.addEventListener('click', () => toggleMenu(true));
     });
   }
+
+  // Close menu on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && menuButton.getAttribute('aria-expanded') === 'true') {
+      toggleMenu(true);
+      menuButton.focus();
+    }
+  });
 }
 
 /**

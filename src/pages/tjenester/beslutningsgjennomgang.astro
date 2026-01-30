@@ -5,10 +5,10 @@
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/ui/Breadcrumb.astro';
-import { EXTERNAL_LINKS } from '../../utils/links';
+import { EXTERNAL_LINKS, CONTACT_LABEL } from '../../utils/links';
 
 const breadcrumbItems = [
-  { label: 'Tjenester', href: '/#tjenester' },
+  { label: 'Tjenester', href: '/tjenester' },
   { label: 'Beslutningsgjennomgang' },
 ];
 ---
@@ -149,7 +149,7 @@ const breadcrumbItems = [
           </li>
         </ol>
         <p class="mt-6 text-neutral-600 text-sm">
-          Du kan prøve noen av disse teknikkene selv – gratis – i <a href="/#verktoy" class="text-brand-navy underline hover:text-brand-cyan-darker">verktøy-seksjonen</a>.
+          Du kan prøve noen av disse teknikkene selv – gratis – i <a href="/verktoy" class="text-brand-navy underline hover:text-brand-cyan-darker">verktøy-seksjonen</a>.
         </p>
       </section>
 
@@ -181,7 +181,7 @@ const breadcrumbItems = [
           href={EXTERNAL_LINKS.email}
           class="btn btn-primary no-underline"
         >
-          Start en uforpliktende samtale
+          {CONTACT_LABEL}
         </a>
         <p class="text-sm text-neutral-500 mt-6">
           Informasjon delt i samtalen behandles konfidensielt og slettes normalt innen 30 dager etter avsluttet oppdrag. Tjenestene er beslutningsstøtte for virksomheter (B2B). Endelige beslutninger tas av kunden. <a href="/personvern" class="underline hover:text-brand-navy">Les mer om personvern</a>.

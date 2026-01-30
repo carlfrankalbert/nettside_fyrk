@@ -1,8 +1,15 @@
 ---
 import MinimalLayout from '../../layouts/MinimalLayout.astro';
 import PreMortemBrief from '../../components/PreMortemBrief';
+import ToolFooter from '../../components/ui/ToolFooter.astro';
+import Breadcrumb from '../../components/ui/Breadcrumb.astro';
 
 export const prerender = false;
+
+const breadcrumbItems = [
+  { label: 'Verktøy', href: '/verktoy' },
+  { label: 'Pre-Mortem Brief' },
+];
 ---
 
 <MinimalLayout
@@ -12,6 +19,8 @@ export const prerender = false;
 >
   <main id="main-content" class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
     <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-8 md:py-12 w-full pb-24 md:pb-12">
+
+      <Breadcrumb items={breadcrumbItems} />
 
       <!-- Hero: Clear value proposition -->
       <header class="mb-8" id="skriv">
@@ -83,9 +92,7 @@ export const prerender = false;
 
     </div>
 
-    <footer class="py-6 border-t border-neutral-200 text-center text-sm text-neutral-500">
-      <p>Laget av <a href="https://fyrk.no" class="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 font-medium focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded">FYRK</a> · Drevet av <a href="https://www.anthropic.com/claude" target="_blank" rel="noopener noreferrer" class="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 font-medium focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded">Claude</a> · <a href="/personvern" class="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 font-medium focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded">Personvern</a> · <a href="/vilkar" class="text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 font-medium focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded">Vilkår</a></p>
-    </footer>
+    <ToolFooter />
   </main>
 
   <!-- Mobile sticky bottom bar -->

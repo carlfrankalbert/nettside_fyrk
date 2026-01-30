@@ -1,0 +1,110 @@
+---
+/**
+ * Services overview page
+ * Lists all FYRK services with links to detail pages
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { servicesContent, situationsContent } from '../../data/landing';
+import { EXTERNAL_LINKS, CONTACT_LABEL } from '../../utils/links';
+---
+
+<BaseLayout
+  title="Tjenester | FYRK"
+  description="FYRK tilbyr beslutningsgjennomgang, interim produktledelse og kvalitet- og leveranseledelse. Rådgivning og operativ kapasitet for komplekse miljøer."
+>
+  <article class="py-16 md:py-24 px-6">
+    <div class="max-w-3xl mx-auto">
+
+      <!-- Header -->
+      <header class="mb-16">
+        <h1 class="text-h2 md:text-h1 font-semibold text-brand-navy mb-4 leading-tight">
+          Tjenester
+        </h1>
+        <p class="text-xl md:text-2xl text-neutral-600 leading-relaxed">
+          Rådgivning før viktige beslutninger — eller operativt ansvar når dere trenger forsterkning.
+        </p>
+      </header>
+
+      <!-- Services -->
+      <div class="space-y-6 mb-16">
+        {servicesContent.services.map((service) => (
+          <a
+            href={service.href}
+            class:list={[
+              'block rounded-lg border p-6 md:p-8 no-underline transition-all',
+              service.isPrimary
+                ? 'bg-brand-navy text-white border-brand-navy shadow-lg hover:shadow-xl'
+                : 'bg-white text-neutral-700 border-neutral-200 shadow-sm hover:border-neutral-300'
+            ]}
+          >
+            <div class="flex flex-col md:flex-row md:items-start gap-4 md:gap-6">
+              {service.iconPath && (
+                <div class:list={[
+                  'flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center',
+                  service.isPrimary ? 'bg-white/10' : 'bg-neutral-100'
+                ]}>
+                  <svg
+                    class:list={['w-6 h-6', service.isPrimary ? 'text-white' : 'text-brand-navy']}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d={service.iconPath} />
+                  </svg>
+                </div>
+              )}
+              <div class="flex-1">
+                <h2 class:list={[
+                  'font-semibold mb-2',
+                  service.isPrimary ? 'text-h3 text-white' : 'text-h4 text-brand-navy'
+                ]}>
+                  {service.title}
+                </h2>
+                <p class:list={[
+                  'mb-2',
+                  service.isPrimary ? 'text-lg text-white/90' : 'text-neutral-600'
+                ]}>
+                  {service.description}
+                </p>
+                {service.details && (
+                  <p class:list={[
+                    'text-sm',
+                    service.isPrimary ? 'text-white/70' : 'text-neutral-500'
+                  ]}>
+                    {service.details}
+                  </p>
+                )}
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+
+      <!-- Situations -->
+      <div class="mb-16">
+        <h2 class="text-h4 font-semibold text-brand-navy mb-6">{situationsContent.title}</h2>
+        <div class="grid md:grid-cols-2 gap-3">
+          {situationsContent.situations.map((situation) => (
+            <div class="flex items-start gap-2 text-sm text-neutral-600">
+              <svg class="w-4 h-4 text-brand-navy flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+              <span>{situation}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Contact bridge -->
+      <section class="bg-neutral-50 rounded-lg p-8 md:p-10 border border-neutral-200">
+        <h2 class="text-h4 font-semibold text-brand-navy mb-3">Usikker på hva du trenger?</h2>
+        <p class="text-neutral-600 mb-6">
+          En kort samtale er ofte nok til å avklare. 30 minutter, ingen forpliktelse.
+        </p>
+        <a href={EXTERNAL_LINKS.email} class="btn btn-primary no-underline inline-flex">{CONTACT_LABEL}</a>
+      </section>
+
+    </div>
+  </article>
+</BaseLayout>

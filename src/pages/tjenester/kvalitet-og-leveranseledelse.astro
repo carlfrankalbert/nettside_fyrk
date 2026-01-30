@@ -5,10 +5,10 @@
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/ui/Breadcrumb.astro';
-import { EXTERNAL_LINKS } from '../../utils/links';
+import { EXTERNAL_LINKS, CONTACT_LABEL } from '../../utils/links';
 
 const breadcrumbItems = [
-  { label: 'Tjenester', href: '/#tjenester' },
+  { label: 'Tjenester', href: '/tjenester' },
   { label: 'Kvalitet og leveranseledelse' },
 ];
 ---
@@ -179,7 +179,7 @@ const breadcrumbItems = [
           href={EXTERNAL_LINKS.email}
           class="btn btn-primary no-underline"
         >
-          Avklar behov
+          {CONTACT_LABEL}
         </a>
         <p class="text-sm text-neutral-500 mt-6">
           Informasjon delt i samtalen behandles konfidensielt. <a href="/personvern" class="underline hover:text-brand-navy">Les mer om personvern</a>.

@@ -1,5 +1,6 @@
 /**
- * Link utility functions and constants
+ * Link constants — single source of truth for all URLs and contact labels.
+ * See docs/design-contract.md for usage rules.
  */
 
 export const EXTERNAL_LINKS = {
@@ -9,20 +10,5 @@ export const EXTERNAL_LINKS = {
   email: 'mailto:hei@fyrk.no',
 } as const;
 
-export const INTERNAL_LINKS = {
-  home: '/',
-  about: '/om',
-  blog: '/blogg',
-  contact: '/kontakt',
-} as const;
-
-/**
- * Standard link classes for consistent styling
- */
-export const linkClasses = {
-  default: 'text-brand-navy hover:text-brand-cyan-darker transition-colors duration-fast focus-visible:ring-2 focus-visible:ring-brand-cyan-darker focus-visible:ring-offset-2 rounded-md',
-  footer: 'text-neutral-100 hover:text-brand-cyan-light transition-colors duration-fast focus-visible:ring-2 focus-visible:ring-brand-cyan-darker focus-visible:ring-offset-2 rounded-md px-1',
-  external: 'text-brand-cyan-darker hover:text-brand-cyan transition-colors duration-fast',
-} as const;
-
-
+/** Approved contact CTA label — use this instead of hardcoding "Ta kontakt" */
+export const CONTACT_LABEL = 'Ta kontakt' as const;

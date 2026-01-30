@@ -14,7 +14,6 @@ import { ELEMENT_IDS } from '../utils/constants';
 import LandingHeader from '../components/landing/LandingHeader.astro';
 import HeroSection from '../components/landing/HeroSection.astro';
 import ModesSection from '../components/landing/ModesSection.astro';
-import SituationsSection from '../components/landing/SituationsSection.astro';
 import ServicesSection from '../components/landing/ServicesSection.astro';
 import AboutSection from '../components/landing/AboutSection.astro';
 import ContactSection from '../components/landing/ContactSection.astro';
@@ -58,14 +57,11 @@ import {
         footnote={modesContent.footnote}
       />
 
-      <SituationsSection
-        title={situationsContent.title}
-        situations={situationsContent.situations}
-      />
-
       <ServicesSection
         title={servicesContent.title}
         services={servicesContent.services}
+        situationsTitle={situationsContent.title}
+        situations={situationsContent.situations}
       />
 
       <AboutSection
@@ -84,7 +80,7 @@ import {
       import { initButtonTracking } from '../scripts/button-tracking';
       import { initPageViewTracking } from '../scripts/pageview-tracking';
       import { initTrackingHelpers } from '../scripts/tracking-exclusion';
-      initMobileMenu({ updateIcon: false });
+      initMobileMenu();
       initButtonTracking();
       initPageViewTracking('home');
       initTrackingHelpers();

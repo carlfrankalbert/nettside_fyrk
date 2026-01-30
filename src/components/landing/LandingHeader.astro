@@ -9,6 +9,7 @@ import { ELEMENT_IDS } from '../../utils/constants';
 interface NavLink {
   href: string;
   label: string;
+  isCta?: boolean;
 }
 
 interface Props {
@@ -16,6 +17,15 @@ interface Props {
 }
 
 const { navLinks } = Astro.props;
+const currentPath = Astro.url.pathname;
+
+function isActive(href: string): boolean {
+  if (href.startsWith('/#') || href.startsWith('mailto:')) return false;
+  if (currentPath === href || currentPath === href + '/') return true;
+  // Match sub-pages (e.g. /tjenester/beslutningsgjennomgang → /tjenester)
+  if (href !== '/' && currentPath.startsWith(href + '/')) return true;
+  return false;
+}
 ---
 
 <header class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-neutral-200">
@@ -27,9 +37,26 @@ const { navLinks } = Astro.props;
     {navLinks.length > 0 && (
       <div class="hidden md:flex items-center gap-8">
         {navLinks.map((link) => (
-          <a href={link.href} class="text-neutral-700 hover:text-brand-navy no-underline font-medium transition-colors">
-            {link.label}
-          </a>
+          link.isCta ? (
+            <a
+              href={link.href}
+              class="btn btn-primary no-underline text-sm py-2 px-4"
+              data-track-button="nav_cta"
+            >
+              {link.label}
+            </a>
+          ) : (
+            <a
+              href={link.href}
+              class:list={[
+                'no-underline font-medium transition-colors',
+                isActive(link.href) ? 'text-brand-navy underline underline-offset-4 decoration-2' : 'text-neutral-700 hover:text-brand-navy'
+              ]}
+              aria-current={isActive(link.href) ? 'page' : undefined}
+            >
+              {link.label}
+            </a>
+          )
         ))}
       </div>
     )}
@@ -51,11 +78,28 @@ const { navLinks } = Astro.props;
 
   {navLinks.length > 0 && (
     <div id={ELEMENT_IDS.MOBILE_MENU} class="hidden md:hidden border-t border-neutral-200 bg-white">
-      <div class="px-6 py-4 space-y-4">
+      <div class="px-6 py-3 space-y-1">
         {navLinks.map((link) => (
-          <a href={link.href} class="block text-neutral-700 hover:text-brand-navy no-underline font-medium">
-            {link.label}
-          </a>
+          link.isCta ? (
+            <a
+              href={link.href}
+              class="btn btn-primary no-underline text-sm py-2 px-4 mt-2 inline-flex"
+              data-track-button="nav_cta_mobile"
+            >
+              {link.label}
+            </a>
+          ) : (
+            <a
+              href={link.href}
+              class:list={[
+                'no-underline font-medium py-2 min-h-[44px] flex items-center',
+                isActive(link.href) ? 'text-brand-navy font-semibold' : 'text-neutral-700 hover:text-brand-navy'
+              ]}
+              aria-current={isActive(link.href) ? 'page' : undefined}
+            >
+              {link.label}
+            </a>
+          )
         ))}
       </div>
     </div>
