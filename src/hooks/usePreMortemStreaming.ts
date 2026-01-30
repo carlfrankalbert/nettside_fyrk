@@ -58,6 +58,7 @@ export function usePreMortemStreaming(): UsePreMortemStreamingReturn {
   const submit = useCallback(async (serializedInput: string) => {
     if (loading) return;
 
+    trackClick('premortem_submit_attempted');
     trackClick('premortem_submit');
     startTimeRef.current = Date.now();
 

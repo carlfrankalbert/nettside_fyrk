@@ -104,6 +104,12 @@ export function useFormInputHandlers({
     (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
       const pastedText = e.clipboardData.getData('text/plain');
 
+      // Track paste as input_started (same as keyboard input)
+      if (!hasTrackedInputStartRef.current && pastedText.length > 0 && input.length === 0) {
+        hasTrackedInputStartRef.current = true;
+        trackClick(`${toolName}_input_started`);
+      }
+
       if (isUrlEncoded(pastedText)) {
         e.preventDefault();
         const decodedText = safeDecodeURIComponent(pastedText);
@@ -124,7 +130,7 @@ export function useFormInputHandlers({
         }, 0);
       }
     },
-    [input, setInput, error, clearError, textareaRef]
+    [input, setInput, error, clearError, textareaRef, toolName]
   );
 
   // Handle Cmd+Enter to submit

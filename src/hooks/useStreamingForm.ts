@@ -164,6 +164,7 @@ export function useStreamingForm(config: UseStreamingFormConfig): UseStreamingFo
     }
 
     // Track submission
+    trackClick(`${toolName}_submit_attempted`);
     trackClick(`${toolName}_submit`);
 
     // Record start time
