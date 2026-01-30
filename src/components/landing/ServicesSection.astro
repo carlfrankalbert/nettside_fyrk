@@ -79,7 +79,7 @@ const { title, services, situations, situationsTitle } = Astro.props;
 
             <div class="flex-1">
               <h3 class:list={[
-                'font-semibold mb-2 break-words',
+                'font-semibold mb-2 hyphens-auto',
                 service.isPrimary ? 'text-h4 sm:text-h3 text-white' : 'text-h4 text-brand-navy'
               ]}>
                 {service.title}
