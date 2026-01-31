@@ -1,14 +1,18 @@
 /**
  * Request signing utilities for analytics endpoints
- * Adds basic protection against fake events by requiring a timestamp-based signature
  *
- * Note: This is not cryptographically secure (client-side secret is visible in JS),
- * but it prevents casual abuse and script-based fake events.
+ * IMPORTANT: This is NOT cryptographic security. The signing key is visible
+ * in the client-side JS bundle and can be read by anyone. This provides:
+ * - Friction against casual/automated fake events
+ * - Timestamp validation to prevent replay attacks (5 min window)
+ *
+ * It does NOT protect against a determined attacker who reads the JS source.
+ * Real abuse protection comes from server-side rate limiting.
  */
 
 /**
- * Signing key - rotated per deployment. Not truly secret, but adds friction.
- * Combined with timestamp validation, this prevents most fake event injection.
+ * Signing key - visible in client JS bundle. Adds friction, not security.
+ * Combined with timestamp validation, this prevents most casual fake event injection.
  */
 const SIGNING_KEY = 'fyrk-2024-analytics';
 

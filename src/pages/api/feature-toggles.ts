@@ -34,8 +34,8 @@ function validateOrigin(request: Request): boolean {
     // Check if origin matches host
     if (host && originHost === host) return true;
 
-    // Allow localhost for development
-    if (originHost.startsWith('localhost') || originHost.startsWith('127.0.0.1')) {
+    // Allow localhost only in development
+    if (import.meta.env.DEV && (originHost.startsWith('localhost') || originHost.startsWith('127.0.0.1'))) {
       return true;
     }
 
@@ -51,18 +51,14 @@ function validateOrigin(request: Request): boolean {
 }
 
 /**
- * Extract token from Authorization header (Bearer token) or query param (fallback)
+ * Extract token from Authorization header (Bearer token only)
  */
 function extractToken(request: Request): string | null {
-  // Prefer Authorization header
   const authHeader = request.headers.get('Authorization');
   if (authHeader?.startsWith('Bearer ')) {
     return authHeader.slice(7);
   }
-
-  // Fallback to query param for backwards compatibility
-  const url = new URL(request.url);
-  return url.searchParams.get('token');
+  return null;
 }
 
 /**
@@ -128,8 +124,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 
-  // Check authorization - prefer header, fallback to body token
-  const providedToken = extractToken(request) || body.token;
+  // Check authorization via Bearer header only
+  const providedToken = extractToken(request);
   if (!expectedToken || providedToken !== expectedToken) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,

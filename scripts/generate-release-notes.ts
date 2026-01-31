@@ -19,8 +19,11 @@ import { resolve } from 'node:path';
 const SUSPICIOUS_PATTERNS = [
   /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/, // IP addresses
   /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/, // Emails
-  /(?:sk-|xoxb-|ghp_|AKIA)[a-zA-Z0-9]{10,}/, // API keys/tokens
+  /(?:sk-|xoxb-|ghp_|gho_|AKIA|aws_secret)[a-zA-Z0-9_]{10,}/, // API keys/tokens
   /-----BEGIN (?:RSA |EC )?PRIVATE KEY-----/, // Private keys
+  /Bearer\s+[a-zA-Z0-9._-]{20,}/, // Bearer tokens
+  /(?:\+47|0047)[\s-]?\d{2}[\s-]?\d{2}[\s-]?\d{2}[\s-]?\d{2}/, // Norwegian phone numbers
+  /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i, // UUIDs (potential session IDs)
 ];
 
 // --- Helpers ---

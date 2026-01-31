@@ -72,11 +72,41 @@ async function persistAggregatesToKV(kv: KVNamespace): Promise<void> {
 }
 
 /**
+ * Simple per-IP rate limiter for vitals POST (in-memory, resets on deploy)
+ */
+const vitalsRateLimit = new Map<string, { count: number; resetAt: number }>();
+const VITALS_RATE_LIMIT = 60; // max requests per window
+const VITALS_RATE_WINDOW_MS = 60_000; // 1 minute
+
+function isVitalsRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = vitalsRateLimit.get(ip);
+  if (!entry || now > entry.resetAt) {
+    vitalsRateLimit.set(ip, { count: 1, resetAt: now + VITALS_RATE_WINDOW_MS });
+    return false;
+  }
+  entry.count++;
+  return entry.count > VITALS_RATE_LIMIT;
+}
+
+/**
  * POST /api/vitals
  * Receives Web Vitals metrics from real users
+ * Rate limited to prevent fake metric flooding
  */
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
+    // Rate limit by IP
+    const ip = request.headers.get('cf-connecting-ip')
+      || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+      || 'unknown';
+    if (isVitalsRateLimited(ip)) {
+      return new Response(
+        JSON.stringify({ error: 'Rate limited' }),
+        { status: 429, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
     const cloudflareEnv = (locals as App.Locals).runtime?.env;
     const kv = cloudflareEnv?.ANALYTICS_KV;
 

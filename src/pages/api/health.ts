@@ -15,12 +15,39 @@ interface HealthStatus {
 }
 
 /**
+ * Simple per-IP rate limiter for health endpoint (in-memory)
+ */
+const healthRateLimit = new Map<string, { count: number; resetAt: number }>();
+
+function isHealthRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = healthRateLimit.get(ip);
+  if (!entry || now > entry.resetAt) {
+    healthRateLimit.set(ip, { count: 1, resetAt: now + 60_000 });
+    return false;
+  }
+  entry.count++;
+  return entry.count > 100; // 100 req/min
+}
+
+/**
  * GET /api/health
  *
  * Health check endpoint for monitoring.
- * Returns status of critical dependencies without exposing sensitive info.
+ * Rate limited. Returns dependency status without exposing sensitive details.
  */
-export const GET: APIRoute = async ({ locals }) => {
+export const GET: APIRoute = async ({ locals, request }) => {
+  const ip = request.headers.get('cf-connecting-ip')
+    || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || 'unknown';
+
+  if (isHealthRateLimited(ip)) {
+    return new Response(
+      JSON.stringify({ status: 'rate_limited' }),
+      { status: 429, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
   const timestamp = new Date().toISOString();
 
   const checks: HealthStatus['checks'] = {

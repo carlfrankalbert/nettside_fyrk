@@ -47,17 +47,15 @@ function getHourKey(timestamp: number): string {
 }
 
 /**
- * Create a simple hash of a string (for anonymous visitor tracking)
- * Uses a basic hash function - not cryptographic but sufficient for anonymization
+ * Create a SHA-256 hash of a string (for anonymous visitor tracking)
+ * Uses Web Crypto API for GDPR-compliant one-way hashing
  */
-function simpleHash(str: string): string {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32bit integer
-  }
-  return Math.abs(hash).toString(36);
+async function sha256Hash(str: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
 }
 
 /**
@@ -122,7 +120,7 @@ export const POST: APIRoute = async ({ locals, request }) => {
     const cfConnectingIP = request.headers.get('cf-connecting-ip');
     const xForwardedFor = request.headers.get('x-forwarded-for');
     const ip = cfConnectingIP || xForwardedFor?.split(',')[0]?.trim() || 'unknown';
-    const visitorHash = simpleHash(ip + dateKey); // Hash changes daily for privacy
+    const visitorHash = await sha256Hash(ip + dateKey); // SHA-256, changes daily for privacy
 
     // Update total page views (legacy counter)
     const totalKey = TRACKED_PAGES[pageId].key;
