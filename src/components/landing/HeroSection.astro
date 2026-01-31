@@ -16,24 +16,22 @@ const { headline, description, subDescription, ctaText, ctaHref } = Astro.props;
 ---
 
 <section class="pt-32 pb-20 md:pt-40 md:pb-24 px-6 bg-neutral-50 border-b border-neutral-200">
-  <div class="max-w-4xl mx-auto text-center">
+  <div class="max-w-3xl mx-auto flex flex-col items-center text-center">
     <h1 class="text-h2 sm:text-h1 md:text-display font-semibold text-brand-navy mb-8 leading-tight">
       {headline}
     </h1>
 
-    <p class="text-lg md:text-xl text-neutral-600 mb-4 max-w-2xl mx-auto leading-relaxed">
+    <p class="text-lg md:text-xl text-neutral-600 mb-4 max-w-2xl leading-relaxed">
       {description}
     </p>
 
     {subDescription && (
-      <p class="text-base text-neutral-500 mb-10 max-w-2xl mx-auto">
+      <p class="text-base text-neutral-500 max-w-2xl">
         {subDescription}
       </p>
     )}
 
-    {!subDescription && <div class="mb-10"></div>}
-
-    <a href={ctaHref} class="btn btn-primary no-underline" data-track-button="hero_cta">
+    <a href={ctaHref} class="btn btn-primary no-underline mt-10" data-track-button="hero_cta">
       {ctaText}
     </a>
   </div>
