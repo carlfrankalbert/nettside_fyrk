@@ -1,0 +1,18 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+---
+
+<AppLayout title="Today — Decision Loop">
+  <div id="daily-root"></div>
+</AppLayout>
+
+<script>
+  import { createElement } from 'react';
+  import { createRoot } from 'react-dom/client';
+  import DailyView from '../components/DailyView';
+
+  const root = document.getElementById('daily-root');
+  if (root) {
+    createRoot(root).render(createElement(DailyView));
+  }
+</script>
