@@ -1,5 +1,5 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://fyrk.no/sitemap.xml
+Sitemap: https://fyrk.no/sitemap-index.xml
 
