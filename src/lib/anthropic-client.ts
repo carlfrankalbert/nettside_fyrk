@@ -64,19 +64,31 @@ export function createAnthropicHeaders(
 }
 
 /**
- * Get client IP from request headers
- * Handles Cloudflare, proxies, and direct connections
+ * Hash a string to a numeric identifier (privacy-preserving)
+ */
+function hashIP(ip: string): string {
+  let hash = 0;
+  for (let i = 0; i < ip.length; i++) {
+    const char = ip.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash).toString(36);
+}
+
+/**
+ * Get a hashed client identifier from request headers
+ * Returns a privacy-preserving hash — raw IP is never stored or returned
  */
 export function getClientIP(request: Request): string {
-  // Try Cloudflare headers first
   const cfConnectingIP = request.headers.get('cf-connecting-ip');
-  if (cfConnectingIP) return cfConnectingIP;
+  if (cfConnectingIP) return hashIP(cfConnectingIP);
 
   const xForwardedFor = request.headers.get('x-forwarded-for');
-  if (xForwardedFor) return xForwardedFor.split(',')[0].trim();
+  if (xForwardedFor) return hashIP(xForwardedFor.split(',')[0].trim());
 
   const xRealIP = request.headers.get('x-real-ip');
-  if (xRealIP) return xRealIP;
+  if (xRealIP) return hashIP(xRealIP);
 
   return 'unknown';
 }

@@ -23,13 +23,13 @@ src/
 ├── components/     # Astro & React components
 │   ├── content/    # Content display components
 │   ├── dashboard/  # Analytics dashboard components
-│   ├── form/       # Form building blocks
-│   ├── forms/      # Complete form components
+│   ├── form/       # React form primitives (FormField, FormTextarea, etc.) - client-side
+│   ├── forms/      # Astro form components (server-rendered, progressive enhancement)
 │   ├── landing/    # Landing page sections
 │   ├── layout/     # Header, Footer, ThemeToggle
 │   ├── seo/        # SEO-related components
 │   └── ui/         # Reusable UI primitives (ValidationError, StreamingError, PrivacyAccordion)
-├── hooks/          # React hooks (useStreamingForm, useCopyToClipboard, usePreMortemForm, etc.)
+├── hooks/          # React hooks (useStreamingForm, useCopyToClipboard, useCopyWithToast, usePreMortemForm, etc.)
 ├── pages/          # Routes and API endpoints
 │   ├── api/        # Serverless API routes
 │   └── verktoy/    # Tool subpages (pre-mortem)
@@ -188,9 +188,16 @@ const { state, error, handleSubmit, reset } = useStreamingForm({
 ```
 
 ### Copy to Clipboard
-Use `useCopyWithToast` for user feedback:
+Two hooks for different feedback patterns:
+- **`useCopyToClipboard`** — core primitive, returns `copied` boolean for inline button state changes (used in OKR, Beslutningslogg)
+- **`useCopyWithToast`** — wraps the above, adds toast notification (used in KonseptSpeil, Antakelseskart)
+
 ```tsx
-const { copy, copied } = useCopyWithToast();
+// Inline feedback (button changes to "Kopiert!")
+const { copied, copyToClipboard } = useCopyToClipboard();
+
+// Toast feedback (floating notification)
+const { showToast, toastMessage, copyWithToast } = useCopyWithToast();
 ```
 
 ### Form Input Handlers

@@ -266,7 +266,6 @@ export function setFieldInvalid(
 
   if (errorElement) {
     errorElement.textContent = errorMessage;
-    errorElement.classList.remove('hidden');
   }
 }
 
@@ -282,7 +281,6 @@ export function clearFieldInvalid(
 
   if (errorElement) {
     errorElement.textContent = '';
-    errorElement.classList.add('hidden');
   }
 }
 

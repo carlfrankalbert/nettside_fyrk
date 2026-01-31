@@ -110,7 +110,6 @@ describe('form-validation', () => {
     beforeEach(() => {
       mockField = document.createElement('input');
       mockErrorElement = document.createElement('span');
-      mockErrorElement.classList.add('hidden');
     });
 
     it('should set aria-invalid to true', () => {
@@ -126,11 +125,6 @@ describe('form-validation', () => {
     it('should set error message text', () => {
       setFieldInvalid(mockField, mockErrorElement, 'Error message');
       expect(mockErrorElement.textContent).toBe('Error message');
-    });
-
-    it('should remove hidden class from error element', () => {
-      setFieldInvalid(mockField, mockErrorElement, 'Error message');
-      expect(mockErrorElement.classList.contains('hidden')).toBe(false);
     });
 
     it('should handle null error element gracefully', () => {
@@ -167,11 +161,6 @@ describe('form-validation', () => {
     it('should clear error message text', () => {
       clearFieldInvalid(mockField, mockErrorElement);
       expect(mockErrorElement.textContent).toBe('');
-    });
-
-    it('should add hidden class to error element', () => {
-      clearFieldInvalid(mockField, mockErrorElement);
-      expect(mockErrorElement.classList.contains('hidden')).toBe(true);
     });
 
     it('should handle null error element gracefully', () => {

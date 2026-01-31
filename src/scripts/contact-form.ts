@@ -22,7 +22,6 @@ export function initContactForm(): void {
     // Clear all previous errors
     const errorElements = form.querySelectorAll('[id$="-error"]');
     errorElements.forEach((el) => {
-      el.classList.add('hidden');
       el.textContent = '';
     });
 
