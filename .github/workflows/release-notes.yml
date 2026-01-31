@@ -1,0 +1,66 @@
+name: Generate Release Notes
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to generate release notes for'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-notes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Find merged PR
+        id: find-pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -n "${{ inputs.pr_number }}" ]; then
+            echo "pr_number=${{ inputs.pr_number }}" >> "$GITHUB_OUTPUT"
+          else
+            PR_NUMBER=$(gh pr list --state merged --search "${{ github.sha }}" --json number --jq '.[0].number // empty')
+            if [ -z "$PR_NUMBER" ]; then
+              echo "No merged PR found for this push, skipping."
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Generate release notes
+        if: steps.find-pr.outputs.skip != 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx tsx scripts/generate-release-notes.ts --pr ${{ steps.find-pr.outputs.pr_number }}
+
+      - name: Create PR with release notes
+        if: steps.find-pr.outputs.skip != 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: release-notes/pr-${{ steps.find-pr.outputs.pr_number }}
+          commit-message: 'docs: add release notes for PR #${{ steps.find-pr.outputs.pr_number }}'
+          title: 'docs: release notes for PR #${{ steps.find-pr.outputs.pr_number }}'
+          body: |
+            Auto-generated release notes for PR #${{ steps.find-pr.outputs.pr_number }}.
+
+            Please review the content before merging.
+          labels: release-notes
+          delete-branch: true

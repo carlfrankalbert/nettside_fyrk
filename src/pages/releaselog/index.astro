@@ -1,0 +1,70 @@
+---
+/**
+ * Releaselog list page
+ * Shows the latest release notes in reverse chronological order
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('releaselog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 20);
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString('no-NO', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+---
+
+<BaseLayout
+  title="Releaselog | FYRK"
+  description="Hva er nytt i FYRK sine verktøy og tjenester."
+>
+  <article class="py-16 md:py-24 px-6">
+    <div class="max-w-3xl mx-auto">
+
+      <header class="mb-16">
+        <h1 class="text-h2 md:text-h1 font-semibold text-brand-navy mb-4 leading-tight">
+          Releaselog
+        </h1>
+        <p class="text-xl md:text-2xl text-neutral-600 leading-relaxed">
+          Hva er nytt — oppdateringer, forbedringer og fiks.
+        </p>
+      </header>
+
+      <div class="space-y-8">
+        {posts.map((post) => (
+          <a
+            href={`/releaselog/${post.slug}`}
+            class="block rounded-lg border border-neutral-200 bg-white p-6 md:p-8 no-underline shadow-sm hover:border-neutral-300 transition-all"
+          >
+            <time class="text-sm text-neutral-500" datetime={post.data.date.toISOString()}>
+              {formatDate(post.data.date)}
+            </time>
+            <h2 class="text-h4 font-semibold text-brand-navy mt-1 mb-2">
+              {post.data.title}
+            </h2>
+            <p class="text-neutral-600 mb-3">{post.data.summary}</p>
+            {post.data.tags && (
+              <div class="flex flex-wrap gap-2">
+                {post.data.tags.map((tag: string) => (
+                  <span class="text-xs bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </a>
+        ))}
+      </div>
+
+      {posts.length === 0 && (
+        <p class="text-neutral-500">Ingen oppdateringer ennå.</p>
+      )}
+
+    </div>
+  </article>
+</BaseLayout>

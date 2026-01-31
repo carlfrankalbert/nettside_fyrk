@@ -284,3 +284,34 @@ When asked about changes, respond with:
 - Consequences
 - Alternatives (if any)
 - Risk / what can go wrong
+
+---
+
+## 📰 Release Notes Contract
+
+### PR Title & Body Template
+When creating PRs, include:
+- **User impact:** What changes for the end user?
+- **Why:** Motivation / problem being solved
+- **Risk:** What could break?
+- **Security/PII:** Any sensitive data implications?
+
+### Commit Conventions (Recommended)
+Use Conventional Commits prefixes:
+- `feat:` — new user-facing feature
+- `fix:` — bug fix
+- `perf:` — performance improvement
+- `security:` — security-related change
+- `docs:` — documentation only
+- `chore:` — tooling, deps, config
+
+### Label Conventions
+Apply labels to PRs for automated release note categorization:
+- `user-facing` — visible to end users
+- `security` — security-related
+- `performance` — performance improvement
+- `internal` — tooling/infra, not user-visible
+- `breaking` — breaking change requiring attention
+
+### Automated Release Notes
+On merge to `main`, the `release-notes.yml` workflow generates a draft release note PR via Claude. The generated content is scanned for PII/secrets before writing. Review before merging.
