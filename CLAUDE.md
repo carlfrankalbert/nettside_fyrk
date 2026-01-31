@@ -208,3 +208,72 @@ Use `useFormInputHandlers` for consistent textarea behavior with auto-resize.
 ```bash
 npm run build && npm run preview
 ```
+
+---
+
+## 🏛️ Design & Architecture Contract
+
+This contract locks *intention and standards* after the post-refactor QA. It is a **living contract** that only changes explicitly.
+
+### Overriding Principles (locked)
+Used as decision filter for all changes:
+
+1. **Clarity for user** > internal elegance
+2. **Decision quality** > feature breadth
+3. **Simplicity** > flexibility
+4. **Maintainability** > optimization
+5. **Aesthetics** only when free
+
+If a proposal breaks one of these → it must be explicitly justified.
+
+### Architecture – Allowed Patterns
+- Clear separation between: UI/presentation, content/copy, data/API/edge
+- No hidden logic in visual components
+- Naming signals *intention*, not implementation
+- Small, readable components over generic "catch-alls"
+- Duplication tolerated if the alternative is abstraction without clear benefit
+- No "smart" magic without clear need
+
+### API & Data Contracts (locked behavior)
+- All API endpoints: validate input explicitly, return consistent error codes, fail predictably
+- UI must always have a defined fallback state
+- "Happy path only" is not acceptable
+- If an API changes → assess consequence for existing flows before implementation
+
+### Quality Gate (always active)
+No change is considered done if it breaks:
+- Build and typecheck must be green
+- No new warnings without explicit acceptance
+- Critical user flows must be manually testable in <15 min
+- No dead links, inconsistent CTAs, or hidden content regression
+
+If something cannot be reasonably tested → the design is probably too complex.
+
+### Allowed Without New Architecture Decision
+- UI adjustments and content improvements
+- Small component refactors
+- Performance improvements without behavior change
+- Simplification and deletion of code
+
+### Changes Requiring Explicit Re-negotiation
+- New overarching architecture choices
+- New central abstractions
+- Major framework changes
+- Introduction of complex state or orchestration
+- Changes that increase cognitive load for new developers
+
+### How to Break the Contract (if necessary)
+1. Describe which principle is being broken
+2. Explain why the alternative is worse
+3. Limit scope
+4. Describe exit strategy
+
+No "silent drift".
+
+### Required Response Format for Changes
+When asked about changes, respond with:
+- **Recommendation**
+- Rationale (brief)
+- Consequences
+- Alternatives (if any)
+- Risk / what can go wrong
