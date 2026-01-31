@@ -3,9 +3,11 @@
  * About page for FYRK
  * Standalone page with more detail about the founder and company
  */
+import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Breadcrumb from '../components/ui/Breadcrumb.astro';
 import { EXTERNAL_LINKS, CONTACT_LABEL } from '../utils/links';
+import carlJohnsonImage from '../assets/images/carl-johnson.png';
 
 const breadcrumbItems = [
   { label: 'Om FYRK' },
@@ -41,11 +43,11 @@ const breadcrumbItems = [
       <section class="mb-12 bg-white rounded-xl p-8 border border-neutral-100 shadow-sm">
         <div class="flex flex-col md:flex-row gap-6 mb-6">
           <div class="flex-shrink-0">
-            <img
-              src="/images/carl-johnson.png"
+            <Image
+              src={carlJohnsonImage}
               alt="Carl Johnson"
-              width="128"
-              height="128"
+              width={128}
+              height={128}
               class="w-24 h-24 md:w-32 md:h-32 rounded-xl object-cover grayscale"
               loading="lazy"
             />

@@ -3,6 +3,8 @@
  * About section for the landing page
  * "Hvem står bak" - Consolidated section with founder info, experience, and LinkedIn CTA
  */
+import { Image } from 'astro:assets';
+import carlJohnsonImage from '../../assets/images/carl-johnson.png';
 
 interface LinkedinCta {
   text: string;
@@ -54,9 +56,11 @@ const { title, whyFyrk, founder } = Astro.props;
       <div class="flex flex-col md:flex-row gap-6 mb-6">
         {founder.image && (
           <div class="flex-shrink-0">
-            <img
-              src={founder.image}
+            <Image
+              src={carlJohnsonImage}
               alt={founder.heading}
+              width={128}
+              height={128}
               class="w-24 h-24 md:w-32 md:h-32 rounded-xl object-cover grayscale"
               loading="lazy"
             />
