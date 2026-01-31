@@ -2,6 +2,8 @@
 import MinimalLayout from '../layouts/MinimalLayout.astro';
 import OKRPageContent from '../components/OKRPageContent';
 import ToolFooter from '../components/ui/ToolFooter.astro';
+import ToolWhenToUse from '../components/ui/ToolWhenToUse.astro';
+import ToolBenefits from '../components/ui/ToolBenefits.astro';
 
 export const prerender = false;
 ---
@@ -26,6 +28,21 @@ export const prerender = false;
           Ment som støtte til refleksjon – ikke fasit.
         </p>
       </header>
+
+      <ToolWhenToUse items={[
+        'Når du har skrevet OKR-er, men er usikker på om de er gode nok',
+        'Før du presenterer OKR-ene for teamet eller ledelsen',
+        'Når du vil ha rask feedback uten å vente på en workshop',
+      ]} />
+
+      <ToolBenefits
+        items={[
+          'Konkret feedback på hvert Key Result',
+          'Vurdering av målbarhet, ambisjonsnivå og kobling til Objective',
+          'Forslag til forbedringer du kan bruke direkte',
+        ]}
+        footnote="Ment som støtte til refleksjon – ikke fasit."
+      />
 
       <!-- Dynamic content (OKR reviewer, example section, etc.) -->
       <OKRPageContent client:load />

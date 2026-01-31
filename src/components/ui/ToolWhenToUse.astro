@@ -1,0 +1,25 @@
+---
+/**
+ * "Når bør du bruke dette?" section for tool pages
+ *
+ * Canonical component — do not create page-specific variants.
+ * All tool pages must use this component for consistency.
+ */
+interface Props {
+  items: string[];
+}
+
+const { items } = Astro.props;
+---
+
+<section class="mb-8 p-4 bg-white border border-neutral-200 rounded-xl">
+  <h2 class="text-base font-semibold text-brand-navy mb-3">Når bør du bruke dette?</h2>
+  <ul class="text-neutral-600 space-y-2 text-sm">
+    {items.map((item) => (
+      <li class="flex items-start gap-2">
+        <span class="text-brand-cyan-darker shrink-0">•</span>
+        <span>{item}</span>
+      </li>
+    ))}
+  </ul>
+</section>

@@ -2,6 +2,8 @@
 import MinimalLayout from '../layouts/MinimalLayout.astro';
 import BeslutningsloggForm from '../components/Beslutningslogg';
 import ToolFooter from '../components/ui/ToolFooter.astro';
+import ToolWhenToUse from '../components/ui/ToolWhenToUse.astro';
+import ToolBenefits from '../components/ui/ToolBenefits.astro';
 
 export const prerender = false;
 ---
@@ -29,47 +31,21 @@ export const prerender = false;
 
       </header>
 
-      <!-- Når bør du bruke dette? -->
-      <section class="mb-8 p-4 bg-white border border-neutral-200 rounded-xl">
-        <h2 class="text-base font-semibold text-brand-navy mb-3">Når bør du bruke dette?</h2>
-        <ul class="text-neutral-600 space-y-2 text-sm">
-          <li class="flex items-start gap-2">
-            <span class="text-brand-cyan-darker shrink-0">•</span>
-            <span>Etter en viktig produktbeslutning eller prioritering</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-brand-cyan-darker shrink-0">•</span>
-            <span>Når teamet har valgt én vei blant flere alternativer</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-brand-cyan-darker shrink-0">•</span>
-            <span>For å skape sporbarhet og ansvarlighet i beslutninger</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-brand-cyan-darker shrink-0">•</span>
-            <span>Som avslutning etter en refleksjon med Konseptspeilet</span>
-          </li>
-        </ul>
-      </section>
+      <ToolWhenToUse items={[
+        'Etter en viktig produktbeslutning eller prioritering',
+        'Når teamet har valgt én vei blant flere alternativer',
+        'For å skape sporbarhet og ansvarlighet i beslutninger',
+        'Som avslutning etter en refleksjon med Konseptspeilet',
+      ]} />
 
-      <!-- Hva får du? -->
-      <section class="mb-8 p-4 bg-feedback-success-light border border-feedback-success/30 rounded-xl">
-        <h2 class="text-base font-semibold text-brand-navy mb-3">Hva får du?</h2>
-        <ul class="text-neutral-700 space-y-2 text-sm">
-          <li class="flex items-start gap-2">
-            <span class="text-feedback-success shrink-0">✓</span>
-            <span>En strukturert Markdown-logg du kan lime inn hvor som helst</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-feedback-success shrink-0">✓</span>
-            <span>Tydelig dokumentasjon av beslutning, grunnlag og usikkerhet</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-feedback-success shrink-0">✓</span>
-            <span>Sporbarhet for fremtidig referanse og læring</span>
-          </li>
-        </ul>
-      </section>
+      <ToolBenefits
+        heading="Hva får du?"
+        items={[
+          'En strukturert Markdown-logg du kan lime inn hvor som helst',
+          'Tydelig dokumentasjon av beslutning, grunnlag og usikkerhet',
+          'Sporbarhet for fremtidig referanse og læring',
+        ]}
+      />
 
       <!-- Dynamic content (form and preview) -->
       <div class="mt-8">

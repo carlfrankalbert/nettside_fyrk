@@ -2,6 +2,8 @@
 import MinimalLayout from '../layouts/MinimalLayout.astro';
 import AntakelseskartComponent from '../components/Antakelseskart';
 import ToolFooter from '../components/ui/ToolFooter.astro';
+import ToolWhenToUse from '../components/ui/ToolWhenToUse.astro';
+import ToolBenefits from '../components/ui/ToolBenefits.astro';
 
 export const prerender = false;
 ---
@@ -28,50 +30,21 @@ export const prerender = false;
         </p>
       </header>
 
-      <!-- When to use this? -->
-      <section class="mb-8 p-4 bg-white border border-neutral-200 rounded-xl">
-        <h2 class="text-base font-semibold text-brand-navy mb-3">Når bør du bruke dette?</h2>
-        <ul class="text-neutral-600 space-y-2 text-sm">
-          <li class="flex items-start gap-2">
-            <span class="text-brand-cyan-darker shrink-0">•</span>
-            <span>Før du forplikter deg til en større produkt- eller strategibeslutning</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-brand-cyan-darker shrink-0">•</span>
-            <span>Når teamet diskuterer, men snakker forbi hverandre</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-brand-cyan-darker shrink-0">•</span>
-            <span>I strategimøter for å synliggjøre hva som tas for gitt</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-brand-cyan-darker shrink-0">•</span>
-            <span>Når du vil finne ut hva som faktisk bør testes</span>
-          </li>
-        </ul>
-      </section>
+      <ToolWhenToUse items={[
+        'Før du forplikter deg til en større produkt- eller strategibeslutning',
+        'Når teamet diskuterer, men snakker forbi hverandre',
+        'I strategimøter for å synliggjøre hva som tas for gitt',
+        'Når du vil finne ut hva som faktisk bør testes',
+      ]} />
 
-      <!-- What you get back -->
-      <section class="mb-8 p-4 bg-feedback-success-light border border-feedback-success/30 rounded-xl">
-        <h2 class="text-base font-semibold text-brand-navy mb-3">Hva får du tilbake?</h2>
-        <ul class="text-neutral-700 space-y-2 text-sm">
-          <li class="flex items-start gap-2">
-            <span class="text-feedback-success shrink-0">✓</span>
-            <span>8-15 implisitte antakelser gruppert i fire kategorier</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-feedback-success shrink-0">✓</span>
-            <span>Mulighet til å vurdere sikkerhet og konsekvens for hver antakelse</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-feedback-success shrink-0">✓</span>
-            <span>Automatisk markering av kritiske antakelser (lav sikkerhet + høy konsekvens)</span>
-          </li>
-        </ul>
-        <p class="text-sm text-neutral-500 italic mt-4">
-          Ingen råd. Ingen fasit. Bare synliggjøring av det som er tatt for gitt.
-        </p>
-      </section>
+      <ToolBenefits
+        items={[
+          '8-15 implisitte antakelser gruppert i fire kategorier',
+          'Mulighet til å vurdere sikkerhet og konsekvens for hver antakelse',
+          'Automatisk markering av kritiske antakelser (lav sikkerhet + høy konsekvens)',
+        ]}
+        footnote="Ingen råd. Ingen fasit. Bare synliggjøring av det som er tatt for gitt."
+      />
 
       <!-- Dynamic content (input, CTA, result) -->
       <div class="mt-8">

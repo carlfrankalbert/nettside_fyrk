@@ -3,6 +3,8 @@ import MinimalLayout from '../../layouts/MinimalLayout.astro';
 import PreMortemBrief from '../../components/PreMortemBrief';
 import ToolFooter from '../../components/ui/ToolFooter.astro';
 import Breadcrumb from '../../components/ui/Breadcrumb.astro';
+import ToolWhenToUse from '../../components/ui/ToolWhenToUse.astro';
+import ToolBenefits from '../../components/ui/ToolBenefits.astro';
 
 export const prerender = false;
 
@@ -37,53 +39,22 @@ const breadcrumbItems = [
       </header>
 
       <!-- When to use this? -->
-      <section class="mb-8 p-4 bg-white border border-neutral-200 rounded-xl">
-        <h2 class="text-base font-semibold text-brand-navy mb-3">Når bør du bruke dette?</h2>
-        <ul class="text-neutral-600 space-y-2 text-sm">
-          <li class="flex items-start gap-2">
-            <span class="text-brand-cyan-darker shrink-0">•</span>
-            <span>Før du forplikter deg til en større beslutning som er vanskelig å reversere</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-brand-cyan-darker shrink-0">•</span>
-            <span>Når teamet er enige, men ingen har spurt "hva om vi tar feil?"</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-brand-cyan-darker shrink-0">•</span>
-            <span>I styremøter og ledergrupper for å dokumentere risikovurdering</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-brand-cyan-darker shrink-0">•</span>
-            <span>Når du vil ha konkrete kriterier for når du bør evaluere eller avbryte</span>
-          </li>
-        </ul>
-      </section>
+      <ToolWhenToUse items={[
+        'Før du forplikter deg til en større beslutning som er vanskelig å reversere',
+        'Når teamet er enige, men ingen har spurt "hva om vi tar feil?"',
+        'I styremøter og ledergrupper for å dokumentere risikovurdering',
+        'Når du vil ha konkrete kriterier for når du bør evaluere eller avbryte',
+      ]} />
 
-      <!-- What you get back -->
-      <section class="mb-8 p-4 bg-feedback-success-light border border-feedback-success/30 rounded-xl">
-        <h2 class="text-base font-semibold text-brand-navy mb-3">Hva får du tilbake?</h2>
-        <ul class="text-neutral-700 space-y-2 text-sm">
-          <li class="flex items-start gap-2">
-            <span class="text-feedback-success shrink-0">✓</span>
-            <span>5-6 konkrete failure modes med konsekvenskategori</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-feedback-success shrink-0">✓</span>
-            <span>Tidlige varselsignaler du kan overvåke</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-feedback-success shrink-0">✓</span>
-            <span>Stopp-kriterier for PAUSE og FULL TILBAKETREKKING</span>
-          </li>
-          <li class="flex items-start gap-2">
-            <span class="text-feedback-success shrink-0">✓</span>
-            <span>Forslag til eierskap og ansvar</span>
-          </li>
-        </ul>
-        <p class="text-sm text-neutral-500 italic mt-4">
-          Ingen anbefaling om hva du bør gjøre. Bare strukturert risikotenkning.
-        </p>
-      </section>
+      <ToolBenefits
+        items={[
+          '5-6 konkrete failure modes med konsekvenskategori',
+          'Tidlige varselsignaler du kan overvåke',
+          'Stopp-kriterier for PAUSE og FULL TILBAKETREKKING',
+          'Forslag til eierskap og ansvar',
+        ]}
+        footnote="Ingen anbefaling om hva du bør gjøre. Bare strukturert risikotenkning."
+      />
 
       <!-- Dynamic content (input, CTA, result) -->
       <div class="mt-8">

@@ -1,0 +1,32 @@
+---
+/**
+ * "Hva får du tilbake?" section for tool pages
+ *
+ * Canonical component — do not create page-specific variants.
+ * All tool pages must use this component for consistency.
+ */
+interface Props {
+  heading?: string;
+  items: string[];
+  footnote?: string;
+}
+
+const { heading = 'Hva får du tilbake?', items, footnote } = Astro.props;
+---
+
+<section class="mb-8 p-4 bg-feedback-success-light border border-feedback-success/30 rounded-xl">
+  <h2 class="text-base font-semibold text-brand-navy mb-3">{heading}</h2>
+  <ul class="text-neutral-700 space-y-2 text-sm">
+    {items.map((item) => (
+      <li class="flex items-start gap-2">
+        <span class="text-feedback-success shrink-0">✓</span>
+        <span>{item}</span>
+      </li>
+    ))}
+  </ul>
+  {footnote && (
+    <p class="text-sm text-neutral-500 italic mt-4">
+      {footnote}
+    </p>
+  )}
+</section>
