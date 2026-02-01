@@ -1,0 +1,67 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+
+interface ReleaseEntry {
+  date: string;
+  title: string;
+  summary: string;
+  tags: string[];
+  items: string[];
+}
+
+// Add new entries at the top. Keep it lean.
+const entries: ReleaseEntry[] = [
+  {
+    date: '2026-02-01',
+    title: 'Decision Loop lansert',
+    summary: 'Første versjon av Decision Loop — daglig beslutningsjournal.',
+    tags: ['feature'],
+    items: [
+      'Daglig visning med autosave mens du skriver',
+      'Problemklargjøring med fire strukturerte spørsmål',
+      'Lås-flyt som gjør beslutningen uforanderlig',
+      'Beslutningslogg med oversikt over tidligere beslutninger',
+      'Deling via unik lenke (ingen innlogging for mottaker)',
+      'Markdown-eksport for arkivering',
+      'Magic link-innlogging via Supabase',
+    ],
+  },
+];
+
+function formatDate(dateStr: string): string {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('nb-NO', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
+---
+
+<AppLayout title="Releaselog — Decision Loop">
+  <h1 class="text-2xl font-bold text-neutral-900">Releaselog</h1>
+  <p class="mt-2 text-sm text-neutral-500">Oppdateringer og forbedringer i Decision Loop.</p>
+
+  <div class="mt-8 space-y-8">
+    {entries.map((entry) => (
+      <article class="border-b border-neutral-200 pb-6 last:border-0">
+        <time class="text-sm text-neutral-400">{formatDate(entry.date)}</time>
+        <h2 class="mt-1 text-lg font-semibold text-neutral-800">{entry.title}</h2>
+        <p class="mt-1 text-sm text-neutral-600">{entry.summary}</p>
+        <div class="mt-2 flex gap-1">
+          {entry.tags.map((tag) => (
+            <span class="rounded bg-neutral-100 px-2 py-0.5 text-xs text-neutral-500">{tag}</span>
+          ))}
+        </div>
+        <ul class="mt-3 space-y-1 text-sm text-neutral-700">
+          {entry.items.map((item) => (
+            <li class="flex gap-2">
+              <span class="text-neutral-400">—</span>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </article>
+    ))}
+  </div>
+</AppLayout>
