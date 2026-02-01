@@ -42,46 +42,17 @@ src/
 └── types/          # TypeScript type definitions
 ```
 
-## 🎭 Review Personas & Commands
+## 🎭 Review Commands
 
-This project uses **orchestrated persona reviews** via Claude Code slash commands. Personas are "lenses" that identify risks without proposing solutions.
-
-### Review Workflow
+Slash commands for unified, cross-disciplinary review (UX, QA, tech, product, legal, data) — one voice, decision-ready output.
 
 | Phase | Command | When to Use |
 |-------|---------|-------------|
-| 1. Concept | `/review-concept` | Before coding - review idea/copy/flow |
-| 2. Change | `/review-change` | After coding - review diff/implementation |
-| 3. Release | `/review-release` | Before merge - final GO/NO-GO gate |
+| 1. Concept | `/review-concept` | Before coding — review idea/copy/flow |
+| 2. Change | `/review-change` | After coding — review diff/implementation |
+| 3. Release | `/review-release` | Before merge — GO/NO-GO gate |
 
-### Orchestrated Review Output
-
-The orchestrated reviews run all personas sequentially and output:
-```
-UX RISKS → QA RISKS → FRONTEND RISKS → BACKEND RISKS → DATA RISKS → LEGAL RISKS → FYRK QUALITY RISKS → TRIAGE → DECISION
-```
-
-### Individual Personas
-
-Run a single lens for focused feedback:
-
-| Command | Focus Area |
-|---------|------------|
-| `/personas:ux` | Mental model, microcopy, friction, a11y basics |
-| `/personas:qa` | Edge cases, error states, timeouts, cross-platform |
-| `/personas:frontend` | State, semantics, responsiveness, performance |
-| `/personas:backend` | Robustness, timeouts, security, observability |
-| `/personas:data` | Events, funnels, PII in logging, metrics |
-| `/personas:legal` | GDPR, PII risk, liability, B2B vs B2C |
-| `/personas:fyrk-quality` | FYRK standards: mirror contract, minimalism, actionability |
-| `/personas:triage` | Categorize findings: Critical / Important / Can wait |
-| `/personas:go-no-go` | Final decision based on previous review |
-
-### Usage Tips
-
-- Always include **goal/scope/constraints** to avoid generic answers
-- Max 5 risk points per section, no solutions
-- Use `/review-release` after a full review for quick GO/NO-GO
+Include **goal/scope/constraints** to avoid generic answers.
 
 ## 🚀 Astro & Performance Standards
 
