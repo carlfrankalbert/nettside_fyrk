@@ -1,23 +1,52 @@
 #!/usr/bin/env node
 
 /**
- * Docs Impact Gate
+ * Docs Impact Gate (hard/soft)
  *
- * Checks whether a PR that changes code also includes documentation updates.
- * Exits with code 1 if code changed but no docs changed and no bypass phrase found.
+ * HARD paths (src/, apps/, pages/, etc.) — require docs or explicit exemption.
+ * SOFT paths (.github/, scripts/, etc.) — print notice, never fail.
+ *
+ * Exemption token in PR body:
+ *   DOCS-IMPACT: none — <reason>
+ *   (legacy: DOCS-NOT-NEEDED: <reason> also accepted)
  *
  * Usage:
- *   node scripts/check-docs-impact.mjs [--pr-body <string>]
- *   PR_BODY="..." node scripts/check-docs-impact.mjs
- *
- * The PR body can contain "DOCS-NOT-NEEDED: <reason>" to bypass the check.
+ *   PR_BODY="..." BASE_REF="origin/main" node scripts/check-docs-impact.mjs
  */
 
 import { execSync } from 'node:child_process';
 
-const CODE_PATHS = ['src/', 'apps/', 'scripts/', '.github/workflows/', 'pages/'];
-const DOCS_PATHS = ['docs/', 'CONTRIBUTING.md', 'README.md', 'CLAUDE.md', 'TESTING.md', 'QUICKSTART.md'];
-const BYPASS_PATTERN = /DOCS-NOT-NEEDED:\s*\S/i;
+const HARD_PATHS = [
+  'src/',
+  'apps/',
+  'pages/',
+  'components/',
+  'lib/',
+  'api/',
+  'functions/',
+  'workers/',
+  'server/',
+  'packages/',
+];
+
+const SOFT_PATHS = [
+  '.github/',
+  'scripts/',
+  'tooling/',
+  'config/',
+];
+
+const DOCS_PATHS = [
+  'docs/',
+  'CONTRIBUTING.md',
+  'README.md',
+  'CLAUDE.md',
+  'TESTING.md',
+  'QUICKSTART.md',
+];
+
+const EXEMPT_PATTERN = /DOCS-IMPACT:\s*none\s*[—–-]\s*\S/i;
+const LEGACY_PATTERN = /DOCS-NOT-NEEDED:\s*\S/i;
 
 function getChangedFiles() {
   try {
@@ -25,7 +54,6 @@ function getChangedFiles() {
     const diff = execSync(`git diff --name-only ${base}...HEAD`, { encoding: 'utf8' });
     return diff.trim().split('\n').filter(Boolean);
   } catch {
-    // Fallback: compare with HEAD~1
     try {
       const diff = execSync('git diff --name-only HEAD~1', { encoding: 'utf8' });
       return diff.trim().split('\n').filter(Boolean);
@@ -35,12 +63,16 @@ function getChangedFiles() {
   }
 }
 
-function main() {
-  const prBody = process.env.PR_BODY || process.argv.slice(2).join(' ') || '';
+function matchesAny(file, paths) {
+  return paths.some((p) => file.startsWith(p));
+}
 
-  // Check bypass
-  if (BYPASS_PATTERN.test(prBody)) {
-    console.log('Docs gate: bypassed via DOCS-NOT-NEEDED.');
+function main() {
+  const prBody = process.env.PR_BODY || '';
+
+  // Check exemption tokens
+  if (EXEMPT_PATTERN.test(prBody) || LEGACY_PATTERN.test(prBody)) {
+    console.log('Docs gate: exempt via DOCS-IMPACT token.');
     process.exit(0);
   }
 
@@ -50,34 +82,43 @@ function main() {
     process.exit(0);
   }
 
-  const codeChanged = files.some((f) => CODE_PATHS.some((p) => f.startsWith(p)));
-  const docsChanged = files.some((f) => DOCS_PATHS.some((p) => f.startsWith(p)));
+  const hardChanged = files.filter((f) => matchesAny(f, HARD_PATHS));
+  const softChanged = files.filter((f) => matchesAny(f, SOFT_PATHS));
+  const docsChanged = files.some((f) => matchesAny(f, DOCS_PATHS));
 
-  if (!codeChanged) {
-    console.log('Docs gate: no code changes detected, skipping.');
-    process.exit(0);
-  }
-
+  // If docs changed, always pass
   if (docsChanged) {
-    console.log('Docs gate: code and docs both changed. OK.');
+    console.log('Docs gate: docs updated. OK.');
     process.exit(0);
   }
 
-  // Code changed but no docs
-  console.error(`
-Docs gate FAILED
+  // HARD paths changed without docs → fail
+  if (hardChanged.length > 0) {
+    console.error(`
+Docs gate FAILED — HARD code changed without docs update.
 
-Code files changed but no documentation was updated.
-Changed code files:
-${files.filter((f) => CODE_PATHS.some((p) => f.startsWith(p))).map((f) => `  - ${f}`).join('\n')}
+Changed product files:
+${hardChanged.map((f) => `  - ${f}`).join('\n')}
 
 To fix, either:
   1. Update relevant docs (see CONTRIBUTING.md for rules)
-  2. Add "DOCS-NOT-NEEDED: <reason>" to your PR description
+  2. Add to your PR description:  DOCS-IMPACT: none — <reason>
 
 See: CONTRIBUTING.md#documentation-update-rules
 `);
-  process.exit(1);
+    process.exit(1);
+  }
+
+  // SOFT paths only → notice, pass
+  if (softChanged.length > 0) {
+    console.log(`Docs gate: only infra/tooling files changed (soft path). Consider updating docs if relevant.`);
+    console.log(`  Changed: ${softChanged.join(', ')}`);
+    process.exit(0);
+  }
+
+  // No hard or soft matches (e.g. only root config files)
+  console.log('Docs gate: no monitored paths changed, skipping.');
+  process.exit(0);
 }
 
 main();

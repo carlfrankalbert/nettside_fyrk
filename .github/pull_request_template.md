@@ -7,7 +7,16 @@
 ## Risk
 <!-- What could break? -->
 
-## Doc Impact
+## Docs
+
+<!-- You MUST do one of the following: -->
+<!-- Option A: link updated doc files -->
+<!-- Option B: write the exemption token (exactly as shown) -->
+
+**Docs updated:** <!-- docs/features/x.md, docs/routines/y.md -->
+**OR** `DOCS-IMPACT: none — <reason why no docs needed>`
+
+### Doc Impact checklist
 
 - [ ] User-facing behavior changed
 - [ ] New/changed routes/pages/tools
@@ -15,10 +24,6 @@
 - [ ] Ops routine introduced/changed (deploy/release/migration/etc.)
 - [ ] API/data contract changed
 - [ ] None of the above (explain briefly)
-
-**Docs updated:** <!-- link to updated doc files, or remove line -->
-**Docs not needed because:** <!-- brief reason, or remove line -->
-<!-- To bypass the CI docs gate, write: DOCS-NOT-NEEDED: <reason> -->
 
 ## Checklist
 

@@ -5,7 +5,7 @@
 1. **Before coding:** check if your change requires a doc update (see `CONTRIBUTING.md`)
 2. **While coding:** update docs in the same PR as code changes
 3. **In the PR:** fill out the Doc Impact checklist in the PR template
-4. **CI enforces:** the docs-gate workflow fails if code changed but no docs updated (bypass with `DOCS-NOT-NEEDED: <reason>` in PR body)
+4. **CI enforces:** the docs-gate workflow fails if product code changed (hard paths) but no docs updated — exempt with `DOCS-IMPACT: none — <reason>` in PR body. Infra/tooling changes (soft paths) only print a notice.
 
 ---
 
@@ -76,10 +76,12 @@ One file per operational procedure. Required sections:
 ### Feature docs
 
 - [OKR-sjekken](features/okr-sjekken.md)
+- [_template](features/_template.md) — copy this when adding a new feature
 
 ### Routine docs
 
 - [Deploy to production](routines/deploy.md)
+- [_template](routines/_template.md) — copy this when adding a new routine
 
 ### Deployment
 
