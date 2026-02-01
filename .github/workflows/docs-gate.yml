@@ -1,0 +1,20 @@
+name: Docs Gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, edited]
+
+jobs:
+  check-docs-impact:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check docs impact
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          BASE_REF: origin/${{ github.event.pull_request.base.ref }}
+        run: node scripts/check-docs-impact.mjs
