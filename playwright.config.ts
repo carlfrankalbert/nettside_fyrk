@@ -15,6 +15,9 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
 
+  // Use project name in snapshot path instead of OS, so baselines work across macOS and Linux CI
+  snapshotPathTemplate: '{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}-{projectName}{ext}',
+
   use: {
     baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || (process.env.CI ? 'https://fyrk.no' : 'http://localhost:4321'),
     trace: 'on-first-retry',
