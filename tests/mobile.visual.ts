@@ -30,7 +30,7 @@ test.describe('Mobile Visual Regression - UX Designer Perspective', () => {
   test('services section mobile layout', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    const servicesSection = page.getByRole('heading', { name: /Hva vi tilbyr/i }).locator('..').locator('..');
+    const servicesSection = page.getByRole('heading', { name: /Tjenester/i }).locator('..').locator('..');
     await expect(servicesSection).toHaveScreenshot('services-mobile.png', {
       maxDiffPixelRatio: 0.01,
     });
