@@ -1,22 +1,14 @@
 ---
 import PublicLayout from '../layouts/PublicLayout.astro';
+import LoginForm from '../components/LoginForm';
 ---
 
 <PublicLayout title="Log in — Decision Loop">
   <div class="mx-auto max-w-sm pt-16">
     <h1 class="text-2xl font-bold">Decision Loop</h1>
     <p class="mt-2 text-neutral-500">Log in with your email to continue.</p>
-    <div class="mt-8" id="login-root"></div>
+    <div class="mt-8">
+      <LoginForm client:load />
+    </div>
   </div>
 </PublicLayout>
-
-<script>
-  import { createElement } from 'react';
-  import { createRoot } from 'react-dom/client';
-  import LoginForm from '../components/LoginForm';
-
-  const root = document.getElementById('login-root');
-  if (root) {
-    createRoot(root).render(createElement(LoginForm));
-  }
-</script>

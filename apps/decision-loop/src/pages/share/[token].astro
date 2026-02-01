@@ -1,20 +1,65 @@
 ---
 import PublicLayout from '../../layouts/PublicLayout.astro';
-
-export function getStaticPaths() {
-  // Share pages require SSR to look up tokens dynamically.
-  // No pages are generated at build time.
-  return [];
-}
+import { createServiceRoleClient } from '../../lib/supabase';
 
 const { token } = Astro.params;
+
+if (!token) {
+  return Astro.redirect('/login');
+}
+
+const supabase = createServiceRoleClient();
+
+const { data: lock } = await supabase
+  .from('decision_locks')
+  .select('*')
+  .eq('share_token', token)
+  .single();
+
+if (!lock) {
+  return new Response(null, { status: 404 });
+}
+
+const { data: entry } = await supabase
+  .from('day_entries')
+  .select('date, one_thing')
+  .eq('id', lock.day_entry_id)
+  .single();
+
+if (!entry) {
+  return new Response(null, { status: 404 });
+}
 ---
 
-<PublicLayout title="Shared Decision — Decision Loop">
+<PublicLayout title={`Decision: ${entry.one_thing} — Decision Loop`}>
   <div class="pt-8">
-    <p class="text-neutral-500">Share page for token: {token}</p>
-    <p class="mt-2 text-sm text-neutral-400">
-      This feature requires server rendering. Enable SSR with an adapter to use share links.
+    <p class="text-sm text-neutral-400">{entry.date}</p>
+    <h1 class="mt-1 text-2xl font-bold">{entry.one_thing}</h1>
+
+    <div class="mt-6 space-y-4">
+      <div>
+        <h2 class="text-sm font-semibold text-neutral-600">Decision</h2>
+        <p class="mt-1">{lock.decision_text}</p>
+      </div>
+
+      {lock.assumptions && (
+        <div>
+          <h2 class="text-sm font-semibold text-neutral-600">Assumptions</h2>
+          <p class="mt-1">{lock.assumptions}</p>
+        </div>
+      )}
+
+      {lock.practical_change && (
+        <div>
+          <h2 class="text-sm font-semibold text-neutral-600">Practical change</h2>
+          <p class="mt-1">{lock.practical_change}</p>
+        </div>
+      )}
+    </div>
+
+    <hr class="my-8 border-neutral-200" />
+    <p class="text-sm text-neutral-400">
+      This decision was shared for review. <a href="https://fyrk.no" class="underline">fyrk.no</a>
     </p>
   </div>
 </PublicLayout>

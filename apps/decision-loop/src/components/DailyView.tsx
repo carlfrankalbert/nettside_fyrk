@@ -141,8 +141,11 @@ export default function DailyView() {
       </Section>
 
       {/* Problem Clarity — only visible if one_thing is set */}
-      {hasOneThing && (
-        <>
+      <div
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${
+          hasOneThing ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
           <Section title="Problem Clarity">
             <Field
               label="What is the problem?"
@@ -180,8 +183,7 @@ export default function DailyView() {
               placeholder="Concrete action or output..."
             />
           </Section>
-        </>
-      )}
+      </div>
 
       {/* Lock or Decision Summary */}
       {isLocked && lock ? (

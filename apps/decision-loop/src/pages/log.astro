@@ -1,18 +1,8 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
+import DecisionLog from '../components/DecisionLog';
 ---
 
 <AppLayout title="Decision Log — Decision Loop">
-  <div id="log-root"></div>
+  <DecisionLog client:load />
 </AppLayout>
-
-<script>
-  import { createElement } from 'react';
-  import { createRoot } from 'react-dom/client';
-  import DecisionLog from '../components/DecisionLog';
-
-  const root = document.getElementById('log-root');
-  if (root) {
-    createRoot(root).render(createElement(DecisionLog));
-  }
-</script>
