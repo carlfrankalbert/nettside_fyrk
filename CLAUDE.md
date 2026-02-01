@@ -315,3 +315,30 @@ Apply labels to PRs for automated release note categorization:
 
 ### Automated Release Notes
 On merge to `main`, the `release-notes.yml` workflow generates a draft release note PR via Claude. The generated content is scanned for PII/secrets before writing. Review before merging.
+
+---
+
+## 🧪 Test Hygiene Contract
+
+### Definition of Done for UI PRs
+If a PR changes UI (routes, components, styles), it must:
+- Update or confirm visual snapshots are unchanged
+- Update or add Playwright tests for new behavior
+- Add `data-testid` for newly tested interactive elements
+- Keep smoke tests green
+
+### Commit messages for test changes
+- If UI changes visually: `feat(ui): adjust hero spacing (updates snapshots)`
+- If tests updated: `test(visual): update snapshots for new pricing section`
+- If test infrastructure: `chore(test): add coverage for url-decoding utils`
+
+### Visual snapshot rules
+- Baselines use project-name paths (no OS suffix) so macOS and Linux CI share baselines
+- Update snapshots via: `npx playwright test --update-snapshots --project=visual`
+- Or from CI: `gh workflow run "Monthly Visual Regression" -f update_snapshots=true`
+- Always commit updated `.png` files in the same PR as the UI change
+
+### Coverage
+- Minimum thresholds: 35% lines/statements/functions/branches
+- New utility files in `src/utils/`, `src/services/`, `src/lib/` must include tests
+- See `docs/testing.md` for the full testing playbook
