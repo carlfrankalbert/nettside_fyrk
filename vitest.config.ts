@@ -12,10 +12,10 @@ export default defineConfig({
       exclude: ['**/*.test.ts', '**/*.d.ts'],
       // Coverage thresholds - floor to prevent regression, raise gradually
       thresholds: {
-        lines: 39,
-        functions: 41,
-        branches: 35,
-        statements: 39,
+        lines: 50,
+        functions: 53,
+        branches: 49,
+        statements: 50,
       },
     },
   },
