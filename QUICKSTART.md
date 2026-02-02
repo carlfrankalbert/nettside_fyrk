@@ -1,136 +1,75 @@
 # Quick Start Guide
 
-## Første gang
+## Oppsett
 
-1. **Installer avhengigheter:**
+1. **Kopier miljøvariabler:**
+   ```bash
+   cp .env.example .env
+   ```
+   Legg til `ANTHROPIC_API_KEY` for å bruke AI-verktøyene. Sett `KONSEPTSPEILET_MOCK=true` for å teste UX uten API-nøkkel.
+
+2. **Installer og start:**
    ```bash
    npm install
-   ```
-
-2. **Start utviklingsserver:**
-   ```bash
    npm run dev
    ```
-   Nettsiden vil være tilgjengelig på `http://localhost:4321`
-
-## Miljøvariabler
-
-For å bruke AI-verktøyene lokalt, opprett en `.env`-fil i rot-mappen:
-
-```bash
-ANTHROPIC_API_KEY=din-api-nøkkel-her
-```
-
-> **Merk:** AI-verktøyene (OKR-sjekken, Konseptspeilet, Antakelseskart) fungerer kun med en gyldig Anthropic API-nøkkel.
+   Nettsiden er tilgjengelig på `http://localhost:4321`
 
 ## Bygging
 
 ```bash
-npm run build
+npm run build     # Bygg for produksjon (dist/)
+npm run preview   # Forhåndsvis med lokal Wrangler-server (simulerer Cloudflare Pages)
 ```
-
-Dette genererer en `dist/` mappe med filer klar for deployment.
-
-## Forhåndsvis produksjonsbygget
-
-```bash
-npm run preview
-```
-
-Dette starter en lokal Wrangler-server som simulerer Cloudflare Pages-miljøet.
-
-## Deployment
-
-### Cloudflare Pages (Anbefalt)
-
-Nettsiden er konfigurert for Cloudflare Pages med Astro SSR-støtte:
-
-1. Koble repository til Cloudflare Pages
-2. Sett miljøvariabler:
-   - `ANTHROPIC_API_KEY` - For OKR-sjekken
-3. Deploy skjer automatisk ved push til `main`
-
-**Konfigurasjon:**
-- Build command: `npm run build`
-- Output directory: `dist`
-- Framework preset: Astro
-
-### GitHub Pages (Kun statisk)
-
-GitHub Pages støtter kun statiske sider (OKR-sjekken vil ikke fungere):
-
-1. Push koden til GitHub repository
-2. Gå til Settings > Pages i repository
-3. Velg "GitHub Actions" som source
-4. Workflow vil automatisk deploye ved push til `main`
 
 ## Sider
 
 | Side | URL | Beskrivelse |
 |------|-----|-------------|
-| Hjem | `/` | Landing page med hero og tjenester |
+| Hjem | `/` | Landing page |
 | OKR-sjekken | `/okr-sjekken` | AI-drevet OKR-evaluering |
 | Konseptspeilet | `/konseptspeilet` | AI-drevet konseptrefleksjon |
 | Antakelseskart | `/antakelseskart` | AI-drevet antakelseskartlegging |
+| Pre-Mortem Brief | `/verktoy/pre-mortem` | AI-drevet feilmodusanalyse |
+| Beslutningslogg | `/beslutningslogg` | Manuell beslutningsdokumentering (ingen AI) |
+| Verktøyoversikt | `/verktoy` | Oversikt over alle verktøy |
+| Tjenester | `/tjenester` | Tjenesteoversikt |
+| Om FYRK | `/about` | Om selskapet |
 | Personvern | `/personvern` | Personvernerklæring |
-| Feature toggles | `/feature-toggles` | Administrasjon av feature flags |
+| Vilkår | `/vilkar` | Brukervilkår |
+| Feature toggles | `/feature-toggles` | Feature flag-administrasjon |
+| Stats | `/stats?token=X` | Intern analytics (krever STATS_TOKEN) |
 
 ## Testing
 
 ```bash
-# Kjør alle E2E-tester
-npm test
-
-# Kjør smoke tests
-npm run test:smoke
-
-# Kjør unit tests
-npm run test:unit
-
-# Playwright UI mode
-npm run test:ui
+npm run test           # Full kvalitetssuite (typecheck + lint + unit + e2e)
+npm run test:unit      # Unit-tester (Vitest)
+npm run test:e2e       # Smoke-tester (Playwright)
+npm run test:a11y      # Tilgjengelighetstester
+npm run test:visual    # Visuell regresjon
+npm run test:mobile    # Mobil UX-tester
+npm run test:ui        # Playwright interaktiv UI
+npm run test:load      # k6 load-tester
 ```
 
-## Design System
+## Deployment
 
-Alle farger, typografi og spacing følger Fyrk design system:
+### Cloudflare Pages (produksjon)
 
-| Element | Verdi |
-|---------|-------|
-| Navy | `#001F3F` |
-| Cyan | `#5AB9D3` |
-| Font (headings) | Inter |
-| Font (body) | System fonts |
-| Tilgjengelighet | WCAG 2.1 AA |
+Deploy skjer automatisk ved push til `main`. Miljøvariabler settes i Cloudflare Pages dashboard:
 
-## Legge til blogginnlegg
+| Variabel | Påkrevd | Beskrivelse |
+|----------|---------|-------------|
+| `ANTHROPIC_API_KEY` | Ja | API-nøkkel for Claude |
+| `STATS_TOKEN` | Nei | Token for /stats-dashboardet |
+| `PUBLIC_SENTRY_DSN` | Nei | Sentry error tracking |
 
-Blogginnlegg lagres i `src/content/blog/`. Opprett en ny markdown-fil:
-
-```markdown
----
-title: "Min tittel"
-description: "Kort beskrivelse"
-pubDate: 2025-01-15
----
-
-Innhold her...
-```
-
-## Nyttige kommandoer
-
-```bash
-npm run dev          # Utviklingsserver
-npm run build        # Bygg for produksjon
-npm run preview      # Forhåndsvis build
-npm test             # Kjør tester
-npm run test:unit    # Unit tests
-npm run test:ui      # Playwright UI
-```
+Se [docs/deployment/](./docs/deployment/) for detaljerte guider.
 
 ## Videre lesing
 
-- [README.md](./README.md) - Hovedoversikt
-- [docs/development/TESTING.md](./docs/development/TESTING.md) - Testing
-- [docs/deployment/](./docs/deployment/) - Deployment guides
-- [docs/design/](./docs/design/) - Design dokumentasjon
+- [README.md](./README.md) — Hovedoversikt
+- [CONTRIBUTING.md](./CONTRIBUTING.md) — Bidragsregler og doc-krav
+- [CLAUDE.md](./CLAUDE.md) — Arkitektur og kodestandarder
+- [docs/README.md](./docs/README.md) — Dokumentasjonsindeks
