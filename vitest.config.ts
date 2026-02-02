@@ -8,15 +8,14 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'json-summary', 'html'],
-      include: ['src/utils/**', 'src/services/**', 'src/lib/**'],
+      include: ['src/utils/**', 'src/services/**', 'src/lib/**', 'src/hooks/**'],
       exclude: ['**/*.test.ts', '**/*.d.ts'],
-      // Coverage thresholds - fail CI if coverage drops below these levels
-      // Set as floor based on current coverage to prevent regression
+      // Coverage thresholds - floor to prevent regression, raise gradually
       thresholds: {
-        lines: 35,
-        functions: 35,
+        lines: 39,
+        functions: 41,
         branches: 35,
-        statements: 35,
+        statements: 39,
       },
     },
   },
