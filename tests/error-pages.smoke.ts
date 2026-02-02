@@ -219,13 +219,13 @@ test.describe('Error Pages Smoke Tests', () => {
 
     for (const path of notFoundPaths) {
       test(`should handle ${path} gracefully`, async ({ page }) => {
-        const response = await page.goto(path, { waitUntil: 'load' });
+        const response = await page.goto(path, { waitUntil: 'commit' });
 
-        // Should return 404 or redirect (meta refresh may navigate to /)
+        // Should return 404 or redirect
         expect([200, 301, 302, 404]).toContain(response?.status() || 404);
 
-        // Wait for any meta refresh redirect to settle
-        await page.waitForLoadState('domcontentloaded');
+        // 404 page has meta refresh redirect — wait for final page to load
+        await page.waitForURL('**', { timeout: 10000, waitUntil: 'load' });
 
         // Should not expose sensitive info
         const content = await page.content();
