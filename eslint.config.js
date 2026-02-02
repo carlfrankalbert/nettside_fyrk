@@ -69,12 +69,26 @@ export default [
     },
   },
 
+  // Node scripts
+  {
+    files: ['scripts/**/*.mjs'],
+    languageOptions: {
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
+      },
+    },
+  },
+
   // Ignore patterns
   {
     ignores: [
       'dist/**',
+      '**/dist/**',
       'node_modules/**',
+      '**/node_modules/**',
       '.astro/**',
+      '**/.astro/**',
       '.wrangler/**',
       '*.d.ts',
       'playwright-report/**',
