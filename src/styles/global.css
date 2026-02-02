@@ -21,10 +21,15 @@
   
   p {
     @apply mb-6;
+    overflow-wrap: break-word;
   }
   
   h1, h2, h3, h4, h5, h6 {
     @apply font-primary font-semibold text-brand-navy;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+    -webkit-hyphens: auto;
   }
   
   h1 {
@@ -76,6 +81,8 @@
     @apply inline-flex items-center justify-center font-primary font-medium rounded-lg transition-all duration-normal;
     @apply min-h-[48px] px-6;
     @apply focus-visible:ring-2 focus-visible:ring-brand-cyan-darker focus-visible:ring-offset-2;
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
   
   .btn-primary {
