@@ -1,29 +1,14 @@
 /**
- * Tracking exclusion utility
- * Provides functions to exclude certain visitors from analytics:
+ * Client-side tracking exclusion utility
+ * Excludes certain visitors from analytics:
  * - Developer/owner (via localStorage flag)
  * - Automated tests (Playwright, headless browsers)
  * - Bots and crawlers
  */
 
+import { isBot, isAutomatedBrowser } from '../utils/bot-patterns';
+
 const EXCLUSION_KEY = 'fyrk_exclude_from_stats';
-
-/**
- * Common bot/crawler user agent patterns (subset - most bots don't run JS)
- */
-const BOT_PATTERNS = [
-  'bot', 'crawler', 'spider', 'crawling',
-  'googlebot', 'bingbot', 'slurp', 'duckduckbot',
-  'facebookexternalhit', 'twitterbot', 'linkedinbot',
-];
-
-/**
- * Check if user agent looks like a bot
- */
-function isBot(userAgent: string): boolean {
-  const ua = userAgent.toLowerCase();
-  return BOT_PATTERNS.some(pattern => ua.includes(pattern));
-}
 
 /**
  * Check if tracking should be skipped for this visitor
@@ -39,25 +24,12 @@ export function shouldExcludeFromTracking(): boolean {
 
   // Check for automated browsers (Playwright, Puppeteer, etc.)
   if (typeof navigator !== 'undefined') {
-    // navigator.webdriver is true for automated browsers
     if (navigator.webdriver) {
       return true;
     }
 
-    const ua = navigator.userAgent.toLowerCase();
-
-    // Check user agent for common test/automation indicators
-    if (
-      ua.includes('playwright') ||
-      ua.includes('puppeteer') ||
-      ua.includes('headlesschrome') ||
-      ua.includes('cypress')
-    ) {
-      return true;
-    }
-
-    // Check for bots (rare in JS context, but just in case)
-    if (isBot(ua)) {
+    const ua = navigator.userAgent;
+    if (isAutomatedBrowser(ua) || isBot(ua)) {
       return true;
     }
   }
@@ -99,7 +71,6 @@ export function isExcluded(): boolean {
 
 /**
  * Initialize window.fyrk helpers for console access
- * Must be called from page scripts to expose the helper functions
  */
 export function initTrackingHelpers(): void {
   if (typeof window !== 'undefined') {

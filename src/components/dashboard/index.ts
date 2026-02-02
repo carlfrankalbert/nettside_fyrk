@@ -6,5 +6,5 @@ export { FunnelChart } from './FunnelChart';
 export { HourlyDistributionChart } from './HourlyDistributionChart';
 export { MetricsSummary } from './MetricsSummary';
 export { Tooltip, METRIC_EXPLANATIONS } from './Tooltip';
-export { Section } from './Section';
+export { CollapsibleSection } from './CollapsibleSection';
 export { EmptyState } from './EmptyState';

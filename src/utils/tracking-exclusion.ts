@@ -3,34 +3,7 @@
  * Provides functions to detect and exclude automated/test traffic
  */
 
-/**
- * Common bot/crawler user agent patterns
- */
-const BOT_PATTERNS = [
-  // Search engine bots
-  'googlebot', 'bingbot', 'slurp', 'duckduckbot', 'baiduspider', 'yandexbot',
-  'sogou', 'exabot', 'facebot', 'ia_archiver',
-  // Social media crawlers
-  'facebookexternalhit', 'twitterbot', 'linkedinbot', 'whatsapp', 'telegrambot',
-  'discordbot', 'slackbot',
-  // SEO tools
-  'ahrefsbot', 'semrushbot', 'mj12bot', 'dotbot', 'rogerbot', 'screaming frog',
-  // Generic bot indicators
-  'bot', 'crawler', 'spider', 'crawling', 'feedfetcher', 'slurp',
-  // Monitoring/uptime
-  'uptimerobot', 'pingdom', 'statuscake', 'site24x7',
-  // Other automated tools
-  'curl', 'wget', 'python-requests', 'go-http-client', 'java/', 'httpunit',
-  'libwww', 'httplib', 'axios', 'node-fetch',
-];
-
-/**
- * Check if user agent looks like a bot
- */
-function isBot(userAgent: string): boolean {
-  const ua = userAgent.toLowerCase();
-  return BOT_PATTERNS.some(pattern => ua.includes(pattern));
-}
+import { isBot, isAutomatedBrowser } from './bot-patterns';
 
 /**
  * Check if a request should be excluded from tracking
@@ -45,13 +18,7 @@ export function shouldExcludeRequest(request: Request): boolean {
   }
 
   // Exclude automated browsers (Playwright, Puppeteer, etc.)
-  if (
-    userAgent.includes('playwright') ||
-    userAgent.includes('puppeteer') ||
-    userAgent.includes('headlesschrome') ||
-    userAgent.includes('cypress') ||
-    userAgent.includes('selenium')
-  ) {
+  if (isAutomatedBrowser(userAgent)) {
     return true;
   }
 

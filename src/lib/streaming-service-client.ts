@@ -238,7 +238,7 @@ export function createStreamingService(config: StreamingServiceConfig) {
         // Response is incomplete, retry if we haven't exceeded max retries
         retryCount++;
         if (retryCount <= maxRetries) {
-          console.warn(`Incomplete response detected, retrying (attempt ${retryCount}/${maxRetries})...`);
+          if (import.meta.env?.DEV) console.warn(`Incomplete response detected, retrying (attempt ${retryCount}/${maxRetries})...`);
           if (retryEventName) {
             trackClick(retryEventName);
           }
@@ -249,7 +249,7 @@ export function createStreamingService(config: StreamingServiceConfig) {
       }
 
       // All retries exhausted, return what we have (even if incomplete)
-      console.warn('Max retries reached, returning incomplete response');
+      if (import.meta.env?.DEV) console.warn('Max retries reached, returning incomplete response');
       return lastOutput;
     })();
 

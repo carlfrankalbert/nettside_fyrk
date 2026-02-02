@@ -97,13 +97,7 @@ export function formatBeslutningsloggMarkdown(data: BeslutningsloggData): string
   return lines.join('\n');
 }
 
-/**
- * Validation constants for Beslutningslogg
- */
-export const BESLUTNINGSLOGG_VALIDATION = {
-  MIN_BESLUTNING_LENGTH: 20,
-  MAX_BESLUTNING_LENGTH: 500,
-} as const;
+import { BESLUTNINGSLOGG_VALIDATION } from './constants';
 
 /**
  * Validate the beslutning (decision) field

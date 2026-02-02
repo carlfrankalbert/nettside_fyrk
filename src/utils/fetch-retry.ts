@@ -115,7 +115,7 @@ export function fetchWithRetryFireAndForget(
     .then((response) => {
       // Log failed tracking for debugging (only if all retries exhausted)
       if (response === null) {
-        console.warn('[Tracking] Request failed after retries:', url);
+        if (import.meta.env?.DEV) console.warn('[Tracking] Request failed after retries:', url);
       }
     })
     .catch(() => {

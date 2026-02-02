@@ -1,14 +1,13 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { cn } from '../utils/classes';
 import { useCopyToClipboard } from '../hooks/useCopyToClipboard';
-import { UI_TIMING } from '../utils/constants';
+import { UI_TIMING, BESLUTNINGSLOGG_VALIDATION } from '../utils/constants';
 import { trackClick } from '../utils/tracking';
 import {
   formatBeslutningsloggMarkdown,
   formatDateNorwegian,
   parseMultilineInput,
   validateBeslutning,
-  BESLUTNINGSLOGG_VALIDATION,
   type BeslutningsloggData,
 } from '../utils/beslutningslogg-formatter';
 

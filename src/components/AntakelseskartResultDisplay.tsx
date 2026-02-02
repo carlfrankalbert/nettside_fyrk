@@ -1,25 +1,22 @@
 import { useState } from 'react';
 import { parseAntakelseskartResult, hasContent, getAllAssumptions } from '../utils/antakelseskart-parser';
-import type {
-  AssumptionCategory,
-  Assumption,
-  CertaintyLevel,
-  ConsequenceLevel,
-  AssumptionStatus,
-  GroupedAssumptions,
-} from '../types/antakelseskart';
+import type { AssumptionCategory } from '../types/antakelseskart';
 import {
   CATEGORY_LABELS,
   CERTAINTY_LABELS,
   CONSEQUENCE_LABELS,
   ASSUMPTION_STATUS_LABELS,
 } from '../types/antakelseskart';
-import { SpinnerIcon, ChevronRightIcon } from './ui/Icon';
+import { SpinnerIcon } from './ui/Icon';
 import { Toast } from './ui/Toast';
 import { NarrativeLoader, ANTAKELSESKART_LOADER_MESSAGES } from './ui/NarrativeLoader';
 import { cn } from '../utils/classes';
 import { trackClick } from '../utils/tracking';
 import { useCopyWithToast } from '../hooks/useCopyWithToast';
+
+import type { AssumptionAssignments } from './antakelseskart/AssumptionCard';
+import { CategorySection } from './antakelseskart/CategorySection';
+import { CriticalSummary } from './antakelseskart/CriticalSummary';
 
 // ============================================================================
 // Types
@@ -32,193 +29,6 @@ interface AntakelseskartResultDisplayProps {
   onRetry?: () => void;
   onEdit?: () => void;
   onReset?: () => void;
-}
-
-// User assignments stored per assumption ID
-interface AssumptionAssignments {
-  [assumptionId: string]: {
-    certainty?: CertaintyLevel;
-    consequence?: ConsequenceLevel;
-    status?: AssumptionStatus;
-  };
-}
-
-
-// ============================================================================
-// Assumption Card Component
-// ============================================================================
-
-interface AssumptionCardProps {
-  assumption: Assumption;
-  assignments: AssumptionAssignments;
-  onAssign: (id: string, field: 'certainty' | 'consequence' | 'status', value: string) => void;
-  showAssignments: boolean;
-}
-
-function AssumptionCard({ assumption, assignments, onAssign, showAssignments }: AssumptionCardProps) {
-  const assignment = assignments[assumption.id] || {};
-  const isCritical = assignment.certainty === 'lav' && assignment.consequence === 'høy';
-
-  return (
-    <div
-      className={cn(
-        'p-4 border rounded-lg transition-all',
-        isCritical
-          ? 'bg-amber-50 border-amber-300 ring-2 ring-amber-200'
-          : 'bg-white border-neutral-200'
-      )}
-    >
-      <p className="text-sm text-neutral-700 leading-relaxed mb-3">{assumption.text}</p>
-
-      {showAssignments && (
-        <div className="flex flex-wrap gap-2">
-          {/* Certainty selector */}
-          <select
-            value={assignment.certainty || ''}
-            onChange={(e) => onAssign(assumption.id, 'certainty', e.target.value)}
-            className="text-xs px-2 py-1.5 border border-neutral-200 rounded bg-white focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker"
-            aria-label="Hvor sikker er du?"
-          >
-            <option value="">Sikkerhet?</option>
-            <option value="lav">Lav sikkerhet</option>
-            <option value="middels">Middels sikkerhet</option>
-            <option value="høy">Høy sikkerhet</option>
-          </select>
-
-          {/* Consequence selector */}
-          <select
-            value={assignment.consequence || ''}
-            onChange={(e) => onAssign(assumption.id, 'consequence', e.target.value)}
-            className="text-xs px-2 py-1.5 border border-neutral-200 rounded bg-white focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker"
-            aria-label="Konsekvens hvis feil"
-          >
-            <option value="">Konsekvens?</option>
-            <option value="lav">Lav konsekvens</option>
-            <option value="middels">Middels konsekvens</option>
-            <option value="høy">Høy konsekvens</option>
-          </select>
-
-          {/* Status selector */}
-          <select
-            value={assignment.status || ''}
-            onChange={(e) => onAssign(assumption.id, 'status', e.target.value)}
-            className="text-xs px-2 py-1.5 border border-neutral-200 rounded bg-white focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker"
-            aria-label="Status"
-          >
-            <option value="">Status?</option>
-            <option value="å_validere">Å validere</option>
-            <option value="validert">Validert</option>
-            <option value="irrelevant">Irrelevant</option>
-          </select>
-        </div>
-      )}
-
-      {isCritical && (
-        <div className="mt-2 flex items-center gap-1.5 text-xs text-amber-700 font-medium">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          Kritisk antakelse
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ============================================================================
-// Category Section Component
-// ============================================================================
-
-interface CategorySectionProps {
-  category: AssumptionCategory;
-  assumptions: Assumption[];
-  assignments: AssumptionAssignments;
-  onAssign: (id: string, field: 'certainty' | 'consequence' | 'status', value: string) => void;
-  showAssignments: boolean;
-}
-
-function CategorySection({ category, assumptions, assignments, onAssign, showAssignments }: CategorySectionProps) {
-  const [isOpen, setIsOpen] = useState(true);
-  const labels = CATEGORY_LABELS[category];
-
-  if (assumptions.length === 0) return null;
-
-  return (
-    <div className="border border-neutral-200 rounded-xl overflow-hidden">
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        aria-expanded={isOpen}
-        className="w-full flex items-center justify-between p-4 bg-neutral-50 text-left focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-inset"
-      >
-        <div>
-          <h3 className="text-base font-semibold text-neutral-900">{labels.name}</h3>
-          <p className="text-xs text-neutral-500">{labels.description}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-neutral-400">{assumptions.length}</span>
-          <ChevronRightIcon
-            className={cn('w-4 h-4 text-neutral-400 transition-transform', isOpen && 'rotate-90')}
-          />
-        </div>
-      </button>
-
-      {isOpen && (
-        <div className="p-4 space-y-3 bg-white">
-          {assumptions.map((assumption) => (
-            <AssumptionCard
-              key={assumption.id}
-              assumption={assumption}
-              assignments={assignments}
-              onAssign={onAssign}
-              showAssignments={showAssignments}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ============================================================================
-// Critical Summary Component
-// ============================================================================
-
-interface CriticalSummaryProps {
-  grouped: GroupedAssumptions;
-  assignments: AssumptionAssignments;
-}
-
-function CriticalSummary({ grouped, assignments }: CriticalSummaryProps) {
-  const allAssumptions = getAllAssumptions(grouped);
-  const criticalAssumptions = allAssumptions.filter((a) => {
-    const assignment = assignments[a.id];
-    return assignment?.certainty === 'lav' && assignment?.consequence === 'høy';
-  });
-
-  if (criticalAssumptions.length === 0) return null;
-
-  return (
-    <div className="p-5 bg-amber-50 border border-amber-200 rounded-xl">
-      <h3 className="text-base font-semibold text-amber-800 mb-3 flex items-center gap-2">
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-        Kritiske antakelser ({criticalAssumptions.length})
-      </h3>
-      <p className="text-sm text-amber-700 mb-4">
-        Disse antakelsene har lav sikkerhet og høy konsekvens. Vurder å teste dem tidlig.
-      </p>
-      <ul className="space-y-2">
-        {criticalAssumptions.map((a) => (
-          <li key={a.id} className="flex items-start gap-2 text-sm text-amber-900">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 mt-2" aria-hidden="true" />
-            <span>{a.text}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
 }
 
 // ============================================================================
@@ -252,7 +62,6 @@ export default function AntakelseskartResultDisplay({
   const handleCopySummary = () => {
     trackClick('antakelseskart_copy_summary');
 
-    // Build summary with user assignments
     const allAssumptions = getAllAssumptions(parsed.antakelser);
     const criticalAssumptions = allAssumptions.filter((a) => {
       const assignment = assignments[a.id];
@@ -288,16 +97,15 @@ export default function AntakelseskartResultDisplay({
     }
 
     summary += `---\n_Generert med Antakelseskartet – FYRK_`;
-
     copyToClipboard(summary, 'Oppsummering kopiert!');
   };
 
-  // During streaming, show narrative loader if we don't have enough content yet
+  // During streaming, show narrative loader
   if (isStreaming && !hasContent(parsed)) {
     return <NarrativeLoader messages={ANTAKELSESKART_LOADER_MESSAGES} />;
   }
 
-  // Show parse error if any
+  // Show parse error
   if (parsed.parseError && !isStreaming) {
     return (
       <div className="p-4 bg-feedback-error/10 border border-feedback-error/20 rounded-lg">
@@ -315,7 +123,7 @@ export default function AntakelseskartResultDisplay({
     );
   }
 
-  // Show warning if response is incomplete and not streaming
+  // Show warning if incomplete
   if (!isStreaming && !hasContent(parsed)) {
     return (
       <div className="p-4 bg-feedback-warning/10 border border-feedback-warning/20 rounded-lg">
@@ -342,7 +150,6 @@ export default function AntakelseskartResultDisplay({
 
   return (
     <div className="space-y-6">
-      {/* Toast notification */}
       <Toast message={toastMessage} isVisible={showToast} />
 
       {/* Decision summary */}
@@ -356,7 +163,6 @@ export default function AntakelseskartResultDisplay({
         </div>
       )}
 
-      {/* Clarifying text */}
       <p className="text-xs text-neutral-500 italic text-center px-2">
         Dette er antakelser som ligger implisitt i teksten. Marker sikkerhet og konsekvens for å finne de kritiske.
       </p>
@@ -383,10 +189,8 @@ export default function AntakelseskartResultDisplay({
         </div>
       )}
 
-      {/* Critical summary - only show when assignments are active and there are critical ones */}
       {showAssignments && <CriticalSummary grouped={parsed.antakelser} assignments={assignments} />}
 
-      {/* Category sections */}
       <div className="space-y-4">
         {categories.map((category) => (
           <CategorySection
@@ -439,7 +243,6 @@ export default function AntakelseskartResultDisplay({
         </div>
       )}
 
-      {/* Streaming indicator */}
       {isStreaming && (
         <div className="flex items-center gap-2 text-neutral-500 text-sm">
           <SpinnerIcon className="animate-spin h-4 w-4" />

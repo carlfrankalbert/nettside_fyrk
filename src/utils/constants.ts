@@ -90,6 +90,14 @@ export const INPUT_VALIDATION = {
 } as const;
 
 /**
+ * Beslutningslogg validation constants
+ */
+export const BESLUTNINGSLOGG_VALIDATION = {
+  MIN_BESLUTNING_LENGTH: 20,
+  MAX_BESLUTNING_LENGTH: 500,
+} as const;
+
+/**
  * Pre-Mortem Brief input validation
  * Higher limits due to multiple structured fields
  */

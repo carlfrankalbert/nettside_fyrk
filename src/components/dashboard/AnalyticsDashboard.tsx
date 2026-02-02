@@ -7,7 +7,7 @@ import { FunnelChart } from './FunnelChart';
 import { HourlyDistributionChart } from './HourlyDistributionChart';
 import { MetricsSummary } from './MetricsSummary';
 import { Tooltip, METRIC_EXPLANATIONS } from './Tooltip';
-import { Section } from './Section';
+import { CollapsibleSection } from './CollapsibleSection';
 import { EmptyState } from './EmptyState';
 
 interface ButtonCount {
@@ -252,7 +252,7 @@ export function AnalyticsDashboard({ buttonCounts, pageStats, totalClicks, refre
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Today's Metrics */}
-        <Section id="today" title="I dag" icon={<Clock className="w-5 h-5" />} badge={new Date().toLocaleDateString('no-NO')}>
+        <CollapsibleSection id="today" title="I dag" icon={<Clock className="w-5 h-5" />} badge={new Date().toLocaleDateString('no-NO')}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <KPICard
               title={<Tooltip text={METRIC_EXPLANATIONS.todayVisitors}>Besøkende i dag</Tooltip>}
@@ -298,10 +298,10 @@ export function AnalyticsDashboard({ buttonCounts, pageStats, totalClicks, refre
               </div>
             )}
           </div>
-        </Section>
+        </CollapsibleSection>
 
         {/* All-time Metrics */}
-        <Section id="alltime" title="Totalt" icon={<Calendar className="w-5 h-5" />} badge="All tid">
+        <CollapsibleSection id="alltime" title="Totalt" icon={<Calendar className="w-5 h-5" />} badge="All tid">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <KPICard
               title={<Tooltip text={METRIC_EXPLANATIONS.totalClicks}>Totalt knappeklikk</Tooltip>}
@@ -347,10 +347,10 @@ export function AnalyticsDashboard({ buttonCounts, pageStats, totalClicks, refre
               />
             )}
           </div>
-        </Section>
+        </CollapsibleSection>
 
         {/* Conversion Funnels */}
-        <Section
+        <CollapsibleSection
           id="funnels"
           title={<Tooltip text={METRIC_EXPLANATIONS.funnel}>Konverteringsfunneler</Tooltip>}
           icon={<TrendingUp className="w-5 h-5" />}
@@ -384,19 +384,19 @@ export function AnalyticsDashboard({ buttonCounts, pageStats, totalClicks, refre
               <EmptyState type="funnel" />
             </div>
           )}
-        </Section>
+        </CollapsibleSection>
 
         {/* Traffic Charts */}
-        <Section id="traffic" title="Sidetrafikk" icon={<Eye className="w-5 h-5" />}>
+        <CollapsibleSection id="traffic" title="Sidetrafikk" icon={<Eye className="w-5 h-5" />}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {Object.entries(pageStats).map(([pageId, stats]) => (
               <TrafficChart key={pageId} pageId={pageId} stats={stats} />
             ))}
           </div>
-        </Section>
+        </CollapsibleSection>
 
         {/* Button Click Lists */}
-        <Section
+        <CollapsibleSection
           id="buttons"
           title="Knappeklikk per verktøy"
           icon={<MousePointer className="w-5 h-5" />}
@@ -441,7 +441,7 @@ export function AnalyticsDashboard({ buttonCounts, pageStats, totalClicks, refre
               icon={<ExternalLink className="w-5 h-5" />}
             />
           </div>
-        </Section>
+        </CollapsibleSection>
 
         {/* Footer */}
         <footer className="text-center text-sm text-slate-400 pt-8 pb-4 space-y-1">

@@ -132,7 +132,7 @@ export function useStreamingForm(config: UseStreamingFormConfig): UseStreamingFo
   const setErrorWithType = useCallback((message: string, type: StreamingErrorType) => {
     setError(message);
     setErrorType(type);
-    if (type) {
+    if (type && import.meta.env?.DEV) {
       console.warn(`[${toolName}] Error: ${type}`);
     }
   }, [toolName]);

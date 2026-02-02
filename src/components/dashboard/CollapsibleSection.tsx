@@ -12,7 +12,7 @@ interface SectionProps {
   collapsedSummary?: string;
 }
 
-export function Section({ id, title, icon, children, defaultExpanded = true, badge, collapsedSummary }: SectionProps) {
+export function CollapsibleSection({ id, title, icon, children, defaultExpanded = true, badge, collapsedSummary }: SectionProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   return (
