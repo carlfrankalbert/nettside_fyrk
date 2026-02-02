@@ -1,113 +1,70 @@
-# UI/UX Test Suite
+# Test Suite
 
-Comprehensive test suite validating UI/UX guidelines for the Fyrk website and AI tools (OKR-sjekken, Konseptspeilet, Antakelseskart).
+E2E and integration tests using Playwright. Unit tests live in `src/` alongside source code (Vitest).
 
-## Test Categories
+## Test Files
 
-### 1. Accessibility (`accessibility.spec.ts`)
-- WCAG 2.1 AA compliance
-- Semantic HTML structure
-- ARIA labels and roles
-- Color contrast
-- Focus indicators
-- Screen reader support
-- Touch target sizes
-
-### 2. Keyboard Navigation (`keyboard-navigation.spec.ts`)
-- Tab order
-- Arrow key navigation
-- Home/End keys
-- Enter/Space activation
-- Focus management
-- Keyboard shortcuts
-
-### 3. Dark Mode (`dark-mode.spec.ts`)
-- System preference detection
-- Color contrast in dark mode
-- Status color preservation
-- Dark gray backgrounds (not pure black)
-- Shadow adaptations
-- Layout consistency
-
-### 4. Responsive Design (`responsive.spec.ts`)
-- Multiple viewport sizes
-- Mobile/tablet/desktop layouts
-- Touch target sizes
-- Font size scaling
-- Content width optimization
-- Orientation changes
-
-### 5. Typography (`typography.spec.ts`)
-- Base font size (16px+)
-- Line height (1.4-1.8)
-- Typographic hierarchy
-- Line length limits (65ch)
-- Font family consistency
-- Text zoom support
-
-### 6. Microinteractions (`microinteractions.spec.ts`)
-- Hover feedback
-- Loading states
-- Panel transitions
-- Copy feedback
-- Smooth transitions
-- Reduced motion support
-- Performance (60fps)
-
-### 7. Internationalization (`internationalization.spec.ts`)
-- Text expansion support
-- Multiline wrapping
-- Clear language
-- Universal icons
-- RTL support
-- Locale-aware formatting
+| File | Project | Description |
+|------|---------|-------------|
+| `pages.smoke.ts` | smoke | Critical user flows (all pages) |
+| `contact.smoke.ts` | smoke | Contact section verification |
+| `error-pages.smoke.ts` | smoke | 404/500 error handling and redirects |
+| `pages.visual.ts` | visual | Desktop visual regression snapshots |
+| `mobile.visual.ts` | visual-mobile | Mobile visual regression snapshots |
+| `mobile.ux.ts` | ux-mobile | Mobile UX (touch targets, text size) |
+| `a11y.spec.ts` | a11y | Accessibility (axe-core, WCAG AA) |
+| `contrast.spec.ts` | — | WCAG color contrast checks |
+| `security.spec.ts` | security | OWASP security headers, XSS prevention |
+| `okr-sjekken.spec.ts` | okr-api | OKR API validation and rate limiting |
+| `konseptspeilet.spec.ts` | konseptspeilet | Konseptspeilet API tests |
+| `pre-mortem.spec.ts` | — | Pre-Mortem API tests |
+| `streaming-resilience.spec.ts` | — | Streaming error handling |
+| `typography.spec.ts` | — | Typography and readability checks |
+| `theme-toggle.spec.ts` | theme | Dark/light mode toggle |
 
 ## Running Tests
 
 ```bash
-# Run all tests
+# Full quality suite (typecheck + lint + unit + e2e)
 npm test
 
-# Run specific test suite
-npm run test:accessibility
-npm run test:keyboard
-npm run test:dark-mode
-npm run test:responsive
-npm run test:typography
-npm run test:microinteractions
+# E2E smoke tests (desktop + mobile + tablet)
+npm run test:smoke
 
-# Run with UI
+# Specific test suites
+npm run test:a11y          # Accessibility
+npm run test:visual        # Visual regression (desktop)
+npm run test:mobile        # Visual + UX mobile
+npm run test:theme         # Dark/light mode
+npm run test:okr-api       # OKR API tests
+npm run test:konseptspeilet # Konseptspeilet API tests
+
+# Unit tests
+npm run test:unit
+npm run test:unit:watch
+npm run test:unit:coverage
+
+# Interactive UI
 npm run test:ui
 
-# Run on specific browser
-npx playwright test --project=chromium
-npx playwright test --project=firefox
-npx playwright test --project=webkit
-
-# Run on mobile
-npx playwright test --project=mobile-chrome
-npx playwright test --project=mobile-safari
+# Run specific file
+npx playwright test tests/pages.smoke.ts --project=smoke
 ```
 
-## Test Coverage
+## Visual Regression
 
-These tests validate compliance with:
-- ✅ WCAG 2.1 AA accessibility standards
-- ✅ Material Design guidelines
-- ✅ Apple Human Interface Guidelines
-- ✅ Responsive design best practices
-- ✅ Internationalization requirements
-- ✅ Performance benchmarks
+Visual tests compare screenshots against approved baselines in `tests/__snapshots__/`.
 
-## Continuous Integration
+To update baselines after intentional design changes:
 
-Tests are designed to run in CI/CD pipelines with:
-- Multiple browser support (Chromium, Firefox, WebKit)
-- Mobile device emulation
-- Accessibility auditing with axe-core
-- Screenshot on failure
-- Trace collection for debugging
+1. Run `npm run test:visual` and review diffs in `test-results/`
+2. Update: `npx playwright test --update-snapshots`
+3. Commit updated snapshots with the code change
 
+## CI Integration
 
-
-
+Tests run in GitHub Actions:
+- **ci.yml** — typecheck, lint, unit, e2e on push/PR
+- **smoke-test.yml** — post-deploy verification
+- **visual-regression.yml** — visual diff on PRs
+- **contrast-test.yml** — color contrast on PRs

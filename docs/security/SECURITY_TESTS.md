@@ -20,7 +20,7 @@ The security test suite covers all major OWASP Top 10 2024 categories:
 
 ### Run all security tests
 ```bash
-npm run test:security
+npx playwright test --project=security
 ```
 
 ### Run specific test categories

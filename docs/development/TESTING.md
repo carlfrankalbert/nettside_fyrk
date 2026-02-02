@@ -57,7 +57,6 @@ npm run test:unit
 | Visual Mobile | `npm run test:visual-mobile` | Mobil visual regression |
 | UX Mobile | `npm run test:ux-mobile` | Mobil brukeropplevelse |
 | Mobile (alle) | `npm run test:mobile` | Visual + UX mobile kombinert |
-| Security | `npm run test:security` | OWASP sikkerhetstester |
 | OKR API | `npm run test:okr-api` | OKR-sjekken API-tester |
 | Theme | `npm run test:theme` | Dark/light mode testing |
 
@@ -89,10 +88,10 @@ Kjører på:
 
 ### Security Tests
 
-OWASP-baserte sikkerhetstester:
+OWASP-baserte sikkerhetstester ligger i `tests/security.spec.ts`. Kjør via Playwright:
 
 ```bash
-npm run test:security
+npx playwright test --project=security
 ```
 
 Tester inkluderer:
