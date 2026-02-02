@@ -67,7 +67,7 @@ export default function PreMortemBrief() {
           e.preventDefault();
           handleSubmit();
         }}
-        className="space-y-5"
+        className="space-y-6"
       >
         {/* Beslutning */}
         <FormField

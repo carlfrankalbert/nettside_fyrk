@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useRef } from 'react';
 import { ChevronRightIcon } from './Icon';
 import { cn } from '../../utils/classes';
 import { trackClick } from '../../utils/tracking';
 
 /**
  * Privacy accordion for AI tools
- * Displays privacy information in an expandable section
+ * Uses native <details>/<summary> for progressive enhancement —
+ * works without JavaScript, enhanced with tracking when JS is available.
  */
 
 interface PrivacyAccordionProps {
@@ -18,33 +19,24 @@ interface PrivacyAccordionProps {
 }
 
 export function PrivacyAccordion({ toolName, introText, howItWorks }: PrivacyAccordionProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const tracked = useRef(false);
 
-  const handleToggle = () => {
-    if (!isOpen) {
+  const handleToggle = (e: React.SyntheticEvent<HTMLDetailsElement>) => {
+    if ((e.currentTarget as HTMLDetailsElement).open && !tracked.current) {
       trackClick(`${toolName}_privacy_toggle`);
+      tracked.current = true;
     }
-    setIsOpen(!isOpen);
   };
 
   return (
     <div className="border-t border-neutral-200 pt-6">
       <p className="text-sm text-neutral-500 mb-3">{introText}</p>
-      <button
-        type="button"
-        onClick={handleToggle}
-        aria-expanded={isOpen}
-        aria-controls="privacy-content"
-        className="flex items-center gap-2 text-sm text-brand-navy hover:text-brand-cyan-darker focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded py-2"
-      >
-        <ChevronRightIcon className={cn('w-4 h-4 transition-transform', isOpen && 'rotate-90')} />
-        Les mer om AI og personvern
-      </button>
-      {isOpen && (
-        <div
-          id="privacy-content"
-          className="mt-3 p-4 bg-neutral-100 rounded-lg text-sm text-neutral-700 space-y-3"
-        >
+      <details onToggle={handleToggle} className="group">
+        <summary className="flex items-center gap-2 text-sm text-brand-navy hover:text-brand-cyan-darker cursor-pointer list-none focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded py-2 [&::-webkit-details-marker]:hidden">
+          <ChevronRightIcon className={cn('w-4 h-4 transition-transform group-open:rotate-90')} />
+          Les mer om AI og personvern
+        </summary>
+        <div className="mt-3 p-4 bg-neutral-100 rounded-lg text-sm text-neutral-700 space-y-3">
           <p>
             <strong>Hvordan fungerer det?</strong>
             <br />
@@ -73,7 +65,7 @@ export function PrivacyAccordion({ toolName, introText, howItWorks }: PrivacyAcc
             </a>
           </p>
         </div>
-      )}
+      </details>
     </div>
   );
 }

@@ -262,7 +262,7 @@ Key Results:
             onClick={handleClearResult}
             className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
           >
-            Nullstill
+            Start på nytt
           </button>
         )}
       </div>
