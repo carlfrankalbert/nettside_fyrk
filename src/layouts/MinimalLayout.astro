@@ -46,15 +46,13 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         <div class="w-[60px]"></div>
       </div>
     </header>
-    <main id="main-content">
-      <noscript>
-        <div class="max-w-2xl mx-auto px-4 py-6">
-          <p class="text-sm text-neutral-600 bg-neutral-100 rounded-lg p-4">
-            Dette verktøyet krever JavaScript for å fungere. Aktiver JavaScript i nettleseren din for å bruke det.
-          </p>
-        </div>
-      </noscript>
-      <slot />
-    </main>
+    <noscript>
+      <div class="max-w-2xl mx-auto px-4 py-6">
+        <p class="text-sm text-neutral-600 bg-neutral-100 rounded-lg p-4">
+          Dette verktøyet krever JavaScript for å fungere. Aktiver JavaScript i nettleseren din for å bruke det.
+        </p>
+      </div>
+    </noscript>
+    <slot />
   </body>
 </html>
