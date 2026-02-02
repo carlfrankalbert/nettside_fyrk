@@ -132,7 +132,7 @@ npm run test:unit:coverage # Unit-tester med coverage-rapport
 
 ## CI/CD
 
-12 GitHub workflows:
+11 GitHub workflows:
 
 | Workflow | Trigger | Formål |
 |----------|---------|--------|
@@ -141,7 +141,6 @@ npm run test:unit:coverage # Unit-tester med coverage-rapport
 | `release-notes.yml` | Push til main | Auto-genererte release notes |
 | `docs-gate.yml` | PR | Sjekker at docs er oppdatert |
 | `nightly.yml` | Cron | Full test-suite nattlig |
-| `ci-repair.yml` | Nightly feiler | Auto-reparasjon via Claude |
 | `visual-regression.yml` | PR | Visuell diff |
 | `deploy.yml` | Push til main | Produksjons-deploy |
 | `deploy-preview.yml` | PR | Preview-deploy |
