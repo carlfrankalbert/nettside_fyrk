@@ -285,8 +285,8 @@ test.describe('Pre-Mortem Brief', () => {
     await page.goto('/verktoy/pre-mortem');
     await page.waitForLoadState('networkidle');
 
-    // Check for privacy information button
-    await expect(page.getByRole('button', { name: /Les mer om AI og personvern/i })).toBeVisible();
+    // Check for privacy accordion (uses <details>/<summary> elements)
+    await expect(page.locator('summary', { hasText: /Les mer om AI og personvern/i })).toBeVisible();
   });
 
   test('displays disclaimer after result', async ({ page }) => {
