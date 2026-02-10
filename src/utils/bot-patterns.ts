@@ -18,11 +18,14 @@ export const BOT_PATTERNS = [
   // Other automated tools
   'curl', 'wget', 'python-requests', 'go-http-client', 'java/', 'httpunit',
   'libwww', 'httplib', 'axios', 'node-fetch',
+  // GitHub
+  'github-hookshot',
 ] as const;
 
 /** Automated browser user agent patterns */
 export const AUTOMATED_BROWSER_PATTERNS = [
   'playwright', 'puppeteer', 'headlesschrome', 'cypress', 'selenium',
+  'github-actions',
 ] as const;
 
 /**

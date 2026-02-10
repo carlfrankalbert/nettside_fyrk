@@ -11,9 +11,8 @@ import { Globe, Users, Eye } from 'lucide-react';
 
 interface PageStats {
   label: string;
-  totalViews: number;
-  totalVisitors: number;
-  todayVisitors: number;
+  views: number;
+  visitors: number;
 }
 
 interface TrafficChartProps {
@@ -97,27 +96,20 @@ export function TrafficChart({ pageId, stats }: TrafficChartProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-2 gap-4 mb-6">
         <div className="text-center p-4 bg-slate-50 rounded-xl">
           <div className="flex justify-center mb-2">
             <Eye className="w-4 h-4 text-slate-400" />
           </div>
-          <div className="text-2xl font-bold text-slate-900">{stats.totalViews.toLocaleString('no-NO')}</div>
+          <div className="text-2xl font-bold text-slate-900">{stats.views.toLocaleString('no-NO')}</div>
           <div className="text-xs text-slate-500 uppercase tracking-wide mt-1">Visninger</div>
         </div>
         <div className="text-center p-4 bg-slate-50 rounded-xl">
           <div className="flex justify-center mb-2">
             <Users className="w-4 h-4 text-slate-400" />
           </div>
-          <div className="text-2xl font-bold text-slate-900">{stats.totalVisitors.toLocaleString('no-NO')}</div>
+          <div className="text-2xl font-bold text-slate-900">{stats.visitors.toLocaleString('no-NO')}</div>
           <div className="text-xs text-slate-500 uppercase tracking-wide mt-1">Unike</div>
-        </div>
-        <div className="text-center p-4 bg-blue-50 rounded-xl">
-          <div className="flex justify-center mb-2">
-            <Users className="w-4 h-4 text-blue-500" />
-          </div>
-          <div className="text-2xl font-bold text-blue-600">{stats.todayVisitors}</div>
-          <div className="text-xs text-slate-500 uppercase tracking-wide mt-1">I dag</div>
         </div>
       </div>
 
