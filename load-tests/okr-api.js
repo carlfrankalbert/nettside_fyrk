@@ -281,40 +281,6 @@ function testValidation() {
   return response;
 }
 
-// Test rate limiting behavior
-function testRateLimiting() {
-  const responses = [];
-
-  // Send multiple requests quickly
-  for (let i = 0; i < 5; i++) {
-    const response = http.post(
-      `${BASE_URL}/api/okr-sjekken`,
-      JSON.stringify({
-        input: `Quick test ${i}: ${Date.now()}`,
-        stream: false,
-      }),
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        timeout: '10s',
-      }
-    );
-    responses.push(response);
-  }
-
-  // At least one should succeed, and we shouldn't get all rate limited
-  const successCount = responses.filter((r) => r.status === 200).length;
-  const rateLimitedCount = responses.filter((r) => r.status === 429).length;
-
-  check(null, {
-    'at least one success': () => successCount >= 1,
-    'rate limiting is proportional': () => rateLimitedCount <= 4,
-  });
-
-  return responses;
-}
-
 // Main test function
 export default function () {
   group('OKR API Tests', function () {

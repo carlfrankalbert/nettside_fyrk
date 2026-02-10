@@ -25,7 +25,6 @@ const ERROR_LABELS: Record<string, string> = {
 };
 
 export function MetricsSummary({ title, metrics, icon }: MetricsSummaryProps) {
-  const _avgCharCount = metrics.count > 0 ? Math.round(metrics.totalCharCount / metrics.count) : 0;
   const avgProcessingTime = metrics.count > 0 ? Math.round(metrics.totalProcessingTimeMs / metrics.count) : 0;
   const cacheHitRate = (metrics.cachedCount + metrics.freshCount) > 0
     ? ((metrics.cachedCount / (metrics.cachedCount + metrics.freshCount)) * 100).toFixed(0)
