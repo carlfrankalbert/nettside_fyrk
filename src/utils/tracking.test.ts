@@ -10,6 +10,10 @@ vi.mock('./fetch-retry', () => ({
   fetchWithRetryFireAndForget: vi.fn(),
 }));
 
+vi.mock('../scripts/tracking-exclusion', () => ({
+  shouldExcludeFromTracking: vi.fn(() => false),
+}));
+
 import { fetchWithRetryFireAndForget } from './fetch-retry';
 
 beforeEach(() => {
