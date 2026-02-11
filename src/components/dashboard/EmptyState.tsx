@@ -8,21 +8,21 @@ interface EmptyStateProps {
 const EMPTY_STATE_CONFIG = {
   metrics: {
     icon: BarChart3,
-    title: 'Ingen data ennå',
-    description: 'Ytelsesmetrikker vises når brukere begynner å bruke AI-verktøyene.',
-    tip: 'Data samles inn automatisk når noen fullfører en sjekk.',
+    title: 'Ingen data enn\u00e5',
+    description: 'Ytelsesmetrikker vises n\u00e5r brukere begynner \u00e5 bruke AI-verkt\u00f8yene.',
+    tip: 'Data samles inn automatisk n\u00e5r noen fullf\u00f8rer en sjekk.',
   },
   funnel: {
     icon: Lightbulb,
-    title: 'Venter på aktivitet',
-    description: 'Funnelen viser hvordan brukere beveger seg gjennom verktøyet.',
-    tip: 'Første steg registreres når noen begynner å skrive.',
+    title: 'Venter p\u00e5 aktivitet',
+    description: 'Funnelen viser hvordan brukere beveger seg gjennom verkt\u00f8yet.',
+    tip: 'F\u00f8rste steg registreres n\u00e5r noen begynner \u00e5 skrive.',
   },
   activity: {
     icon: Clock,
-    title: 'Ingen aktivitet i dag',
-    description: 'Timefordeling vises når brukere bruker verktøyene i dag.',
-    tip: 'Grafen oppdateres automatisk gjennom dagen.',
+    title: 'Ingen aktivitet i valgt periode',
+    description: 'Timefordeling vises n\u00e5r brukere bruker verkt\u00f8yene.',
+    tip: 'Grafen oppdateres automatisk.',
   },
 };
 

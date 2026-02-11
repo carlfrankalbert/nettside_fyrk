@@ -1,4 +1,4 @@
-import { MousePointer, Eye, Zap, BarChart3, ExternalLink, Sparkles, ThumbsUp, Activity, Lightbulb, Map, FileText, TrendingUp } from 'lucide-react';
+import { MousePointer, Eye, Zap, BarChart3, ExternalLink, Sparkles, ThumbsUp, Lightbulb, Map, FileText, TrendingUp } from 'lucide-react';
 import { KPICard } from './KPICard';
 import { TrafficChart } from './TrafficChart';
 import { ButtonClickList } from './ButtonClickList';
@@ -67,65 +67,57 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
   const totalViews = Object.values(pageStats).reduce((sum, p) => sum + p.views, 0);
   const totalVisitors = Object.values(pageStats).reduce((sum, p) => sum + p.visitors, 0);
 
-  // Button data for each tool
-  const okrButtonData = OKR_BUTTONS.map(id => ({
-    id,
-    label: buttonCounts[id]?.label || id,
-    count: buttonCounts[id]?.count || 0,
-  }));
+  // Button data per tool
+  const okrButtonData = OKR_BUTTONS.map(id => ({ id, label: buttonCounts[id]?.label || id, count: buttonCounts[id]?.count || 0 }));
+  const konseptspeilButtonData = KONSEPTSPEIL_BUTTONS.map(id => ({ id, label: buttonCounts[id]?.label || id, count: buttonCounts[id]?.count || 0 }));
+  const antakelseskartButtonData = ANTAKELSESKART_BUTTONS.map(id => ({ id, label: buttonCounts[id]?.label || id, count: buttonCounts[id]?.count || 0 }));
+  const premortemButtonData = PREMORTEM_BUTTONS.map(id => ({ id, label: buttonCounts[id]?.label || id, count: buttonCounts[id]?.count || 0 }));
+  const landingButtonData = LANDING_BUTTONS.map(id => ({ id, label: buttonCounts[id]?.label || id, count: buttonCounts[id]?.count || 0 }));
 
-  const konseptspeilButtonData = KONSEPTSPEIL_BUTTONS.map(id => ({
-    id,
-    label: buttonCounts[id]?.label || id,
-    count: buttonCounts[id]?.count || 0,
-  }));
-
-  const antakelseskartButtonData = ANTAKELSESKART_BUTTONS.map(id => ({
-    id,
-    label: buttonCounts[id]?.label || id,
-    count: buttonCounts[id]?.count || 0,
-  }));
-
-  const premortemButtonData = PREMORTEM_BUTTONS.map(id => ({
-    id,
-    label: buttonCounts[id]?.label || id,
-    count: buttonCounts[id]?.count || 0,
-  }));
-
-  const landingButtonData = LANDING_BUTTONS.map(id => ({
-    id,
-    label: buttonCounts[id]?.label || id,
-    count: buttonCounts[id]?.count || 0,
-  }));
-
-  // Funnel data for each tool
-  const okrFunnelSteps = [
-    { id: 'okr_input_started', label: 'Startet', count: buttonCounts['okr_input_started']?.count || 0 },
-    { id: 'okr_submit_attempted', label: 'Sendt inn', count: buttonCounts['okr_submit_attempted']?.count || 0 },
-    { id: 'check_success', label: 'Fullf\u00f8rt', count: buttonCounts['check_success']?.count || 0 },
-    { id: 'feedback_up', label: 'Positiv feedback', count: buttonCounts['feedback_up']?.count || 0 },
+  // Funnels — only show tools with activity
+  const allFunnels = [
+    {
+      title: 'OKR-sjekken',
+      icon: <Zap className="w-5 h-5" />,
+      steps: [
+        { id: 'okr_input_started', label: 'Startet', count: buttonCounts['okr_input_started']?.count || 0 },
+        { id: 'okr_submit_attempted', label: 'Sendt inn', count: buttonCounts['okr_submit_attempted']?.count || 0 },
+        { id: 'check_success', label: 'Fullf\u00f8rt', count: buttonCounts['check_success']?.count || 0 },
+        { id: 'feedback_up', label: 'Positiv feedback', count: buttonCounts['feedback_up']?.count || 0 },
+      ],
+    },
+    {
+      title: 'Konseptspeilet',
+      icon: <Lightbulb className="w-5 h-5" />,
+      steps: [
+        { id: 'konseptspeil_input_started', label: 'Startet', count: buttonCounts['konseptspeil_input_started']?.count || 0 },
+        { id: 'konseptspeil_submit_attempted', label: 'Sendt inn', count: buttonCounts['konseptspeil_submit_attempted']?.count || 0 },
+        { id: 'konseptspeil_success', label: 'Fullf\u00f8rt', count: buttonCounts['konseptspeil_success']?.count || 0 },
+        { id: 'konseptspeil_feedback_up', label: 'Positiv feedback', count: buttonCounts['konseptspeil_feedback_up']?.count || 0 },
+      ],
+    },
+    {
+      title: 'Antakelseskart',
+      icon: <Map className="w-5 h-5" />,
+      steps: [
+        { id: 'antakelseskart_input_started', label: 'Startet', count: buttonCounts['antakelseskart_input_started']?.count || 0 },
+        { id: 'antakelseskart_submit_attempted', label: 'Sendt inn', count: buttonCounts['antakelseskart_submit_attempted']?.count || 0 },
+        { id: 'antakelseskart_success', label: 'Fullf\u00f8rt', count: buttonCounts['antakelseskart_success']?.count || 0 },
+      ],
+    },
+    {
+      title: 'Pre-Mortem Brief',
+      icon: <FileText className="w-5 h-5" />,
+      steps: [
+        { id: 'premortem_input_started', label: 'Startet', count: buttonCounts['premortem_input_started']?.count || 0 },
+        { id: 'premortem_submit_attempted', label: 'Sendt inn', count: buttonCounts['premortem_submit_attempted']?.count || 0 },
+        { id: 'premortem_success', label: 'Fullf\u00f8rt', count: buttonCounts['premortem_success']?.count || 0 },
+      ],
+    },
   ];
+  const activeFunnels = allFunnels.filter(f => f.steps.some(s => s.count > 0));
 
-  const konseptspeilFunnelSteps = [
-    { id: 'konseptspeil_input_started', label: 'Startet', count: buttonCounts['konseptspeil_input_started']?.count || 0 },
-    { id: 'konseptspeil_submit_attempted', label: 'Sendt inn', count: buttonCounts['konseptspeil_submit_attempted']?.count || 0 },
-    { id: 'konseptspeil_success', label: 'Fullf\u00f8rt', count: buttonCounts['konseptspeil_success']?.count || 0 },
-    { id: 'konseptspeil_feedback_up', label: 'Positiv feedback', count: buttonCounts['konseptspeil_feedback_up']?.count || 0 },
-  ];
-
-  const antakelseskartFunnelSteps = [
-    { id: 'antakelseskart_input_started', label: 'Startet', count: buttonCounts['antakelseskart_input_started']?.count || 0 },
-    { id: 'antakelseskart_submit_attempted', label: 'Sendt inn', count: buttonCounts['antakelseskart_submit_attempted']?.count || 0 },
-    { id: 'antakelseskart_success', label: 'Fullf\u00f8rt', count: buttonCounts['antakelseskart_success']?.count || 0 },
-  ];
-
-  const premortemFunnelSteps = [
-    { id: 'premortem_input_started', label: 'Startet', count: buttonCounts['premortem_input_started']?.count || 0 },
-    { id: 'premortem_submit_attempted', label: 'Sendt inn', count: buttonCounts['premortem_submit_attempted']?.count || 0 },
-    { id: 'premortem_success', label: 'Fullf\u00f8rt', count: buttonCounts['premortem_success']?.count || 0 },
-  ];
-
-  // Overall conversion
+  // Conversion & satisfaction
   const totalStarts = (buttonCounts['okr_input_started']?.count || 0) +
     (buttonCounts['konseptspeil_input_started']?.count || 0) +
     (buttonCounts['antakelseskart_input_started']?.count || 0) +
@@ -138,23 +130,19 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
 
   const overallConversionRate = totalStarts > 0 ? Math.round((totalSuccesses / totalStarts) * 100) : null;
 
-  // Combined satisfaction
   const totalFeedbackUp = (buttonCounts['feedback_up']?.count || 0) + (buttonCounts['konseptspeil_feedback_up']?.count || 0);
   const totalFeedbackDown = (buttonCounts['feedback_down']?.count || 0) + (buttonCounts['konseptspeil_feedback_down']?.count || 0);
   const totalFeedback = totalFeedbackUp + totalFeedbackDown;
   const satisfactionRate = totalFeedback > 0 ? Math.round((totalFeedbackUp / totalFeedback) * 100) : null;
 
-  // Aggregate hourly distribution from all tools
+  // Aggregated tool metrics
   const aggregatedHourlyDistribution: Record<string, number> = {};
-  Object.values(toolMetrics).forEach(metrics => {
-    if (metrics.hourlyDistribution) {
-      Object.entries(metrics.hourlyDistribution).forEach(([hour, count]) => {
-        aggregatedHourlyDistribution[hour] = (aggregatedHourlyDistribution[hour] || 0) + count;
-      });
-    }
+  Object.values(toolMetrics).forEach(m => {
+    Object.entries(m.hourlyDistribution || {}).forEach(([hour, count]) => {
+      aggregatedHourlyDistribution[hour] = (aggregatedHourlyDistribution[hour] || 0) + count;
+    });
   });
 
-  // Aggregate metrics for summary
   const aggregatedMetrics: ToolMetrics = {
     count: Object.values(toolMetrics).reduce((sum, m) => sum + m.count, 0),
     totalCharCount: Object.values(toolMetrics).reduce((sum, m) => sum + m.totalCharCount, 0),
@@ -162,9 +150,7 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
     cachedCount: Object.values(toolMetrics).reduce((sum, m) => sum + m.cachedCount, 0),
     freshCount: Object.values(toolMetrics).reduce((sum, m) => sum + m.freshCount, 0),
     errorTypes: Object.values(toolMetrics).reduce((acc, m) => {
-      Object.entries(m.errorTypes || {}).forEach(([type, count]) => {
-        acc[type] = (acc[type] || 0) + count;
-      });
+      Object.entries(m.errorTypes || {}).forEach(([type, count]) => { acc[type] = (acc[type] || 0) + count; });
       return acc;
     }, {} as Record<string, number>),
     uniqueSessionCount: Object.values(toolMetrics).reduce((sum, m) => sum + m.uniqueSessionCount, 0),
@@ -183,18 +169,24 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
               <div className="p-2 bg-indigo-100 rounded-xl">
                 <BarChart3 className="w-6 h-6 text-indigo-600" />
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-slate-900">FYRK Analytics</h1>
-                <p className="text-sm text-slate-500">Klikk og bes&oslash;ksstatistikk</p>
-              </div>
+              <h1 className="text-xl font-bold text-slate-900">FYRK Analytics</h1>
             </div>
-            <a
-              href={`/stats?token=${refreshToken}&period=${period}`}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition-colors"
-            >
-              <Sparkles className="w-4 h-4" />
-              Oppdater
-            </a>
+            <div className="flex items-center gap-4">
+              {dataTimestamp && (
+                <span className="text-xs text-slate-400 hidden sm:block">
+                  {new Date(dataTimestamp).toLocaleString('no-NO', {
+                    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+                  })}
+                </span>
+              )}
+              <a
+                href={`/stats?token=${refreshToken}&period=${period}`}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition-colors"
+              >
+                <Sparkles className="w-4 h-4" />
+                Oppdater
+              </a>
+            </div>
           </div>
 
           {/* Period selector */}
@@ -218,12 +210,15 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Oversikt */}
-        <CollapsibleSection id="overview" title="Oversikt" icon={<BarChart3 className="w-5 h-5" />} badge={PERIOD_BADGES[period]}>
-          {/* Primary KPIs */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {/* KPIs — always visible */}
+        <section>
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">
+            Oversikt
+            <span className="ml-2 text-sm font-normal text-slate-400">{PERIOD_BADGES[period]}</span>
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             <KPICard
-              title={<Tooltip text={METRIC_EXPLANATIONS.uniqueVisitors}>Bes&oslash;kende</Tooltip>}
+              title={<Tooltip text={METRIC_EXPLANATIONS.uniqueVisitors}>Bes\u00f8kende</Tooltip>}
               value={totalVisitors}
               icon={<Sparkles className="w-5 h-5" />}
               variant="primary"
@@ -234,7 +229,7 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
               icon={<Eye className="w-5 h-5" />}
             />
             <KPICard
-              title="Verkt&oslash;ybruk"
+              title="Fullf\u00f8rte analyser"
               value={totalSuccesses}
               subtitle={totalStarts > 0 ? `${totalStarts} startet` : undefined}
               icon={<Zap className="w-5 h-5" />}
@@ -248,41 +243,21 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
                 variant={overallConversionRate >= 50 ? 'success' : overallConversionRate >= 25 ? 'warning' : 'danger'}
               />
             )}
+            {satisfactionRate !== null && (
+              <KPICard
+                title={<Tooltip text={METRIC_EXPLANATIONS.satisfaction}>Tilfredshet</Tooltip>}
+                value={`${satisfactionRate}%`}
+                subtitle={`${totalFeedback} svar`}
+                icon={<ThumbsUp className="w-5 h-5" />}
+                variant={satisfactionRate >= 70 ? 'success' : satisfactionRate >= 50 ? 'warning' : 'danger'}
+              />
+            )}
           </div>
+        </section>
 
-          {/* Secondary KPIs: performance + satisfaction */}
-          {(aggregatedMetrics.count > 0 || satisfactionRate !== null) && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              {aggregatedMetrics.count > 0 && (
-                <>
-                  <KPICard
-                    title={<Tooltip text={METRIC_EXPLANATIONS.responseTime}>Snitt responstid</Tooltip>}
-                    value={aggregatedMetrics.totalProcessingTimeMs / aggregatedMetrics.count > 1000
-                      ? `${(aggregatedMetrics.totalProcessingTimeMs / aggregatedMetrics.count / 1000).toFixed(1)}s`
-                      : `${Math.round(aggregatedMetrics.totalProcessingTimeMs / aggregatedMetrics.count)}ms`}
-                    icon={<Zap className="w-5 h-5" />}
-                  />
-                  <KPICard
-                    title={<Tooltip text={METRIC_EXPLANATIONS.cacheHit}>Cache hit</Tooltip>}
-                    value={`${((aggregatedMetrics.cachedCount / (aggregatedMetrics.cachedCount + aggregatedMetrics.freshCount)) * 100 || 0).toFixed(0)}%`}
-                    icon={<Activity className="w-5 h-5" />}
-                  />
-                </>
-              )}
-              {satisfactionRate !== null && (
-                <KPICard
-                  title={<Tooltip text={METRIC_EXPLANATIONS.satisfaction}>Tilfredshet</Tooltip>}
-                  value={`${satisfactionRate}%`}
-                  subtitle={`${totalFeedback} svar`}
-                  icon={<ThumbsUp className="w-5 h-5" />}
-                  variant={satisfactionRate >= 70 ? 'success' : satisfactionRate >= 50 ? 'warning' : 'danger'}
-                />
-              )}
-            </div>
-          )}
-
-          {/* Charts (skip for all-time since no hourly data) */}
-          {period !== 'all' && (
+        {/* Activity charts — only for non-all periods */}
+        {period !== 'all' && (
+          <section>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {hasActivity ? (
                 <>
@@ -292,7 +267,7 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
                   />
                   {aggregatedMetrics.count > 0 && (
                     <MetricsSummary
-                      title="Ytelsesmetrikker"
+                      title="Ytelse"
                       metrics={aggregatedMetrics}
                     />
                   )}
@@ -303,59 +278,37 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
                 </div>
               )}
             </div>
-          )}
-        </CollapsibleSection>
+          </section>
+        )}
 
-        {/* Conversion Funnels */}
-        <CollapsibleSection
-          id="funnels"
-          title={<Tooltip text={METRIC_EXPLANATIONS.funnel}>Konverteringsfunneler</Tooltip>}
-          icon={<TrendingUp className="w-5 h-5" />}
-          defaultExpanded={totalStarts > 0}
-        >
-          {totalStarts > 0 ? (
+        {/* Funnels — only tools with data */}
+        {activeFunnels.length > 0 && (
+          <CollapsibleSection
+            id="funnels"
+            title="Konverteringsfunneler"
+            icon={<TrendingUp className="w-5 h-5" />}
+          >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <FunnelChart
-                title="OKR-sjekken"
-                steps={okrFunnelSteps}
-                icon={<Zap className="w-5 h-5" />}
-              />
-              <FunnelChart
-                title="Konseptspeilet"
-                steps={konseptspeilFunnelSteps}
-                icon={<Lightbulb className="w-5 h-5" />}
-              />
-              <FunnelChart
-                title="Antakelseskart"
-                steps={antakelseskartFunnelSteps}
-                icon={<Map className="w-5 h-5" />}
-              />
-              <FunnelChart
-                title="Pre-Mortem Brief"
-                steps={premortemFunnelSteps}
-                icon={<FileText className="w-5 h-5" />}
-              />
+              {activeFunnels.map(f => (
+                <FunnelChart key={f.title} title={f.title} steps={f.steps} icon={f.icon} />
+              ))}
             </div>
-          ) : (
-            <div className="bg-white border border-slate-200 rounded-2xl">
-              <EmptyState type="funnel" />
-            </div>
-          )}
-        </CollapsibleSection>
+          </CollapsibleSection>
+        )}
 
-        {/* Traffic Charts */}
+        {/* Traffic */}
         <CollapsibleSection id="traffic" title="Sidetrafikk" icon={<Eye className="w-5 h-5" />}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {Object.entries(pageStats).map(([pageId, stats]) => (
-              <TrafficChart key={pageId} pageId={pageId} stats={stats} />
+              <TrafficChart key={pageId} pageId={pageId} stats={stats} globalPeriod={period} />
             ))}
           </div>
         </CollapsibleSection>
 
-        {/* Button Click Lists */}
+        {/* Buttons */}
         <CollapsibleSection
           id="buttons"
-          title="Knappeklikk per verkt&oslash;y"
+          title="Knappeklikk per verkt\u00f8y"
           icon={<MousePointer className="w-5 h-5" />}
           defaultExpanded={false}
           collapsedSummary={`5 verkt\u00f8y, ${totalClicks.toLocaleString('no-NO')} klikk totalt`}
@@ -368,58 +321,17 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
               <span className="w-2 h-2 bg-emerald-400 rounded-full" /> Engasjement
             </span>
             <span className="inline-flex items-center gap-1">
-              <span className="w-2 h-2 bg-slate-300 rounded-full" /> Sekund&aelig;re
+              <span className="w-2 h-2 bg-slate-300 rounded-full" /> Sekund\u00e6re
             </span>
           </p>
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            <ButtonClickList
-              title="OKR-sjekken"
-              buttons={okrButtonData}
-              icon={<Zap className="w-5 h-5" />}
-            />
-            <ButtonClickList
-              title="Konseptspeilet"
-              buttons={konseptspeilButtonData}
-              icon={<Lightbulb className="w-5 h-5" />}
-            />
-            <ButtonClickList
-              title="Antakelseskart"
-              buttons={antakelseskartButtonData}
-              icon={<Map className="w-5 h-5" />}
-            />
-            <ButtonClickList
-              title="Pre-Mortem Brief"
-              buttons={premortemButtonData}
-              icon={<FileText className="w-5 h-5" />}
-            />
-            <ButtonClickList
-              title="Landingsside"
-              buttons={landingButtonData}
-              icon={<ExternalLink className="w-5 h-5" />}
-            />
+            <ButtonClickList title="OKR-sjekken" buttons={okrButtonData} icon={<Zap className="w-5 h-5" />} />
+            <ButtonClickList title="Konseptspeilet" buttons={konseptspeilButtonData} icon={<Lightbulb className="w-5 h-5" />} />
+            <ButtonClickList title="Antakelseskart" buttons={antakelseskartButtonData} icon={<Map className="w-5 h-5" />} />
+            <ButtonClickList title="Pre-Mortem Brief" buttons={premortemButtonData} icon={<FileText className="w-5 h-5" />} />
+            <ButtonClickList title="Landingsside" buttons={landingButtonData} icon={<ExternalLink className="w-5 h-5" />} />
           </div>
         </CollapsibleSection>
-
-        {/* Footer */}
-        <footer className="text-center text-sm text-slate-400 pt-8 pb-4 space-y-1">
-          <p>
-            Data hentet: {dataTimestamp
-              ? new Date(dataTimestamp).toLocaleString('no-NO', {
-                  day: 'numeric',
-                  month: 'short',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })
-              : 'Ukjent'}
-          </p>
-          <p className="text-xs">
-            Side lastet: {new Date().toLocaleString('no-NO', { hour: '2-digit', minute: '2-digit' })}
-            {' \u00b7 '}
-            <a href={`/stats?token=${refreshToken}&period=${period}`} className="text-indigo-500 hover:text-indigo-600">
-              Oppdater data
-            </a>
-          </p>
-        </footer>
       </main>
     </div>
   );

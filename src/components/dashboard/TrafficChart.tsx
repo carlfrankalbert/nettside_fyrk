@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import {
   AreaChart,
   Area,
@@ -18,45 +18,35 @@ interface PageStats {
 interface TrafficChartProps {
   pageId: string;
   stats: PageStats;
+  globalPeriod: 'today' | '7d' | '30d' | 'all';
 }
-
-type Period = '24h' | 'week' | 'month' | 'year';
 
 interface TimeseriesPoint {
   label: string;
   value: number;
 }
 
-const PERIOD_OPTIONS: { value: Period; label: string }[] = [
-  { value: '24h', label: '24t' },
-  { value: 'week', label: 'Uke' },
-  { value: 'month', label: 'Måned' },
-  { value: 'year', label: 'År' },
-];
+const API_PERIOD_MAP: Record<string, string> = {
+  today: '24h',
+  '7d': 'week',
+  '30d': 'month',
+  all: 'all',
+};
 
-export function TrafficChart({ pageId, stats }: TrafficChartProps) {
-  const [period, setPeriod] = useState<Period>('week');
+export function TrafficChart({ pageId, stats, globalPeriod }: TrafficChartProps) {
   const [data, setData] = useState<TimeseriesPoint[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/pageview?timeseries=true&pageId=${pageId}&period=${period}`);
-      const result = (await response.json()) as { timeseries?: TimeseriesPoint[] };
-      if (result.timeseries) {
-        setData(result.timeseries);
-      }
-    } catch (error) {
-      console.error('Error fetching chart data:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [pageId, period]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    setLoading(true);
+    fetch(`/api/pageview?timeseries=true&pageId=${pageId}&period=${API_PERIOD_MAP[globalPeriod]}`)
+      .then(r => r.json() as Promise<{ timeseries?: TimeseriesPoint[] }>)
+      .then(result => {
+        if (result.timeseries) setData(result.timeseries);
+      })
+      .catch(err => console.error('Error fetching chart data:', err))
+      .finally(() => setLoading(false));
+  }, [pageId, globalPeriod]);
 
   const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) => {
     if (active && payload && payload.length) {
@@ -72,28 +62,11 @@ export function TrafficChart({ pageId, stats }: TrafficChartProps) {
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-50 rounded-lg">
-            <Globe className="w-5 h-5 text-blue-600" />
-          </div>
-          <h3 className="font-semibold text-slate-900">{stats.label}</h3>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-2 bg-blue-50 rounded-lg">
+          <Globe className="w-5 h-5 text-blue-600" />
         </div>
-        <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
-          {PERIOD_OPTIONS.map((option) => (
-            <button
-              key={option.value}
-              onClick={() => setPeriod(option.value)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                period === option.value
-                  ? 'bg-white text-slate-900 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
+        <h3 className="font-semibold text-slate-900">{stats.label}</h3>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-6">
@@ -120,7 +93,7 @@ export function TrafficChart({ pageId, stats }: TrafficChartProps) {
           </div>
         ) : data.length === 0 ? (
           <div className="h-full flex items-center justify-center text-slate-400">
-            Ingen data ennå
+            Ingen data enn&aring;
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
