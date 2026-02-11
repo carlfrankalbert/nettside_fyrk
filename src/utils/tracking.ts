@@ -5,6 +5,7 @@
 
 import { signRequest } from './request-signing';
 import { fetchWithRetryFireAndForget } from './fetch-retry';
+import { shouldExcludeFromTracking } from '../scripts/tracking-exclusion';
 
 /**
  * Session ID for retention measurement
@@ -101,6 +102,8 @@ export interface EventMetadata {
  * Includes sessionId for funnel analysis
  */
 export function trackClick(buttonId: string): void {
+  if (shouldExcludeFromTracking()) return;
+
   const signedRequest = signRequest({
     buttonId,
     metadata: { sessionId: getSessionId() },
@@ -121,6 +124,8 @@ export function trackClick(buttonId: string): void {
  * @param metadata - Optional metadata (charCount, processingTimeMs, errorType, cached) - NO PII
  */
 export function logEvent(eventType: string, metadata?: EventMetadata): void {
+  if (shouldExcludeFromTracking()) return;
+
   const payload: { buttonId: string; metadata?: EventMetadata } = { buttonId: eventType };
 
   // Always include session ID for retention measurement
