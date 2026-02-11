@@ -82,7 +82,7 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
       steps: [
         { id: 'okr_input_started', label: 'Startet', count: buttonCounts['okr_input_started']?.count || 0 },
         { id: 'okr_submit_attempted', label: 'Sendt inn', count: buttonCounts['okr_submit_attempted']?.count || 0 },
-        { id: 'check_success', label: 'Fullf\u00f8rt', count: buttonCounts['check_success']?.count || 0 },
+        { id: 'check_success', label: 'Fullført', count: buttonCounts['check_success']?.count || 0 },
         { id: 'feedback_up', label: 'Positiv feedback', count: buttonCounts['feedback_up']?.count || 0 },
       ],
     },
@@ -92,7 +92,7 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
       steps: [
         { id: 'konseptspeil_input_started', label: 'Startet', count: buttonCounts['konseptspeil_input_started']?.count || 0 },
         { id: 'konseptspeil_submit_attempted', label: 'Sendt inn', count: buttonCounts['konseptspeil_submit_attempted']?.count || 0 },
-        { id: 'konseptspeil_success', label: 'Fullf\u00f8rt', count: buttonCounts['konseptspeil_success']?.count || 0 },
+        { id: 'konseptspeil_success', label: 'Fullført', count: buttonCounts['konseptspeil_success']?.count || 0 },
         { id: 'konseptspeil_feedback_up', label: 'Positiv feedback', count: buttonCounts['konseptspeil_feedback_up']?.count || 0 },
       ],
     },
@@ -102,7 +102,7 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
       steps: [
         { id: 'antakelseskart_input_started', label: 'Startet', count: buttonCounts['antakelseskart_input_started']?.count || 0 },
         { id: 'antakelseskart_submit_attempted', label: 'Sendt inn', count: buttonCounts['antakelseskart_submit_attempted']?.count || 0 },
-        { id: 'antakelseskart_success', label: 'Fullf\u00f8rt', count: buttonCounts['antakelseskart_success']?.count || 0 },
+        { id: 'antakelseskart_success', label: 'Fullført', count: buttonCounts['antakelseskart_success']?.count || 0 },
       ],
     },
     {
@@ -111,11 +111,11 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
       steps: [
         { id: 'premortem_input_started', label: 'Startet', count: buttonCounts['premortem_input_started']?.count || 0 },
         { id: 'premortem_submit_attempted', label: 'Sendt inn', count: buttonCounts['premortem_submit_attempted']?.count || 0 },
-        { id: 'premortem_success', label: 'Fullf\u00f8rt', count: buttonCounts['premortem_success']?.count || 0 },
+        { id: 'premortem_success', label: 'Fullført', count: buttonCounts['premortem_success']?.count || 0 },
       ],
     },
   ];
-  const activeFunnels = allFunnels.filter(f => f.steps.some(s => s.count > 0));
+  const activeFunnels = allFunnels.filter(f => f.steps[0].count > 0);
 
   // Conversion & satisfaction
   const totalStarts = (buttonCounts['okr_input_started']?.count || 0) +
@@ -218,7 +218,7 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             <KPICard
-              title={<Tooltip text={METRIC_EXPLANATIONS.uniqueVisitors}>Bes\u00f8kende</Tooltip>}
+              title={<Tooltip text={METRIC_EXPLANATIONS.uniqueVisitors}>Besøkende</Tooltip>}
               value={totalVisitors}
               icon={<Sparkles className="w-5 h-5" />}
               variant="primary"
@@ -229,7 +229,7 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
               icon={<Eye className="w-5 h-5" />}
             />
             <KPICard
-              title="Fullf\u00f8rte analyser"
+              title="Fullførte analyser"
               value={totalSuccesses}
               subtitle={totalStarts > 0 ? `${totalStarts} startet` : undefined}
               icon={<Zap className="w-5 h-5" />}
@@ -308,10 +308,10 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
         {/* Buttons */}
         <CollapsibleSection
           id="buttons"
-          title="Knappeklikk per verkt\u00f8y"
+          title="Knappeklikk per verktøy"
           icon={<MousePointer className="w-5 h-5" />}
           defaultExpanded={false}
-          collapsedSummary={`5 verkt\u00f8y, ${totalClicks.toLocaleString('no-NO')} klikk totalt`}
+          collapsedSummary={`5 verktøy, ${totalClicks.toLocaleString('no-NO')} klikk totalt`}
         >
           <p className="text-sm text-slate-500 mb-4">
             <span className="inline-flex items-center gap-1 mr-3">
@@ -321,7 +321,7 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
               <span className="w-2 h-2 bg-emerald-400 rounded-full" /> Engasjement
             </span>
             <span className="inline-flex items-center gap-1">
-              <span className="w-2 h-2 bg-slate-300 rounded-full" /> Sekund\u00e6re
+              <span className="w-2 h-2 bg-slate-300 rounded-full" /> Sekundære
             </span>
           </p>
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
