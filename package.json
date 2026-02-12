@@ -38,7 +38,6 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.72.1",
     "@astrojs/cloudflare": "^12.6.12",
-    "@astrojs/node": "^9.5.2",
     "@astrojs/react": "^4.0.0",
     "@astrojs/sitemap": "^3.7.0",
     "@fontsource/inter": "^5.2.8",

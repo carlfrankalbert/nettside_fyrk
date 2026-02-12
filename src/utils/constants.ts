@@ -76,7 +76,6 @@ export const PAGE_ROUTES = {
   ANTAKELSESKART: '/antakelseskart',
   BESLUTNINGSLOGG: '/beslutningslogg',
   PRE_MORTEM: '/verktoy/pre-mortem',
-  SPLASH: '/splash',
 } as const;
 
 /**
