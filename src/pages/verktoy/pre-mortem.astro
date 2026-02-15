@@ -3,6 +3,7 @@ import MinimalLayout from '../../layouts/MinimalLayout.astro';
 import PreMortemBrief from '../../components/PreMortemBrief';
 import ToolFooter from '../../components/ui/ToolFooter.astro';
 import Breadcrumb from '../../components/ui/Breadcrumb.astro';
+import RelatedTools from '../../components/ui/RelatedTools.astro';
 import ToolWhenToUse from '../../components/ui/ToolWhenToUse.astro';
 import ToolBenefits from '../../components/ui/ToolBenefits.astro';
 
@@ -61,6 +62,10 @@ const breadcrumbItems = [
         <PreMortemBrief client:load />
       </div>
 
+      <RelatedTools tools={[
+        { name: 'Antakelseskartet', href: '/antakelseskart', description: 'Avdekk de implisitte antakelsene bak beslutningen.' },
+        { name: 'Beslutningslogg', href: '/beslutningslogg', description: 'Dokumenter risikobeslutningene du har tatt.' },
+      ]} />
     </div>
 
     <ToolFooter />

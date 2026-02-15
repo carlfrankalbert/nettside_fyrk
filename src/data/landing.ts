@@ -114,6 +114,34 @@ export const servicesContent = {
 } as const;
 
 /**
+ * Tools showcase section content
+ */
+export const toolsContent = {
+  title: 'Gratis verktøy',
+  intro: 'Strukturerte verktøy som hjelper deg se tydeligere før du forplikter deg. Ingen innlogging.',
+  tools: [
+    {
+      name: 'Konseptspeilet',
+      description: 'Avdekker blindsoner og skjulte antakelser i produktideer.',
+      href: '/konseptspeilet',
+      ctaText: 'Prøv konseptspeilet',
+    },
+    {
+      name: 'Antakelseskartet',
+      description: 'Gjør implisitte antakelser eksplisitte i beslutninger.',
+      href: '/antakelseskart',
+      ctaText: 'Prøv antakelseskartet',
+    },
+    {
+      name: 'OKR-sjekken',
+      description: 'Rask kvalitetssjekk av OKR-ene dine på under ett minutt.',
+      href: '/okr-sjekken',
+      ctaText: 'Prøv OKR-sjekken',
+    },
+  ],
+} as const;
+
+/**
  * About section content (Hvem står bak) - consolidated with experience and testimonials
  */
 export const aboutContent = {

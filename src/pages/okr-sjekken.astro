@@ -4,7 +4,13 @@ import OKRPageContent from '../components/OKRPageContent';
 import ToolFooter from '../components/ui/ToolFooter.astro';
 import ToolWhenToUse from '../components/ui/ToolWhenToUse.astro';
 import ToolBenefits from '../components/ui/ToolBenefits.astro';
+import Breadcrumb from '../components/ui/Breadcrumb.astro';
+import RelatedTools from '../components/ui/RelatedTools.astro';
 
+const breadcrumbItems = [
+  { label: 'Verktøy', href: '/verktoy' },
+  { label: 'OKR-sjekken' },
+];
 ---
 
 <MinimalLayout
@@ -13,7 +19,9 @@ import ToolBenefits from '../components/ui/ToolBenefits.astro';
   toolName="OKR-sjekken"
 >
   <main id="main-content" class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
-    <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-12 md:py-16 w-full pb-24 md:pb-12">
+    <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-8 md:py-12 w-full pb-24 md:pb-12">
+
+      <Breadcrumb items={breadcrumbItems} />
 
       <!-- Hero -->
       <header class="mb-8">
@@ -45,6 +53,10 @@ import ToolBenefits from '../components/ui/ToolBenefits.astro';
 
       <!-- Dynamic content (OKR reviewer, example section, etc.) -->
       <OKRPageContent client:load />
+      <RelatedTools tools={[
+        { name: 'Beslutningslogg', href: '/beslutningslogg', description: 'Dokumenter OKR-beslutningene dere har tatt.' },
+        { name: 'Konseptspeilet', href: '/konseptspeilet', description: 'Test og forbedre produktideer før dere setter OKR-er.' },
+      ]} />
     </div>
 
     <ToolFooter />

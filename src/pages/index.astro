@@ -14,6 +14,7 @@ import LandingHeader from '../components/landing/LandingHeader.astro';
 import HeroSection from '../components/landing/HeroSection.astro';
 import ModesSection from '../components/landing/ModesSection.astro';
 import ServicesSection from '../components/landing/ServicesSection.astro';
+import ToolsSection from '../components/landing/ToolsSection.astro';
 import AboutSection from '../components/landing/AboutSection.astro';
 import ContactSection from '../components/landing/ContactSection.astro';
 import LandingFooter from '../components/landing/LandingFooter.astro';
@@ -25,6 +26,7 @@ import {
   modesContent,
   situationsContent,
   servicesContent,
+  toolsContent,
   aboutContent,
   contactContent,
   footerContent,
@@ -61,6 +63,12 @@ import {
         services={servicesContent.services}
         situationsTitle={situationsContent.title}
         situations={situationsContent.situations}
+      />
+
+      <ToolsSection
+        title={toolsContent.title}
+        intro={toolsContent.intro}
+        tools={toolsContent.tools}
       />
 
       <AboutSection

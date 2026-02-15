@@ -18,7 +18,7 @@ const { items } = Astro.props;
     {items.map((item) => (
       <li class="flex items-start gap-2">
         <span class="text-brand-cyan-darker shrink-0">•</span>
-        <span>{item}</span>
+        <span set:html={item} />
       </li>
     ))}
   </ul>

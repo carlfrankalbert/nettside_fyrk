@@ -4,7 +4,13 @@ import KonseptSpeil from '../components/KonseptSpeil';
 import ToolFooter from '../components/ui/ToolFooter.astro';
 import ToolWhenToUse from '../components/ui/ToolWhenToUse.astro';
 import ToolBenefits from '../components/ui/ToolBenefits.astro';
+import Breadcrumb from '../components/ui/Breadcrumb.astro';
+import RelatedTools from '../components/ui/RelatedTools.astro';
 
+const breadcrumbItems = [
+  { label: 'Verktøy', href: '/verktoy' },
+  { label: 'Konseptspeilet' },
+];
 ---
 
 <MinimalLayout
@@ -14,6 +20,8 @@ import ToolBenefits from '../components/ui/ToolBenefits.astro';
 >
   <main id="main-content" class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
     <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-8 md:py-12 w-full pb-24 md:pb-12">
+
+      <Breadcrumb items={breadcrumbItems} />
 
       <!-- Hero: Clear value proposition -->
       <header class="mb-6" id="skriv">
@@ -50,6 +58,10 @@ import ToolBenefits from '../components/ui/ToolBenefits.astro';
         <KonseptSpeil client:load />
       </div>
 
+      <RelatedTools tools={[
+        { name: 'Antakelseskartet', href: '/antakelseskart', description: 'Avdekk de skjulte antakelsene i konseptet ditt.' },
+        { name: 'Beslutningslogg', href: '/beslutningslogg', description: 'Dokumenter beslutningene du tar etter refleksjonen.' },
+      ]} />
     </div>
 
     <ToolFooter />

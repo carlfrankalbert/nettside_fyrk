@@ -4,7 +4,13 @@ import BeslutningsloggForm from '../components/Beslutningslogg';
 import ToolFooter from '../components/ui/ToolFooter.astro';
 import ToolWhenToUse from '../components/ui/ToolWhenToUse.astro';
 import ToolBenefits from '../components/ui/ToolBenefits.astro';
+import Breadcrumb from '../components/ui/Breadcrumb.astro';
+import RelatedTools from '../components/ui/RelatedTools.astro';
 
+const breadcrumbItems = [
+  { label: 'Verktøy', href: '/verktoy' },
+  { label: 'Beslutningslogg' },
+];
 ---
 
 <MinimalLayout
@@ -14,6 +20,8 @@ import ToolBenefits from '../components/ui/ToolBenefits.astro';
 >
   <main id="main-content" class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
     <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-8 md:py-12 w-full pb-24 md:pb-12">
+
+      <Breadcrumb items={breadcrumbItems} />
 
       <!-- Hero: Clear value proposition -->
       <header class="mb-8" id="skriv">
@@ -35,7 +43,7 @@ import ToolBenefits from '../components/ui/ToolBenefits.astro';
         'Etter en viktig produktbeslutning eller prioritering',
         'Når teamet har valgt én vei blant flere alternativer',
         'For å skape sporbarhet og ansvarlighet i beslutninger',
-        'Som avslutning etter en refleksjon med Konseptspeilet',
+        'Som avslutning etter en refleksjon med <a href="/konseptspeilet" class="text-brand-navy underline underline-offset-2 hover:text-brand-navy/80">Konseptspeilet</a>',
       ]} />
 
       <ToolBenefits
@@ -52,6 +60,10 @@ import ToolBenefits from '../components/ui/ToolBenefits.astro';
         <BeslutningsloggForm client:load />
       </div>
 
+      <RelatedTools tools={[
+        { name: 'Konseptspeilet', href: '/konseptspeilet', description: 'Test ideen bak beslutningen med AI-drevet refleksjon.' },
+        { name: 'OKR-sjekken', href: '/okr-sjekken', description: 'Sjekk kvaliteten på OKR-ene knyttet til beslutningen.' },
+      ]} />
     </div>
 
     <ToolFooter showClaude={false} />

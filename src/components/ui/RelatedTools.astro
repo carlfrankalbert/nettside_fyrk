@@ -1,0 +1,41 @@
+---
+/**
+ * Related tools section for cross-linking between tool pages
+ * Placed before ToolFooter on each tool page.
+ */
+
+interface Tool {
+  name: string;
+  href: string;
+  description: string;
+}
+
+interface Props {
+  tools: Tool[];
+}
+
+const { tools } = Astro.props;
+---
+
+<section class="mt-12 pt-8 border-t border-neutral-200">
+  <h2 class="text-sm font-semibold text-neutral-500 uppercase tracking-wide mb-4">Utforsk flere verktøy</h2>
+  <div class="space-y-3">
+    {tools.map((tool) => (
+      <a
+        href={tool.href}
+        class="flex items-center justify-between gap-4 p-4 bg-white border border-neutral-200 rounded-lg hover:border-neutral-300 hover:bg-neutral-50 hover:shadow-sm transition-all no-underline group"
+      >
+        <div>
+          <p class="text-sm font-semibold text-brand-navy group-hover:text-brand-navy/80">{tool.name}</p>
+          <p class="text-xs text-neutral-500 mt-0.5">{tool.description}</p>
+        </div>
+        <svg class="w-4 h-4 text-neutral-400 group-hover:text-brand-navy flex-shrink-0 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </a>
+    ))}
+  </div>
+  <p class="text-xs text-neutral-400 mt-4">
+    <a href="/verktoy" class="hover:text-brand-navy transition-colors underline underline-offset-2">Se alle verktøy</a>
+  </p>
+</section>
