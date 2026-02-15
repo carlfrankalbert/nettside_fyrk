@@ -6,6 +6,7 @@ import ToolWhenToUse from '../components/ui/ToolWhenToUse.astro';
 import ToolBenefits from '../components/ui/ToolBenefits.astro';
 import Breadcrumb from '../components/ui/Breadcrumb.astro';
 import RelatedTools from '../components/ui/RelatedTools.astro';
+import MobileCTABar from '../components/ui/MobileCTABar.astro';
 
 const breadcrumbItems = [
   { label: 'Verktøy', href: '/verktoy' },
@@ -24,7 +25,7 @@ const breadcrumbItems = [
       <Breadcrumb items={breadcrumbItems} />
 
       <!-- Hero: Clear value proposition -->
-      <header class="mb-6" id="skriv">
+      <header class="mb-8" id="skriv">
         <h1 class="text-h3 md:text-h2 font-semibold text-brand-navy mb-3 leading-tight">
           Forstå ideen din bedre – før noen andre gjør det
           <span class="inline-block text-xs font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full align-middle ml-2">Beta</span>
@@ -54,7 +55,8 @@ const breadcrumbItems = [
       />
 
       <!-- Dynamic content (input, CTA, result) -->
-      <div id="input-section">
+      <!-- Dynamic content (input, CTA, result) -->
+      <div class="mt-8">
         <KonseptSpeil client:load />
       </div>
 
@@ -67,17 +69,7 @@ const breadcrumbItems = [
     <ToolFooter />
   </main>
 
-  <!-- Mobile sticky bottom bar -->
-  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-neutral-200 px-4 py-3 safe-area-inset-bottom" id="mobile-cta-bar">
-    <button
-      type="button"
-      id="mobile-submit-btn"
-      class="w-full inline-flex items-center justify-center px-6 py-3.5 text-base font-semibold text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 disabled:bg-neutral-200 disabled:text-neutral-400 disabled:cursor-not-allowed transition-all"
-      disabled
-    >
-      <span>Start speiling</span>
-    </button>
-  </div>
+  <MobileCTABar buttonText="Start speiling" />
 
   <script>
     import { initPageViewTracking } from '../scripts/pageview-tracking';
@@ -124,15 +116,4 @@ const breadcrumbItems = [
 
   </script>
 
-  <style>
-    /* Safe area for mobile devices with home indicator */
-    .safe-area-inset-bottom {
-      padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
-    }
-
-    /* Smooth transition for mobile bar */
-    #mobile-cta-bar {
-      transition: transform 0.3s ease-out;
-    }
-  </style>
 </MinimalLayout>

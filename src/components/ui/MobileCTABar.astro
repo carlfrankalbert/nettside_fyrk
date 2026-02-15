@@ -1,0 +1,42 @@
+---
+/**
+ * Shared mobile sticky CTA bar for tool pages.
+ * Provides the fixed-bottom button that syncs with React components via custom events.
+ *
+ * The bar HTML and button are standardized here.
+ * Event handling (disable logic, loading text, hide/show) stays in each page's <script>.
+ */
+
+interface Props {
+  buttonText: string;
+  buttonId?: string;
+  disabled?: boolean;
+  showArrow?: boolean;
+}
+
+const {
+  buttonText,
+  buttonId = 'mobile-submit-btn',
+  disabled = true,
+  showArrow = false,
+} = Astro.props;
+---
+
+<div
+  class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-neutral-200 px-4 py-3 safe-area-inset-bottom"
+  id="mobile-cta-bar"
+>
+  <button
+    type="button"
+    id={buttonId}
+    class="w-full inline-flex items-center justify-center px-6 py-3.5 text-base font-semibold text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 disabled:bg-neutral-200 disabled:text-neutral-400 disabled:cursor-not-allowed transition-all"
+    disabled={disabled}
+  >
+    <span>{buttonText}</span>
+    {showArrow && (
+      <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+      </svg>
+    )}
+  </button>
+</div>
