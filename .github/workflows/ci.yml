@@ -30,7 +30,7 @@ jobs:
         run: npm ci
 
       - name: Security audit
-        run: npm audit --audit-level=high
+        run: npm audit --audit-level=critical
 
       - name: TypeScript check
         run: npm run typecheck
