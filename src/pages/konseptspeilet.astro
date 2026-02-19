@@ -1,118 +1,89 @@
 ---
-import MinimalLayout from '../layouts/MinimalLayout.astro';
+import ToolLayout from '../layouts/ToolLayout.astro';
 import KonseptSpeil from '../components/KonseptSpeil';
-import ToolFooter from '../components/ui/ToolFooter.astro';
-import ToolWhenToUse from '../components/ui/ToolWhenToUse.astro';
-import ToolBenefits from '../components/ui/ToolBenefits.astro';
-import Breadcrumb from '../components/ui/Breadcrumb.astro';
-import RelatedTools from '../components/ui/RelatedTools.astro';
-import MobileCTABar from '../components/ui/MobileCTABar.astro';
-
-const breadcrumbItems = [
-  { label: 'Verktøy', href: '/verktoy' },
-  { label: 'Konseptspeilet' },
-];
 ---
 
-<MinimalLayout
+<ToolLayout
   title="Test og forbedre produktidéer – avdekk antakelser tidlig"
   description="Gratis verktøy for å teste og forbedre produktidéer. Avdekker skjulte antakelser og hull i tidlige konsepter – på 1 min, uten registrering."
   toolName="Konseptspeilet"
+  breadcrumbLabel="Konseptspeilet"
+  whenToUse={[
+    'Når du har en produktidé, men er usikker på om den holder',
+    'Før du pitcher en idé internt eller eksternt',
+    'Når du vil få feedback uten møter eller bias',
+  ]}
+  benefits={{
+    items: [
+      'Feedback på hva som er antatt vs eksplisitt formulert',
+      'Avdekking av hull: målgruppe, verdi, effekt',
+      'Et bedre beslutningsgrunnlag før videre arbeid',
+    ],
+    footnote: 'Ingen scoring. Ingen fasit. Bare et ærlig speil.',
+  }}
+  relatedTools={[
+    { name: 'Antakelseskartet', href: '/antakelseskart', description: 'Avdekk de skjulte antakelsene i konseptet ditt.' },
+    { name: 'Beslutningslogg', href: '/beslutningslogg', description: 'Dokumenter beslutningene du tar etter refleksjonen.' },
+  ]}
+  mobileCTA={{ buttonText: 'Start speiling' }}
 >
-  <main id="main-content" class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
-    <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-8 md:py-12 w-full pb-24 md:pb-12">
+  <header slot="hero" class="mb-8" id="skriv">
+    <h1 class="text-h3 md:text-h2 font-semibold text-brand-navy mb-3 leading-tight">
+      Forstå ideen din bedre – før noen andre gjør det
+    </h1>
+    <p class="text-base text-neutral-600 leading-relaxed mb-4">
+      Skriv inn ideen din. AI-en analyserer teksten og avslører blindsoner, manglende logikk og skjulte antakelser på sekunder.
+    </p>
 
-      <Breadcrumb items={breadcrumbItems} />
+    <p class="text-xs text-neutral-500">
+      Ingen registrering · Ingen salg · Faktisk nyttig
+    </p>
+  </header>
 
-      <!-- Hero: Clear value proposition -->
-      <header class="mb-8" id="skriv">
-        <h1 class="text-h3 md:text-h2 font-semibold text-brand-navy mb-3 leading-tight">
-          Forstå ideen din bedre – før noen andre gjør det
-        </h1>
-        <p class="text-base text-neutral-600 leading-relaxed mb-4">
-          Skriv inn ideen din. AI-en analyserer teksten og avslører blindsoner, manglende logikk og skjulte antakelser på sekunder.
-        </p>
+  <KonseptSpeil client:load />
+</ToolLayout>
 
-        <p class="text-xs text-neutral-500">
-          Ingen registrering · Ingen salg · Faktisk nyttig
-        </p>
-      </header>
+<script>
+  import { initPageViewTracking } from '../scripts/pageview-tracking';
+  import { initTrackingHelpers } from '../scripts/tracking-exclusion';
+  initPageViewTracking('konseptspeil');
+  initTrackingHelpers();
 
-      <ToolWhenToUse items={[
-        'Når du har en produktidé, men er usikker på om den holder',
-        'Før du pitcher en idé internt eller eksternt',
-        'Når du vil få feedback uten møter eller bias',
-      ]} />
+  // Sync mobile CTA with main form
+  const mobileBtn = document.getElementById('mobile-submit-btn') as HTMLButtonElement | null;
+  const mobileCTABar = document.getElementById('mobile-cta-bar');
 
-      <ToolBenefits
-        items={[
-          'Feedback på hva som er antatt vs eksplisitt formulert',
-          'Avdekking av hull: målgruppe, verdi, effekt',
-          'Et bedre beslutningsgrunnlag før videre arbeid',
-        ]}
-        footnote="Ingen scoring. Ingen fasit. Bare et ærlig speil."
-      />
+  if (mobileBtn && mobileCTABar) {
+    // Listen for custom events from React component
+    window.addEventListener('konseptspeil:inputChange', ((e: CustomEvent) => {
+      const { length, isLoading, hasResult } = e.detail;
+      mobileBtn.disabled = isLoading || length < 50;
 
-      <!-- Dynamic content (input, CTA, result) -->
-      <!-- Dynamic content (input, CTA, result) -->
-      <div class="mt-8">
-        <KonseptSpeil client:load />
-      </div>
+      // Hide bar when result is shown
+      if (hasResult) {
+        mobileCTABar.classList.add('translate-y-full');
+      } else {
+        mobileCTABar.classList.remove('translate-y-full');
+      }
 
-      <RelatedTools tools={[
-        { name: 'Antakelseskartet', href: '/antakelseskart', description: 'Avdekk de skjulte antakelsene i konseptet ditt.' },
-        { name: 'Beslutningslogg', href: '/beslutningslogg', description: 'Dokumenter beslutningene du tar etter refleksjonen.' },
-      ]} />
-    </div>
+      // Update button text for loading state
+      if (isLoading) {
+        mobileBtn.innerHTML = `
+          <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span>Speiler tankene dine…</span>
+        `;
+      } else {
+        mobileBtn.innerHTML = `<span>Start speiling</span>`;
+      }
+    }) as EventListener);
 
-    <ToolFooter />
-  </main>
+    // Forward click to main form
+    mobileBtn.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('konseptspeil:submit'));
+    });
+  }
 
-  <MobileCTABar buttonText="Start speiling" />
-
-  <script>
-    import { initPageViewTracking } from '../scripts/pageview-tracking';
-    import { initTrackingHelpers } from '../scripts/tracking-exclusion';
-    initPageViewTracking('konseptspeil');
-    initTrackingHelpers();
-
-    // Sync mobile CTA with main form
-    const mobileBtn = document.getElementById('mobile-submit-btn') as HTMLButtonElement | null;
-    const mobileCTABar = document.getElementById('mobile-cta-bar');
-
-    if (mobileBtn && mobileCTABar) {
-      // Listen for custom events from React component
-      window.addEventListener('konseptspeil:inputChange', ((e: CustomEvent) => {
-        const { length, isLoading, hasResult } = e.detail;
-        mobileBtn.disabled = isLoading || length < 50;
-
-        // Hide bar when result is shown
-        if (hasResult) {
-          mobileCTABar.classList.add('translate-y-full');
-        } else {
-          mobileCTABar.classList.remove('translate-y-full');
-        }
-
-        // Update button text for loading state
-        if (isLoading) {
-          mobileBtn.innerHTML = `
-            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <span>Speiler tankene dine…</span>
-          `;
-        } else {
-          mobileBtn.innerHTML = `<span>Start speiling</span>`;
-        }
-      }) as EventListener);
-
-      // Forward click to main form
-      mobileBtn.addEventListener('click', () => {
-        window.dispatchEvent(new CustomEvent('konseptspeil:submit'));
-      });
-    }
-
-  </script>
-
-</MinimalLayout>
+</script>

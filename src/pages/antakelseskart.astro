@@ -1,119 +1,91 @@
 ---
-import MinimalLayout from '../layouts/MinimalLayout.astro';
+import ToolLayout from '../layouts/ToolLayout.astro';
 import AntakelseskartComponent from '../components/Antakelseskart';
-import ToolFooter from '../components/ui/ToolFooter.astro';
-import ToolWhenToUse from '../components/ui/ToolWhenToUse.astro';
-import ToolBenefits from '../components/ui/ToolBenefits.astro';
-import Breadcrumb from '../components/ui/Breadcrumb.astro';
-import RelatedTools from '../components/ui/RelatedTools.astro';
-import MobileCTABar from '../components/ui/MobileCTABar.astro';
-
-const breadcrumbItems = [
-  { label: 'Verktøy', href: '/verktoy' },
-  { label: 'Antakelseskartet' },
-];
 ---
 
-<MinimalLayout
+<ToolLayout
   title="Avdekk skjulte antakelser i produktbeslutninger"
   description="Gratis verktøy som gjør implisitte antakelser eksplisitte. Identifiser risiko og blindsoner i produkt- og strategibeslutninger."
   toolName="Antakelseskartet"
+  breadcrumbLabel="Antakelseskartet"
+  whenToUse={[
+    'Før du forplikter deg til en større produkt- eller strategibeslutning',
+    'Når teamet diskuterer, men snakker forbi hverandre',
+    'I strategimøter for å synliggjøre hva som tas for gitt',
+    'Når du vil finne ut hva som faktisk bør testes',
+  ]}
+  benefits={{
+    items: [
+      '8-15 implisitte antakelser gruppert i fire kategorier',
+      'Mulighet til å vurdere sikkerhet og konsekvens for hver antakelse',
+      'Automatisk markering av kritiske antakelser (lav sikkerhet + høy konsekvens)',
+    ],
+    footnote: 'Ingen råd. Ingen fasit. Bare synliggjøring av det som er tatt for gitt.',
+  }}
+  relatedTools={[
+    { name: 'Pre-Mortem Brief', href: '/verktoy/pre-mortem', description: 'Hva om antakelsene dine er feil? Tenk gjennom hva som kan gå galt.' },
+    { name: 'Konseptspeilet', href: '/konseptspeilet', description: 'Test og forbedre produktideen bak beslutningen.' },
+  ]}
+  mobileCTA={{ buttonText: 'Avdekk antakelser' }}
 >
-  <main id="main-content" class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
-    <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-8 md:py-12 w-full pb-24 md:pb-12">
+  <header slot="hero" class="mb-8" id="skriv">
+    <h1 class="text-h3 md:text-h2 font-semibold text-brand-navy mb-3 leading-tight">
+      Finn antakelsene du ikke visste du hadde
+      <span class="inline-block text-xs font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full align-middle ml-2">Beta</span>
+    </h1>
+    <p class="text-base text-neutral-600 leading-relaxed mb-4">
+      Beskriv en beslutning. AI-en avdekker de implisitte antakelsene som ligger til grunn - og hjelper deg å prioritere hva du bør teste.
+    </p>
 
-      <Breadcrumb items={breadcrumbItems} />
+    <p class="text-xs text-neutral-500">
+      Ingen registrering · Ingen scoring · Bare klarhet
+    </p>
+  </header>
 
-      <!-- Hero: Clear value proposition -->
-      <header class="mb-8" id="skriv">
-        <h1 class="text-h3 md:text-h2 font-semibold text-brand-navy mb-3 leading-tight">
-          Finn antakelsene du ikke visste du hadde
-          <span class="inline-block text-xs font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full align-middle ml-2">Beta</span>
-        </h1>
-        <p class="text-base text-neutral-600 leading-relaxed mb-4">
-          Beskriv en beslutning. AI-en avdekker de implisitte antakelsene som ligger til grunn - og hjelper deg å prioritere hva du bør teste.
-        </p>
+  <AntakelseskartComponent client:load />
+</ToolLayout>
 
-        <p class="text-xs text-neutral-500">
-          Ingen registrering · Ingen scoring · Bare klarhet
-        </p>
-      </header>
+<script>
+  import { initPageViewTracking } from '../scripts/pageview-tracking';
+  import { initTrackingHelpers } from '../scripts/tracking-exclusion';
+  initPageViewTracking('antakelseskart');
+  initTrackingHelpers();
 
-      <ToolWhenToUse items={[
-        'Før du forplikter deg til en større produkt- eller strategibeslutning',
-        'Når teamet diskuterer, men snakker forbi hverandre',
-        'I strategimøter for å synliggjøre hva som tas for gitt',
-        'Når du vil finne ut hva som faktisk bør testes',
-      ]} />
+  // Sync mobile CTA with main form
+  const mobileBtn = document.getElementById('mobile-submit-btn') as HTMLButtonElement | null;
+  const mobileCTABar = document.getElementById('mobile-cta-bar');
 
-      <ToolBenefits
-        items={[
-          '8-15 implisitte antakelser gruppert i fire kategorier',
-          'Mulighet til å vurdere sikkerhet og konsekvens for hver antakelse',
-          'Automatisk markering av kritiske antakelser (lav sikkerhet + høy konsekvens)',
-        ]}
-        footnote="Ingen råd. Ingen fasit. Bare synliggjøring av det som er tatt for gitt."
-      />
+  if (mobileBtn && mobileCTABar) {
+    // Listen for custom events from React component
+    window.addEventListener('antakelseskart:inputChange', ((e: CustomEvent) => {
+      const { length, isLoading, hasResult } = e.detail;
+      mobileBtn.disabled = isLoading || length < 50;
 
-      <!-- Dynamic content (input, CTA, result) -->
-      <div class="mt-8">
-        <AntakelseskartComponent client:load />
-      </div>
+      // Hide bar when result is shown
+      if (hasResult) {
+        mobileCTABar.classList.add('translate-y-full');
+      } else {
+        mobileCTABar.classList.remove('translate-y-full');
+      }
 
-      <RelatedTools tools={[
-        { name: 'Pre-Mortem Brief', href: '/verktoy/pre-mortem', description: 'Hva om antakelsene dine er feil? Tenk gjennom hva som kan gå galt.' },
-        { name: 'Konseptspeilet', href: '/konseptspeilet', description: 'Test og forbedre produktideen bak beslutningen.' },
-      ]} />
-    </div>
+      // Update button text for loading state
+      if (isLoading) {
+        mobileBtn.innerHTML = `
+          <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span>Avdekker antakelser...</span>
+        `;
+      } else {
+        mobileBtn.innerHTML = `<span>Avdekk antakelser</span>`;
+      }
+    }) as EventListener);
 
-    <ToolFooter />
-  </main>
+    // Forward click to main form
+    mobileBtn.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('antakelseskart:submit'));
+    });
+  }
 
-  <MobileCTABar buttonText="Avdekk antakelser" />
-
-  <script>
-    import { initPageViewTracking } from '../scripts/pageview-tracking';
-    import { initTrackingHelpers } from '../scripts/tracking-exclusion';
-    initPageViewTracking('antakelseskart');
-    initTrackingHelpers();
-
-    // Sync mobile CTA with main form
-    const mobileBtn = document.getElementById('mobile-submit-btn') as HTMLButtonElement | null;
-    const mobileCTABar = document.getElementById('mobile-cta-bar');
-
-    if (mobileBtn && mobileCTABar) {
-      // Listen for custom events from React component
-      window.addEventListener('antakelseskart:inputChange', ((e: CustomEvent) => {
-        const { length, isLoading, hasResult } = e.detail;
-        mobileBtn.disabled = isLoading || length < 50;
-
-        // Hide bar when result is shown
-        if (hasResult) {
-          mobileCTABar.classList.add('translate-y-full');
-        } else {
-          mobileCTABar.classList.remove('translate-y-full');
-        }
-
-        // Update button text for loading state
-        if (isLoading) {
-          mobileBtn.innerHTML = `
-            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <span>Avdekker antakelser...</span>
-          `;
-        } else {
-          mobileBtn.innerHTML = `<span>Avdekk antakelser</span>`;
-        }
-      }) as EventListener);
-
-      // Forward click to main form
-      mobileBtn.addEventListener('click', () => {
-        window.dispatchEvent(new CustomEvent('antakelseskart:submit'));
-      });
-    }
-
-  </script>
-
-</MinimalLayout>
+</script>

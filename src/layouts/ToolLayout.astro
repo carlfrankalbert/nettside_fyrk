@@ -1,0 +1,74 @@
+---
+/**
+ * Shared layout for all tool pages (OKR-sjekken, Konseptspeilet, etc.)
+ * Absorbs common structure: MinimalLayout, Breadcrumb, ToolWhenToUse,
+ * ToolBenefits, RelatedTools, ToolFooter, MobileCTABar.
+ *
+ * Pages pass config as props and custom content via slots:
+ *   - "hero" slot: page-specific header/h1
+ *   - default slot: React component (interactive content)
+ */
+import MinimalLayout from './MinimalLayout.astro';
+import ToolFooter from '../components/ui/ToolFooter.astro';
+import ToolWhenToUse from '../components/ui/ToolWhenToUse.astro';
+import ToolBenefits from '../components/ui/ToolBenefits.astro';
+import Breadcrumb from '../components/ui/Breadcrumb.astro';
+import RelatedTools from '../components/ui/RelatedTools.astro';
+import MobileCTABar from '../components/ui/MobileCTABar.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  toolName: string;
+  breadcrumbLabel: string;
+  whenToUse: string[];
+  benefits: { items: string[]; heading?: string; footnote?: string };
+  relatedTools: Array<{ name: string; href: string; description: string }>;
+  mobileCTA: { buttonText: string; buttonId?: string; disabled?: boolean; showArrow?: boolean };
+  showClaude?: boolean;
+}
+
+const {
+  title,
+  description,
+  toolName,
+  breadcrumbLabel,
+  whenToUse,
+  benefits,
+  relatedTools,
+  mobileCTA,
+  showClaude = true,
+} = Astro.props;
+
+const breadcrumbItems = [
+  { label: 'Verktøy', href: '/verktoy' },
+  { label: breadcrumbLabel },
+];
+---
+
+<MinimalLayout {title} {description} {toolName}>
+  <main id="main-content" class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
+    <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-8 md:py-12 w-full pb-24 md:pb-12">
+
+      <Breadcrumb items={breadcrumbItems} />
+
+      <slot name="hero" />
+
+      <ToolWhenToUse items={whenToUse} />
+
+      <ToolBenefits {...benefits} />
+
+      <div class="mt-8">
+        <slot />
+      </div>
+
+      <RelatedTools tools={relatedTools} />
+    </div>
+
+    <ToolFooter {showClaude} />
+  </main>
+
+  <MobileCTABar {...mobileCTA} />
+
+  <slot name="after" />
+</MinimalLayout>

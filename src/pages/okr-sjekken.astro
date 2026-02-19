@@ -1,119 +1,92 @@
 ---
-import MinimalLayout from '../layouts/MinimalLayout.astro';
+import ToolLayout from '../layouts/ToolLayout.astro';
 import OKRPageContent from '../components/OKRPageContent';
-import ToolFooter from '../components/ui/ToolFooter.astro';
-import ToolWhenToUse from '../components/ui/ToolWhenToUse.astro';
-import ToolBenefits from '../components/ui/ToolBenefits.astro';
-import Breadcrumb from '../components/ui/Breadcrumb.astro';
-import RelatedTools from '../components/ui/RelatedTools.astro';
-import MobileCTABar from '../components/ui/MobileCTABar.astro';
-
-const breadcrumbItems = [
-  { label: 'Verktøy', href: '/verktoy' },
-  { label: 'OKR-sjekken' },
-];
 ---
 
-<MinimalLayout
+<ToolLayout
   title="OKR-sjekken | FYRK"
   description="Lim inn OKR-settet ditt og få tilbakemelding på under ett minutt. Ment som støtte til refleksjon."
   toolName="OKR-sjekken"
+  breadcrumbLabel="OKR-sjekken"
+  whenToUse={[
+    'Når du har skrevet OKR-er, men er usikker på om de er gode nok',
+    'Før du presenterer OKR-ene for teamet eller ledelsen',
+    'Når du vil ha rask feedback uten å vente på en workshop',
+  ]}
+  benefits={{
+    items: [
+      'Konkret feedback på hvert Key Result',
+      'Vurdering av målbarhet, ambisjonsnivå og kobling til Objective',
+      'Forslag til forbedringer du kan bruke direkte',
+    ],
+    footnote: 'Ment som støtte til refleksjon – ikke fasit.',
+  }}
+  relatedTools={[
+    { name: 'Beslutningslogg', href: '/beslutningslogg', description: 'Dokumenter OKR-beslutningene dere har tatt.' },
+    { name: 'Konseptspeilet', href: '/konseptspeilet', description: 'Test og forbedre produktideer før dere setter OKR-er.' },
+  ]}
+  mobileCTA={{ buttonText: 'Sjekk OKR-settet', disabled: false, showArrow: true }}
 >
-  <main id="main-content" class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
-    <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-8 md:py-12 w-full pb-24 md:pb-12">
+  <header slot="hero" class="mb-8">
+    <h1 class="text-h3 md:text-h2 font-semibold text-brand-navy mb-3 leading-tight">
+      Holder OKR-ene dine faktisk mål?
+    </h1>
+    <p class="text-base md:text-lg text-neutral-600 leading-relaxed">
+      Lim inn OKR-settet ditt og få tilbakemelding på under ett minutt.
+    </p>
+    <p class="text-sm md:text-base text-neutral-500 italic mt-1">
+      Ment som støtte til refleksjon – ikke fasit.
+    </p>
+  </header>
 
-      <Breadcrumb items={breadcrumbItems} />
+  <OKRPageContent client:load />
+</ToolLayout>
 
-      <!-- Hero -->
-      <header class="mb-8">
-        <h1 class="text-h3 md:text-h2 font-semibold text-brand-navy mb-3 leading-tight">
-          Holder OKR-ene dine faktisk mål?
-        </h1>
-        <p class="text-base md:text-lg text-neutral-600 leading-relaxed">
-          Lim inn OKR-settet ditt og få tilbakemelding på under ett minutt.
-        </p>
-        <p class="text-sm md:text-base text-neutral-500 italic mt-1">
-          Ment som støtte til refleksjon – ikke fasit.
-        </p>
-      </header>
+<script>
+  import { initPageViewTracking } from '../scripts/pageview-tracking';
+  import { initTrackingHelpers } from '../scripts/tracking-exclusion';
+  initPageViewTracking('okr');
+  initTrackingHelpers();
 
-      <ToolWhenToUse items={[
-        'Når du har skrevet OKR-er, men er usikker på om de er gode nok',
-        'Før du presenterer OKR-ene for teamet eller ledelsen',
-        'Når du vil ha rask feedback uten å vente på en workshop',
-      ]} />
+  // Sync mobile CTA with main form
+  const mobileBtn = document.getElementById('mobile-submit-btn') as HTMLButtonElement | null;
+  const mobileCTABar = document.getElementById('mobile-cta-bar');
 
-      <ToolBenefits
-        items={[
-          'Konkret feedback på hvert Key Result',
-          'Vurdering av målbarhet, ambisjonsnivå og kobling til Objective',
-          'Forslag til forbedringer du kan bruke direkte',
-        ]}
-        footnote="Ment som støtte til refleksjon – ikke fasit."
-      />
+  if (mobileBtn && mobileCTABar) {
+    // Listen for custom events from React component
+    window.addEventListener('okr:inputChange', ((e: CustomEvent) => {
+      const { isLoading, hasResult } = e.detail;
+      mobileBtn.disabled = isLoading;
 
-      <!-- Dynamic content (OKR reviewer, example section, etc.) -->
-      <div class="mt-8">
-        <OKRPageContent client:load />
-      </div>
-      <RelatedTools tools={[
-        { name: 'Beslutningslogg', href: '/beslutningslogg', description: 'Dokumenter OKR-beslutningene dere har tatt.' },
-        { name: 'Konseptspeilet', href: '/konseptspeilet', description: 'Test og forbedre produktideer før dere setter OKR-er.' },
-      ]} />
-    </div>
+      // Hide bar when result is shown
+      if (hasResult) {
+        mobileCTABar.classList.add('translate-y-full');
+      } else {
+        mobileCTABar.classList.remove('translate-y-full');
+      }
 
-    <ToolFooter />
-  </main>
+      // Update button text for loading state
+      if (isLoading) {
+        mobileBtn.innerHTML = `
+          <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span>Vurderer OKR-ene...</span>
+        `;
+      } else {
+        mobileBtn.innerHTML = `
+          <span>Sjekk OKR-settet</span>
+          <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        `;
+      }
+    }) as EventListener);
 
-  <MobileCTABar buttonText="Sjekk OKR-settet" disabled={false} showArrow />
-
-  <script>
-    import { initPageViewTracking } from '../scripts/pageview-tracking';
-    import { initTrackingHelpers } from '../scripts/tracking-exclusion';
-    initPageViewTracking('okr');
-    initTrackingHelpers();
-
-    // Sync mobile CTA with main form
-    const mobileBtn = document.getElementById('mobile-submit-btn') as HTMLButtonElement | null;
-    const mobileCTABar = document.getElementById('mobile-cta-bar');
-
-    if (mobileBtn && mobileCTABar) {
-      // Listen for custom events from React component
-      window.addEventListener('okr:inputChange', ((e: CustomEvent) => {
-        const { isLoading, hasResult } = e.detail;
-        mobileBtn.disabled = isLoading;
-
-        // Hide bar when result is shown
-        if (hasResult) {
-          mobileCTABar.classList.add('translate-y-full');
-        } else {
-          mobileCTABar.classList.remove('translate-y-full');
-        }
-
-        // Update button text for loading state
-        if (isLoading) {
-          mobileBtn.innerHTML = `
-            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <span>Vurderer OKR-ene...</span>
-          `;
-        } else {
-          mobileBtn.innerHTML = `
-            <span>Sjekk OKR-settet</span>
-            <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-          `;
-        }
-      }) as EventListener);
-
-      // Forward click to main form
-      mobileBtn.addEventListener('click', () => {
-        window.dispatchEvent(new CustomEvent('okr:submit'));
-      });
-    }
-  </script>
-
-</MinimalLayout>
+    // Forward click to main form
+    mobileBtn.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('okr:submit'));
+    });
+  }
+</script>

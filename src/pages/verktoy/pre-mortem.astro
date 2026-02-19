@@ -1,122 +1,92 @@
 ---
-import MinimalLayout from '../../layouts/MinimalLayout.astro';
+import ToolLayout from '../../layouts/ToolLayout.astro';
 import PreMortemBrief from '../../components/PreMortemBrief';
-import ToolFooter from '../../components/ui/ToolFooter.astro';
-import Breadcrumb from '../../components/ui/Breadcrumb.astro';
-import RelatedTools from '../../components/ui/RelatedTools.astro';
-import MobileCTABar from '../../components/ui/MobileCTABar.astro';
-import ToolWhenToUse from '../../components/ui/ToolWhenToUse.astro';
-import ToolBenefits from '../../components/ui/ToolBenefits.astro';
-
-
-const breadcrumbItems = [
-  { label: 'Verktøy', href: '/verktoy' },
-  { label: 'Pre-Mortem Brief' },
-];
 ---
 
-<MinimalLayout
+<ToolLayout
   title="Pre-Mortem Brief - Tenk gjennom hva som kan gå galt"
   description="Gratis verktøy som hjelper deg å identifisere failure modes, tidlige indikatorer og stopp-kriterier før du tar irreversible beslutninger."
   toolName="Pre-Mortem Brief"
+  breadcrumbLabel="Pre-Mortem Brief"
+  whenToUse={[
+    'Før du forplikter deg til en større beslutning som er vanskelig å reversere',
+    'Når teamet er enige, men ingen har spurt "hva om vi tar feil?"',
+    'I styremøter og ledergrupper for å dokumentere risikovurdering',
+    'Når du vil ha konkrete kriterier for når du bør evaluere eller avbryte',
+  ]}
+  benefits={{
+    items: [
+      '5-6 konkrete failure modes med konsekvenskategori',
+      'Tidlige varselsignaler du kan overvåke',
+      'Stopp-kriterier for PAUSE og FULL TILBAKETREKKING',
+      'Forslag til eierskap og ansvar',
+    ],
+    footnote: 'Ingen anbefaling om hva du bør gjøre. Bare strukturert risikotenkning.',
+  }}
+  relatedTools={[
+    { name: 'Antakelseskartet', href: '/antakelseskart', description: 'Avdekk de implisitte antakelsene bak beslutningen.' },
+    { name: 'Beslutningslogg', href: '/beslutningslogg', description: 'Dokumenter risikobeslutningene du har tatt.' },
+  ]}
+  mobileCTA={{ buttonText: 'Generer Pre-Mortem Brief' }}
 >
-  <main id="main-content" class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
-    <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-8 md:py-12 w-full pb-24 md:pb-12">
+  <header slot="hero" class="mb-8" id="skriv">
+    <h1 class="text-h3 md:text-h2 font-semibold text-brand-navy mb-3 leading-tight">
+      Hva kan gå galt?
+      <span class="inline-block text-xs font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full align-middle ml-2">Beta</span>
+    </h1>
+    <p class="text-base text-neutral-600 leading-relaxed mb-4">
+      Beskriv en beslutning du vurderer. AI-en hjelper deg å tenke gjennom failure modes, tidlige varselsignaler og kriterier for når du bør stoppe - før det er for sent.
+    </p>
 
-      <Breadcrumb items={breadcrumbItems} />
+    <p class="text-xs text-neutral-500">
+      Ingen registrering · Ingen lagring · Bare klarhet
+    </p>
+  </header>
 
-      <!-- Hero: Clear value proposition -->
-      <header class="mb-8" id="skriv">
-        <h1 class="text-h3 md:text-h2 font-semibold text-brand-navy mb-3 leading-tight">
-          Hva kan gå galt?
-          <span class="inline-block text-xs font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full align-middle ml-2">Beta</span>
-        </h1>
-        <p class="text-base text-neutral-600 leading-relaxed mb-4">
-          Beskriv en beslutning du vurderer. AI-en hjelper deg å tenke gjennom failure modes, tidlige varselsignaler og kriterier for når du bør stoppe - før det er for sent.
-        </p>
+  <PreMortemBrief client:load />
+</ToolLayout>
 
-        <p class="text-xs text-neutral-500">
-          Ingen registrering · Ingen lagring · Bare klarhet
-        </p>
-      </header>
+<script>
+  import { initPageViewTracking } from '../../scripts/pageview-tracking';
+  import { initTrackingHelpers } from '../../scripts/tracking-exclusion';
+  initPageViewTracking('premortem');
+  initTrackingHelpers();
 
-      <!-- When to use this? -->
-      <ToolWhenToUse items={[
-        'Før du forplikter deg til en større beslutning som er vanskelig å reversere',
-        'Når teamet er enige, men ingen har spurt "hva om vi tar feil?"',
-        'I styremøter og ledergrupper for å dokumentere risikovurdering',
-        'Når du vil ha konkrete kriterier for når du bør evaluere eller avbryte',
-      ]} />
+  // Sync mobile CTA with main form
+  const mobileBtn = document.getElementById('mobile-submit-btn') as HTMLButtonElement | null;
+  const mobileCTABar = document.getElementById('mobile-cta-bar');
 
-      <ToolBenefits
-        items={[
-          '5-6 konkrete failure modes med konsekvenskategori',
-          'Tidlige varselsignaler du kan overvåke',
-          'Stopp-kriterier for PAUSE og FULL TILBAKETREKKING',
-          'Forslag til eierskap og ansvar',
-        ]}
-        footnote="Ingen anbefaling om hva du bør gjøre. Bare strukturert risikotenkning."
-      />
+  if (mobileBtn && mobileCTABar) {
+    // Listen for custom events from React component
+    window.addEventListener('premortem:inputChange', ((e: CustomEvent) => {
+      const { isValid, isLoading, hasResult } = e.detail;
+      mobileBtn.disabled = isLoading || !isValid;
 
-      <!-- Dynamic content (input, CTA, result) -->
-      <div class="mt-8">
-        <PreMortemBrief client:load />
-      </div>
+      // Hide bar when result is shown
+      if (hasResult) {
+        mobileCTABar.classList.add('translate-y-full');
+      } else {
+        mobileCTABar.classList.remove('translate-y-full');
+      }
 
-      <RelatedTools tools={[
-        { name: 'Antakelseskartet', href: '/antakelseskart', description: 'Avdekk de implisitte antakelsene bak beslutningen.' },
-        { name: 'Beslutningslogg', href: '/beslutningslogg', description: 'Dokumenter risikobeslutningene du har tatt.' },
-      ]} />
-    </div>
+      // Update button text for loading state
+      if (isLoading) {
+        mobileBtn.innerHTML = `
+          <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span>Genererer brief...</span>
+        `;
+      } else {
+        mobileBtn.innerHTML = `<span>Generer Pre-Mortem Brief</span>`;
+      }
+    }) as EventListener);
 
-    <ToolFooter />
-  </main>
+    // Forward click to main form
+    mobileBtn.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('premortem:submit'));
+    });
+  }
 
-  <MobileCTABar buttonText="Generer Pre-Mortem Brief" />
-
-  <script>
-    import { initPageViewTracking } from '../../scripts/pageview-tracking';
-    import { initTrackingHelpers } from '../../scripts/tracking-exclusion';
-    initPageViewTracking('premortem');
-    initTrackingHelpers();
-
-    // Sync mobile CTA with main form
-    const mobileBtn = document.getElementById('mobile-submit-btn') as HTMLButtonElement | null;
-    const mobileCTABar = document.getElementById('mobile-cta-bar');
-
-    if (mobileBtn && mobileCTABar) {
-      // Listen for custom events from React component
-      window.addEventListener('premortem:inputChange', ((e: CustomEvent) => {
-        const { isValid, isLoading, hasResult } = e.detail;
-        mobileBtn.disabled = isLoading || !isValid;
-
-        // Hide bar when result is shown
-        if (hasResult) {
-          mobileCTABar.classList.add('translate-y-full');
-        } else {
-          mobileCTABar.classList.remove('translate-y-full');
-        }
-
-        // Update button text for loading state
-        if (isLoading) {
-          mobileBtn.innerHTML = `
-            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <span>Genererer brief...</span>
-          `;
-        } else {
-          mobileBtn.innerHTML = `<span>Generer Pre-Mortem Brief</span>`;
-        }
-      }) as EventListener);
-
-      // Forward click to main form
-      mobileBtn.addEventListener('click', () => {
-        window.dispatchEvent(new CustomEvent('premortem:submit'));
-      });
-    }
-
-  </script>
-
-</MinimalLayout>
+</script>
