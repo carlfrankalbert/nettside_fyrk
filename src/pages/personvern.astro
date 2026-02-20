@@ -8,16 +8,18 @@ import SEOHead from '../components/seo/SEOHead.astro';
 import LandingHeader from '../components/landing/LandingHeader.astro';
 import LandingFooter from '../components/landing/LandingFooter.astro';
 import { footerContent } from '../data/landing';
+import { personvernContent, lastUpdated } from '../data/legal';
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const { seo, title, subtitle, sections } = personvernContent;
 ---
 
 <!doctype html>
 <html lang="no" class="scroll-smooth">
   <head>
     <SEOHead
-      title="Personvern | Fyrk"
-      description="Informasjon om hvordan Fyrk behandler personopplysninger."
+      title={seo.title}
+      description={seo.description}
       type="website"
       canonicalUrl={canonicalURL}
     />
@@ -32,10 +34,10 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       <section class="py-6 px-6">
         <div class="max-w-3xl mx-auto">
           <h1 class="text-3xl md:text-4xl font-semibold text-brand-navy mb-2">
-            Personvernerklæring
+            {title}
           </h1>
           <p class="text-lg text-neutral-600 mb-0">
-            Slik behandler vi dine opplysninger på fyrk.no
+            {subtitle}
           </p>
         </div>
       </section>
@@ -43,67 +45,43 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       <!-- Content section -->
       <section class="py-6 px-6">
         <div class="max-w-3xl mx-auto space-y-8">
-
-          <div>
-            <h2 class="text-xl font-semibold text-brand-navy mb-3">Om denne nettsiden</h2>
-            <p class="text-neutral-600 leading-relaxed mb-0">
-              Fyrk.no er en nettside som tilbyr informasjon om våre tjenester samt AI-baserte verktøy
-              for OKR-evaluering og konseptanalyse.
-            </p>
-          </div>
-
-          <div>
-            <h2 class="text-xl font-semibold text-brand-navy mb-3">AI-verktøyene</h2>
-            <p class="text-neutral-600 leading-relaxed mb-4">
-              Når du bruker OKR-sjekken, Konseptspeilet eller andre AI-verktøy:
-            </p>
-            <ul class="space-y-2 text-neutral-600">
-              <li class="flex items-start gap-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker mt-2 shrink-0"></span>
-                <span>Teksten du skriver inn sendes kryptert til Anthropic (Claude API) for analyse</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker mt-2 shrink-0"></span>
-                <span>Ingen data lagres på våre servere – teksten slettes umiddelbart etter at svaret er generert</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker mt-2 shrink-0"></span>
-                <span>Teksten brukes ikke til å trene AI-modeller (vi bruker Anthropic API med zero data retention)</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker mt-2 shrink-0"></span>
-                <span>Du trenger ikke logge inn for å bruke verktøyene</span>
-              </li>
-            </ul>
-            <div class="mt-4 p-4 bg-brand-cyan-lightest/30 border border-brand-cyan/20 rounded-lg">
-              <p class="text-neutral-700 text-sm mb-0">
-                <strong class="text-brand-navy">Anbefaling:</strong> Ikke del personopplysninger, forretningshemmeligheter
-                eller annen sensitiv informasjon i teksten du sender inn.
-              </p>
+          {sections.map((section) => (
+            <div>
+              <h2 class="text-xl font-semibold text-brand-navy mb-3">{section.heading}</h2>
+              {'body' in section && section.body && (
+                <p class:list={[
+                  'text-neutral-600 leading-relaxed',
+                  'bullets' in section && section.bullets ? 'mb-4' : 'mb-0',
+                ]}>
+                  {section.body}
+                </p>
+              )}
+              {'bodyHtml' in section && section.bodyHtml && (
+                <p class="text-neutral-600 leading-relaxed mb-0" set:html={section.bodyHtml} />
+              )}
+              {'bullets' in section && section.bullets && (
+                <ul class="space-y-2 text-neutral-600">
+                  {section.bullets.map((bullet: string) => (
+                    <li class="flex items-start gap-3">
+                      <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker mt-2 shrink-0"></span>
+                      <span>{bullet}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {'callout' in section && section.callout && (
+                <div class="mt-4 p-4 bg-brand-cyan-lightest/30 border border-brand-cyan/20 rounded-lg">
+                  <p class="text-neutral-700 text-sm mb-0">
+                    <strong class="text-brand-navy">{section.callout.label}</strong> {section.callout.text}
+                  </p>
+                </div>
+              )}
             </div>
-          </div>
-
-          <div>
-            <h2 class="text-xl font-semibold text-brand-navy mb-3">Anonymisert analyse</h2>
-            <p class="text-neutral-600 leading-relaxed mb-0">
-              Vi samler inn anonymisert bruksstatistikk (sidevisninger, knappeklikk) for å
-              forbedre nettsiden. Denne informasjonen kan ikke spores tilbake til enkeltpersoner.
-            </p>
-          </div>
-
-          <div>
-            <h2 class="text-xl font-semibold text-brand-navy mb-3">Kontakt</h2>
-            <p class="text-neutral-600 leading-relaxed mb-0">
-              Har du spørsmål om personvern? Ta kontakt på{' '}
-              <a href="mailto:hei@fyrk.no" class="text-brand-cyan-darker hover:text-brand-navy underline underline-offset-2 transition-colors">
-                hei@fyrk.no
-              </a>
-            </p>
-          </div>
+          ))}
 
           <div class="pt-6 border-t border-neutral-200">
             <p class="text-sm text-neutral-500 mb-0">
-              Sist oppdatert: Januar 2026
+              Sist oppdatert: {lastUpdated}
             </p>
           </div>
         </div>

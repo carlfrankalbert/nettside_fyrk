@@ -21,9 +21,9 @@ interface Props {
   description: string;
   toolName: string;
   breadcrumbLabel: string;
-  whenToUse: string[];
-  benefits: { items: string[]; heading?: string; footnote?: string };
-  relatedTools: Array<{ name: string; href: string; description: string }>;
+  whenToUse: readonly string[];
+  benefits: { readonly items: readonly string[]; readonly heading?: string; readonly footnote?: string };
+  relatedTools: ReadonlyArray<{ readonly name: string; readonly href: string; readonly description: string }>;
   mobileCTA: { buttonText: string; buttonId?: string; disabled?: boolean; showArrow?: boolean };
   showClaude?: boolean;
 }

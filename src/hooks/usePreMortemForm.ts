@@ -7,35 +7,14 @@ import {
   type PreMortemFormData,
 } from '../utils/form-validation';
 
-// Form field options
-export const BRANSJE_OPTIONS = [
-  { value: '', label: 'Velg bransje...' },
-  { value: 'bank_finans', label: 'Bank / Finans' },
-  { value: 'offentlig', label: 'Offentlig sektor' },
-  { value: 'energi', label: 'Energi' },
-  { value: 'b2b_saas', label: 'B2B SaaS' },
-  { value: 'annet', label: 'Annet' },
-] as const;
+// Form field options — canonical source is preMortemTool.selectOptions in src/data/tools.ts
+// Re-exported here for backward compatibility
+import { preMortemTool } from '../data/tools';
 
-export const RISIKONIVA_OPTIONS = [
-  { value: '', label: 'Velg nivå...' },
-  { value: 'lav', label: 'Lav' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'hoy', label: 'Høy' },
-] as const;
-
-export const KUNDETYPE_OPTIONS = [
-  { value: '', label: 'Velg kundetype...' },
-  { value: 'b2c', label: 'B2C' },
-  { value: 'b2b', label: 'B2B' },
-  { value: 'offentlig', label: 'Offentlig' },
-] as const;
-
-export const KONFIDENSIALITET_OPTIONS = [
-  { value: 'intern', label: 'Intern (normal detalj)' },
-  { value: 'begrenset', label: 'Begrenset (moderat detalj)' },
-  { value: 'styresensitiv', label: 'Styresensitiv (abstrakt)' },
-] as const;
+export const BRANSJE_OPTIONS = preMortemTool.selectOptions.bransje;
+export const RISIKONIVA_OPTIONS = preMortemTool.selectOptions.risikoniva;
+export const KUNDETYPE_OPTIONS = preMortemTool.selectOptions.kundetype;
+export const KONFIDENSIALITET_OPTIONS = preMortemTool.selectOptions.konfidensialitet;
 
 const INITIAL_FORM_STATE: PreMortemFormData = {
   beslutning: '',

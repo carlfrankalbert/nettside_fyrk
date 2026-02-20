@@ -6,7 +6,12 @@ import { ValidationError } from './ui/ValidationError';
 import { StreamingError } from './ui/StreamingError';
 import { PrivacyAccordion } from './ui/PrivacyAccordion';
 import { cn } from '../utils/classes';
-import { INPUT_VALIDATION, EXAMPLE_KONSEPT, STREAMING_CONSTANTS } from '../utils/constants';
+import { INPUT_VALIDATION, STREAMING_CONSTANTS } from '../utils/constants';
+import { konseptspeilTool } from '../data/tools';
+
+const EXAMPLE_KONSEPT = konseptspeilTool.example;
+const SHORT_EXAMPLE = konseptspeilTool.shortExample;
+const { ui } = konseptspeilTool;
 import { trackClick } from '../utils/tracking';
 import { validateKonseptInput } from '../utils/form-validation';
 import { useStreamingForm } from '../hooks/useStreamingForm';
@@ -136,18 +141,14 @@ export default function KonseptSpeil() {
   const handleFillShortExample = () => {
     trackClick('konseptspeil_example');
     setIsExampleAnimating(true);
-    const shortExample = `Vi vurderer å bygge et enkelt refleksjonsverktøy for produktteam.
-Tanken er at det skal brukes tidlig i en beslutningsprosess for å avdekke uklarheter før man forplikter seg.
-Målgruppen er erfarne produktledere, men vi er usikre på om dette løser et reelt problem eller bare føles nyttig.
-Hvis dette ikke gir tydelig verdi, bør vi sannsynligvis ikke bygge det videre.`;
-    setInput(shortExample);
+    setInput(SHORT_EXAMPLE);
     clearError();
 
     setTimeout(() => {
       const textarea = textareaRef.current;
       if (textarea) {
         textarea.focus();
-        textarea.setSelectionRange(shortExample.length, shortExample.length);
+        textarea.setSelectionRange(SHORT_EXAMPLE.length, SHORT_EXAMPLE.length);
       }
     }, 50);
 
@@ -183,7 +184,7 @@ Hvis dette ikke gir tydelig verdi, bør vi sannsynligvis ikke bygge det videre.`
       {!input && !loading && !result && (
         <section className="p-4 bg-neutral-100 border border-neutral-200 rounded-xl">
           <p className="text-sm font-medium text-neutral-700 mb-3">
-            Slik ser en speiling ut:
+            {ui.exampleIntro}
           </p>
           <p className="text-sm text-neutral-600 italic mb-3 leading-relaxed">
             "Vi vurderer å bygge et enkelt refleksjonsverktøy for produktteam. Tanken er at det skal brukes tidlig i en beslutningsprosess..."
@@ -201,7 +202,7 @@ Hvis dette ikke gir tydelig verdi, bør vi sannsynligvis ikke bygge det videre.`
             onClick={handleFillShortExample}
             className="text-sm text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded transition-colors"
           >
-            Prøv dette eksempelet →
+            {ui.exampleShortButton}
           </button>
         </section>
       )}
@@ -209,7 +210,7 @@ Hvis dette ikke gir tydelig verdi, bør vi sannsynligvis ikke bygge det videre.`
       {/* Preview - what user will get */}
       {!result && !loading && (
         <section className="text-sm text-neutral-600">
-          <p className="font-medium text-neutral-700 mb-2">Dette får du:</p>
+          <p className="font-medium text-neutral-700 mb-2">{ui.previewHeading}</p>
           <ul className="space-y-1">
             <li className="flex items-start gap-2">
               <span className="text-neutral-400">–</span>
@@ -231,7 +232,7 @@ Hvis dette ikke gir tydelig verdi, bør vi sannsynligvis ikke bygge det videre.`
       <section>
         <div className="flex items-center justify-between mb-2">
           <label htmlFor="konsept-input" className="block text-base font-medium text-neutral-700">
-            Beskriv konseptet ditt
+            {ui.inputLabel}
           </label>
           {!input && !loading && (
             <button
@@ -239,14 +240,14 @@ Hvis dette ikke gir tydelig verdi, bør vi sannsynligvis ikke bygge det videre.`
               onClick={handleFillExample}
               className="text-sm text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded transition-colors"
             >
-              Lengre eksempel
+              {ui.exampleButton}
             </button>
           )}
         </div>
 
         {/* Encouragement for unfinished text */}
         <p className="text-xs text-neutral-500 mb-2">
-          Skriv kort og uferdig. Dette speiler hull og antagelser – ikke kvaliteten på ideen.
+          {ui.encouragement}
         </p>
 
         <textarea
@@ -287,7 +288,7 @@ Hvis dette ikke gir tydelig verdi, bør vi sannsynligvis ikke bygge det videre.`
           >
             {showMinimumHelper && (
               <span className="text-xs text-neutral-500 italic">
-                Skriv litt mer for å få en refleksjon.
+                {ui.minimumHelper}
               </span>
             )}
           </div>
@@ -329,10 +330,10 @@ Hvis dette ikke gir tydelig verdi, bør vi sannsynligvis ikke bygge det videre.`
             {loading ? (
               <>
                 <SpinnerIcon className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
-                <span>Speiler tankene dine…</span>
+                <span>{ui.loadingButton}</span>
               </>
             ) : (
-              <span>Start speiling – det tar 1 min</span>
+              <span>{ui.submitButton}</span>
             )}
           </button>
 
@@ -357,7 +358,7 @@ Hvis dette ikke gir tydelig verdi, bør vi sannsynligvis ikke bygge det videre.`
         aria-live="polite"
         aria-atomic="false"
         role="region"
-        aria-label="Refleksjonsresultat"
+        aria-label={ui.resultLabel}
       >
         {/* Error display in results area */}
         {error && !loading && !result && errorType !== 'validation' && (
@@ -382,8 +383,8 @@ Hvis dette ikke gir tydelig verdi, bør vi sannsynligvis ikke bygge det videre.`
       {/* AI og personvern */}
       <PrivacyAccordion
         toolName="konseptspeil"
-        introText="Teksten du skriver brukes kun til å generere refleksjonen. Unngå å lime inn konfidensiell eller sensitiv informasjon."
-        howItWorks="Refleksjonen genereres av Claude (Anthropic), strukturert rundt de fire produktrisikoene (verdi, brukbarhet, gjennomførbarhet, levedyktighet)."
+        introText={ui.privacy.introText}
+        howItWorks={ui.privacy.howItWorks}
       />
     </div>
   );

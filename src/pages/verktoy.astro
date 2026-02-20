@@ -4,12 +4,14 @@
  * Groups all FYRK tools by intent with disclaimers and service bridge
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { EXTERNAL_LINKS, CONTACT_LABEL } from '../utils/links';
+import { verktoyPageContent } from '../data/verktoy';
+
+const { seo, title, subtitle, tagline, sections, disclaimerHtml, bridgeCTA } = verktoyPageContent;
 ---
 
 <BaseLayout
-  title="Verktøy | FYRK"
-  description="Arbeidsverktøy for reelle beslutninger i komplekse miljøer. Refleksjon, antakelsesanalyse, beslutningslogg og pre-mortem – gratis og uten innlogging."
+  title={seo.title}
+  description={seo.description}
 >
   <article class="py-16 md:py-24 px-6">
     <div class="max-w-3xl mx-auto">
@@ -17,82 +19,50 @@ import { EXTERNAL_LINKS, CONTACT_LABEL } from '../utils/links';
       <!-- Header -->
       <header class="mb-16">
         <h1 class="text-h2 md:text-h1 font-semibold text-brand-navy mb-4 leading-tight">
-          Verktøy
+          {title}
         </h1>
         <p class="text-xl md:text-2xl text-neutral-600 leading-relaxed mb-3">
-          Arbeidsverktøy som hjelper deg se tydeligere — raskere — før du forplikter deg.
+          {subtitle}
         </p>
         <p class="text-base text-neutral-500">
-          Gratis. Ingen innlogging. Ingen data lagres.
+          {tagline}
         </p>
       </header>
 
-      <!-- Før beslutning -->
-      <section class="mb-16">
-        <h2 class="text-h3 font-semibold text-brand-navy mb-6">Refleksjon og analyse</h2>
-        <div class="space-y-4">
-          <div class="bg-white rounded-lg p-6 md:p-8 border border-neutral-200 shadow-sm hover:border-neutral-300 transition-colors">
-            <h3 class="text-h4 font-semibold text-brand-navy mb-2">Konseptspeilet</h3>
-            <p class="text-neutral-600 mb-4">Et rolig refleksjonsverktøy for produktkonsepter.</p>
-            <a href="/konseptspeilet" class="btn btn-primary no-underline inline-flex">
-              Prøv konseptspeilet
-            </a>
+      {sections.map((section) => (
+        <section class="mb-16">
+          <h2 class="text-h3 font-semibold text-brand-navy mb-6">{section.heading}</h2>
+          <div class="space-y-4">
+            {section.tools.map((tool) => (
+              <div class="bg-white rounded-lg p-6 md:p-8 border border-neutral-200 shadow-sm hover:border-neutral-300 transition-colors">
+                <h3 class="text-h4 font-semibold text-brand-navy mb-2">
+                  {tool.name}
+                  {'badge' in tool && tool.badge && (
+                    <span class="text-xs font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full align-middle ml-2">{tool.badge}</span>
+                  )}
+                </h3>
+                <p class="text-neutral-600 mb-4">{tool.description}</p>
+                <a href={tool.href} class="btn btn-primary no-underline inline-flex">
+                  {tool.cta}
+                </a>
+              </div>
+            ))}
           </div>
-
-          <div class="bg-white rounded-lg p-6 md:p-8 border border-neutral-200 shadow-sm hover:border-neutral-300 transition-colors">
-            <h3 class="text-h4 font-semibold text-brand-navy mb-2">Antakelseskart <span class="text-xs font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full align-middle">Beta</span></h3>
-            <p class="text-neutral-600 mb-4">Avdekker implisitte antakelser i produkt- og strategibeslutninger.</p>
-            <a href="/antakelseskart" class="btn btn-primary no-underline inline-flex">
-              Prøv antakelseskartet
-            </a>
-          </div>
-
-          <div class="bg-white rounded-lg p-6 md:p-8 border border-neutral-200 shadow-sm hover:border-neutral-300 transition-colors">
-            <h3 class="text-h4 font-semibold text-brand-navy mb-2">OKR-sjekken</h3>
-            <p class="text-neutral-600 mb-4">Få et raskt, strukturert blikk på kvaliteten i OKR-ene deres.</p>
-            <a href="/okr-sjekken" class="btn btn-primary no-underline inline-flex">
-              Prøv OKR-sjekken
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <!-- Dokumentasjon og risiko -->
-      <section class="mb-16">
-        <h2 class="text-h3 font-semibold text-brand-navy mb-6">Dokumentasjon og risiko</h2>
-        <div class="space-y-4">
-          <div class="bg-white rounded-lg p-6 md:p-8 border border-neutral-200 shadow-sm hover:border-neutral-300 transition-colors">
-            <h3 class="text-h4 font-semibold text-brand-navy mb-2">Beslutningslogg <span class="text-xs font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full align-middle">Beta</span></h3>
-            <p class="text-neutral-600 mb-4">Dokumenter beslutninger med klarhet. Eksporter som Markdown.</p>
-            <a href="/beslutningslogg" class="btn btn-primary no-underline inline-flex">
-              Lag beslutningslogg
-            </a>
-          </div>
-
-          <div class="bg-white rounded-lg p-6 md:p-8 border border-neutral-200 shadow-sm hover:border-neutral-300 transition-colors">
-            <h3 class="text-h4 font-semibold text-brand-navy mb-2">Pre-Mortem Brief <span class="text-xs font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full align-middle">Beta</span></h3>
-            <p class="text-neutral-600 mb-4">Tenk gjennom hva som kan gå galt før du tar irreversible beslutninger.</p>
-            <a href="/verktoy/pre-mortem" class="btn btn-primary no-underline inline-flex">
-              Lag Pre-Mortem Brief
-            </a>
-          </div>
-        </div>
-      </section>
+        </section>
+      ))}
 
       <!-- Disclaimer -->
-      <p class="text-sm text-neutral-500 mb-16">
-        Verktøyene erstatter ikke ansvar, kontekst eller erfaring. De er laget for å gi deg bedre beslutningsgrunnlag — ikke «fasiten». <a href="/personvern" class="underline hover:text-brand-navy">Personvern</a>.
-      </p>
+      <p class="text-sm text-neutral-500 mb-16" set:html={disclaimerHtml} />
 
       <!-- Bridge CTA -->
       <section class="bg-neutral-50 rounded-lg p-8 md:p-10 border border-neutral-200">
-        <h2 class="text-h4 font-semibold text-brand-navy mb-3">Trenger du dette brukt i praksis?</h2>
+        <h2 class="text-h4 font-semibold text-brand-navy mb-3">{bridgeCTA.heading}</h2>
         <p class="text-neutral-600 mb-6">
-          Hvis beslutningen er viktig, kan jeg også bidra operativt — fra beslutningsgjennomgang til interim produktledelse.
+          {bridgeCTA.body}
         </p>
         <div class="flex flex-wrap gap-3">
-          <a href="/tjenester" class="btn btn-primary no-underline inline-flex">Se tjenester</a>
-          <a href={EXTERNAL_LINKS.email} class="btn btn-outline no-underline inline-flex">{CONTACT_LABEL}</a>
+          <a href={bridgeCTA.primaryLink.href} class="btn btn-primary no-underline inline-flex">{bridgeCTA.primaryLink.label}</a>
+          <a href={bridgeCTA.secondaryLink.href} class="btn btn-outline no-underline inline-flex">{bridgeCTA.secondaryLink.label}</a>
         </div>
       </section>
 

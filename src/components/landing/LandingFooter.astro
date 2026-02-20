@@ -4,6 +4,7 @@
  * Displays company info and contact links
  */
 import LandingLogo from '../ui/LandingLogo.astro';
+import { footerNavLinks } from '../../data/landing';
 
 interface Props {
   address: string;
@@ -14,7 +15,7 @@ interface Props {
   linkedinLabel: string;
 }
 
-const { address, orgNumber, emailHref, emailLabel, linkedinHref, linkedinLabel } = Astro.props;
+const { address, orgNumber } = Astro.props;
 ---
 
 <footer class="py-10 px-6 border-t border-neutral-200 bg-neutral-50" role="contentinfo">
@@ -29,13 +30,15 @@ const { address, orgNumber, emailHref, emailLabel, linkedinHref, linkedinLabel }
       </div>
 
       <div class="flex flex-wrap justify-center md:justify-end items-center gap-4 md:gap-6">
-        <a href="/tjenester" class="hover:text-brand-navy transition-colors no-underline">Tjenester</a>
-        <a href="/verktoy" class="hover:text-brand-navy transition-colors no-underline">Verktøy</a>
-        <a href="/releaselog" class="hover:text-brand-navy transition-colors no-underline">Releaselog</a>
-        <a href={emailHref} class="hover:text-brand-navy transition-colors no-underline">{emailLabel}</a>
-        <a href={linkedinHref} target="_blank" rel="noopener noreferrer" class="hover:text-brand-navy transition-colors no-underline">{linkedinLabel}</a>
-        <a href="/personvern" class="hover:text-brand-navy transition-colors no-underline">Personvern</a>
-        <a href="/vilkar" class="hover:text-brand-navy transition-colors no-underline">Vilkår</a>
+        {footerNavLinks.map((link) => (
+          <a
+            href={link.href}
+            class="hover:text-brand-navy transition-colors no-underline"
+            {...('external' in link && link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+          >
+            {link.label}
+          </a>
+        ))}
       </div>
     </div>
   </div>

@@ -1,42 +1,31 @@
 ---
 import ToolLayout from '../layouts/ToolLayout.astro';
 import KonseptSpeil from '../components/KonseptSpeil';
+import { konseptspeilTool } from '../data/tools';
+
+const { seo, toolName, breadcrumbLabel, h1, subtitle, tagline, whenToUse, benefits, relatedTools, mobileCTA } = konseptspeilTool.page;
 ---
 
 <ToolLayout
-  title="Test og forbedre produktidéer – avdekk antakelser tidlig"
-  description="Gratis verktøy for å teste og forbedre produktidéer. Avdekker skjulte antakelser og hull i tidlige konsepter – på 1 min, uten registrering."
-  toolName="Konseptspeilet"
-  breadcrumbLabel="Konseptspeilet"
-  whenToUse={[
-    'Når du har en produktidé, men er usikker på om den holder',
-    'Før du pitcher en idé internt eller eksternt',
-    'Når du vil få feedback uten møter eller bias',
-  ]}
-  benefits={{
-    items: [
-      'Feedback på hva som er antatt vs eksplisitt formulert',
-      'Avdekking av hull: målgruppe, verdi, effekt',
-      'Et bedre beslutningsgrunnlag før videre arbeid',
-    ],
-    footnote: 'Ingen scoring. Ingen fasit. Bare et ærlig speil.',
-  }}
-  relatedTools={[
-    { name: 'Antakelseskartet', href: '/antakelseskart', description: 'Avdekk de skjulte antakelsene i konseptet ditt.' },
-    { name: 'Beslutningslogg', href: '/beslutningslogg', description: 'Dokumenter beslutningene du tar etter refleksjonen.' },
-  ]}
-  mobileCTA={{ buttonText: 'Start speiling' }}
+  title={seo.title}
+  description={seo.description}
+  toolName={toolName}
+  breadcrumbLabel={breadcrumbLabel}
+  whenToUse={whenToUse}
+  benefits={benefits}
+  relatedTools={relatedTools}
+  mobileCTA={mobileCTA}
 >
   <header slot="hero" class="mb-8" id="skriv">
     <h1 class="text-h3 md:text-h2 font-semibold text-brand-navy mb-3 leading-tight">
-      Forstå ideen din bedre – før noen andre gjør det
+      {h1}
     </h1>
     <p class="text-base text-neutral-600 leading-relaxed mb-4">
-      Skriv inn ideen din. AI-en analyserer teksten og avslører blindsoner, manglende logikk og skjulte antakelser på sekunder.
+      {subtitle}
     </p>
 
     <p class="text-xs text-neutral-500">
-      Ingen registrering · Ingen salg · Faktisk nyttig
+      {tagline}
     </p>
   </header>
 

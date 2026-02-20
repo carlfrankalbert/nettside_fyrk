@@ -6,17 +6,19 @@
 import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Breadcrumb from '../components/ui/Breadcrumb.astro';
-import { EXTERNAL_LINKS, CONTACT_LABEL } from '../utils/links';
 import carlJohnsonImage from '../assets/images/carl-johnson.png';
+import { aboutPageContent } from '../data/about';
+
+const { seo, heading, intro, founder, ctaHref, ctaLabel } = aboutPageContent;
 
 const breadcrumbItems = [
-  { label: 'Om FYRK' },
+  { label: heading },
 ];
 ---
 
 <BaseLayout
-  title="Om FYRK"
-  description="Jeg har bakgrunn som senior produktleder og beslutningsstøtte i komplekse, regulerte miljøer. FYRK er bygget for én ting: å gi deg et bedre grunnlag før du forplikter deg."
+  title={seo.title}
+  description={seo.description}
 >
   <article class="py-16 md:py-24 px-6">
     <div class="max-w-3xl mx-auto">
@@ -25,18 +27,15 @@ const breadcrumbItems = [
       <!-- Header -->
       <header class="mb-12">
         <h1 class="text-h2 md:text-h1 font-semibold text-brand-navy mb-4 leading-tight">
-          Om FYRK
+          {heading}
         </h1>
       </header>
 
       <!-- Main content -->
       <section class="mb-12 space-y-6 text-lg text-neutral-700 leading-relaxed">
-        <p>
-          Jeg har bakgrunn som senior produktleder og beslutningsstøtte i komplekse, regulerte miljøer innen bank og finans, og har jobbet med beslutninger som har hatt betydelige økonomiske og organisatoriske konsekvenser.
-        </p>
-        <p>
-          FYRK er bygget for én ting: å gi deg et bedre grunnlag før du forplikter deg.
-        </p>
+        {intro.map((paragraph) => (
+          <p>{paragraph}</p>
+        ))}
       </section>
 
       <!-- Founder section -->
@@ -54,30 +53,25 @@ const breadcrumbItems = [
           </div>
           <div class="flex-1">
             <h2 class="text-h4 font-semibold text-brand-navy mb-4">
-              Carl Johnson, grunnlegger
+              {founder.name}
             </h2>
             <div class="text-neutral-600 space-y-4">
-              <p>
-                Jeg hjelper team med å gå fra friksjon til flyt. Det betyr færre overleveringer, mindre rapportering, og mer synlighet – slik at folk kan bruke tiden på det som skaper verdi.
-              </p>
-              <p>
-                Blir ofte brukt når det trengs tydelige prioriteringer uten å skape unødvendig uro.
-              </p>
+              {founder.paragraphs.map((paragraph) => (
+                <p>{paragraph}</p>
+              ))}
             </div>
           </div>
         </div>
 
         <!-- Experience -->
         <div class="border-t border-neutral-100 pt-6 mb-6">
-          <p class="text-neutral-600">
-            <span class="font-semibold text-brand-navy">15+ års erfaring</span> med produktledelse, prosessforbedring og kvalitetsarbeid i bank, fintech og offentlig sektor. Tidligere oppdrag inkluderer <span class="font-semibold text-brand-navy">SpareBank 1, Vipps, Varner og Domstolsadministrasjonen</span>, ofte i komplekse og regulerte domener.
-          </p>
+          <p class="text-neutral-600" set:html={founder.experienceHtml} />
         </div>
 
         <!-- LinkedIn -->
         <p class="text-sm text-neutral-500 text-center">
           <a
-            href={EXTERNAL_LINKS.linkedinPersonal}
+            href={founder.linkedinCta.href}
             target="_blank"
             rel="noopener noreferrer"
             class="inline-flex items-center gap-1.5 hover:text-brand-navy transition-colors"
@@ -85,7 +79,7 @@ const breadcrumbItems = [
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M19 3A2 2 0 0 1 21 5V19A2 2 0 0 1 19 21H5A2 2 0 0 1 3 19V5A2 2 0 0 1 5 3H19M18.5 18.5V13.2A3.26 3.26 0 0 0 15.24 9.94C14.39 9.94 13.4 10.46 12.92 11.24V10.13H10.13V18.5H12.92V13.57C12.92 12.8 13.54 12.17 14.31 12.17A1.4 1.4 0 0 1 15.71 13.57V18.5H18.5M6.88 8.56A1.68 1.68 0 0 0 8.56 6.88C8.56 5.95 7.81 5.19 6.88 5.19A1.69 1.69 0 0 0 5.19 6.88C5.19 7.81 5.95 8.56 6.88 8.56M8.27 18.5V10.13H5.5V18.5H8.27Z"/>
             </svg>
-            Se komplett CV på LinkedIn
+            {founder.linkedinCta.text}
           </a>
         </p>
       </section>
@@ -93,10 +87,10 @@ const breadcrumbItems = [
       <!-- CTA -->
       <section class="text-center">
         <a
-          href={EXTERNAL_LINKS.email}
+          href={ctaHref}
           class="btn btn-primary no-underline"
         >
-          {CONTACT_LABEL}
+          {ctaLabel}
         </a>
       </section>
     </div>

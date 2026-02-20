@@ -180,6 +180,19 @@ export const contactContent = {
 } as const;
 
 /**
+ * Footer navigation links
+ */
+export const footerNavLinks = [
+  { href: '/tjenester', label: 'Tjenester' },
+  { href: '/verktoy', label: 'Verktøy' },
+  { href: '/releaselog', label: 'Releaselog' },
+  { href: EXTERNAL_LINKS.email, label: CONTACT_LABEL },
+  { href: EXTERNAL_LINKS.linkedin, label: 'LinkedIn', external: true },
+  { href: '/personvern', label: 'Personvern' },
+  { href: '/vilkar', label: 'Vilkår' },
+] as const;
+
+/**
  * Footer content
  */
 export const footerContent = {

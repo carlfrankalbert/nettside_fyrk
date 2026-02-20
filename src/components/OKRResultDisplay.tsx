@@ -4,6 +4,9 @@ import { CheckIcon, WarningIcon, LightbulbIcon, CopyIcon, ThumbsUpIcon, ThumbsDo
 import { cn } from '../utils/classes';
 import { trackClick } from '../utils/tracking';
 import { useCopyToClipboard } from '../hooks/useCopyToClipboard';
+import { okrTool } from '../data/tools';
+
+const { result: resultStrings } = okrTool.ui;
 
 interface OKRResultDisplayProps {
   result: string;
@@ -144,7 +147,7 @@ function SuggestionBox({ suggestion, isStreaming }: { suggestion: string; isStre
     <div className="mt-6">
       <h4 className="font-medium text-neutral-700 flex items-center gap-2 mb-3">
         <LightbulbIcon className="w-5 h-5 text-brand-cyan-darker" />
-        Forslag til forbedret OKR-sett
+        {resultStrings.suggestionTitle}
       </h4>
       <div className="p-4 bg-brand-cyan-lightest/50 border-2 border-brand-cyan-light rounded-lg">
         {suggestion ? (
@@ -167,17 +170,17 @@ function SuggestionBox({ suggestion, isStreaming }: { suggestion: string; isStre
                     'transition-colors focus:outline-none',
                     'focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2'
                   )}
-                  aria-label={copied ? 'Kopiert!' : 'Kopier til utklippstavle'}
+                  aria-label={copied ? resultStrings.copiedButton : 'Kopier til utklippstavle'}
                 >
                   {copied ? (
                     <>
                       <CheckIcon className="w-4 h-4" />
-                      Kopiert!
+                      {resultStrings.copiedButton}
                     </>
                   ) : (
                     <>
                       <CopyIcon className="w-4 h-4" />
-                      Kopier
+                      {resultStrings.copyButton}
                     </>
                   )}
                 </button>
@@ -216,7 +219,7 @@ function FeedbackButtons({ isStreaming }: { isStreaming: boolean }) {
     return (
       <div className="mt-6 pt-4 border-t border-neutral-200">
         <p className="text-sm text-neutral-500 text-center">
-          Takk for tilbakemeldingen!
+          {resultStrings.feedbackThanks}
         </p>
       </div>
     );
@@ -225,7 +228,7 @@ function FeedbackButtons({ isStreaming }: { isStreaming: boolean }) {
   return (
     <div className="mt-6 pt-4 border-t border-neutral-200">
       <div className="flex items-center justify-center gap-4">
-        <span className="text-sm text-neutral-600">Var dette nyttig?</span>
+        <span className="text-sm text-neutral-600">{resultStrings.feedbackQuestion}</span>
         <div className="flex gap-2">
           <button
             type="button"
@@ -241,7 +244,7 @@ function FeedbackButtons({ isStreaming }: { isStreaming: boolean }) {
             aria-label="Ja, dette var nyttig"
           >
             <ThumbsUpIcon className="w-4 h-4" />
-            Ja
+            {resultStrings.feedbackYes}
           </button>
           <button
             type="button"
@@ -257,7 +260,7 @@ function FeedbackButtons({ isStreaming }: { isStreaming: boolean }) {
             aria-label="Nei, dette var ikke nyttig"
           >
             <ThumbsDownIcon className="w-4 h-4" />
-            Nei
+            {resultStrings.feedbackNo}
           </button>
         </div>
       </div>
@@ -281,7 +284,7 @@ function SummarySection({ summary, isStreaming }: { summary: string; isStreaming
 
   return (
     <div className="mb-6">
-      <h4 className="font-medium text-neutral-700 mb-2">Samlet vurdering</h4>
+      <h4 className="font-medium text-neutral-700 mb-2">{resultStrings.overallAssessment}</h4>
       <div className={cn('text-sm text-neutral-600 leading-relaxed', shouldCollapse && 'line-clamp-3')}>
         {summary || (
           <div className="space-y-2">
@@ -301,7 +304,7 @@ function SummarySection({ summary, isStreaming }: { summary: string; isStreaming
           }}
           className="mt-2 text-sm text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded"
         >
-          {isExpanded ? 'Vis mindre' : 'Les mer'}
+          {isExpanded ? resultStrings.readLess : resultStrings.readMore}
         </button>
       )}
     </div>
@@ -325,7 +328,7 @@ export default function OKRResultDisplay({ result, isStreaming }: OKRResultDispl
             {!isStreaming && parsed.isComplete && (
               <CheckIcon className="w-5 h-5 text-feedback-success" />
             )}
-            {isStreaming ? 'Vurdering pågår...' : 'Vurdering fullført'}
+            {isStreaming ? resultStrings.assessmentInProgress : resultStrings.assessmentComplete}
           </h3>
           <SummarySection summary={parsed.summary} isStreaming={isStreaming} />
         </div>
@@ -334,13 +337,13 @@ export default function OKRResultDisplay({ result, isStreaming }: OKRResultDispl
       {/* Feedback cards grid */}
       <div className="grid md:grid-cols-2 gap-4">
         <FeedbackCard
-          title="Hva fungerer bra"
+          title={resultStrings.strengthsTitle}
           items={parsed.strengths}
           type="strength"
           isStreaming={isStreaming}
         />
         <FeedbackCard
-          title="Hva kan forbedres"
+          title={resultStrings.improvementsTitle}
           items={parsed.improvements}
           type="improvement"
           isStreaming={isStreaming}

@@ -11,19 +11,15 @@ import { trackClick } from '../utils/tracking';
 import { validateBeslutningInput } from '../utils/form-validation';
 import { useStreamingForm } from '../hooks/useStreamingForm';
 import { useFormInputHandlers } from '../hooks/useFormInputHandlers';
+import { antakelseskartTool } from '../data/tools';
 
 // ============================================================================
 // Constants
 // ============================================================================
 
 const { SUBMIT_THRESHOLD } = STREAMING_CONSTANTS;
-
-// Example decision for the tool
-const EXAMPLE_DECISION = `Vi vurderer å lansere en abonnementsbasert tjeneste for produktteam som vil ha raskere tilgang til brukerinnsikt.
-
-Tanken er at produktledere i mellomstore selskaper sliter med å få nok tid til å snakke med brukere, og at en AI-drevet løsning kan analysere eksisterende kundedata og generere innsikt automatisk.
-
-Vi tror dette kan redusere tiden fra "idé til validert innsikt" betydelig, og at teamene vil betale for å spare tid. Planen er å starte med en gratisversjon for å bygge brukermasse, og deretter konvertere til betalende kunder.`;
+const EXAMPLE_DECISION = antakelseskartTool.example;
+const { ui } = antakelseskartTool;
 
 // ============================================================================
 // Component
@@ -189,7 +185,7 @@ export default function Antakelseskart() {
       <section>
         <div className="flex items-center justify-between mb-2">
           <label htmlFor="beslutning-input" className="block text-base font-medium text-neutral-700">
-            Beskriv beslutningen
+            {ui.inputLabel}
           </label>
         </div>
 
@@ -230,7 +226,7 @@ export default function Antakelseskart() {
           >
             {showMinimumHelper && (
               <span className="text-xs text-neutral-500 italic">
-                Skriv litt mer for å avdekke antakelser.
+                {ui.minimumHelper}
               </span>
             )}
           </div>
@@ -270,10 +266,10 @@ export default function Antakelseskart() {
             {loading ? (
               <>
                 <SpinnerIcon className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
-                <span>Avdekker antakelser...</span>
+                <span>{ui.loadingButton}</span>
               </>
             ) : (
-              <span>Avdekk antakelser</span>
+              <span>{ui.submitButton}</span>
             )}
           </button>
         </div>
@@ -297,7 +293,7 @@ export default function Antakelseskart() {
         aria-live="polite"
         aria-atomic="false"
         role="region"
-        aria-label="Antakelser"
+        aria-label={ui.resultLabel}
       >
         {/* Error display in results area */}
         {error && !loading && !result && errorType !== 'validation' && (
@@ -322,8 +318,8 @@ export default function Antakelseskart() {
       {/* AI og personvern */}
       <PrivacyAccordion
         toolName="antakelseskart"
-        introText="Teksten du skriver brukes kun til å identifisere antakelser. Unngå å lime inn konfidensiell eller sensitiv informasjon."
-        howItWorks="Antakelsene genereres av Claude (Anthropic). Verktøyet analyserer teksten og identifiserer implisitte forutsetninger."
+        introText={ui.privacy.introText}
+        howItWorks={ui.privacy.howItWorks}
       />
     </div>
   );

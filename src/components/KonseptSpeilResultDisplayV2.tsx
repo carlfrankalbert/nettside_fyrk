@@ -4,7 +4,10 @@ import type { DimensionKey, DimensionStatus, DimensionData, Dimensjoner, ParsedK
 import { DIMENSION_LABELS, STATUS_LABELS } from '../types/konseptspeil-v2';
 import { SpinnerIcon, ChevronRightIcon } from './ui/Icon';
 import { Toast } from './ui/Toast';
-import { NarrativeLoader, KONSEPTSPEIL_LOADER_MESSAGES } from './ui/NarrativeLoader';
+import { NarrativeLoader } from './ui/NarrativeLoader';
+import { konseptspeilTool } from '../data/tools';
+
+const { loaderMessages } = konseptspeilTool.ui;
 import { cn } from '../utils/classes';
 import { trackClick } from '../utils/tracking';
 import { useCopyWithToast } from '../hooks/useCopyWithToast';
@@ -122,7 +125,7 @@ export default function KonseptSpeilResultDisplayV2({
 
   // During streaming, show narrative loader if we don't have enough content yet
   if (isStreaming && !hasContentV2(parsed)) {
-    return <NarrativeLoader messages={KONSEPTSPEIL_LOADER_MESSAGES} />;
+    return <NarrativeLoader messages={loaderMessages} />;
   }
 
   // Show parse error if any

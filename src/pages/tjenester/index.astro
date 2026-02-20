@@ -6,11 +6,14 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { servicesContent, situationsContent } from '../../data/landing';
 import { EXTERNAL_LINKS, CONTACT_LABEL } from '../../utils/links';
+import { tjenesterIndexContent } from '../../data/tjenester';
+
+const { seo, title, subtitle, contactBridge } = tjenesterIndexContent;
 ---
 
 <BaseLayout
-  title="Tjenester | FYRK"
-  description="FYRK tilbyr beslutningsgjennomgang, interim produktledelse og kvalitet- og leveranseledelse. Rådgivning og operativ kapasitet for komplekse miljøer."
+  title={seo.title}
+  description={seo.description}
 >
   <article class="py-16 md:py-24 px-6">
     <div class="max-w-3xl mx-auto">
@@ -18,10 +21,10 @@ import { EXTERNAL_LINKS, CONTACT_LABEL } from '../../utils/links';
       <!-- Header -->
       <header class="mb-16">
         <h1 class="text-h2 md:text-h1 font-semibold text-brand-navy mb-4 leading-tight">
-          Tjenester
+          {title}
         </h1>
         <p class="text-xl md:text-2xl text-neutral-600 leading-relaxed">
-          Rådgivning før viktige beslutninger — eller operativt ansvar når dere trenger forsterkning.
+          {subtitle}
         </p>
       </header>
 
@@ -98,9 +101,9 @@ import { EXTERNAL_LINKS, CONTACT_LABEL } from '../../utils/links';
 
       <!-- Contact bridge -->
       <section class="bg-neutral-50 rounded-lg p-8 md:p-10 border border-neutral-200">
-        <h2 class="text-h4 font-semibold text-brand-navy mb-3">Usikker på hva du trenger?</h2>
+        <h2 class="text-h4 font-semibold text-brand-navy mb-3">{contactBridge.heading}</h2>
         <p class="text-neutral-600 mb-6">
-          En kort samtale er ofte nok til å avklare. 30 minutter, ingen forpliktelse.
+          {contactBridge.body}
         </p>
         <a href={EXTERNAL_LINKS.email} class="btn btn-primary no-underline inline-flex">{CONTACT_LABEL}</a>
       </section>

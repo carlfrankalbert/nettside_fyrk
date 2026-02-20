@@ -11,7 +11,7 @@ interface Tool {
 }
 
 interface Props {
-  tools: Tool[];
+  tools: readonly Tool[];
 }
 
 const { tools } = Astro.props;

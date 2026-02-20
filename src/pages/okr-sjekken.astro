@@ -1,41 +1,30 @@
 ---
 import ToolLayout from '../layouts/ToolLayout.astro';
 import OKRPageContent from '../components/OKRPageContent';
+import { okrTool } from '../data/tools';
+
+const { seo, toolName, breadcrumbLabel, h1, subtitle, disclaimer, whenToUse, benefits, relatedTools, mobileCTA } = okrTool.page;
 ---
 
 <ToolLayout
-  title="OKR-sjekken | FYRK"
-  description="Lim inn OKR-settet ditt og få tilbakemelding på under ett minutt. Ment som støtte til refleksjon."
-  toolName="OKR-sjekken"
-  breadcrumbLabel="OKR-sjekken"
-  whenToUse={[
-    'Når du har skrevet OKR-er, men er usikker på om de er gode nok',
-    'Før du presenterer OKR-ene for teamet eller ledelsen',
-    'Når du vil ha rask feedback uten å vente på en workshop',
-  ]}
-  benefits={{
-    items: [
-      'Konkret feedback på hvert Key Result',
-      'Vurdering av målbarhet, ambisjonsnivå og kobling til Objective',
-      'Forslag til forbedringer du kan bruke direkte',
-    ],
-    footnote: 'Ment som støtte til refleksjon – ikke fasit.',
-  }}
-  relatedTools={[
-    { name: 'Beslutningslogg', href: '/beslutningslogg', description: 'Dokumenter OKR-beslutningene dere har tatt.' },
-    { name: 'Konseptspeilet', href: '/konseptspeilet', description: 'Test og forbedre produktideer før dere setter OKR-er.' },
-  ]}
-  mobileCTA={{ buttonText: 'Sjekk OKR-settet', disabled: false, showArrow: true }}
+  title={seo.title}
+  description={seo.description}
+  toolName={toolName}
+  breadcrumbLabel={breadcrumbLabel}
+  whenToUse={whenToUse}
+  benefits={benefits}
+  relatedTools={relatedTools}
+  mobileCTA={mobileCTA}
 >
   <header slot="hero" class="mb-8">
     <h1 class="text-h3 md:text-h2 font-semibold text-brand-navy mb-3 leading-tight">
-      Holder OKR-ene dine faktisk mål?
+      {h1}
     </h1>
     <p class="text-base md:text-lg text-neutral-600 leading-relaxed">
-      Lim inn OKR-settet ditt og få tilbakemelding på under ett minutt.
+      {subtitle}
     </p>
     <p class="text-sm md:text-base text-neutral-500 italic mt-1">
-      Ment som støtte til refleksjon – ikke fasit.
+      {disclaimer}
     </p>
   </header>
 

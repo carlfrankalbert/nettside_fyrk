@@ -1,45 +1,33 @@
 ---
 import ToolLayout from '../layouts/ToolLayout.astro';
 import BeslutningsloggForm from '../components/Beslutningslogg';
+import { beslutningsloggTool } from '../data/tools';
+
+const { seo, toolName, breadcrumbLabel, showClaude, h1, badge, subtitle, tagline, whenToUse, benefits, relatedTools, mobileCTA } = beslutningsloggTool.page;
 ---
 
 <ToolLayout
-  title="Beslutningslogg – dokumenter beslutninger med klarhet"
-  description="Gratis verktøy for å dokumentere beslutninger på en strukturert måte. Eksporter til Markdown for Notion, Confluence eller GitHub."
-  toolName="Beslutningslogg"
-  breadcrumbLabel="Beslutningslogg"
-  showClaude={false}
-  whenToUse={[
-    'Etter en viktig produktbeslutning eller prioritering',
-    'Når teamet har valgt én vei blant flere alternativer',
-    'For å skape sporbarhet og ansvarlighet i beslutninger',
-    'Som avslutning etter en refleksjon med <a href="/konseptspeilet" class="text-brand-navy underline underline-offset-2 hover:text-brand-navy/80">Konseptspeilet</a>',
-  ]}
-  benefits={{
-    heading: 'Hva får du?',
-    items: [
-      'En strukturert Markdown-logg du kan lime inn hvor som helst',
-      'Tydelig dokumentasjon av beslutning, grunnlag og usikkerhet',
-      'Sporbarhet for fremtidig referanse og læring',
-    ],
-  }}
-  relatedTools={[
-    { name: 'Konseptspeilet', href: '/konseptspeilet', description: 'Test ideen bak beslutningen med AI-drevet refleksjon.' },
-    { name: 'OKR-sjekken', href: '/okr-sjekken', description: 'Sjekk kvaliteten på OKR-ene knyttet til beslutningen.' },
-  ]}
-  mobileCTA={{ buttonText: 'Lag Markdown', buttonId: 'mobile-generate-btn' }}
+  title={seo.title}
+  description={seo.description}
+  toolName={toolName}
+  breadcrumbLabel={breadcrumbLabel}
+  showClaude={showClaude}
+  whenToUse={whenToUse}
+  benefits={benefits}
+  relatedTools={relatedTools}
+  mobileCTA={mobileCTA}
 >
   <header slot="hero" class="mb-8" id="skriv">
     <h1 class="text-h3 md:text-h2 font-semibold text-brand-navy mb-3 leading-tight">
-      Dokumenter beslutninger med klarhet
-      <span class="inline-block text-xs font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full align-middle ml-2">Beta</span>
+      {h1}
+      <span class="inline-block text-xs font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full align-middle ml-2">{badge}</span>
     </h1>
     <p class="text-base text-neutral-600 leading-relaxed mb-4">
-      Fyll inn hva dere har besluttet, hvilke antakelser som ligger til grunn og hva dere vet at dere ikke vet. Få ut en strukturert Markdown-logg du kan lime inn hvor som helst.
+      {subtitle}
     </p>
 
     <p class="text-xs text-neutral-500">
-      Ingen AI · Ingen lagring · Eksporter til Notion, Confluence eller GitHub
+      {tagline}
     </p>
 
   </header>

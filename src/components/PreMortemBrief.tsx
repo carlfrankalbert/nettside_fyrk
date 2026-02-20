@@ -7,11 +7,11 @@ import { PRE_MORTEM_VALIDATION } from '../utils/constants';
 import {
   usePreMortemForm,
   useMobileSync,
-  BRANSJE_OPTIONS,
-  RISIKONIVA_OPTIONS,
-  KUNDETYPE_OPTIONS,
-  KONFIDENSIALITET_OPTIONS,
 } from '../hooks/usePreMortemForm';
+import { preMortemTool } from '../data/tools';
+
+const { selectOptions, ui } = preMortemTool;
+const { bransje: BRANSJE_OPTIONS, risikoniva: RISIKONIVA_OPTIONS, kundetype: KUNDETYPE_OPTIONS, konfidensialitet: KONFIDENSIALITET_OPTIONS } = selectOptions;
 import { usePreMortemStreaming } from '../hooks/usePreMortemStreaming';
 
 /**
@@ -302,8 +302,8 @@ export default function PreMortemBrief() {
       {/* Privacy accordion */}
       <PrivacyAccordion
         toolName="premortem"
-        introText="Informasjonen du legger inn brukes kun til å generere Pre-Mortem Brief. Unngå å legge inn konfidensiell eller sensitiv informasjon."
-        howItWorks="Briefen genereres av Claude (Anthropic), en AI-modell som analyserer beslutningsinformasjonen basert på etablerte risikoanalyseprinsipper."
+        introText={ui.privacy.introText}
+        howItWorks={ui.privacy.howItWorks}
       />
     </div>
   );

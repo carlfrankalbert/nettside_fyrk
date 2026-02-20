@@ -1,44 +1,32 @@
 ---
 import ToolLayout from '../layouts/ToolLayout.astro';
 import AntakelseskartComponent from '../components/Antakelseskart';
+import { antakelseskartTool } from '../data/tools';
+
+const { seo, toolName, breadcrumbLabel, h1, badge, subtitle, tagline, whenToUse, benefits, relatedTools, mobileCTA } = antakelseskartTool.page;
 ---
 
 <ToolLayout
-  title="Avdekk skjulte antakelser i produktbeslutninger"
-  description="Gratis verktøy som gjør implisitte antakelser eksplisitte. Identifiser risiko og blindsoner i produkt- og strategibeslutninger."
-  toolName="Antakelseskartet"
-  breadcrumbLabel="Antakelseskartet"
-  whenToUse={[
-    'Før du forplikter deg til en større produkt- eller strategibeslutning',
-    'Når teamet diskuterer, men snakker forbi hverandre',
-    'I strategimøter for å synliggjøre hva som tas for gitt',
-    'Når du vil finne ut hva som faktisk bør testes',
-  ]}
-  benefits={{
-    items: [
-      '8-15 implisitte antakelser gruppert i fire kategorier',
-      'Mulighet til å vurdere sikkerhet og konsekvens for hver antakelse',
-      'Automatisk markering av kritiske antakelser (lav sikkerhet + høy konsekvens)',
-    ],
-    footnote: 'Ingen råd. Ingen fasit. Bare synliggjøring av det som er tatt for gitt.',
-  }}
-  relatedTools={[
-    { name: 'Pre-Mortem Brief', href: '/verktoy/pre-mortem', description: 'Hva om antakelsene dine er feil? Tenk gjennom hva som kan gå galt.' },
-    { name: 'Konseptspeilet', href: '/konseptspeilet', description: 'Test og forbedre produktideen bak beslutningen.' },
-  ]}
-  mobileCTA={{ buttonText: 'Avdekk antakelser' }}
+  title={seo.title}
+  description={seo.description}
+  toolName={toolName}
+  breadcrumbLabel={breadcrumbLabel}
+  whenToUse={whenToUse}
+  benefits={benefits}
+  relatedTools={relatedTools}
+  mobileCTA={mobileCTA}
 >
   <header slot="hero" class="mb-8" id="skriv">
     <h1 class="text-h3 md:text-h2 font-semibold text-brand-navy mb-3 leading-tight">
-      Finn antakelsene du ikke visste du hadde
-      <span class="inline-block text-xs font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full align-middle ml-2">Beta</span>
+      {h1}
+      <span class="inline-block text-xs font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full align-middle ml-2">{badge}</span>
     </h1>
     <p class="text-base text-neutral-600 leading-relaxed mb-4">
-      Beskriv en beslutning. AI-en avdekker de implisitte antakelsene som ligger til grunn - og hjelper deg å prioritere hva du bør teste.
+      {subtitle}
     </p>
 
     <p class="text-xs text-neutral-500">
-      Ingen registrering · Ingen scoring · Bare klarhet
+      {tagline}
     </p>
   </header>
 

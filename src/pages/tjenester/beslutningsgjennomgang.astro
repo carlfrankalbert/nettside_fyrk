@@ -6,16 +6,17 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/ui/Breadcrumb.astro';
 import { EXTERNAL_LINKS, CONTACT_LABEL } from '../../utils/links';
+import { beslutningsgjennomgangContent as content } from '../../data/tjenester';
 
 const breadcrumbItems = [
   { label: 'Tjenester', href: '/tjenester' },
-  { label: 'Beslutningsgjennomgang' },
+  { label: content.header.title },
 ];
 ---
 
 <BaseLayout
-  title="Beslutningsgjennomgang | FYRK"
-  description="En strukturert gjennomgang av én konkret beslutning – gir deg et bedre grunnlag for å vurdere veien videre."
+  title={content.seo.title}
+  description={content.seo.description}
 >
   <article class="py-16 md:py-24 px-6">
     <div class="max-w-3xl mx-auto">
@@ -24,158 +25,111 @@ const breadcrumbItems = [
       <!-- Header -->
       <header class="mb-12">
         <h1 class="text-h3 sm:text-h2 md:text-h1 font-semibold text-brand-navy mb-4 leading-tight">
-          Beslutningsgjennomgang
+          {content.header.title}
         </h1>
         <p class="text-xl md:text-2xl text-neutral-600 leading-relaxed">
-          Når beslutningen er for viktig til å tas på magefølelse
+          {content.header.subtitle}
         </p>
       </header>
 
       <!-- Ingress -->
       <section class="mb-12">
         <p class="text-lg text-neutral-700 leading-relaxed">
-          Beslutningsgjennomgang er en strukturert gjennomgang av én konkret beslutning – som gir deg bedre beslutningsgrunnlag før større investeringer eller strategiske forpliktelser.
+          {content.ingress}
         </p>
       </section>
 
       <!-- What you get -->
       <section class="mb-12">
         <h2 class="text-h3 font-semibold text-brand-navy mb-6">
-          Hva får du?
+          {content.whatYouGet.heading}
         </h2>
         <ul class="space-y-4 text-neutral-700">
-          <li class="flex items-start gap-3">
-            <svg class="w-5 h-5 text-brand-navy flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-            <span>En ekstern gjennomgang av beslutningsgrunnlaget</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <svg class="w-5 h-5 text-brand-navy flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-            <span>Kartlegging av antagelser, blindsoner og risiko</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <svg class="w-5 h-5 text-brand-navy flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-            <span>Konkrete spørsmål som bør besvares før forpliktelse</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <svg class="w-5 h-5 text-brand-navy flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-            <span>Skriftlig oppsummering med funn og anbefalinger</span>
-          </li>
+          {content.whatYouGet.items.map((item) => (
+            <li class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-brand-navy flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <span>{item}</span>
+            </li>
+          ))}
         </ul>
       </section>
 
       <!-- When to use -->
       <section class="mb-12">
         <h2 class="text-h3 font-semibold text-brand-navy mb-6">
-          Når er dette relevant?
+          {content.whenRelevant.heading}
         </h2>
         <ul class="space-y-4 text-neutral-700">
-          <li class="flex items-start gap-3">
-            <span class="text-brand-navy font-semibold">•</span>
-            <span>Før større investeringer eller strategiske forpliktelser</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <span class="text-brand-navy font-semibold">•</span>
-            <span>Når teamet er enige, men ingen har spurt "hva om vi tar feil?"</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <span class="text-brand-navy font-semibold">•</span>
-            <span>Ved beslutningsgjennomgang før strategiske og irreversible valg</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <span class="text-brand-navy font-semibold">•</span>
-            <span>Når det er behov for et blikk utenfra</span>
-          </li>
+          {content.whenRelevant.items.map((item) => (
+            <li class="flex items-start gap-3">
+              <span class="text-brand-navy font-semibold">•</span>
+              <span>{item}</span>
+            </li>
+          ))}
         </ul>
       </section>
 
       <!-- Typical decisions -->
       <section class="mb-12">
         <h2 class="text-h3 font-semibold text-brand-navy mb-6">
-          Typiske beslutninger dette brukes for
+          {content.typicalDecisions.heading}
         </h2>
         <ul class="space-y-4 text-neutral-700">
-          <li class="flex items-start gap-3">
-            <span class="text-brand-navy font-semibold">•</span>
-            <span>Skal vi forplikte oss til en ny strategisk retning, teknologi eller satsing?</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <span class="text-brand-navy font-semibold">•</span>
-            <span>Skal vi bygge videre på dette initiativet – eller stoppe og endre kurs?</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <span class="text-brand-navy font-semibold">•</span>
-            <span>Skal vi låse en organisasjons- eller leveransemodell som blir vanskelig å reversere?</span>
-          </li>
+          {content.typicalDecisions.items.map((item) => (
+            <li class="flex items-start gap-3">
+              <span class="text-brand-navy font-semibold">•</span>
+              <span>{item}</span>
+            </li>
+          ))}
         </ul>
         <p class="mt-6 text-neutral-700">
-          Hvis beslutningen deres ligner på én av disse, er beslutningsgjennomgangen sannsynligvis relevant.
+          {content.typicalDecisions.footnote}
         </p>
       </section>
 
       <!-- How it works -->
       <section class="mb-12">
         <h2 class="text-h3 font-semibold text-brand-navy mb-6">
-          Hvordan fungerer det?
+          {content.howItWorks.heading}
         </h2>
         <ol class="space-y-6 text-neutral-700">
-          <li class="flex items-start gap-4">
-            <span class="flex-shrink-0 w-8 h-8 bg-brand-navy text-white rounded-full flex items-center justify-center text-sm font-semibold">1</span>
-            <div>
-              <p class="font-semibold text-brand-navy mb-1">Innledende samtale</p>
-              <p>Jeg setter meg inn i beslutningen, konteksten og hva som står på spill.</p>
-            </div>
-          </li>
-          <li class="flex items-start gap-4">
-            <span class="flex-shrink-0 w-8 h-8 bg-brand-navy text-white rounded-full flex items-center justify-center text-sm font-semibold">2</span>
-            <div>
-              <p class="font-semibold text-brand-navy mb-1">Gjennomgang</p>
-              <p>Jeg analyserer beslutningsgrunnlaget med etablerte teknikker: pre-mortem (hva kan gå galt?), antakelseskartlegging (hva vet vi egentlig?) og beslutningslogg (hva baserer vi dette på?).</p>
-            </div>
-          </li>
-          <li class="flex items-start gap-4">
-            <span class="flex-shrink-0 w-8 h-8 bg-brand-navy text-white rounded-full flex items-center justify-center text-sm font-semibold">3</span>
-            <div>
-              <p class="font-semibold text-brand-navy mb-1">Oppsummering</p>
-              <p>Du får en skriftlig rapport med funn, risiko og anbefalte neste steg.</p>
-            </div>
-          </li>
+          {content.howItWorks.steps.map((step, i) => (
+            <li class="flex items-start gap-4">
+              <span class="flex-shrink-0 w-8 h-8 bg-brand-navy text-white rounded-full flex items-center justify-center text-sm font-semibold">{i + 1}</span>
+              <div>
+                <p class="font-semibold text-brand-navy mb-1">{step.title}</p>
+                <p>{step.description}</p>
+              </div>
+            </li>
+          ))}
         </ol>
-        <p class="mt-6 text-neutral-600 text-sm">
-          Du kan prøve noen av disse teknikkene selv – gratis – i <a href="/verktoy" class="text-brand-navy underline hover:text-brand-cyan-darker">verktøy-seksjonen</a>.
-        </p>
+        <p class="mt-6 text-neutral-600 text-sm" set:html={content.howItWorks.footnoteHtml} />
       </section>
 
       <!-- What is one decision -->
       <section class="mb-12">
         <h2 class="text-h3 font-semibold text-brand-navy mb-6">
-          Hva betyr "én beslutning"?
+          {content.whatIsOneDecision.heading}
         </h2>
-        <p class="text-neutral-700 mb-4">
-          Én beslutning betyr ett avgrenset valg: "Skal vi kjøpe eller bygge?", "Skal vi satse på dette markedet?", "Skal vi forplikte oss til denne teknologien?"
-        </p>
-        <p class="text-neutral-700">
-          Det er ikke "Hva bør strategien vår være de neste tre årene?" – det er et komplekst beslutningslandskap. Ved slike tilfeller avtaler vi omfang og pris på forhånd.
-        </p>
+        {content.whatIsOneDecision.paragraphs.map((paragraph, i) => (
+          <p class:list={['text-neutral-700', i < content.whatIsOneDecision.paragraphs.length - 1 ? 'mb-4' : '']}>
+            {paragraph}
+          </p>
+        ))}
       </section>
 
       <!-- Pricing & CTA -->
       <section class="p-8 bg-white rounded-xl border border-neutral-200 text-center shadow-sm">
         <h2 class="text-h3 font-semibold text-brand-navy mb-4">
-          Pris
+          {content.pricing.heading}
         </h2>
         <p class="text-neutral-700 mb-2">
-          Fast pris avtales etter innledende samtale, basert på beslutningens kompleksitet og omfang.
+          {content.pricing.body}
         </p>
         <p class="text-neutral-700 mb-6">
-          Dette er beslutningsstøtte for ledere når konsekvensene er store. Hvis beslutningen ikke er på riktig nivå, avklarer vi det raskt – uten kostnad.
+          {content.pricing.clarification}
         </p>
         <a
           href={EXTERNAL_LINKS.email}
@@ -183,9 +137,7 @@ const breadcrumbItems = [
         >
           {CONTACT_LABEL}
         </a>
-        <p class="text-sm text-neutral-500 mt-6">
-          Informasjon delt i samtalen behandles konfidensielt og slettes normalt innen 30 dager etter avsluttet oppdrag. Tjenestene er beslutningsstøtte for virksomheter (B2B). Endelige beslutninger tas av kunden. <a href="/personvern" class="underline hover:text-brand-navy">Les mer om personvern</a>.
-        </p>
+        <p class="text-sm text-neutral-500 mt-6" set:html={content.pricing.disclaimerHtml} />
       </section>
     </div>
   </article>

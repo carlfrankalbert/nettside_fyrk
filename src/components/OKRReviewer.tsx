@@ -8,14 +8,10 @@ import { INPUT_VALIDATION, UI_TIMING } from '../utils/constants';
 import { trackClick, logEvent } from '../utils/tracking';
 import { validateOKRInput } from '../utils/form-validation';
 import { useFormInputHandlers } from '../hooks/useFormInputHandlers';
+import { okrTool } from '../data/tools';
 
-const EXAMPLE_OKR = `Objective:
-Gjøre det enkelt og trygt for brukere å komme i gang med produktet.
-
-Key Results:
-1. Øke aktiveringsraten (fullført onboarding) fra 45 % til 70 %.
-2. Redusere tid til første verdi fra 10 minutter til under 3 minutter.
-3. Redusere onboarding-relaterte supporthenvendelser med 50 %.`;
+const EXAMPLE_OKR = okrTool.example;
+const { ui } = okrTool;
 
 export default function OKRReviewer() {
   const [input, setInput] = useState('');
@@ -168,15 +164,15 @@ export default function OKRReviewer() {
         <ul className="space-y-1.5 text-sm text-neutral-700" role="list">
           <li className="flex items-start gap-2">
             <CheckIcon className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" />
-            <span>Lim inn <strong>Objective</strong> + <strong>Key Results</strong></span>
+            <span dangerouslySetInnerHTML={{ __html: ui.infoBox[0] }} />
           </li>
           <li className="flex items-start gap-2">
             <CheckIcon className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" />
-            <span>Få vurdering, styrker og forbedringsforslag</span>
+            <span>{ui.infoBox[1]}</span>
           </li>
           <li className="flex items-start gap-2">
             <CheckIcon className="w-4 h-4 text-feedback-success flex-shrink-0 mt-0.5" />
-            <span>Under ett minutt · Ingen lagring</span>
+            <span>{ui.infoBox[2]}</span>
           </li>
         </ul>
       </div>
@@ -188,7 +184,7 @@ export default function OKRReviewer() {
             htmlFor="okr-input"
             className="block text-base font-medium text-neutral-700"
           >
-            Lim inn OKR-settet ditt
+            {ui.inputLabel}
           </label>
           <button
             type="button"
@@ -196,7 +192,7 @@ export default function OKRReviewer() {
             disabled={loading}
             className="text-sm text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 focus:bg-neutral-100 focus:px-2 focus:-mx-2 rounded transition-all disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Prøv med eksempel
+            {ui.exampleButton}
           </button>
         </div>
 
@@ -249,10 +245,10 @@ Key Results:
           {loading ? (
             <>
               <SpinnerIcon className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
-              <span>Vurderer OKR-ene dine...</span>
+              <span>{ui.loadingButton}</span>
             </>
           ) : (
-            'Sjekk OKR-settet ditt'
+            ui.submitButton
           )}
         </button>
 
@@ -262,7 +258,7 @@ Key Results:
             onClick={handleClearResult}
             className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
           >
-            Start på nytt
+            {ui.resetButton}
           </button>
         )}
       </div>
@@ -282,13 +278,13 @@ Key Results:
         aria-live="polite"
         aria-atomic="false"
         role="region"
-        aria-label="Vurderingsresultat"
+        aria-label={ui.resultLabel}
       >
         {loading && !result && (
           <div className="mt-8 p-6 bg-white border-2 border-neutral-200 rounded-lg">
             <div className="flex items-center gap-3 text-neutral-500">
               <SpinnerIcon className="animate-spin h-5 w-5" />
-              <span>Vurderer OKR-ene dine - dette tar vanligvis 5-10 sekunder...</span>
+              <span>{ui.loadingMessage}</span>
             </div>
           </div>
         )}
@@ -304,7 +300,7 @@ Key Results:
                   onClick={handleClearResult}
                   className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
                 >
-                  Start på nytt
+                  {ui.resetButton}
                 </button>
               </div>
             )}
@@ -315,8 +311,8 @@ Key Results:
       {/* AI og personvern */}
       <PrivacyAccordion
         toolName="okr"
-        introText="OKR-ene du legger inn brukes kun til å generere vurderingen. Unngå å lime inn konfidensiell eller sensitiv informasjon."
-        howItWorks="Vurderingen genereres av Claude (Anthropic), en AI-modell som analyserer OKR-settet ditt basert på etablerte prinsipper for god målsetting."
+        introText={ui.privacy.introText}
+        howItWorks={ui.privacy.howItWorks}
       />
     </div>
   );

@@ -50,18 +50,5 @@ export function NarrativeLoader({
   );
 }
 
-/** Pre-defined loader messages for Konseptspeilet */
-export const KONSEPTSPEIL_LOADER_MESSAGES = [
-  'Leser gjennom teksten …',
-  'Kartlegger dimensjonene …',
-  'Identifiserer antagelser …',
-  'Formulerer speilbilde …',
-] as const;
-
-/** Pre-defined loader messages for Antakelseskartet */
-export const ANTAKELSESKART_LOADER_MESSAGES = [
-  'Leser gjennom beskrivelsen …',
-  'Identifiserer implisitte antakelser …',
-  'Grupperer etter kategori …',
-  'Ferdigstiller …',
-] as const;
+// Loader messages are now centralized in src/data/tools.ts
+// Import from konseptspeilTool.ui.loaderMessages or antakelseskartTool.ui.loaderMessages

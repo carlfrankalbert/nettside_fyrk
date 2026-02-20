@@ -8,16 +8,18 @@ import SEOHead from '../components/seo/SEOHead.astro';
 import LandingHeader from '../components/landing/LandingHeader.astro';
 import LandingFooter from '../components/landing/LandingFooter.astro';
 import { footerContent } from '../data/landing';
+import { vilkarContent, lastUpdated } from '../data/legal';
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const { seo, title, subtitle, sections } = vilkarContent;
 ---
 
 <!doctype html>
 <html lang="no" class="scroll-smooth">
   <head>
     <SEOHead
-      title="Vilkår for bruk | Fyrk"
-      description="Vilkår og betingelser for bruk av Fyrk sine tjenester og verktøy."
+      title={seo.title}
+      description={seo.description}
       type="website"
       canonicalUrl={canonicalURL}
     />
@@ -32,10 +34,10 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       <section class="py-6 px-6">
         <div class="max-w-3xl mx-auto">
           <h1 class="text-3xl md:text-4xl font-semibold text-brand-navy mb-2">
-            Vilkår for bruk
+            {title}
           </h1>
           <p class="text-lg text-neutral-600 mb-0">
-            Betingelser for bruk av fyrk.no og tilhørende verktøy
+            {subtitle}
           </p>
         </div>
       </section>
@@ -43,181 +45,74 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       <!-- Content section -->
       <section class="py-6 px-6">
         <div class="max-w-3xl mx-auto space-y-8">
+          {sections.map((section) => {
+            const isWarning = 'isWarning' in section && section.isWarning;
+            const bulletColor = isWarning ? 'bg-feedback-warning' : 'bg-brand-cyan-darker';
+            const textColor = isWarning ? 'text-neutral-700' : 'text-neutral-600';
 
-          <div>
-            <h2 class="text-xl font-semibold text-brand-navy mb-3">1. Aksept av vilkår</h2>
-            <p class="text-neutral-600 leading-relaxed mb-0">
-              Ved å bruke fyrk.no og tilhørende verktøy aksepterer du disse vilkårene.
-              Hvis du ikke aksepterer vilkårene, ber vi deg om ikke å bruke tjenestene.
-            </p>
-          </div>
+            return (
+              <div class:list={[isWarning && 'p-4 bg-feedback-warning/10 border border-feedback-warning/30 rounded-lg']}>
+                <h2 class="text-xl font-semibold text-brand-navy mb-3">{section.heading}</h2>
 
-          <div>
-            <h2 class="text-xl font-semibold text-brand-navy mb-3">2. Beskrivelse av tjenesten</h2>
-            <p class="text-neutral-600 leading-relaxed mb-4">
-              Fyrk tilbyr AI-baserte verktøy for refleksjon og analyse, inkludert:
-            </p>
-            <ul class="space-y-2 text-neutral-600">
-              <li class="flex items-start gap-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker mt-2 shrink-0"></span>
-                <span><strong>OKR-sjekken</strong> - Vurdering av OKR-kvalitet</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker mt-2 shrink-0"></span>
-                <span><strong>Konseptspeilet</strong> - Refleksjon over produktkonsepter</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker mt-2 shrink-0"></span>
-                <span><strong>Antakelseskartet</strong> - Kartlegging av antakelser</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker mt-2 shrink-0"></span>
-                <span><strong>Beslutningsloggen</strong> - Strukturert dokumentasjon av beslutninger</span>
-              </li>
-            </ul>
-          </div>
+                {'boldIntro' in section && section.boldIntro && (
+                  <p class:list={[textColor, 'leading-relaxed mb-4']}>
+                    <strong>{section.boldIntro}</strong>
+                  </p>
+                )}
 
-          <div class="p-4 bg-feedback-warning/10 border border-feedback-warning/30 rounded-lg">
-            <h2 class="text-xl font-semibold text-brand-navy mb-3">3. Viktig ansvarsfraskrivelse</h2>
-            <p class="text-neutral-700 leading-relaxed mb-4">
-              <strong>Verktøyene er ment som støtte til refleksjon og analyse, ikke som fasit eller profesjonell rådgivning.</strong>
-            </p>
-            <ul class="space-y-2 text-neutral-700">
-              <li class="flex items-start gap-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-feedback-warning mt-2 shrink-0"></span>
-                <span>AI-genererte analyser kan inneholde feil, unøyaktigheter eller ufullstendig informasjon</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-feedback-warning mt-2 shrink-0"></span>
-                <span>Resultatene skal ikke erstatte profesjonell forretnings-, juridisk eller teknisk rådgivning</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-feedback-warning mt-2 shrink-0"></span>
-                <span>Du er selv ansvarlig for å validere og vurdere informasjonen før bruk</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-feedback-warning mt-2 shrink-0"></span>
-                <span>Beslutninger basert på verktøyenes output er ditt eget ansvar</span>
-              </li>
-            </ul>
-          </div>
+                {'body' in section && section.body && (
+                  <p class:list={[
+                    textColor, 'leading-relaxed',
+                    ('bullets' in section && section.bullets) || ('bodyAfter' in section && section.bodyAfter) || ('richBullets' in section && section.richBullets) ? 'mb-4' : 'mb-0',
+                  ]}>
+                    {section.body}
+                  </p>
+                )}
 
-          <div>
-            <h2 class="text-xl font-semibold text-brand-navy mb-3">4. Ansvarsbegrensning</h2>
-            <p class="text-neutral-600 leading-relaxed mb-4">
-              Tjenestene leveres "som de er" uten garantier av noe slag, verken uttrykte eller underforståtte.
-            </p>
-            <p class="text-neutral-600 leading-relaxed mb-4">
-              Fyrk er ikke ansvarlig for:
-            </p>
-            <ul class="space-y-2 text-neutral-600">
-              <li class="flex items-start gap-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker mt-2 shrink-0"></span>
-                <span>Indirekte tap, følgeskader eller tapt fortjeneste</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker mt-2 shrink-0"></span>
-                <span>Tap eller skade som følge av beslutninger basert på verktøyenes output</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker mt-2 shrink-0"></span>
-                <span>Tjenesteavbrudd, forsinkelser eller utilgjengelighet</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker mt-2 shrink-0"></span>
-                <span>Feil, unøyaktigheter eller mangler i AI-generert innhold</span>
-              </li>
-            </ul>
-          </div>
+                {'bodyHtml' in section && section.bodyHtml && (
+                  <p class:list={[textColor, 'leading-relaxed mb-0']} set:html={section.bodyHtml} />
+                )}
 
-          <div>
-            <h2 class="text-xl font-semibold text-brand-navy mb-3">5. Bruk av tjenesten</h2>
-            <p class="text-neutral-600 leading-relaxed mb-4">
-              Ved bruk av tjenestene forplikter du deg til å:
-            </p>
-            <ul class="space-y-2 text-neutral-600">
-              <li class="flex items-start gap-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker mt-2 shrink-0"></span>
-                <span>Ikke misbruke tjenestene eller forsøke å omgå sikkerhetstiltak</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker mt-2 shrink-0"></span>
-                <span>Ikke bruke tjenestene til ulovlige formål</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker mt-2 shrink-0"></span>
-                <span>Ikke sende inn innhold som krenker andres rettigheter</span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker mt-2 shrink-0"></span>
-                <span>Respektere eventuelle bruksbegrensninger (rate limits)</span>
-              </li>
-            </ul>
-          </div>
+                {'bodyAfter' in section && section.bodyAfter && (
+                  <p class:list={[textColor, 'leading-relaxed mb-4']}>
+                    {section.bodyAfter}
+                  </p>
+                )}
 
-          <div>
-            <h2 class="text-xl font-semibold text-brand-navy mb-3">6. Tredjepartstjenester</h2>
-            <p class="text-neutral-600 leading-relaxed mb-4">
-              Verktøyene bruker tjenester fra tredjeparter:
-            </p>
-            <ul class="space-y-2 text-neutral-600">
-              <li class="flex items-start gap-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker mt-2 shrink-0"></span>
-                <span><strong>Anthropic (Claude)</strong> - AI-analyse av tekst.
-                  <a href="https://www.anthropic.com/legal/consumer-terms" target="_blank" rel="noopener noreferrer" class="text-brand-cyan-darker hover:text-brand-navy underline underline-offset-2 transition-colors">
-                    Se deres vilkår
-                  </a>
-                </span>
-              </li>
-              <li class="flex items-start gap-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan-darker mt-2 shrink-0"></span>
-                <span><strong>Cloudflare</strong> - Infrastruktur og hosting.
-                  <a href="https://www.cloudflare.com/terms/" target="_blank" rel="noopener noreferrer" class="text-brand-cyan-darker hover:text-brand-navy underline underline-offset-2 transition-colors">
-                    Se deres vilkår
-                  </a>
-                </span>
-              </li>
-            </ul>
-          </div>
+                {'bullets' in section && section.bullets && (
+                  <ul class:list={['space-y-2', textColor]}>
+                    {section.bullets.map((bullet: string) => (
+                      <li class="flex items-start gap-3">
+                        <span class:list={['w-1.5 h-1.5 rounded-full mt-2 shrink-0', bulletColor]}></span>
+                        <span set:html={bullet} />
+                      </li>
+                    ))}
+                  </ul>
+                )}
 
-          <div>
-            <h2 class="text-xl font-semibold text-brand-navy mb-3">7. Immaterielle rettigheter</h2>
-            <p class="text-neutral-600 leading-relaxed mb-4">
-              Du beholder alle rettigheter til innholdet du sender inn til verktøyene.
-              Fyrk beholder rettighetene til verktøyene, designet og underliggende teknologi.
-            </p>
-          </div>
-
-          <div>
-            <h2 class="text-xl font-semibold text-brand-navy mb-3">8. Endringer i vilkårene</h2>
-            <p class="text-neutral-600 leading-relaxed mb-0">
-              Fyrk forbeholder seg retten til å endre disse vilkårene.
-              Vesentlige endringer vil bli kommunisert på nettsiden.
-              Fortsatt bruk etter endringer innebærer aksept av nye vilkår.
-            </p>
-          </div>
-
-          <div>
-            <h2 class="text-xl font-semibold text-brand-navy mb-3">9. Lovvalg</h2>
-            <p class="text-neutral-600 leading-relaxed mb-0">
-              Disse vilkårene er underlagt norsk lov. Eventuelle tvister skal søkes løst i minnelighet,
-              og om nødvendig avgjøres av norske domstoler med Oslo tingrett som verneting.
-            </p>
-          </div>
-
-          <div>
-            <h2 class="text-xl font-semibold text-brand-navy mb-3">10. Kontakt</h2>
-            <p class="text-neutral-600 leading-relaxed mb-0">
-              Har du spørsmål om disse vilkårene? Ta kontakt på{' '}
-              <a href="mailto:hei@fyrk.no" class="text-brand-cyan-darker hover:text-brand-navy underline underline-offset-2 transition-colors">
-                hei@fyrk.no
-              </a>
-            </p>
-          </div>
+                {'richBullets' in section && section.richBullets && (
+                  <ul class:list={['space-y-2', textColor]}>
+                    {section.richBullets.map((item) => (
+                      <li class="flex items-start gap-3">
+                        <span class:list={['w-1.5 h-1.5 rounded-full mt-2 shrink-0', bulletColor]}></span>
+                        <span>
+                          <Fragment set:html={item.html} />
+                          {' '}
+                          <a href={item.link.href} target="_blank" rel="noopener noreferrer" class="text-brand-cyan-darker hover:text-brand-navy underline underline-offset-2 transition-colors">
+                            {item.link.label}
+                          </a>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            );
+          })}
 
           <div class="pt-6 border-t border-neutral-200">
             <p class="text-sm text-neutral-500 mb-0">
-              Sist oppdatert: Januar 2026
+              Sist oppdatert: {lastUpdated}
             </p>
           </div>
         </div>

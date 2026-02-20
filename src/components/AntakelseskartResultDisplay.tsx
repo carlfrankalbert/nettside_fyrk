@@ -9,7 +9,10 @@ import {
 } from '../types/antakelseskart';
 import { SpinnerIcon } from './ui/Icon';
 import { Toast } from './ui/Toast';
-import { NarrativeLoader, ANTAKELSESKART_LOADER_MESSAGES } from './ui/NarrativeLoader';
+import { NarrativeLoader } from './ui/NarrativeLoader';
+import { antakelseskartTool } from '../data/tools';
+
+const { loaderMessages } = antakelseskartTool.ui;
 import { cn } from '../utils/classes';
 import { trackClick } from '../utils/tracking';
 import { useCopyWithToast } from '../hooks/useCopyWithToast';
@@ -102,7 +105,7 @@ export default function AntakelseskartResultDisplay({
 
   // During streaming, show narrative loader
   if (isStreaming && !hasContent(parsed)) {
-    return <NarrativeLoader messages={ANTAKELSESKART_LOADER_MESSAGES} />;
+    return <NarrativeLoader messages={loaderMessages} />;
   }
 
   // Show parse error

@@ -1,45 +1,32 @@
 ---
 import ToolLayout from '../../layouts/ToolLayout.astro';
 import PreMortemBrief from '../../components/PreMortemBrief';
+import { preMortemTool } from '../../data/tools';
+
+const { seo, toolName, breadcrumbLabel, h1, badge, subtitle, tagline, whenToUse, benefits, relatedTools, mobileCTA } = preMortemTool.page;
 ---
 
 <ToolLayout
-  title="Pre-Mortem Brief - Tenk gjennom hva som kan gå galt"
-  description="Gratis verktøy som hjelper deg å identifisere failure modes, tidlige indikatorer og stopp-kriterier før du tar irreversible beslutninger."
-  toolName="Pre-Mortem Brief"
-  breadcrumbLabel="Pre-Mortem Brief"
-  whenToUse={[
-    'Før du forplikter deg til en større beslutning som er vanskelig å reversere',
-    'Når teamet er enige, men ingen har spurt "hva om vi tar feil?"',
-    'I styremøter og ledergrupper for å dokumentere risikovurdering',
-    'Når du vil ha konkrete kriterier for når du bør evaluere eller avbryte',
-  ]}
-  benefits={{
-    items: [
-      '5-6 konkrete failure modes med konsekvenskategori',
-      'Tidlige varselsignaler du kan overvåke',
-      'Stopp-kriterier for PAUSE og FULL TILBAKETREKKING',
-      'Forslag til eierskap og ansvar',
-    ],
-    footnote: 'Ingen anbefaling om hva du bør gjøre. Bare strukturert risikotenkning.',
-  }}
-  relatedTools={[
-    { name: 'Antakelseskartet', href: '/antakelseskart', description: 'Avdekk de implisitte antakelsene bak beslutningen.' },
-    { name: 'Beslutningslogg', href: '/beslutningslogg', description: 'Dokumenter risikobeslutningene du har tatt.' },
-  ]}
-  mobileCTA={{ buttonText: 'Generer Pre-Mortem Brief' }}
+  title={seo.title}
+  description={seo.description}
+  toolName={toolName}
+  breadcrumbLabel={breadcrumbLabel}
+  whenToUse={whenToUse}
+  benefits={benefits}
+  relatedTools={relatedTools}
+  mobileCTA={mobileCTA}
 >
   <header slot="hero" class="mb-8" id="skriv">
     <h1 class="text-h3 md:text-h2 font-semibold text-brand-navy mb-3 leading-tight">
-      Hva kan gå galt?
-      <span class="inline-block text-xs font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full align-middle ml-2">Beta</span>
+      {h1}
+      <span class="inline-block text-xs font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full align-middle ml-2">{badge}</span>
     </h1>
     <p class="text-base text-neutral-600 leading-relaxed mb-4">
-      Beskriv en beslutning du vurderer. AI-en hjelper deg å tenke gjennom failure modes, tidlige varselsignaler og kriterier for når du bør stoppe - før det er for sent.
+      {subtitle}
     </p>
 
     <p class="text-xs text-neutral-500">
-      Ingen registrering · Ingen lagring · Bare klarhet
+      {tagline}
     </p>
   </header>
 
