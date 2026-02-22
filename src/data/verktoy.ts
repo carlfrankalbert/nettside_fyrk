@@ -29,6 +29,12 @@ export const verktoyPageContent = {
         { name: 'Pre-Mortem Brief', badge: 'Beta', description: 'Tenk gjennom hva som kan gå galt før du tar irreversible beslutninger.', href: '/verktoy/pre-mortem', cta: 'Lag Pre-Mortem Brief' },
       ],
     },
+    {
+      heading: 'Personlig praksis',
+      tools: [
+        { name: 'Decision Loop', badge: 'Alpha', description: 'Daglig beslutningsjournal. Lås én beslutning per dag, bygg en søkbar logg over tid.', href: '#', cta: 'Prøv Decision Loop' },
+      ],
+    },
   ],
   disclaimerHtml: 'Verktøyene erstatter ikke ansvar, kontekst eller erfaring. De er laget for å gi deg bedre beslutningsgrunnlag — ikke «fasiten». <a href="/personvern" class="underline hover:text-brand-navy">Personvern</a>.',
   bridgeCTA: {
