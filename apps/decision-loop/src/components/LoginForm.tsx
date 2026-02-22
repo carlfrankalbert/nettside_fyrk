@@ -14,7 +14,8 @@ export default function LoginForm() {
 
     const supabase = createClient(
       import.meta.env.PUBLIC_SUPABASE_URL,
-      import.meta.env.PUBLIC_SUPABASE_ANON_KEY
+      import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+      { auth: { flowType: 'pkce' } }
     );
 
     const { error: authError } = await supabase.auth.signInWithOtp({
