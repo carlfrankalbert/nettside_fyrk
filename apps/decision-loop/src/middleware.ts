@@ -1,7 +1,7 @@
 import { defineMiddleware } from 'astro:middleware';
 import { createServerClient, createServiceRoleClient } from './lib/supabase';
 
-const PUBLIC_PATHS = ['/login', '/api/auth/callback'];
+const PUBLIC_PATHS = ['/login', '/auth/callback', '/api/auth/'];
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const { pathname } = context.url;

@@ -14,14 +14,13 @@ export default function LoginForm() {
 
     const supabase = createClient(
       import.meta.env.PUBLIC_SUPABASE_URL,
-      import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
-      { auth: { flowType: 'pkce' } }
+      import.meta.env.PUBLIC_SUPABASE_ANON_KEY
     );
 
     const { error: authError } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/api/auth/callback`,
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
 
