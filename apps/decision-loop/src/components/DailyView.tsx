@@ -124,9 +124,7 @@ export default function DailyView() {
         </button>
       </div>
 
-      {saving && (
-        <p className="mb-4 text-xs text-neutral-400">Saving...</p>
-      )}
+      <p className={`mb-4 text-xs transition-opacity ${saving ? 'text-neutral-400 opacity-100' : 'opacity-0'}`}>Saving...</p>
 
       {/* One Thing */}
       <Section title="One Thing" description="What is the single most important thing to decide today?">
