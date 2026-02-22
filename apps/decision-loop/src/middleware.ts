@@ -13,9 +13,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return next();
   }
 
+  const runtime = (context.locals as Record<string, unknown>).runtime as { env?: Record<string, string> } | undefined;
+
   // Dev bypass: skip auth and use service role client with a fixed user
   if (import.meta.env.DEV) {
-    const supabase = createServiceRoleClient();
+    const supabase = createServiceRoleClient(runtime);
     const fakeUser = {
       id: 'f06767f1-da8a-4070-ab46-c93328026182',
       email: 'dev@localhost',
@@ -26,7 +28,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   try {
-    const supabase = createServerClient(context.cookies);
+    const supabase = createServerClient(context.cookies, runtime);
     const {
       data: { user },
     } = await supabase.auth.getUser();

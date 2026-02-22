@@ -28,9 +28,17 @@ export interface DecisionLock {
   created_at: string;
 }
 
-export function createServerClient(cookies: AstroCookies): SupabaseClient {
-  const supabaseUrl = import.meta.env.SUPABASE_URL;
-  const supabaseAnonKey = import.meta.env.SUPABASE_ANON_KEY;
+interface CloudflareRuntime {
+  env?: Record<string, string>;
+}
+
+function getEnv(key: string, runtime?: CloudflareRuntime): string {
+  return import.meta.env[key] ?? runtime?.env?.[key] ?? '';
+}
+
+export function createServerClient(cookies: AstroCookies, runtime?: CloudflareRuntime): SupabaseClient {
+  const supabaseUrl = getEnv('SUPABASE_URL', runtime);
+  const supabaseAnonKey = getEnv('SUPABASE_ANON_KEY', runtime);
 
   const accessToken = cookies.get('sb-access-token')?.value;
   const refreshToken = cookies.get('sb-refresh-token')?.value;
@@ -52,10 +60,10 @@ export function createServerClient(cookies: AstroCookies): SupabaseClient {
   return client;
 }
 
-export function createServiceRoleClient(): SupabaseClient {
+export function createServiceRoleClient(runtime?: CloudflareRuntime): SupabaseClient {
   return createClient(
-    import.meta.env.SUPABASE_URL,
-    import.meta.env.SUPABASE_SERVICE_ROLE_KEY,
+    getEnv('SUPABASE_URL', runtime),
+    getEnv('SUPABASE_SERVICE_ROLE_KEY', runtime),
     {
       auth: {
         autoRefreshToken: false,

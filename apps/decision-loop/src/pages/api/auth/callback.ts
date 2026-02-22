@@ -1,17 +1,23 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
 
-export const GET: APIRoute = async ({ url, cookies, redirect }) => {
+export const GET: APIRoute = async ({ url, cookies, redirect, locals }) => {
   const code = url.searchParams.get('code');
 
   if (!code) {
     return redirect('/login');
   }
 
-  const supabase = createClient(
-    import.meta.env.SUPABASE_URL,
-    import.meta.env.SUPABASE_ANON_KEY
-  );
+  // Cloudflare runtime env vars may not be on import.meta.env
+  const runtime = (locals as Record<string, unknown>).runtime as { env?: Record<string, string> } | undefined;
+  const supabaseUrl = import.meta.env.SUPABASE_URL ?? runtime?.env?.SUPABASE_URL;
+  const supabaseKey = import.meta.env.SUPABASE_ANON_KEY ?? runtime?.env?.SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    return redirect('/login');
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseKey);
 
   const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
