@@ -32,7 +32,7 @@ export const verktoyPageContent = {
     {
       heading: 'Personlig praksis',
       tools: [
-        { name: 'Decision Loop', badge: 'Alpha', description: 'Daglig beslutningsjournal. Lås én beslutning per dag, bygg en søkbar logg over tid.', href: '#', cta: 'Prøv Decision Loop' },
+        { name: 'Decision Loop', badge: 'Alpha', description: 'Daglig beslutningsjournal. Lås én beslutning per dag, bygg en søkbar logg over tid.', href: 'https://loop.fyrk.no', cta: 'Prøv Decision Loop' },
       ],
     },
   ],
