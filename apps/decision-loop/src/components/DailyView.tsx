@@ -55,15 +55,11 @@ export default function DailyView() {
   const saveEntry = useCallback(
     async (fields: Partial<DayEntry>) => {
       setSaving(true);
-      const res = await fetch('/api/day-entry', {
+      await fetch('/api/day-entry', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ date, ...fields }),
       });
-      if (res.ok) {
-        const data: EntryData = await res.json();
-        setEntry(data.entry);
-      }
       setSaving(false);
     },
     [date]
