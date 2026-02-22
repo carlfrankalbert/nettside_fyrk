@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { DayEntry, DecisionLock } from '../lib/supabase';
 
 interface Props {
@@ -7,6 +7,8 @@ interface Props {
   onLocked: (entry: DayEntry, lock: DecisionLock) => void;
 }
 
+const FOCUSABLE = 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
+
 export default function LockModal({ entryId, onClose, onLocked }: Props) {
   const [decisionText, setDecisionText] = useState('');
   const [assumptions, setAssumptions] = useState('');
@@ -14,6 +16,39 @@ export default function LockModal({ entryId, onClose, onLocked }: Props) {
   const [shareWithFyrk, setShareWithFyrk] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const modal = modalRef.current;
+    if (!modal) return;
+
+    const focusable = modal.querySelectorAll<HTMLElement>(FOCUSABLE);
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    first?.focus();
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last?.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first?.focus();
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -46,10 +81,16 @@ export default function LockModal({ entryId, onClose, onLocked }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl">
-        <h2 className="text-lg font-semibold">Lock today's decision</h2>
-        <p className="mt-1 text-sm text-neutral-500">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="lock-modal-title"
+    >
+      <div ref={modalRef} className="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl">
+        <h2 id="lock-modal-title" className="text-lg font-semibold">Lock today's decision</h2>
+        <p className="mt-1 text-sm text-neutral-600">
           This cannot be undone. The entry will become read-only.
         </p>
 

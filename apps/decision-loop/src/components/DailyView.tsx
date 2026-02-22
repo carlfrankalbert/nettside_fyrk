@@ -89,7 +89,17 @@ export default function DailyView() {
   }
 
   if (loading) {
-    return <p className="text-neutral-400">Loading...</p>;
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="h-8 w-20 animate-pulse rounded bg-neutral-200" />
+          <div className="h-5 w-48 animate-pulse rounded bg-neutral-200" />
+          <div className="h-8 w-20 animate-pulse rounded bg-neutral-200" />
+        </div>
+        <div className="h-20 animate-pulse rounded bg-neutral-200" />
+        <div className="h-20 animate-pulse rounded bg-neutral-200" />
+      </div>
+    );
   }
 
   const hasOneThing = Boolean(entry?.one_thing?.trim());
@@ -120,7 +130,7 @@ export default function DailyView() {
         </button>
       </div>
 
-      <p className={`mb-4 text-xs transition-opacity ${saving ? 'text-neutral-400 opacity-100' : 'opacity-0'}`}>Saving...</p>
+      <p className={`mb-4 text-xs transition-opacity ${saving ? 'text-neutral-500 opacity-100' : 'opacity-0'}`}>Saving...</p>
 
       {/* One Thing */}
       <Section title="One Thing" description="What is the single most important thing to decide today?">
@@ -186,13 +196,13 @@ export default function DailyView() {
           <p className="mt-2 text-neutral-800">{lock.decision_text}</p>
           {lock.assumptions && (
             <>
-              <h4 className="mt-4 text-sm font-medium text-neutral-500">Assumptions</h4>
+              <h4 className="mt-4 text-sm font-medium text-neutral-600">Assumptions</h4>
               <p className="mt-1 text-neutral-700">{lock.assumptions}</p>
             </>
           )}
           {lock.practical_change && (
             <>
-              <h4 className="mt-4 text-sm font-medium text-neutral-500">Practical change</h4>
+              <h4 className="mt-4 text-sm font-medium text-neutral-600">Practical change</h4>
               <p className="mt-1 text-neutral-700">{lock.practical_change}</p>
             </>
           )}
@@ -256,7 +266,7 @@ function Section({
     <div className="mb-6">
       <h2 className="text-lg font-semibold text-neutral-800">{title}</h2>
       {description && (
-        <p className="mt-1 text-sm text-neutral-500">{description}</p>
+        <p className="mt-1 text-sm text-neutral-600">{description}</p>
       )}
       <div className="mt-3">{children}</div>
     </div>

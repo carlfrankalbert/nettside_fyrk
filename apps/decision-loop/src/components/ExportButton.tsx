@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { toMarkdown } from '../lib/markdown-export';
 import type { DayEntry, DecisionLock } from '../lib/supabase';
 
@@ -7,6 +8,8 @@ interface Props {
 }
 
 export default function ExportButton({ entry, lock }: Props) {
+  const [exported, setExported] = useState(false);
+
   function handleExport() {
     const shareUrl = lock.share_token
       ? `${window.location.origin}/share/${lock.share_token}`
@@ -19,6 +22,9 @@ export default function ExportButton({ entry, lock }: Props) {
     a.download = `decision-${entry.date}.md`;
     a.click();
     URL.revokeObjectURL(url);
+
+    setExported(true);
+    setTimeout(() => setExported(false), 2000);
   }
 
   return (
@@ -26,7 +32,7 @@ export default function ExportButton({ entry, lock }: Props) {
       onClick={handleExport}
       className="rounded border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-600 hover:bg-neutral-100"
     >
-      Export .md
+      {exported ? 'Exported!' : 'Export .md'}
     </button>
   );
 }

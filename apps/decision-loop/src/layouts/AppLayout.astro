@@ -6,10 +6,18 @@ interface Props {
 }
 
 const { title = 'Decision Loop' } = Astro.props;
+const path = Astro.url.pathname;
+
+function navClass(href: string): string {
+  const active = href === '/' ? path === '/' : path.startsWith(href);
+  return active
+    ? 'font-medium text-neutral-900'
+    : 'text-neutral-500 hover:text-neutral-700';
+}
 ---
 
 <!doctype html>
-<html lang="no">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -19,10 +27,15 @@ const { title = 'Decision Loop' } = Astro.props;
     <nav class="border-b border-neutral-200 bg-white px-6 py-3">
       <div class="mx-auto flex max-w-3xl items-center justify-between">
         <a href="/" class="text-lg font-semibold">Decision Loop</a>
-        <div class="flex gap-4 text-sm">
-          <a href="/" class="hover:text-neutral-600">Today</a>
-          <a href="/log" class="hover:text-neutral-600">Log</a>
-          <a href="/releaselog" class="hover:text-neutral-600">Nyheter</a>
+        <div class="flex items-center gap-4 text-sm">
+          <a href="/" class={navClass('/')}>Today</a>
+          <a href="/log" class={navClass('/log')}>Log</a>
+          <a href="/releaselog" class={navClass('/releaselog')}>Releases</a>
+          <form method="POST" action="/api/auth/logout">
+            <button type="submit" class="text-neutral-400 hover:text-neutral-600">
+              Sign out
+            </button>
+          </form>
         </div>
       </div>
     </nav>

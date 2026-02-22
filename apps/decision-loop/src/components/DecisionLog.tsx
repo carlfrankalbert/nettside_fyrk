@@ -62,8 +62,8 @@ function MonthCalendar({ decisionDates, selectedDate, onSelectDate }: MonthCalen
       <div className="mb-3 flex items-center justify-between">
         <button
           onClick={prev}
-          className="rounded px-2 py-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700"
-          aria-label="Forrige måned"
+          className="rounded px-2 py-1 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-700"
+          aria-label="Previous month"
         >
           ←
         </button>
@@ -72,15 +72,15 @@ function MonthCalendar({ decisionDates, selectedDate, onSelectDate }: MonthCalen
         </span>
         <button
           onClick={next}
-          className="rounded px-2 py-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700"
-          aria-label="Neste måned"
+          className="rounded px-2 py-1 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-700"
+          aria-label="Next month"
         >
           →
         </button>
       </div>
 
       {/* Weekday headers */}
-      <div className="grid grid-cols-7 text-center text-xs font-medium text-neutral-400">
+      <div className="grid grid-cols-7 text-center text-xs font-medium text-neutral-500">
         {WEEKDAYS.map((d) => (
           <div key={d} className="py-1">{d}</div>
         ))}
@@ -102,12 +102,12 @@ function MonthCalendar({ decisionDates, selectedDate, onSelectDate }: MonthCalen
               key={dateStr}
               onClick={() => onSelectDate(isSelected ? null : dateStr)}
               className={[
-                'relative mx-auto my-0.5 flex h-8 w-8 items-center justify-center rounded-full text-sm transition-colors',
+                'relative mx-auto my-0.5 flex h-9 w-9 items-center justify-center rounded-full text-sm transition-colors',
                 isSelected
                   ? 'bg-neutral-800 font-semibold text-white'
                   : isToday
                     ? 'font-semibold text-neutral-900 ring-1 ring-neutral-300'
-                    : 'text-neutral-600 hover:bg-neutral-100',
+                    : 'text-neutral-700 hover:bg-neutral-100',
               ].join(' ')}
             >
               {dayNum}
@@ -127,9 +127,9 @@ function MonthCalendar({ decisionDates, selectedDate, onSelectDate }: MonthCalen
       {selectedDate && (
         <button
           onClick={() => onSelectDate(null)}
-          className="mt-2 text-xs text-neutral-400 hover:text-neutral-600"
+          className="mt-2 text-xs text-neutral-500 hover:text-neutral-700"
         >
-          Vis alle
+          Show all
         </button>
       )}
     </div>
@@ -161,13 +161,22 @@ export default function DecisionLog() {
     ? decisions.filter((d) => d.entry.date === selectedDate)
     : decisions;
 
-  if (loading) return <p className="text-neutral-400">Loading...</p>;
+  if (loading) {
+    return (
+      <div className="space-y-3">
+        <div className="h-7 w-40 animate-pulse rounded bg-neutral-200" />
+        <div className="h-48 animate-pulse rounded-lg bg-neutral-200" />
+        <div className="h-14 animate-pulse rounded bg-neutral-200" />
+        <div className="h-14 animate-pulse rounded bg-neutral-200" />
+      </div>
+    );
+  }
 
   if (decisions.length === 0) {
     return (
       <div>
         <h1 className="text-2xl font-bold">Decision Log</h1>
-        <p className="mt-2 text-neutral-500">No locked decisions yet.</p>
+        <p className="mt-2 text-neutral-600">No locked decisions yet.</p>
       </div>
     );
   }
@@ -185,7 +194,7 @@ export default function DecisionLog() {
       </div>
 
       {selectedDate && filtered.length === 0 && (
-        <p className="text-sm text-neutral-400">Ingen beslutninger denne dagen.</p>
+        <p className="text-sm text-neutral-500">No decisions on this day.</p>
       )}
 
       <ul className="space-y-3">
@@ -197,10 +206,10 @@ export default function DecisionLog() {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-xs text-neutral-400">{entry.date}</span>
+                  <span className="text-xs text-neutral-500">{entry.date}</span>
                   <p className="font-medium text-neutral-800">{entry.one_thing}</p>
                 </div>
-                <span className="text-neutral-400">{expanded === entry.id ? '−' : '+'}</span>
+                <span className="text-neutral-500">{expanded === entry.id ? '−' : '+'}</span>
               </div>
             </button>
             {expanded === entry.id && (
@@ -209,19 +218,19 @@ export default function DecisionLog() {
                 <p className="mt-1">{lock.decision_text}</p>
                 {lock.assumptions && (
                   <>
-                    <h4 className="mt-3 font-medium text-neutral-500">Assumptions</h4>
+                    <h4 className="mt-3 font-medium text-neutral-600">Assumptions</h4>
                     <p className="mt-1">{lock.assumptions}</p>
                   </>
                 )}
                 {lock.practical_change && (
                   <>
-                    <h4 className="mt-3 font-medium text-neutral-500">Practical change</h4>
+                    <h4 className="mt-3 font-medium text-neutral-600">Practical change</h4>
                     <p className="mt-1">{lock.practical_change}</p>
                   </>
                 )}
                 {entry.problem_what && (
                   <>
-                    <h4 className="mt-3 font-medium text-neutral-500">Problem</h4>
+                    <h4 className="mt-3 font-medium text-neutral-600">Problem</h4>
                     <p className="mt-1">{entry.problem_what}</p>
                   </>
                 )}
