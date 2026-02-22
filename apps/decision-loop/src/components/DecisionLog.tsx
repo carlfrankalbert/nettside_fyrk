@@ -7,11 +7,11 @@ interface DecisionItem {
   lock: DecisionLock;
 }
 
-const WEEKDAYS = ['ma', 'ti', 'on', 'to', 'fr', 'lø', 'sø'];
+const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 const MONTH_NAMES = [
-  'januar', 'februar', 'mars', 'april', 'mai', 'juni',
-  'juli', 'august', 'september', 'oktober', 'november', 'desember',
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
 function toDateString(d: Date): string {

@@ -10,7 +10,7 @@ function toDateString(d: Date): string {
 
 function formatDisplayDate(dateStr: string): string {
   const d = new Date(dateStr + 'T12:00:00');
-  return d.toLocaleDateString('nb-NO', {
+  return d.toLocaleDateString('en-US', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
