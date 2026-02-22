@@ -32,7 +32,7 @@ export const GET: APIRoute = async ({ url, cookies, redirect, locals }) => {
     httpOnly: true,
     secure: import.meta.env.PROD,
     sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 7, // 7 days
+    maxAge: 60 * 60 * 24 * 30, // 30 days
   });
 
   cookies.set('sb-refresh-token', refresh_token, {
@@ -40,7 +40,7 @@ export const GET: APIRoute = async ({ url, cookies, redirect, locals }) => {
     httpOnly: true,
     secure: import.meta.env.PROD,
     sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 7,
+    maxAge: 60 * 60 * 24 * 30,
   });
 
   return redirect('/');
