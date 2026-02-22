@@ -25,17 +25,21 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return next();
   }
 
-  const supabase = createServerClient(context.cookies);
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  try {
+    const supabase = createServerClient(context.cookies);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  if (!user) {
+    if (!user) {
+      return context.redirect('/login');
+    }
+
+    (context.locals as unknown as Record<string, unknown>).user = user;
+    (context.locals as unknown as Record<string, unknown>).supabase = supabase;
+
+    return next();
+  } catch {
     return context.redirect('/login');
   }
-
-  (context.locals as unknown as Record<string, unknown>).user = user;
-  (context.locals as unknown as Record<string, unknown>).supabase = supabase;
-
-  return next();
 });
