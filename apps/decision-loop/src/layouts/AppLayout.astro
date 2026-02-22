@@ -21,16 +21,18 @@ function navClass(href: string): string {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⟳</text></svg>" />
     <title>{title}</title>
   </head>
   <body class="min-h-screen bg-neutral-50 text-neutral-900">
-    <nav class="border-b border-neutral-200 bg-white px-6 py-3">
+    <nav class="border-b border-neutral-200 bg-white px-4 py-3 sm:px-6">
       <div class="mx-auto flex max-w-3xl items-center justify-between">
         <a href="/" class="text-lg font-semibold">Decision Loop</a>
-        <div class="flex items-center gap-4 text-sm">
+        <div class="flex items-center gap-2 text-sm sm:gap-4">
           <a href="/" class={navClass('/')}>Today</a>
           <a href="/log" class={navClass('/log')}>Log</a>
           <a href="/releaselog" class={navClass('/releaselog')}>Releases</a>
+          <span class="text-neutral-200">|</span>
           <form method="POST" action="/api/auth/logout">
             <button type="submit" class="text-neutral-400 hover:text-neutral-600">
               Sign out
@@ -39,7 +41,7 @@ function navClass(href: string): string {
         </div>
       </div>
     </nav>
-    <main class="mx-auto max-w-3xl px-6 py-8">
+    <main class="mx-auto max-w-3xl px-4 py-8 sm:px-6">
       <slot />
     </main>
   </body>

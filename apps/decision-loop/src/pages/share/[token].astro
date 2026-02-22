@@ -17,7 +17,7 @@ const { data: lock } = await supabase
   .single();
 
 if (!lock) {
-  return new Response(null, { status: 404 });
+  return Astro.redirect('/404');
 }
 
 const { data: entry } = await supabase
@@ -27,13 +27,27 @@ const { data: entry } = await supabase
   .single();
 
 if (!entry) {
-  return new Response(null, { status: 404 });
+  return Astro.redirect('/404');
 }
+
+const pageTitle = `Decision: ${entry.one_thing} — Decision Loop`;
+const description = lock.decision_text.length > 160
+  ? lock.decision_text.slice(0, 157) + '...'
+  : lock.decision_text;
+const pageUrl = Astro.url.href;
 ---
 
-<PublicLayout title={`Decision: ${entry.one_thing} — Decision Loop`}>
+<PublicLayout title={pageTitle}>
+  <Fragment slot="head">
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content={pageUrl} />
+    <meta name="description" content={description} />
+  </Fragment>
+
   <div class="pt-8">
-    <p class="text-sm text-neutral-400">{entry.date}</p>
+    <p class="text-sm text-neutral-500">{entry.date}</p>
     <h1 class="mt-1 text-2xl font-bold">{entry.one_thing}</h1>
 
     <div class="mt-6 space-y-4">
@@ -58,7 +72,7 @@ if (!entry) {
     </div>
 
     <hr class="my-8 border-neutral-200" />
-    <p class="text-sm text-neutral-400">
+    <p class="text-sm text-neutral-500">
       This decision was shared for review. <a href="https://fyrk.no" class="underline">fyrk.no</a>
     </p>
   </div>
