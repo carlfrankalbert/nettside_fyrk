@@ -1,29 +1,72 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
 
-interface ReleaseEntry {
-  date: string;
+interface ReleaseItem {
   title: string;
-  summary: string;
-  tags: string[];
+  tag: string;
   items: string[];
 }
 
-// Add new entries at the top. Keep it lean.
-const entries: ReleaseEntry[] = [
+interface ReleaseDay {
+  date: string;
+  entries: ReleaseItem[];
+}
+
+// Add new days at the top. Bundle all changes for a day together.
+const days: ReleaseDay[] = [
+  {
+    date: '2026-02-23',
+    entries: [
+      {
+        title: 'Email + password authentication',
+        tag: 'feature',
+        items: [
+          'Replaced magic link with email + password sign-in',
+          'Added sign-up flow with email confirmation',
+          'Extended session duration to 30 days',
+        ],
+      },
+      {
+        title: 'Design polish',
+        tag: 'improvement',
+        items: [
+          'Active nav state shows current page',
+          'Sign out button in navigation',
+          'Loading skeletons instead of blank text',
+          'Focus trap and keyboard support on lock modal',
+          'Export button shows confirmation feedback',
+          'Custom 404 page',
+          'Favicon added',
+          'Open Graph meta tags on shared decisions',
+          'Responsive nav spacing on mobile',
+        ],
+      },
+      {
+        title: 'Bug fixes',
+        tag: 'fix',
+        items: [
+          'Fixed auto-save overwriting text while typing',
+          'Switched all UI text from Norwegian to English',
+          'Improved text contrast for accessibility',
+        ],
+      },
+    ],
+  },
   {
     date: '2026-02-01',
-    title: 'Decision Loop launched',
-    summary: 'First version of Decision Loop — a daily decision journal.',
-    tags: ['feature'],
-    items: [
-      'Daily view with autosave while typing',
-      'Problem clarity with four structured questions',
-      'Lock flow that makes the decision immutable',
-      'Decision log with overview of past decisions',
-      'Sharing via unique link (no login required for recipient)',
-      'Markdown export for archiving',
-      'Email + password authentication via Supabase',
+    entries: [
+      {
+        title: 'Decision Loop launched',
+        tag: 'feature',
+        items: [
+          'Daily view with autosave while typing',
+          'Problem clarity with four structured questions',
+          'Lock flow that makes the decision immutable',
+          'Decision log with overview of past decisions',
+          'Sharing via unique link (no login required for recipient)',
+          'Markdown export for archiving',
+        ],
+      },
     ],
   },
 ];
@@ -42,26 +85,30 @@ function formatDate(dateStr: string): string {
   <h1 class="text-2xl font-bold text-neutral-900">Releases</h1>
   <p class="mt-2 text-sm text-neutral-600">Updates and improvements to Decision Loop.</p>
 
-  <div class="mt-8 space-y-8">
-    {entries.map((entry) => (
-      <article class="border-b border-neutral-200 pb-6 last:border-0">
-        <time class="text-sm text-neutral-500">{formatDate(entry.date)}</time>
-        <h2 class="mt-1 text-lg font-semibold text-neutral-800">{entry.title}</h2>
-        <p class="mt-1 text-sm text-neutral-600">{entry.summary}</p>
-        <div class="mt-2 flex gap-1">
-          {entry.tags.map((tag) => (
-            <span class="rounded bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600">{tag}</span>
+  <div class="mt-8 space-y-10">
+    {days.map((day) => (
+      <section>
+        <time class="text-sm font-medium text-neutral-500">{formatDate(day.date)}</time>
+
+        <div class="mt-3 space-y-4">
+          {day.entries.map((entry) => (
+            <div class="rounded-lg border border-neutral-200 bg-white px-4 py-4">
+              <div class="flex items-center gap-2">
+                <h2 class="text-sm font-semibold text-neutral-800">{entry.title}</h2>
+                <span class="rounded bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600">{entry.tag}</span>
+              </div>
+              <ul class="mt-2 space-y-1 text-sm text-neutral-700">
+                {entry.items.map((item) => (
+                  <li class="flex gap-2">
+                    <span class="text-neutral-400">—</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           ))}
         </div>
-        <ul class="mt-3 space-y-1 text-sm text-neutral-700">
-          {entry.items.map((item) => (
-            <li class="flex gap-2">
-              <span class="text-neutral-500">—</span>
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
-      </article>
+      </section>
     ))}
   </div>
 </AppLayout>
