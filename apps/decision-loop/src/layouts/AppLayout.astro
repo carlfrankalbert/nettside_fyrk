@@ -31,7 +31,6 @@ function navClass(href: string): string {
         <div class="flex items-center gap-2 text-sm sm:gap-4">
           <a href="/" class={navClass('/')}>Today</a>
           <a href="/log" class={navClass('/log')}>Log</a>
-          <a href="/releaselog" class={navClass('/releaselog')}>Releases</a>
           <span class="text-neutral-200">|</span>
           <form method="POST" action="/api/auth/logout">
             <button type="submit" class="text-neutral-400 hover:text-neutral-600">
