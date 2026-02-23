@@ -13,19 +13,28 @@ interface FunnelChartProps {
 }
 
 export function FunnelChart({ title, steps, icon }: FunnelChartProps) {
-  const maxCount = Math.max(...steps.map(s => s.count), 1);
+  // Cap each step so it never exceeds the previous step (handles incomplete historical data)
+  const cappedSteps = steps.map((step, index) => {
+    if (index === 0) return step;
+    const prevCount = steps[index - 1].count;
+    return prevCount > 0 && step.count > prevCount
+      ? { ...step, count: prevCount }
+      : step;
+  });
+
+  const maxCount = Math.max(...cappedSteps.map(s => s.count), 1);
 
   // Calculate conversion rates between steps
-  const stepsWithRates = steps.map((step, index) => {
-    const prevCount = index > 0 ? steps[index - 1].count : step.count;
+  const stepsWithRates = cappedSteps.map((step, index) => {
+    const prevCount = index > 0 ? cappedSteps[index - 1].count : step.count;
     const conversionRate = prevCount > 0 ? (step.count / prevCount) * 100 : 0;
     const dropoffRate = prevCount > 0 ? ((prevCount - step.count) / prevCount) * 100 : 0;
     return { ...step, conversionRate, dropoffRate, prevCount };
   });
 
   // Overall funnel conversion (first to last)
-  const overallConversion = steps.length > 1 && steps[0].count > 0
-    ? ((steps[steps.length - 1].count / steps[0].count) * 100).toFixed(1)
+  const overallConversion = cappedSteps.length > 1 && cappedSteps[0].count > 0
+    ? (Math.min((cappedSteps[cappedSteps.length - 1].count / cappedSteps[0].count) * 100, 100)).toFixed(1)
     : null;
 
   return (
