@@ -1,6 +1,7 @@
-import { MousePointer, Eye, Zap, BarChart3, ExternalLink, Sparkles, ThumbsUp, Lightbulb, Map, FileText, TrendingUp } from 'lucide-react';
+import { MousePointer, Eye, Zap, BarChart3, ExternalLink, Sparkles, ThumbsUp, Lightbulb, Map, FileText, TrendingUp, Globe } from 'lucide-react';
 import { KPICard } from './KPICard';
 import { TrafficChart } from './TrafficChart';
+import { AcquisitionChart } from './AcquisitionChart';
 import { ButtonClickList } from './ButtonClickList';
 import { FunnelChart } from './FunnelChart';
 import { HourlyDistributionChart } from './HourlyDistributionChart';
@@ -303,6 +304,15 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
               <TrafficChart key={pageId} pageId={pageId} stats={stats} globalPeriod={period} />
             ))}
           </div>
+        </CollapsibleSection>
+
+        {/* Acquisition */}
+        <CollapsibleSection
+          id="acquisition"
+          title={<Tooltip text={METRIC_EXPLANATIONS.acquisition}>Anskaffelse</Tooltip>}
+          icon={<Globe className="w-5 h-5" />}
+        >
+          <AcquisitionChart globalPeriod={period} />
         </CollapsibleSection>
 
         {/* Buttons */}

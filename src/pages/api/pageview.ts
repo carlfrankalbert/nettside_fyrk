@@ -18,6 +18,22 @@ const API_HEADERS = {
 const MAX_UNIQUE_VISITORS_PER_DAY = 10000;
 
 /**
+ * Maximum unique referrer/UTM values per day per page
+ * Prevents unbounded object growth from spoofed values
+ */
+const MAX_ACQUISITION_ENTRIES = 500;
+
+/**
+ * Aggregated acquisition data stored per page per day
+ */
+interface AcquisitionData {
+  referrers: Record<string, number>;
+  sources: Record<string, number>;
+  mediums: Record<string, number>;
+  campaigns: Record<string, number>;
+}
+
+/**
  * Valid page IDs for tracking
  */
 export const TRACKED_PAGES = {
@@ -59,11 +75,84 @@ async function sha256Hash(str: string): Promise<string> {
 }
 
 /**
+ * Sanitize a referrer hostname: only allow valid domain characters
+ */
+function sanitizeReferrer(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  const cleaned = value.toLowerCase().replace(/[^a-z0-9.-]/g, '').slice(0, 253);
+  // Must contain at least one dot (valid domain)
+  return cleaned.includes('.') ? cleaned : undefined;
+}
+
+/**
+ * Sanitize a UTM parameter value: allow common campaign tag characters
+ */
+function sanitizeUtmValue(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  const cleaned = value.toLowerCase().replace(/[^a-z0-9_.+\s-]/g, '').trim().slice(0, 200);
+  return cleaned || undefined;
+}
+
+/**
+ * Increment a count in an acquisition field, respecting the entry cap
+ */
+function incrementField(
+  field: Record<string, number>,
+  key: string | undefined,
+): void {
+  if (!key) return;
+  if (key in field) {
+    field[key]++;
+  } else if (Object.keys(field).length < MAX_ACQUISITION_ENTRIES) {
+    field[key] = 1;
+  }
+}
+
+/**
+ * Store acquisition data (referrer + UTM) aggregated per page per day
+ */
+async function storeAcquisitionData(
+  kv: KVNamespace,
+  pageId: PageId,
+  dateKey: string,
+  data: { referrer?: string; utmSource?: string; utmMedium?: string; utmCampaign?: string },
+): Promise<void> {
+  const referrer = sanitizeReferrer(data.referrer);
+  const source = sanitizeUtmValue(data.utmSource);
+  const medium = sanitizeUtmValue(data.utmMedium);
+  const campaign = sanitizeUtmValue(data.utmCampaign);
+
+  // Skip if nothing to store
+  if (!referrer && !source && !medium && !campaign) return;
+
+  const key = `acquisition:${pageId}:${dateKey}`;
+  const existing = await kv.get(key);
+
+  let acquisition: AcquisitionData;
+  try {
+    acquisition = existing
+      ? JSON.parse(existing)
+      : { referrers: {}, sources: {}, mediums: {}, campaigns: {} };
+  } catch {
+    acquisition = { referrers: {}, sources: {}, mediums: {}, campaigns: {} };
+  }
+
+  incrementField(acquisition.referrers, referrer);
+  incrementField(acquisition.sources, source);
+  incrementField(acquisition.mediums, medium);
+  incrementField(acquisition.campaigns, campaign);
+
+  await kv.put(key, JSON.stringify(acquisition), {
+    expirationTtl: 400 * 24 * 60 * 60,
+  });
+}
+
+/**
  * POST /api/pageview
  * Tracks page views and unique visitors.
  * Uses Cloudflare KV for storage - no cookies, no personal data stored.
  *
- * Request body: { pageId: string }
+ * Request body: { pageId: string, referrer?: string, utmSource?: string, utmMedium?: string, utmCampaign?: string }
  */
 export const POST: APIRoute = async ({ locals, request }) => {
   try {
@@ -86,16 +175,25 @@ export const POST: APIRoute = async ({ locals, request }) => {
     }
 
     // Parse and verify signed request
+    interface PageViewBody {
+      pageId?: string;
+      referrer?: string;
+      utmSource?: string;
+      utmMedium?: string;
+      utmCampaign?: string;
+    }
+
     let pageId: PageId = 'home';
+    let acquisitionFields: Omit<PageViewBody, 'pageId'> = {};
     try {
       const rawBody = await request.json() as {
-        payload?: { pageId?: string };
+        payload?: PageViewBody;
         _ts?: number;
         _sig?: string;
       };
 
       // Verify request signature
-      const verification = verifySignedRequest<{ pageId?: string }>(rawBody);
+      const verification = verifySignedRequest<PageViewBody>(rawBody);
 
       if (!verification.isValid) {
         return new Response(
@@ -108,6 +206,13 @@ export const POST: APIRoute = async ({ locals, request }) => {
       if (body.pageId && body.pageId in TRACKED_PAGES) {
         pageId = body.pageId as PageId;
       }
+
+      acquisitionFields = {
+        referrer: body.referrer,
+        utmSource: body.utmSource,
+        utmMedium: body.utmMedium,
+        utmCampaign: body.utmCampaign,
+      };
     } catch {
       // No body or invalid JSON - use default
     }
@@ -174,6 +279,9 @@ export const POST: APIRoute = async ({ locals, request }) => {
       await kv.put(totalVisitorsKey, String(newTotalVisitors));
     }
 
+    // Store acquisition data (referrer + UTM) - non-blocking for the response
+    await storeAcquisitionData(kv, pageId, dateKey, acquisitionFields);
+
     return new Response(
       JSON.stringify({ success: true, pageId, views: newTotal, isNewVisitor }),
       { status: 200, headers: API_HEADERS }
@@ -208,6 +316,7 @@ type TimePeriod = keyof typeof TIME_PERIODS;
  * - pageId: (optional) specific page to get stats for
  * - all: (optional) if 'true', returns stats for all pages
  * - timeseries: (optional) if 'true', returns time-series data
+ * - acquisition: (optional) if 'true', returns referrer/UTM data
  * - period: (optional) time period: '24h', 'week', 'month', 'year', 'all'
  */
 export const GET: APIRoute = async ({ locals, url }) => {
@@ -225,7 +334,17 @@ export const GET: APIRoute = async ({ locals, url }) => {
     const pageId = url.searchParams.get('pageId') as PageId | null;
     const getAll = url.searchParams.get('all') === 'true';
     const getTimeseries = url.searchParams.get('timeseries') === 'true';
+    const getAcquisition = url.searchParams.get('acquisition') === 'true';
     const period = (url.searchParams.get('period') || '24h') as TimePeriod;
+
+    // Get acquisition data (referrer + UTM) for a specific page
+    if (getAcquisition && pageId && pageId in TRACKED_PAGES) {
+      const acquisition = await getAcquisitionData(kv, pageId, period);
+      return new Response(
+        JSON.stringify({ pageId, acquisition, period }),
+        { status: 200, headers: API_HEADERS }
+      );
+    }
 
     // Get time-series data for a specific page
     if (getTimeseries && pageId && pageId in TRACKED_PAGES) {
@@ -469,4 +588,57 @@ async function getVisitorsTimeseriesData(
   }
 
   return data;
+}
+
+/**
+ * Merge acquisition counts from one day into an accumulator
+ */
+function mergeAcquisitionData(target: AcquisitionData, source: AcquisitionData): void {
+  for (const [key, count] of Object.entries(source.referrers)) {
+    target.referrers[key] = (target.referrers[key] || 0) + count;
+  }
+  for (const [key, count] of Object.entries(source.sources)) {
+    target.sources[key] = (target.sources[key] || 0) + count;
+  }
+  for (const [key, count] of Object.entries(source.mediums)) {
+    target.mediums[key] = (target.mediums[key] || 0) + count;
+  }
+  for (const [key, count] of Object.entries(source.campaigns)) {
+    target.campaigns[key] = (target.campaigns[key] || 0) + count;
+  }
+}
+
+/**
+ * Fetch acquisition data (referrer + UTM) aggregated across a time period
+ */
+async function getAcquisitionData(
+  kv: KVNamespace,
+  pageId: PageId,
+  period: TimePeriod,
+): Promise<AcquisitionData> {
+  const now = Date.now();
+  const result: AcquisitionData = { referrers: {}, sources: {}, mediums: {}, campaigns: {} };
+
+  const days = period === '24h' ? 1
+    : period === 'week' ? 7
+    : period === 'month' ? 30
+    : period === 'year' ? 365
+    : 730;
+
+  for (let i = 0; i < days; i++) {
+    const time = now - i * 24 * 60 * 60 * 1000;
+    const dateKey = getDateKey(time);
+    const key = `acquisition:${pageId}:${dateKey}`;
+    const data = await kv.get(key);
+
+    if (data) {
+      try {
+        mergeAcquisitionData(result, JSON.parse(data));
+      } catch {
+        // Skip corrupt entries
+      }
+    }
+  }
+
+  return result;
 }

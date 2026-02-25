@@ -47,6 +47,7 @@ export const METRIC_EXPLANATIONS = {
   uniqueSessions: 'Antall separate brukerøkter (en økt varer til 30 min inaktivitet).',
   hourlyActivity: 'Når på døgnet brukerne er mest aktive. Tidene er i UTC (+1 time for norsk vintertid, +2 for sommertid).',
   funnel: 'Viser brukerreisen steg for steg. Grønn = over 70% går videre (bra), gul = 40-70% (ok), rød = under 40% (flaskehals).',
+  acquisition: 'Hvor besøkende kommer fra. Viser eksterne henvisere og UTM-parametere fra kampanjelenker (utm_source, utm_medium, utm_campaign).',
 } as const;
 
 /** Threshold definitions for KPI cards */

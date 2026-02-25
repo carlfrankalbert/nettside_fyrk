@@ -1,6 +1,7 @@
 export { AnalyticsDashboard } from './AnalyticsDashboard';
 export { KPICard } from './KPICard';
 export { TrafficChart } from './TrafficChart';
+export { AcquisitionChart } from './AcquisitionChart';
 export { ButtonClickList } from './ButtonClickList';
 export { FunnelChart } from './FunnelChart';
 export { HourlyDistributionChart } from './HourlyDistributionChart';
