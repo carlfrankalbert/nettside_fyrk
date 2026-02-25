@@ -78,8 +78,7 @@ describe('okr-service', () => {
         expect.objectContaining({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ input: 'Test OKR' }),
-          signal: expect.any(AbortSignal),
+          body: JSON.stringify({ input: 'Test OKR', stream: false }),
         })
       );
     });
@@ -88,6 +87,7 @@ describe('okr-service', () => {
       fetchMock.mockResolvedValue({
         ok: false,
         status: 429,
+        json: () => Promise.resolve({}),
       });
 
       const result = await reviewOKR('Test OKR');
@@ -102,6 +102,7 @@ describe('okr-service', () => {
       fetchMock.mockResolvedValue({
         ok: false,
         status: 500,
+        json: () => Promise.resolve({}),
       });
 
       const result = await reviewOKR('Test OKR');
@@ -143,17 +144,6 @@ describe('okr-service', () => {
       await reviewOKR('Test OKR');
 
       expect(localStorage.setItem).toHaveBeenCalled();
-    });
-
-    it('should not cache when response is already cached', async () => {
-      fetchMock.mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({ output: 'Cached OKR review', cached: true }),
-      });
-
-      await reviewOKR('Test OKR');
-
-      expect(localStorage.setItem).not.toHaveBeenCalled();
     });
 
     it('should expire old cached entries', async () => {

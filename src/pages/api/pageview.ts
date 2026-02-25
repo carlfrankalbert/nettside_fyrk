@@ -9,14 +9,17 @@ import {
   emptyAcquisitionData,
   type AcquisitionData,
 } from '../../utils/acquisition';
+import {
+  API_HEADERS,
+  getDateKey,
+  getHourKey,
+  MONTH_NAMES,
+  TIME_PERIODS,
+  fetchCountTimeseries,
+  type TimePeriod,
+} from '../../utils/analytics-helpers';
 
 export const prerender = false;
-
-/** Standard headers for API responses - prevents CDN caching of dynamic data */
-const API_HEADERS = {
-  'Content-Type': 'application/json',
-  'Cache-Control': 'no-store',
-};
 
 /**
  * Maximum unique visitors to track per day per page
@@ -38,21 +41,6 @@ export const TRACKED_PAGES = {
 } as const;
 
 export type PageId = keyof typeof TRACKED_PAGES;
-
-/**
- * Get the date string for a timestamp (YYYY-MM-DD)
- */
-function getDateKey(timestamp: number): string {
-  return new Date(timestamp).toISOString().split('T')[0];
-}
-
-/**
- * Get the hour key for a timestamp (YYYY-MM-DD-HH)
- */
-function getHourKey(timestamp: number): string {
-  const date = new Date(timestamp);
-  return `${date.toISOString().split('T')[0]}-${String(date.getUTCHours()).padStart(2, '0')}`;
-}
 
 /**
  * Create a SHA-256 hash of a string (for anonymous visitor tracking)
@@ -253,19 +241,6 @@ export const POST: APIRoute = async ({ locals, request }) => {
 };
 
 /**
- * Time period definitions
- */
-const TIME_PERIODS = {
-  '24h': { hours: 24, granularity: 'hourly' as const },
-  'week': { hours: 24 * 7, granularity: 'daily' as const },
-  'month': { hours: 24 * 30, granularity: 'daily' as const },
-  'year': { hours: 24 * 365, granularity: 'monthly' as const },
-  'all': { hours: 24 * 365 * 2, granularity: 'monthly' as const },
-} as const;
-
-type TimePeriod = keyof typeof TIME_PERIODS;
-
-/**
  * GET /api/pageview
  * Returns page view and visitor statistics.
  *
@@ -305,7 +280,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
 
     // Get time-series data for a specific page
     if (getTimeseries && pageId && pageId in TRACKED_PAGES) {
-      const timeseries = await getTimeseriesData(kv, pageId, period);
+      const timeseries = await fetchCountTimeseries(kv, 'pageviews', 'pageviews_daily', pageId, period);
       const visitorsTimeseries = await getVisitorsTimeseriesData(kv, pageId, period);
       return new Response(
         JSON.stringify({ pageId, timeseries, visitorsTimeseries, period }),
@@ -395,71 +370,6 @@ export const GET: APIRoute = async ({ locals, url }) => {
 };
 
 /**
- * Fetch page view time-series data
- */
-async function getTimeseriesData(
-  kv: KVNamespace,
-  pageId: PageId,
-  period: TimePeriod
-): Promise<{ label: string; value: number }[]> {
-  const config = TIME_PERIODS[period];
-  const now = Date.now();
-  const data: { label: string; value: number }[] = [];
-
-  if (config.granularity === 'hourly') {
-    for (let i = 0; i < 24; i++) {
-      const time = now - (23 - i) * 60 * 60 * 1000;
-      const hourKey = getHourKey(time);
-      const key = `pageviews:${pageId}:${hourKey}`;
-      const count = await kv.get(key);
-      const date = new Date(time);
-      data.push({
-        label: `${String(date.getHours()).padStart(2, '0')}:00`,
-        value: parseInt(count || '0', 10) || 0,
-      });
-    }
-  } else if (config.granularity === 'daily') {
-    const days = period === 'week' ? 7 : 30;
-    for (let i = 0; i < days; i++) {
-      const time = now - (days - 1 - i) * 24 * 60 * 60 * 1000;
-      const dateKey = getDateKey(time);
-      const key = `pageviews_daily:${pageId}:${dateKey}`;
-      const count = await kv.get(key);
-      const date = new Date(time);
-      data.push({
-        label: `${date.getDate()}/${date.getMonth() + 1}`,
-        value: parseInt(count || '0', 10) || 0,
-      });
-    }
-  } else if (config.granularity === 'monthly') {
-    const months = period === 'year' ? 12 : 24;
-    for (let i = 0; i < months; i++) {
-      const monthDate = new Date(now);
-      monthDate.setMonth(monthDate.getMonth() - (months - 1 - i));
-      const year = monthDate.getFullYear();
-      const month = monthDate.getMonth();
-
-      let monthTotal = 0;
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const key = `pageviews_daily:${pageId}:${dateKey}`;
-        const count = await kv.get(key);
-        monthTotal += parseInt(count || '0', 10) || 0;
-      }
-
-      const monthNames = ['jan', 'feb', 'mar', 'apr', 'mai', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'des'];
-      data.push({
-        label: `${monthNames[month]} ${year.toString().slice(2)}`,
-        value: monthTotal,
-      });
-    }
-  }
-
-  return data;
-}
-
-/**
  * Fetch unique visitors time-series data
  */
 async function getVisitorsTimeseriesData(
@@ -536,9 +446,8 @@ async function getVisitorsTimeseriesData(
         }
       }
 
-      const monthNames = ['jan', 'feb', 'mar', 'apr', 'mai', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'des'];
       data.push({
-        label: `${monthNames[month]} ${year.toString().slice(2)}`,
+        label: `${MONTH_NAMES[month]} ${year.toString().slice(2)}`,
         value: uniqueVisitors.size,
       });
     }

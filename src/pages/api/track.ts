@@ -1,14 +1,9 @@
 import type { APIRoute } from 'astro';
 import { shouldExcludeRequest } from '../../utils/tracking-exclusion';
 import { verifySignedRequest } from '../../utils/request-signing';
+import { API_HEADERS, getDateKey, getHourKey, fetchCountTimeseries, type TimePeriod } from '../../utils/analytics-helpers';
 
 export const prerender = false;
-
-/** Standard headers for API responses - prevents CDN caching of dynamic data */
-const API_HEADERS = {
-  'Content-Type': 'application/json',
-  'Cache-Control': 'no-store',
-};
 
 /**
  * Valid button IDs for tracking
@@ -98,21 +93,6 @@ export type ButtonId = keyof typeof TRACKED_BUTTONS;
 
 // Legacy key for backwards compatibility
 const LEGACY_KV_KEY = 'okr_button_clicks';
-
-/**
- * Get the date string for a timestamp (YYYY-MM-DD)
- */
-function getDateKey(timestamp: number): string {
-  return new Date(timestamp).toISOString().split('T')[0];
-}
-
-/**
- * Get the hour key for a timestamp (YYYY-MM-DD-HH)
- */
-function getHourKey(timestamp: number): string {
-  const date = new Date(timestamp);
-  return `${date.toISOString().split('T')[0]}-${String(date.getUTCHours()).padStart(2, '0')}`;
-}
 
 /**
  * Error types for analytics categorization
@@ -344,19 +324,6 @@ export const POST: APIRoute = async ({ locals, request }) => {
 };
 
 /**
- * Time period definitions for chart queries
- */
-export const TIME_PERIODS = {
-  '24h': { hours: 24, granularity: 'hourly' as const },
-  'week': { hours: 24 * 7, granularity: 'daily' as const },
-  'month': { hours: 24 * 30, granularity: 'daily' as const },
-  'year': { hours: 24 * 365, granularity: 'monthly' as const },
-  'all': { hours: 24 * 365 * 2, granularity: 'monthly' as const },
-} as const;
-
-export type TimePeriod = keyof typeof TIME_PERIODS;
-
-/**
  * GET /api/track
  * Returns click counts for all tracked buttons or a specific button.
  * Can also return time-series data for charts.
@@ -386,7 +353,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
 
     // Get time-series data for a specific button
     if (getTimeseries && buttonId && buttonId in TRACKED_BUTTONS) {
-      const timeseries = await getTimeseriesData(kv, buttonId, period);
+      const timeseries = await fetchCountTimeseries(kv, 'clicks', 'clicks_daily', buttonId, period);
       return new Response(
         JSON.stringify({ buttonId, timeseries, period }),
         { status: 200, headers: API_HEADERS }
@@ -442,99 +409,3 @@ export const GET: APIRoute = async ({ locals, url }) => {
   }
 };
 
-/**
- * Fetch time-series data for a button (optimized with parallel fetches)
- */
-async function getTimeseriesData(
-  kv: KVNamespace,
-  buttonId: ButtonId,
-  period: TimePeriod
-): Promise<{ label: string; value: number }[]> {
-  const config = TIME_PERIODS[period];
-  const now = Date.now();
-
-  if (config.granularity === 'hourly') {
-    // Prepare keys and labels for hourly data
-    const entries: { key: string; label: string }[] = [];
-    for (let i = 0; i < 24; i++) {
-      const time = now - (23 - i) * 60 * 60 * 1000;
-      const hourKey = getHourKey(time);
-      const date = new Date(time);
-      entries.push({
-        key: `clicks:${buttonId}:${hourKey}`,
-        label: `${String(date.getHours()).padStart(2, '0')}:00`,
-      });
-    }
-
-    // Fetch all in parallel
-    const counts = await Promise.all(entries.map(e => kv.get(e.key)));
-
-    return entries.map((entry, i) => ({
-      label: entry.label,
-      value: parseInt(counts[i] || '0', 10) || 0,
-    }));
-  }
-
-  if (config.granularity === 'daily') {
-    // Prepare keys and labels for daily data
-    const days = period === 'week' ? 7 : 30;
-    const entries: { key: string; label: string }[] = [];
-    for (let i = 0; i < days; i++) {
-      const time = now - (days - 1 - i) * 24 * 60 * 60 * 1000;
-      const dateKey = getDateKey(time);
-      const date = new Date(time);
-      entries.push({
-        key: `clicks_daily:${buttonId}:${dateKey}`,
-        label: `${date.getDate()}/${date.getMonth() + 1}`,
-      });
-    }
-
-    // Fetch all in parallel
-    const counts = await Promise.all(entries.map(e => kv.get(e.key)));
-
-    return entries.map((entry, i) => ({
-      label: entry.label,
-      value: parseInt(counts[i] || '0', 10) || 0,
-    }));
-  }
-
-  // Monthly granularity - need to aggregate daily data
-  const months = period === 'year' ? 12 : 24;
-  const monthNames = ['jan', 'feb', 'mar', 'apr', 'mai', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'des'];
-
-  // Collect all daily keys needed for all months
-  const allDayKeys: { monthIndex: number; key: string }[] = [];
-  const monthLabels: string[] = [];
-
-  for (let i = 0; i < months; i++) {
-    const monthDate = new Date(now);
-    monthDate.setMonth(monthDate.getMonth() - (months - 1 - i));
-    const year = monthDate.getFullYear();
-    const month = monthDate.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    monthLabels.push(`${monthNames[month]} ${year.toString().slice(2)}`);
-
-    for (let day = 1; day <= daysInMonth; day++) {
-      const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      allDayKeys.push({
-        monthIndex: i,
-        key: `clicks_daily:${buttonId}:${dateKey}`,
-      });
-    }
-  }
-
-  // Fetch all daily counts in parallel
-  const dailyCounts = await Promise.all(allDayKeys.map(d => kv.get(d.key)));
-
-  // Aggregate by month
-  const monthTotals = new Array(months).fill(0);
-  dailyCounts.forEach((count, i) => {
-    monthTotals[allDayKeys[i].monthIndex] += parseInt(count || '0', 10) || 0;
-  });
-
-  return monthLabels.map((label, i) => ({
-    label,
-    value: monthTotals[i],
-  }));
-}

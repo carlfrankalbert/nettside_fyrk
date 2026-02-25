@@ -8,12 +8,7 @@ import {
   type FeatureToggle,
   type FeatureStatus,
 } from '../../utils/feature-toggles';
-
-/** Standard headers for API responses - prevents CDN caching of dynamic data */
-const API_HEADERS = {
-  'Content-Type': 'application/json',
-  'Cache-Control': 'no-store',
-};
+import { API_HEADERS } from '../../utils/analytics-helpers';
 
 /**
  * Validates that the request origin matches the expected host (CSRF protection)

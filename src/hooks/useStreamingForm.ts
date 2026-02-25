@@ -58,6 +58,11 @@ export interface UseStreamingFormConfig {
     TIMEOUT: string;
     INVALID_OUTPUT: string;
   };
+  /** Provide input from an external source (e.g., multi-field form) instead of internal state.
+   *  When set, internal validateInput is skipped — caller must validate before calling handleSubmit. */
+  getExternalInput?: () => string;
+  /** Override the hard timeout in ms (default: 45 000) */
+  timeoutMs?: number;
 }
 
 export interface UseStreamingFormReturn {
@@ -91,7 +96,8 @@ export interface UseStreamingFormReturn {
 // ============================================================================
 
 export function useStreamingForm(config: UseStreamingFormConfig): UseStreamingFormReturn {
-  const { toolName, validateInput, streamingService, isValidOutput, errorMessages } = config;
+  const { toolName, validateInput, streamingService, isValidOutput, errorMessages, getExternalInput, timeoutMs } = config;
+  const timeoutDuration = timeoutMs ?? HARD_TIMEOUT_MS;
 
   // ---------------------------------------------------------------------------
   // State
@@ -155,12 +161,17 @@ export function useStreamingForm(config: UseStreamingFormConfig): UseStreamingFo
     if (isSubmittingRef.current || loading) return;
     isSubmittingRef.current = true;
 
-    // Validate input
-    const validationError = validateInput(input);
-    if (validationError) {
-      setErrorWithType(validationError, 'validation');
-      isSubmittingRef.current = false;
-      return;
+    // Resolve input: external source (multi-field form) or internal state
+    const effectiveInput = getExternalInput ? getExternalInput() : input;
+
+    // Validate input (skip when external — caller validates before calling handleSubmit)
+    if (!getExternalInput) {
+      const validationError = validateInput(effectiveInput);
+      if (validationError) {
+        setErrorWithType(validationError, 'validation');
+        isSubmittingRef.current = false;
+        return;
+      }
     }
 
     // Track submission
@@ -171,7 +182,7 @@ export function useStreamingForm(config: UseStreamingFormConfig): UseStreamingFo
     checkStartTimeRef.current = Date.now();
 
     // Save submitted input
-    setSubmittedInput(input.trim());
+    setSubmittedInput(effectiveInput.trim());
 
     // Reset state
     setLoading(true);
@@ -196,15 +207,15 @@ export function useStreamingForm(config: UseStreamingFormConfig): UseStreamingFo
       abortControllerRef.current = null;
       isSubmittingRef.current = false;
       logEvent(`${toolName}_error`, {
-        charCount: input.trim().length,
+        charCount: effectiveInput.trim().length,
         processingTimeMs: Date.now() - checkStartTimeRef.current,
       });
-    }, HARD_TIMEOUT_MS);
+    }, timeoutDuration);
 
     let finalResult = '';
 
     await streamingService(
-      input.trim(),
+      effectiveInput.trim(),
       // onChunk
       (chunk) => {
         finalResult += chunk;
@@ -223,7 +234,7 @@ export function useStreamingForm(config: UseStreamingFormConfig): UseStreamingFo
           setResult(null);
           abortControllerRef.current = null;
           logEvent(`${toolName}_error`, {
-            charCount: input.trim().length,
+            charCount: effectiveInput.trim().length,
             processingTimeMs: Date.now() - checkStartTimeRef.current,
           });
           return;
@@ -232,7 +243,7 @@ export function useStreamingForm(config: UseStreamingFormConfig): UseStreamingFo
         // Track success
         const processingTimeMs = Date.now() - checkStartTimeRef.current;
         logEvent(`${toolName}_success`, {
-          charCount: input.trim().length,
+          charCount: effectiveInput.trim().length,
           processingTimeMs,
         });
 
@@ -251,7 +262,7 @@ export function useStreamingForm(config: UseStreamingFormConfig): UseStreamingFo
         setLoading(false);
         setIsStreaming(false);
         logEvent(`${toolName}_error`, {
-          charCount: input.trim().length,
+          charCount: effectiveInput.trim().length,
           processingTimeMs: Date.now() - checkStartTimeRef.current,
         });
         setResult(null);
@@ -259,7 +270,7 @@ export function useStreamingForm(config: UseStreamingFormConfig): UseStreamingFo
       },
       abortControllerRef.current.signal
     );
-  }, [input, loading, toolName, validateInput, streamingService, isValidOutput, errorMessages, clearTimeouts, setErrorWithType]);
+  }, [input, loading, toolName, validateInput, streamingService, isValidOutput, errorMessages, getExternalInput, timeoutDuration, clearTimeouts, setErrorWithType]);
 
   // ---------------------------------------------------------------------------
   // Return

@@ -36,7 +36,6 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.72.1",
     "@astrojs/cloudflare": "^12.6.12",
     "@astrojs/react": "^4.0.0",
     "@astrojs/sitemap": "^3.7.0",
@@ -48,6 +47,7 @@
     "recharts": "^3.6.0"
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "^0.72.1",
     "@astrojs/check": "^0.9.6",
     "@astrojs/tailwind": "^5.1.0",
     "@axe-core/playwright": "^4.11.0",

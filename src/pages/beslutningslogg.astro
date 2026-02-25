@@ -38,31 +38,15 @@ const { seo, toolName, breadcrumbLabel, showClaude, h1, badge, subtitle, tagline
 <script>
   import { initPageViewTracking } from '../scripts/pageview-tracking';
   import { initTrackingHelpers } from '../scripts/tracking-exclusion';
+  import { initMobileCTA } from '../scripts/mobile-cta';
   initPageViewTracking('beslutningslogg');
   initTrackingHelpers();
-
-  // Sync mobile CTA with main form
-  const mobileBtn = document.getElementById('mobile-generate-btn') as HTMLButtonElement | null;
-  const mobileCTABar = document.getElementById('mobile-cta-bar');
-
-  if (mobileBtn && mobileCTABar) {
-    // Listen for custom events from React component
-    window.addEventListener('beslutningslogg:inputChange', ((e: CustomEvent) => {
-      const { isValid, hasPreview } = e.detail;
-      mobileBtn.disabled = !isValid;
-
-      // Hide bar when preview is shown
-      if (hasPreview) {
-        mobileCTABar.classList.add('translate-y-full');
-      } else {
-        mobileCTABar.classList.remove('translate-y-full');
-      }
-    }) as EventListener);
-
-    // Forward click to main form
-    mobileBtn.addEventListener('click', () => {
-      window.dispatchEvent(new CustomEvent('beslutningslogg:generate'));
-    });
-  }
-
+  initMobileCTA({
+    toolName: 'beslutningslogg',
+    buttonId: 'mobile-generate-btn',
+    submitEvent: 'beslutningslogg:generate',
+    isDisabled: (d) => !d.isValid,
+    hideField: 'hasPreview',
+    defaultHtml: '',
+  });
 </script>

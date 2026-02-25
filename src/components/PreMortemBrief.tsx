@@ -1,37 +1,64 @@
-import { useCallback } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 import PreMortemResultDisplay from './PreMortemResultDisplay';
 import { FormField, FormTextarea, FormSelect, FormInput } from './form';
 import { SpinnerIcon, ErrorIcon } from './ui/Icon';
 import { PrivacyAccordion } from './ui/PrivacyAccordion';
-import { PRE_MORTEM_VALIDATION } from '../utils/constants';
+import { PRE_MORTEM_VALIDATION, STREAMING_CONSTANTS } from '../utils/constants';
 import {
   usePreMortemForm,
   useMobileSync,
 } from '../hooks/usePreMortemForm';
 import { preMortemTool } from '../data/tools';
+import { useStreamingForm } from '../hooks/useStreamingForm';
+import { generatePreMortemStreaming, isValidOutput, ERROR_MESSAGES } from '../services/pre-mortem-service';
 
 const { selectOptions, ui } = preMortemTool;
 const { bransje: BRANSJE_OPTIONS, risikoniva: RISIKONIVA_OPTIONS, kundetype: KUNDETYPE_OPTIONS, konfidensialitet: KONFIDENSIALITET_OPTIONS } = selectOptions;
-import { usePreMortemStreaming } from '../hooks/usePreMortemStreaming';
 
 /**
  * Main Pre-Mortem Brief component
  */
 export default function PreMortemBrief() {
-  // Streaming state and actions
-  const streaming = usePreMortemStreaming();
+  // Refs to break circular dependency: form needs streaming.clearError, streaming needs form.serializeForm
+  const clearErrorRef = useRef<() => void>(() => {});
+  const serializeFormRef = useRef<() => string>(() => '');
 
   // Form state and actions
-  const form = usePreMortemForm(streaming.clearError);
+  const form = usePreMortemForm(() => clearErrorRef.current());
+  serializeFormRef.current = form.serializeForm;
 
-  // Handle form submission
+  // Streaming state and actions — uses external input from multi-field form
+  const streaming = useStreamingForm({
+    toolName: 'premortem',
+    validateInput: () => null, // validation handled externally via form.validateForm()
+    streamingService: generatePreMortemStreaming,
+    isValidOutput,
+    errorMessages: ERROR_MESSAGES,
+    getExternalInput: () => serializeFormRef.current(),
+    timeoutMs: STREAMING_CONSTANTS.PRE_MORTEM_TIMEOUT_MS,
+  });
+  clearErrorRef.current = streaming.clearError;
+
+  // Scroll to result when streaming completes
+  const resultRef = useRef<HTMLDivElement>(null);
+  const wasStreamingRef = useRef(false);
+  useEffect(() => {
+    if (wasStreamingRef.current && !streaming.isStreaming && streaming.result) {
+      setTimeout(() => {
+        resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+    wasStreamingRef.current = streaming.isStreaming;
+  }, [streaming.isStreaming, streaming.result]);
+
+  // Handle form submission — validate externally, then delegate to streaming hook
   const handleSubmit = useCallback(() => {
     const validationError = form.validateForm();
     if (validationError) {
-      streaming.setError(validationError);
+      streaming.setErrorWithType(validationError, 'validation');
       return;
     }
-    streaming.submit(form.serializeForm());
+    streaming.handleSubmit();
   }, [form, streaming]);
 
   // Handle combined reset
@@ -273,7 +300,7 @@ export default function PreMortemBrief() {
 
       {/* Result display */}
       <div
-        ref={streaming.resultRef}
+        ref={resultRef}
         aria-live="polite"
         aria-atomic="false"
         role="region"
