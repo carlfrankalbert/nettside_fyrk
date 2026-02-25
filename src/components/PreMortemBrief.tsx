@@ -65,6 +65,10 @@ export default function PreMortemBrief() {
   const handleReset = useCallback(() => {
     form.resetForm();
     streaming.reset();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      document.getElementById('beslutning')?.focus();
+    }, 100);
   }, [form, streaming]);
 
   // Mobile CTA bar sync
