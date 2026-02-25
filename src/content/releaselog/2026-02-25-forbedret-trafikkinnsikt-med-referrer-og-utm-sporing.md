@@ -1,18 +1,15 @@
 ---
-title: "Forbedret trafikkinnsikt med referrer- og UTM-sporing"
+title: "Forbedret trafikkinnsikt i stats-dashboard"
 date: 2026-02-25
-summary: "Ny funksjonalitet som sporer hvor besøkende kommer fra og hvilke kampanjer som driver trafikk."
+summary: "Internt dashboard viser nå referrer-kilder og UTM-parametere for bedre innsikt i trafikkmønster."
 tags: ["feature"]
-audience: "user-facing"
+audience: "internal"
 draft: false
 ---
 
 ### Ny anskaffelsesanalyse
-Dashboardet viser nå hvor trafikken kommer fra. Du får innsikt i:
-- **Referrere** — hvilke eksterne nettsteder som sender besøkende til deg
+Stats-dashboardet viser nå hvor trafikken kommer fra med to nye visninger:
+- **Referrere** — hvilke eksterne nettsteder som sender besøkende
 - **UTM-parametere** — hvilke kampanjer, kanaler og kilder som driver trafikk
 
-Dataene presenteres med visuelle grafer som gjør det enkelt å identifisere dine viktigste trafikkilder.
-
-### Automatisk sporing
-Referrer- og kampanjeparametere blir nå automatisk registrert på hver sidevisning, slik at du får komplett innsikt i brukerenes opprinnelse uten ekstra oppsett.
+Referrer- og kampanjeparametere registreres automatisk på hver sidevisning.
