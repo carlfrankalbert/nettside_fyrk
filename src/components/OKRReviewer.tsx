@@ -58,12 +58,14 @@ export default function OKRReviewer() {
   };
 
   const handleClearResult = () => {
-    // Track button click
     trackClick('okr_reset');
-
     setResult(null);
     setError(null);
     setInput('');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      textareaRef.current?.focus();
+    }, 100);
   };
 
   const handleSubmit = useCallback(async () => {
