@@ -61,8 +61,10 @@ function buildPrompt(pr: ReturnType<typeof getPRData>): string {
   const labels = pr.labels.map((l) => l.name).join(', ') || 'none';
   const files = pr.files.map((f) => `  ${f.path} (+${f.additions}/-${f.deletions})`).join('\n');
 
-  return `You are writing a release note for a Norwegian consulting website (FYRK).
-Write in Norwegian (bokmål). Be concise and user-focused.
+  return `You are writing a release note for fyrk.no — the main FYRK consulting website.
+This is NOT Decision Loop (loop.fyrk.no) — that is a separate product in a separate repo.
+All tools in this repo (OKR-sjekken, Konseptspeilet, Antakelseskart, Pre-Mortem Brief, Beslutningslogg) belong to fyrk.no.
+Write in Norwegian (bokmål). Be concise and user-focused — describe the effect on the user, not the implementation.
 
 PR title: ${pr.title}
 PR body:
@@ -74,7 +76,7 @@ ${files}
 
 Write a release note with this exact frontmatter format (YAML):
 ---
-title: "<descriptive title in Norwegian>"
+title: "<descriptive title in Norwegian — never prefix with 'Decision Loop'>"
 date: ${new Date().toISOString().split('T')[0]}
 summary: "<one sentence summary in Norwegian>"
 tags: [<relevant tags from: fix, feature, perf, security, a11y, docs, internal>]
@@ -82,7 +84,8 @@ audience: "<one of: user-facing, technical, internal>"
 draft: false
 ---
 
-Then write 2-4 short sections with ## headings explaining what changed and why it matters.
+Then write 2-4 short sections with ### headings explaining what changed and why it matters to the user.
+Changes to internal systems (stats dashboard, analytics, tracking) should use audience: "internal".
 Do NOT include any IP addresses, email addresses, API keys, or other sensitive data.
 Keep it factual and brief.`;
 }
