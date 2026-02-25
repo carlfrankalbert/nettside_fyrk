@@ -1,6 +1,14 @@
 import type { APIRoute } from 'astro';
 import { shouldExcludeRequest } from '../../utils/tracking-exclusion';
 import { verifySignedRequest } from '../../utils/request-signing';
+import {
+  sanitizeReferrer,
+  sanitizeUtmValue,
+  incrementField,
+  mergeAcquisitionData,
+  emptyAcquisitionData,
+  type AcquisitionData,
+} from '../../utils/acquisition';
 
 export const prerender = false;
 
@@ -16,22 +24,6 @@ const API_HEADERS = {
  * After this limit, we stop adding new hashes but still count pageviews
  */
 const MAX_UNIQUE_VISITORS_PER_DAY = 10000;
-
-/**
- * Maximum unique referrer/UTM values per day per page
- * Prevents unbounded object growth from spoofed values
- */
-const MAX_ACQUISITION_ENTRIES = 500;
-
-/**
- * Aggregated acquisition data stored per page per day
- */
-interface AcquisitionData {
-  referrers: Record<string, number>;
-  sources: Record<string, number>;
-  mediums: Record<string, number>;
-  campaigns: Record<string, number>;
-}
 
 /**
  * Valid page IDs for tracking
@@ -74,39 +66,6 @@ async function sha256Hash(str: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
 }
 
-/**
- * Sanitize a referrer hostname: only allow valid domain characters
- */
-function sanitizeReferrer(value: string | undefined): string | undefined {
-  if (!value) return undefined;
-  const cleaned = value.toLowerCase().replace(/[^a-z0-9.-]/g, '').slice(0, 253);
-  // Must contain at least one dot (valid domain)
-  return cleaned.includes('.') ? cleaned : undefined;
-}
-
-/**
- * Sanitize a UTM parameter value: allow common campaign tag characters
- */
-function sanitizeUtmValue(value: string | undefined): string | undefined {
-  if (!value) return undefined;
-  const cleaned = value.toLowerCase().replace(/[^a-z0-9_.+\s-]/g, '').trim().slice(0, 200);
-  return cleaned || undefined;
-}
-
-/**
- * Increment a count in an acquisition field, respecting the entry cap
- */
-function incrementField(
-  field: Record<string, number>,
-  key: string | undefined,
-): void {
-  if (!key) return;
-  if (key in field) {
-    field[key]++;
-  } else if (Object.keys(field).length < MAX_ACQUISITION_ENTRIES) {
-    field[key] = 1;
-  }
-}
 
 /**
  * Store acquisition data (referrer + UTM) aggregated per page per day
@@ -130,11 +89,9 @@ async function storeAcquisitionData(
 
   let acquisition: AcquisitionData;
   try {
-    acquisition = existing
-      ? JSON.parse(existing)
-      : { referrers: {}, sources: {}, mediums: {}, campaigns: {} };
+    acquisition = existing ? JSON.parse(existing) : emptyAcquisitionData();
   } catch {
-    acquisition = { referrers: {}, sources: {}, mediums: {}, campaigns: {} };
+    acquisition = emptyAcquisitionData();
   }
 
   incrementField(acquisition.referrers, referrer);
@@ -591,24 +548,6 @@ async function getVisitorsTimeseriesData(
 }
 
 /**
- * Merge acquisition counts from one day into an accumulator
- */
-function mergeAcquisitionData(target: AcquisitionData, source: AcquisitionData): void {
-  for (const [key, count] of Object.entries(source.referrers)) {
-    target.referrers[key] = (target.referrers[key] || 0) + count;
-  }
-  for (const [key, count] of Object.entries(source.sources)) {
-    target.sources[key] = (target.sources[key] || 0) + count;
-  }
-  for (const [key, count] of Object.entries(source.mediums)) {
-    target.mediums[key] = (target.mediums[key] || 0) + count;
-  }
-  for (const [key, count] of Object.entries(source.campaigns)) {
-    target.campaigns[key] = (target.campaigns[key] || 0) + count;
-  }
-}
-
-/**
  * Fetch acquisition data (referrer + UTM) aggregated across a time period
  */
 async function getAcquisitionData(
@@ -617,7 +556,7 @@ async function getAcquisitionData(
   period: TimePeriod,
 ): Promise<AcquisitionData> {
   const now = Date.now();
-  const result: AcquisitionData = { referrers: {}, sources: {}, mediums: {}, campaigns: {} };
+  const result: AcquisitionData = emptyAcquisitionData();
 
   const days = period === '24h' ? 1
     : period === 'week' ? 7
