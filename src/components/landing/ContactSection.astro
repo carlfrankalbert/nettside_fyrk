@@ -3,17 +3,17 @@
  * Contact section for the landing page
  * Displays contact information and call-to-action buttons
  */
+import { PHONE_PARTS, PHONE_COUNTRY } from '../../utils/links';
 
 interface Props {
   title: string;
   description: string;
   emailHref: string;
   emailLabel: string;
-  linkedinHref: string;
-  linkedinLabel: string;
+  phoneLabel: string;
 }
 
-const { title, description, emailHref, emailLabel, linkedinHref, linkedinLabel } = Astro.props;
+const { title, description, emailHref, emailLabel, phoneLabel } = Astro.props;
 ---
 
 <section id="kontakt" class="py-16 md:py-20 px-6 bg-neutral-50 scroll-mt-20">
@@ -29,10 +29,27 @@ const { title, description, emailHref, emailLabel, linkedinHref, linkedinLabel }
       <a href={emailHref} class="btn btn-primary no-underline inline-flex" data-track-button="contact_email">
         {emailLabel}
       </a>
-      <a href={linkedinHref} target="_blank" rel="noopener noreferrer" class="btn btn-outline no-underline inline-flex" data-track-button="contact_linkedin">
-        {linkedinLabel}
+      <a
+        id="contact-phone-btn"
+        class="btn btn-outline no-underline inline-flex"
+        data-c={PHONE_COUNTRY}
+        data-p={PHONE_PARTS.join(',')}
+        data-track-button="contact_phone"
+      >
+        {phoneLabel}
       </a>
     </div>
 
   </div>
 </section>
+
+<script>
+  const el = document.getElementById('contact-phone-btn');
+  if (el) {
+    const c = el.dataset.c;
+    const parts = (el.dataset.p ?? '').split(',');
+    el.setAttribute('href', `tel:${c}${parts.join('')}`);
+    el.removeAttribute('data-c');
+    el.removeAttribute('data-p');
+  }
+</script>

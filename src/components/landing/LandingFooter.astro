@@ -1,22 +1,19 @@
 ---
 /**
  * Landing page footer
- * Displays company info and contact links
+ * Displays company info, contact details, and navigation links
  */
 import LandingLogo from '../ui/LandingLogo.astro';
 import { footerNavLinks } from '../../data/landing';
-import { PHONE_PARTS, PHONE_COUNTRY } from '../../utils/links';
+import { PHONE_PARTS, PHONE_COUNTRY, EXTERNAL_LINKS } from '../../utils/links';
 
 interface Props {
   address: string;
   orgNumber: string;
-  emailHref: string;
-  emailLabel: string;
-  linkedinHref: string;
-  linkedinLabel: string;
 }
 
 const { address, orgNumber } = Astro.props;
+const emailAddress = EXTERNAL_LINKS.email.replace('mailto:', '');
 ---
 
 <footer class="py-10 px-6 border-t border-neutral-200 bg-neutral-50" role="contentinfo">
@@ -24,9 +21,21 @@ const { address, orgNumber } = Astro.props;
     <div class="flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-neutral-500">
       <div class="flex flex-col items-center md:items-start gap-3">
         <LandingLogo variant="muted" />
-        <div class="text-xs text-neutral-600 text-center md:text-left">
-          <p class="mb-1">{address}</p>
-          <p class="mb-0">Org.nr: {orgNumber}</p>
+        <div class="text-xs text-neutral-600 text-center md:text-left space-y-0.5">
+          <p>{address}</p>
+          <p>Org.nr: {orgNumber}</p>
+          <p class="pt-2">
+            <a href={EXTERNAL_LINKS.email} class="text-neutral-600 hover:text-brand-navy transition-colors no-underline">{emailAddress}</a>
+          </p>
+          <p>
+            <a
+              id="phone-link"
+              class="text-neutral-600 hover:text-brand-navy transition-colors no-underline"
+              data-c={PHONE_COUNTRY}
+              data-p={PHONE_PARTS.join(',')}
+              aria-label="Ring oss"
+            ></a>
+          </p>
         </div>
       </div>
 
@@ -40,13 +49,6 @@ const { address, orgNumber } = Astro.props;
             {link.label}
           </a>
         ))}
-        <a
-          id="phone-link"
-          class="hover:text-brand-navy transition-colors no-underline"
-          data-c={PHONE_COUNTRY}
-          data-p={PHONE_PARTS.join(',')}
-          aria-label="Ring oss"
-        ></a>
       </div>
     </div>
   </div>
@@ -57,9 +59,8 @@ const { address, orgNumber } = Astro.props;
   if (el) {
     const c = el.dataset.c;
     const p = (el.dataset.p ?? '').split(',').join(' ');
-    const num = `${c} ${p}`;
     el.setAttribute('href', `tel:${c}${(el.dataset.p ?? '').split(',').join('')}`);
-    el.textContent = num;
+    el.textContent = `${c} ${p}`;
     el.removeAttribute('data-c');
     el.removeAttribute('data-p');
   }

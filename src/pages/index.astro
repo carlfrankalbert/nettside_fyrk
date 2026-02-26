@@ -16,7 +16,6 @@ import ModesSection from '../components/landing/ModesSection.astro';
 import ServicesSection from '../components/landing/ServicesSection.astro';
 import ToolsSection from '../components/landing/ToolsSection.astro';
 import AboutSection from '../components/landing/AboutSection.astro';
-import ContactSection from '../components/landing/ContactSection.astro';
 import LandingFooter from '../components/landing/LandingFooter.astro';
 
 // Content data
@@ -28,7 +27,6 @@ import {
   servicesContent,
   toolsContent,
   aboutContent,
-  contactContent,
   footerContent,
 } from '../data/landing';
 ---
@@ -77,7 +75,6 @@ import {
         founder={aboutContent.founder}
       />
 
-      <ContactSection {...contactContent} />
     </main>
 
     <LandingFooter {...footerContent} />

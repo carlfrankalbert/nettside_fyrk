@@ -174,9 +174,8 @@ export const contactContent = {
   title: CONTACT_LABEL,
   description: 'Usikker på hvor du skal starte? Kort, uforpliktende avklaringssamtale – 30 minutter. Jeg kartlegger situasjonen og avklarer om det er grunnlag for videre dialog.',
   emailHref: EXTERNAL_LINKS.email,
-  emailLabel: CONTACT_LABEL,
-  linkedinHref: EXTERNAL_LINKS.linkedin,
-  linkedinLabel: 'LinkedIn',
+  emailLabel: 'Send e-post',
+  phoneLabel: 'Ring direkte',
 } as const;
 
 /**
@@ -186,7 +185,6 @@ export const footerNavLinks = [
   { href: '/tjenester', label: 'Tjenester' },
   { href: '/verktoy', label: 'Verktøy' },
   { href: '/releaselog', label: 'Releaselog' },
-  { href: EXTERNAL_LINKS.email, label: CONTACT_LABEL },
   { href: EXTERNAL_LINKS.linkedin, label: 'LinkedIn', external: true },
   { href: '/personvern', label: 'Personvern' },
   { href: '/vilkar', label: 'Vilkår' },
@@ -196,10 +194,6 @@ export const footerNavLinks = [
  * Footer content
  */
 export const footerContent = {
-  address: 'c/o Mesh Youngstorget, Møllergata 6, 8, 0179 Oslo',
+  address: 'c/o Mesh Youngstorget, Møllergata 6, 0179 Oslo',
   orgNumber: '936 630 898',
-  emailHref: EXTERNAL_LINKS.email,
-  emailLabel: CONTACT_LABEL,
-  linkedinHref: EXTERNAL_LINKS.linkedin,
-  linkedinLabel: 'LinkedIn',
 } as const;
