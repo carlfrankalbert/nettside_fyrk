@@ -5,6 +5,7 @@
  */
 import LandingLogo from '../ui/LandingLogo.astro';
 import { footerNavLinks } from '../../data/landing';
+import { PHONE_PARTS, PHONE_COUNTRY } from '../../utils/links';
 
 interface Props {
   address: string;
@@ -25,7 +26,17 @@ const { address, orgNumber } = Astro.props;
         <LandingLogo variant="muted" />
         <div class="text-xs text-neutral-600 text-center md:text-left">
           <p class="mb-1">{address}</p>
-          <p class="mb-0">Org.nr: {orgNumber}</p>
+          <p>
+            Org.nr: {orgNumber}
+            <span class="mx-1.5">·</span>
+            <a
+              id="phone-link"
+              class="hover:text-brand-navy transition-colors no-underline"
+              data-c={PHONE_COUNTRY}
+              data-p={PHONE_PARTS.join(',')}
+              aria-label="Ring oss"
+            >Tlf</a>
+          </p>
         </div>
       </div>
 
@@ -43,3 +54,16 @@ const { address, orgNumber } = Astro.props;
     </div>
   </div>
 </footer>
+
+<script>
+  const el = document.getElementById('phone-link');
+  if (el) {
+    const c = el.dataset.c;
+    const p = (el.dataset.p ?? '').split(',').join(' ');
+    const num = `${c} ${p}`;
+    el.setAttribute('href', `tel:${c}${(el.dataset.p ?? '').split(',').join('')}`);
+    el.textContent = num;
+    el.removeAttribute('data-c');
+    el.removeAttribute('data-p');
+  }
+</script>
