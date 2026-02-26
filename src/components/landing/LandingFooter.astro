@@ -26,17 +26,7 @@ const { address, orgNumber } = Astro.props;
         <LandingLogo variant="muted" />
         <div class="text-xs text-neutral-600 text-center md:text-left">
           <p class="mb-1">{address}</p>
-          <p>
-            Org.nr: {orgNumber}
-            <span class="mx-1.5">·</span>
-            <a
-              id="phone-link"
-              class="hover:text-brand-navy transition-colors no-underline"
-              data-c={PHONE_COUNTRY}
-              data-p={PHONE_PARTS.join(',')}
-              aria-label="Ring oss"
-            >Tlf</a>
-          </p>
+          <p class="mb-0">Org.nr: {orgNumber}</p>
         </div>
       </div>
 
@@ -50,6 +40,13 @@ const { address, orgNumber } = Astro.props;
             {link.label}
           </a>
         ))}
+        <a
+          id="phone-link"
+          class="hover:text-brand-navy transition-colors no-underline"
+          data-c={PHONE_COUNTRY}
+          data-p={PHONE_PARTS.join(',')}
+          aria-label="Ring oss"
+        ></a>
       </div>
     </div>
   </div>
