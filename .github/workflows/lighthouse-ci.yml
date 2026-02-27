@@ -1,18 +1,12 @@
 name: Lighthouse CI
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
   schedule:
     - cron: '0 7 * * 1'  # Every Monday at 07:00 UTC
   workflow_dispatch:  # Manual trigger
 
 permissions:
   contents: read
-  pull-requests: write
-  issues: write
 
 jobs:
   lighthouse:
@@ -109,46 +103,6 @@ jobs:
 
             core.setOutput('comment', comment);
             return comment;
-
-      - name: Comment on PR
-        if: github.event_name == 'pull_request' && always()
-        uses: actions/github-script@v8
-        with:
-          script: |
-            const comment = `${{ steps.format_lighthouse.outputs.comment }}`;
-
-            if (!comment || comment.trim() === '') {
-              console.log('No comment to post');
-              return;
-            }
-
-            // Find existing comment
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            });
-
-            const existingComment = comments.find(c =>
-              c.user.login === 'github-actions[bot]' &&
-              c.body.includes('## Lighthouse Results')
-            );
-
-            if (existingComment) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: existingComment.id,
-                body: comment,
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body: comment,
-              });
-            }
 
       - name: Upload Lighthouse reports
         if: always()

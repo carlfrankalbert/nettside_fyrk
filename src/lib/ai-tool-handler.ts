@@ -92,6 +92,8 @@ export interface AIToolConfig {
   streamingTimeoutMs?: number;
   /** Custom max input length (default: INPUT_VALIDATION.MAX_LENGTH) */
   maxInputLength?: number;
+  /** Override max tokens for the AI response (default: ANTHROPIC_CONFIG.MAX_TOKENS) */
+  maxTokens?: number;
   /** Mock mode getter (optional, for testing) */
   getMockResponse?: (input: string) => string | null;
 }
@@ -122,6 +124,7 @@ export function createAIToolHandler(config: AIToolConfig) {
     useCircuitBreaker = true,
     streamingTimeoutMs,
     maxInputLength = INPUT_VALIDATION.MAX_LENGTH,
+    maxTokens,
     getMockResponse,
   } = config;
 
@@ -304,6 +307,7 @@ export function createAIToolHandler(config: AIToolConfig) {
           model,
           systemPrompt,
           userMessage,
+          maxTokens,
           timeoutMs: streamingTimeoutMs,
           requestId,
           validateOutput,
@@ -352,7 +356,7 @@ export function createAIToolHandler(config: AIToolConfig) {
             headers: createAnthropicHeaders(apiKey),
             body: JSON.stringify({
               model,
-              max_tokens: ANTHROPIC_CONFIG.MAX_TOKENS,
+              max_tokens: maxTokens ?? ANTHROPIC_CONFIG.MAX_TOKENS,
               system: systemPrompt,
               stream: false,
               messages: [{ role: 'user', content: userMessage }],

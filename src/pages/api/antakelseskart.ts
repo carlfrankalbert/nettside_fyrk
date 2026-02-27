@@ -73,5 +73,6 @@ export const POST: APIRoute = createAIToolHandler({
   validateOutput: isValidAntakelseskartOutput,
   errorMessage: 'Kunne ikke avdekke antakelser',
   missingInputMessage: 'Skriv inn en beslutningsbeskrivelse for å avdekke antakelser.',
+  maxTokens: 2500,
   useCircuitBreaker: true,
 });

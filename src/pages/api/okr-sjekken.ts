@@ -59,5 +59,6 @@ export const POST: APIRoute = createAIToolHandler({
   validateOutput: isValidOKROutput,
   errorMessage: 'Kunne ikke vurdere OKR-settet',
   missingInputMessage: 'Skriv inn et OKR-sett for vurdering.',
+  maxTokens: 2048,
   useCircuitBreaker: true,
 });
