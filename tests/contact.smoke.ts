@@ -24,11 +24,17 @@ test.describe('Contact Smoke Tests', () => {
     await expect(linkedinLink).toHaveAttribute('target', '_blank');
   });
 
-  test('header has contact CTA', async ({ page }) => {
+  test('header has contact CTA', async ({ page, viewport }) => {
     await page.goto('/');
 
-    const ctaLink = page.getByRole('link', { name: /Ta kontakt/i }).first();
-    await expect(ctaLink).toBeVisible();
-    await expect(ctaLink).toHaveAttribute('href', 'mailto:hei@fyrk.no');
+    // On mobile the CTA is inside the hamburger menu — skip visibility check
+    if (viewport && viewport.width < 768) {
+      const ctaLink = page.getByRole('link', { name: /Ta kontakt/i }).first();
+      await expect(ctaLink).toHaveAttribute('href', 'mailto:hei@fyrk.no');
+    } else {
+      const ctaLink = page.getByRole('link', { name: /Ta kontakt/i }).first();
+      await expect(ctaLink).toBeVisible();
+      await expect(ctaLink).toHaveAttribute('href', 'mailto:hei@fyrk.no');
+    }
   });
 });
