@@ -27,9 +27,11 @@ test.describe('Contact Smoke Tests', () => {
   test('header has contact CTA', async ({ page, viewport }) => {
     await page.goto('/');
 
-    // On mobile the CTA is inside the hamburger menu — skip visibility check
+    // On mobile the CTA is inside the hamburger menu — open it first
     if (viewport && viewport.width < 768) {
+      await page.getByLabel('Åpne meny').click();
       const ctaLink = page.getByRole('link', { name: /Ta kontakt/i }).first();
+      await expect(ctaLink).toBeVisible();
       await expect(ctaLink).toHaveAttribute('href', 'mailto:hei@fyrk.no');
     } else {
       const ctaLink = page.getByRole('link', { name: /Ta kontakt/i }).first();
