@@ -15,6 +15,7 @@ import ToolBenefits from '../components/ui/ToolBenefits.astro';
 import Breadcrumb from '../components/ui/Breadcrumb.astro';
 import RelatedTools from '../components/ui/RelatedTools.astro';
 import MobileCTABar from '../components/ui/MobileCTABar.astro';
+import ToolJsonLd from '../components/seo/ToolJsonLd.astro';
 
 interface Props {
   title: string;
@@ -48,6 +49,8 @@ const breadcrumbItems = [
 
 <MinimalLayout {title} {description} {toolName}>
   <main id="main-content" class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
+    <ToolJsonLd {toolName} {description} {breadcrumbItems} />
+
     <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-8 md:py-12 w-full pb-24 md:pb-12">
 
       <Breadcrumb items={breadcrumbItems} />
@@ -63,6 +66,8 @@ const breadcrumbItems = [
       </div>
 
       <RelatedTools tools={relatedTools} />
+
+      <slot name="seo-content" />
     </div>
 
     <ToolFooter {showClaude} />

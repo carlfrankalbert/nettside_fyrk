@@ -1,0 +1,18 @@
+# FYRK — fyrk.no
+
+> Produktledelse der kvalitet møter forretningsverdi.
+
+FYRK tilbyr gratis, AI-drevne verktøy for produktledere og team som ønsker bedre beslutninger. Alle verktøy fungerer uten registrering.
+
+## Verktøy
+
+- OKR-sjekken (https://fyrk.no/okr-sjekken): Lim inn OKR-er og få AI-vurdering med score, styrker og forbedringsforslag.
+- Konseptspeilet (https://fyrk.no/konseptspeilet): Test og forbedre produktideer. Avdekker skjulte antakelser og hull i tidlige konsepter.
+- Antakelseskartet (https://fyrk.no/antakelseskart): Gjør implisitte antakelser eksplisitte i produkt- og strategibeslutninger.
+- Beslutningslogg (https://fyrk.no/beslutningslogg): Dokumenter beslutninger strukturert. Eksporter til Markdown for Notion, Confluence eller GitHub.
+- Pre-Mortem Brief (https://fyrk.no/verktoy/pre-mortem): Identifiser failure modes, varselsignaler og stopp-kriterier før irreversible beslutninger.
+
+## Kontakt
+
+- Nettside: https://fyrk.no
+- E-post: hei@fyrk.no

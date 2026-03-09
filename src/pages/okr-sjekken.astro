@@ -4,6 +4,26 @@ import OKRPageContent from '../components/OKRPageContent';
 import { okrTool } from '../data/tools';
 
 const { seo, toolName, breadcrumbLabel, h1, subtitle, disclaimer, whenToUse, benefits, relatedTools, mobileCTA } = okrTool.page;
+
+const faqItems = [
+  {
+    question: 'Hva er OKR?',
+    answer: 'OKR (Objectives and Key Results) er et rammeverk for målstyring. Et Objective beskriver hva du vil oppnå, mens Key Results er målbare resultater som viser om du er på vei.',
+  },
+  {
+    question: 'Hvordan skriver jeg gode OKR-er?',
+    answer: 'Et godt Objective er kvalitativt, inspirerende og tidsbegrenset. Key Results skal være målbare, ambisiøse men oppnåelige, og direkte knyttet til Objective. Unngå å liste opp aktiviteter — fokuser på utfall.',
+  },
+  {
+    question: 'Er OKR-sjekken gratis?',
+    answer: 'Ja. OKR-sjekken er helt gratis og krever ingen registrering. Du limer inn OKR-settet ditt og får en AI-drevet vurdering med score, styrker og forbedringsforslag.',
+  },
+  {
+    question: 'Lagres OKR-ene mine?',
+    answer: 'Nei. OKR-ene du limer inn brukes kun til å generere vurderingen og lagres ikke. Unngå likevel å lime inn konfidensiell informasjon.',
+  },
+];
+
 ---
 
 <ToolLayout
@@ -29,6 +49,47 @@ const { seo, toolName, breadcrumbLabel, h1, subtitle, disclaimer, whenToUse, ben
   </header>
 
   <OKRPageContent client:load />
+
+  <section slot="seo-content" class="mt-16 border-t border-neutral-200 pt-12 space-y-10">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faqItems.map((faq) => ({
+        '@type': 'Question',
+        name: faq.question,
+        acceptedAnswer: { '@type': 'Answer', text: faq.answer },
+      })),
+    })} />
+
+    <div>
+      <h2 class="text-xl font-semibold text-brand-navy mb-3">Hva er OKR?</h2>
+      <p class="text-neutral-600 leading-relaxed">
+        OKR (Objectives and Key Results) er et rammeverk for målstyring brukt av selskaper som Google, Spotify og DNB. Et <strong>Objective</strong> beskriver hva du vil oppnå — kvalitativt og inspirerende. <strong>Key Results</strong> er 2–5 målbare resultater som viser om du er på vei mot målet.
+      </p>
+    </div>
+
+    <div>
+      <h2 class="text-xl font-semibold text-brand-navy mb-3">Slik bruker du OKR-sjekken</h2>
+      <ol class="list-decimal list-inside text-neutral-600 leading-relaxed space-y-2">
+        <li>Skriv eller lim inn ditt Objective og tilhørende Key Results.</li>
+        <li>Trykk «Sjekk OKR-settet ditt» for å få en AI-drevet vurdering.</li>
+        <li>Les gjennom score, styrker og forbedringsforslag.</li>
+        <li>Juster OKR-ene basert på tilbakemeldingen og test gjerne på nytt.</li>
+      </ol>
+    </div>
+
+    <div>
+      <h2 class="text-xl font-semibold text-brand-navy mb-4">Vanlige spørsmål</h2>
+      <dl class="space-y-4">
+        {faqItems.map((faq) => (
+          <div>
+            <dt class="font-medium text-neutral-700">{faq.question}</dt>
+            <dd class="text-neutral-600 mt-1">{faq.answer}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
 </ToolLayout>
 
 <script>

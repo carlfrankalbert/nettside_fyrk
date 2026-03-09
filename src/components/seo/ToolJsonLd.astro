@@ -1,0 +1,63 @@
+---
+interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
+
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  toolName: string;
+  description: string;
+  breadcrumbItems: BreadcrumbItem[];
+  faqItems?: FAQItem[];
+}
+
+const { toolName, description, breadcrumbItems, faqItems } = Astro.props;
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site || 'https://fyrk.no').href;
+const siteUrl = (Astro.site || new URL('https://fyrk.no')).href.replace(/\/$/, '');
+
+const graph: Record<string, unknown>[] = [
+  {
+    '@type': 'WebApplication',
+    name: toolName,
+    description,
+    url: canonicalUrl,
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'All',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'NOK' },
+    inLanguage: 'nb-NO',
+    creator: { '@type': 'Organization', name: 'FYRK', url: 'https://fyrk.no' },
+  },
+  {
+    '@type': 'BreadcrumbList',
+    itemListElement: breadcrumbItems.map((item, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: item.label,
+      ...(item.href ? { item: `${siteUrl}${item.href}` } : {}),
+    })),
+  },
+];
+
+if (faqItems && faqItems.length > 0) {
+  graph.push({
+    '@type': 'FAQPage',
+    mainEntity: faqItems.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  });
+}
+
+const jsonLd = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph });
+---
+
+<script type="application/ld+json" set:html={jsonLd} />

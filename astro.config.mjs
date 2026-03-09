@@ -6,7 +6,16 @@ import cloudflare from '@astrojs/cloudflare';
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [tailwind(), react(), sitemap()],
+  integrations: [
+    tailwind(),
+    react(),
+    sitemap({
+      filter: (page) =>
+        !page.includes('/stats') &&
+        !page.includes('/feature-toggles') &&
+        !page.includes('/api/'),
+    }),
+  ],
   output: 'static',
   adapter: cloudflare({ imageService: 'compile' }),
   site: 'https://fyrk.no'

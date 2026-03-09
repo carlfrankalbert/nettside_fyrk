@@ -15,8 +15,8 @@
 export const okrTool = {
   page: {
     seo: {
-      title: 'OKR-sjekken | FYRK',
-      description: 'Lim inn OKR-settet ditt og få tilbakemelding på under ett minutt. Ment som støtte til refleksjon.',
+      title: 'Gratis OKR-sjekk — AI-vurdering av dine OKR-er',
+      description: 'Lim inn Objective og Key Results og få umiddelbar vurdering med score, styrker og forbedringsforslag. Gratis OKR-verktøy uten registrering.',
     },
     toolName: 'OKR-sjekken',
     breadcrumbLabel: 'OKR-sjekken',
@@ -277,8 +277,8 @@ Vi tror dette kan redusere tiden fra "idé til validert innsikt" betydelig, og a
 export const beslutningsloggTool = {
   page: {
     seo: {
-      title: 'Beslutningslogg – dokumenter beslutninger med klarhet',
-      description: 'Gratis verktøy for å dokumentere beslutninger på en strukturert måte. Eksporter til Markdown for Notion, Confluence eller GitHub.',
+      title: 'Beslutningslogg — dokumenter beslutninger strukturert',
+      description: 'Gratis verktøy for å dokumentere beslutninger strukturert. Eksporter til Markdown for Notion, Confluence eller GitHub. Ingen registrering.',
     },
     toolName: 'Beslutningslogg',
     breadcrumbLabel: 'Beslutningslogg',
@@ -341,8 +341,8 @@ export const beslutningsloggTool = {
 export const preMortemTool = {
   page: {
     seo: {
-      title: 'Pre-Mortem Brief - Tenk gjennom hva som kan gå galt',
-      description: 'Gratis verktøy som hjelper deg å identifisere failure modes, tidlige indikatorer og stopp-kriterier før du tar irreversible beslutninger.',
+      title: 'Pre-Mortem Brief — identifiser hva som kan gå galt',
+      description: 'Gratis verktøy for å avdekke failure modes, varselsignaler og stopp-kriterier før irreversible beslutninger. Ingen registrering.',
     },
     toolName: 'Pre-Mortem Brief',
     breadcrumbLabel: 'Pre-Mortem Brief',
