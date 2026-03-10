@@ -14,9 +14,12 @@ interface Props {
   title: string;
   intro: string;
   services: readonly Service[];
+  footnote?: string;
+  ctaText?: string;
+  ctaHref?: string;
 }
 
-const { title, intro, services } = Astro.props;
+const { title, intro, services, footnote, ctaText, ctaHref } = Astro.props;
 ---
 
 <section id="tjenester" class="py-16 md:py-20 px-6 bg-white scroll-mt-20">
@@ -44,5 +47,17 @@ const { title, intro, services } = Astro.props;
         </div>
       ))}
     </div>
+
+    {footnote && (
+      <p class="mt-8 text-sm text-neutral-500 text-center">{footnote}</p>
+    )}
+
+    {ctaText && ctaHref && (
+      <div class="mt-6 text-center">
+        <a href={ctaHref} class="btn btn-primary no-underline" data-track-button="services_cta">
+          {ctaText}
+        </a>
+      </div>
+    )}
   </div>
 </section>

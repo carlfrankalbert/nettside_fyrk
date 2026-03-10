@@ -19,7 +19,7 @@ export const navLinks = [
  */
 export const heroContent = {
   headline: 'Senior produktledelse for regulerte bransjer.',
-  description: 'Jeg går inn i teamet ditt som produktleder eller produktcoach — og får ting til å fungere. 15+ års erfaring fra bank, fintech og offentlig sektor.',
+  description: 'Jeg går inn i team som produktleder eller produktcoach når mye er i gang, men for lite faktisk kommer helt ut i produksjon.',
   ctaText: 'Ta kontakt',
   ctaHref: EXTERNAL_LINKS.email,
 } as const;
@@ -43,43 +43,9 @@ export const servicesContent = {
       fitWhen: 'Dere har produktledere som trenger sparring og utvikling, eller team som skal gå fra prosjekt- til produkttankegang.',
     },
   ],
-} as const;
-
-/**
- * Two modes section content
- */
-export const modesContent = {
-  title: 'To måter å jobbe på',
-  intro: 'FYRK kan brukes ulikt avhengig av behov. Beslutningsgjennomgang kan også være første trinn før et operativt oppdrag.',
-  modes: [
-    {
-      label: 'Rådgivning',
-      title: 'Rådgivning',
-      description: 'Strukturert gjennomgang av én konkret beslutning. Lav forpliktelse, fast format.',
-      characteristics: [
-        'Avgrenset oppdrag (typisk 1–3 uker)',
-        'Fast pris avtales på forhånd',
-        'Du får rapport med antakelser, risiko og anbefalinger',
-        'Beslutningen er fortsatt deres',
-      ],
-      isHighlight: true,
-    },
-    {
-      label: 'Operativ rolle',
-      title: 'Leveranse og ledelse',
-      description: 'Midlertidig ansvar i team som produktleder, kvalitetsleder eller teamleder.',
-      characteristics: [
-        'Lengre oppdrag (typisk 3–6 mnd)',
-        'Time- eller fastpris per periode',
-        'Jeg tar operativt ansvar, ikke bare rådgivning',
-        'Planlagt overlevering og exit-plan',
-      ],
-      isHighlight: false,
-    },
-  ],
-  footnote: 'Typisk effekt: spissede prioriteringer, færre parallelle initiativer og tydeligere eierskap til beslutninger.',
-  ctaText: 'Se tjenester',
-  ctaHref: '/tjenester',
+  footnote: 'Oppdrag er typisk 3–12 måneder.',
+  ctaText: 'Ta kontakt',
+  ctaHref: '#kontakt',
 } as const;
 
 /**
@@ -109,6 +75,27 @@ export const aboutContent = {
 } as const;
 
 /**
+ * Selected experience section content
+ */
+export const experienceContent = {
+  title: 'Utvalgt erfaring',
+  entries: [
+    {
+      company: 'SpareBank 1 Utvikling',
+      description: 'Produktleder for mobilbank og betaling i bedriftsmarkedet. Ledet tre tverrfaglige team med ansvar for strategi, prioritering og leveranser.',
+    },
+    {
+      company: 'Vipps',
+      description: 'Ansvar for kvalitet og teststrategi for mobile plattformer i iOS og Android.',
+    },
+    {
+      company: 'Domstoladministrasjonen',
+      description: 'Testleder i digitaliseringsprosjekt for norske domstoler med koordinering mot politiet og kriminalomsorgen.',
+    },
+  ],
+} as const;
+
+/**
  * Testimonials section content
  */
 export const testimonialsContent = {
@@ -127,7 +114,6 @@ export const testimonialsContent = {
       situation: 'Teamet var i gang med mye, men manglet retning og tydelige prioriteringer.',
     },
   ],
-  linkedinHref: EXTERNAL_LINKS.linkedinPersonal,
 } as const;
 
 /**

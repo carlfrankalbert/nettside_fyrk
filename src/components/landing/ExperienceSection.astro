@@ -1,0 +1,35 @@
+---
+/**
+ * Selected experience section
+ * Simple list of key roles — no cards or boxes
+ */
+
+interface ExperienceEntry {
+  company: string;
+  description: string;
+}
+
+interface Props {
+  title: string;
+  entries: readonly ExperienceEntry[];
+}
+
+const { title, entries } = Astro.props;
+---
+
+<section class="py-16 md:py-20 px-6 bg-white">
+  <div class="max-w-3xl mx-auto">
+    <h2 class="text-h3 font-semibold text-brand-navy mb-10 text-center">
+      {title}
+    </h2>
+
+    <div class="space-y-6">
+      {entries.map((entry) => (
+        <div>
+          <p class="font-semibold text-brand-navy">{entry.company}</p>
+          <p class="text-neutral-600 mt-1">{entry.description}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
