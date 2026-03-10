@@ -22,9 +22,6 @@ export const heroContent = {
   description: 'Jeg går inn i teamet ditt som produktleder eller produktcoach — og får ting til å fungere. 15+ års erfaring fra bank, fintech og offentlig sektor.',
   ctaText: 'Ta kontakt',
   ctaHref: EXTERNAL_LINKS.email,
-  secondaryCtaText: 'Se anbefalinger på LinkedIn',
-  secondaryCtaHref: EXTERNAL_LINKS.linkedinPersonal,
-  tagline: 'Én ansvarlig rådgiver. Senior erfaring. Ingen mellomledd.',
 } as const;
 
 /**
@@ -33,7 +30,7 @@ export const heroContent = {
  */
 export const servicesContent = {
   title: 'Hva jeg gjør',
-  intro: 'FYRK hjelper når teamet har mye på gang men lite som får fullt fokus, når OKR er innført men ikke driver verdi, eller når AI-initiativer trenger governance og retning.',
+  intro: 'FYRK hjelper når teamet har mye på gang men lite som faktisk kommer i produksjon, når prioriteringene er uklare, eller når det trengs en erfaren produktleder som kan ta ansvar og skape fremdrift.',
   services: [
     {
       title: 'Interim produktleder',
@@ -57,7 +54,7 @@ export const modesContent = {
   modes: [
     {
       label: 'Rådgivning',
-      title: 'Beslutningsklarhet',
+      title: 'Rådgivning',
       description: 'Strukturert gjennomgang av én konkret beslutning. Lav forpliktelse, fast format.',
       characteristics: [
         'Avgrenset oppdrag (typisk 1–3 uker)',
@@ -96,7 +93,7 @@ export const aboutContent = {
     paragraphs: [
       'Jeg har brukt 15+ år på å lede produktutvikling i noen av Norges mest komplekse digitale miljøer — SpareBank 1 Utvikling, Vipps, Varner og Domstoladministrasjonen.',
       'Jeg startet i test og kvalitet, og jobbet meg opp til produktledelse og strategi. Det betyr at jeg forstår hele kjeden — fra kode til forretning — og vet hva som kreves for å levere i regulerte omgivelser der compliance og fart må fungere sammen.',
-      'I dag driver jeg FYRK. Jeg tar oppdrag som interim produktleder, produktcoach og rådgiver. Jeg bygger også AI-agenter og automatiseringsløsninger, noe som gir meg en teknisk forståelse de fleste produktledere ikke har.',
+      'I dag driver jeg FYRK. Jeg tar oppdrag som interim produktleder, produktcoach og rådgiver. Jeg bruker AI aktivt som arbeidsverktøy i produktarbeidet — til research, testing av antakelser og raskere beslutningsgrunnlag.',
     ],
     certifications: [
       'CSPO (Certified Scrum Product Owner)',
@@ -130,20 +127,6 @@ export const testimonialsContent = {
       role: 'Senior Tech Lead and Fullstack Developer',
       context: 'Rapporterte direkte til Carl',
       situation: 'Teamet var i gang med mye, men manglet retning og tydelige prioriteringer.',
-    },
-    {
-      quote: 'Carl was always approachable, always driven, always positive, but somehow managing to stay empathic and... well.. human. He puts in the work. He is at his desk without fail. He is accessible. He will answer your questions. If he can\'t help you, he will find someone who can.',
-      name: 'Somaiah Nymoen-Kumbera',
-      role: 'Developer at SpareBank 1 Utvikling',
-      context: 'Rapporterte direkte til Carl',
-      situation: 'Vi trengte noen som kunne ta tak uten å skape avstand til teamet.',
-    },
-    {
-      quote: 'Jeg satte stor pris på å jobbe med Carl! Han har god forretningsforståelse og teft, i tillegg til sterk intuisjon og forståelse av smidige prosesser.',
-      name: 'Magne Kristoffer Davidsen',
-      role: 'Head of Technology at Blank',
-      context: 'Jobbet med Carl på samme team',
-      situation: 'Vi ønsket en produktleder som forsto samspillet mellom forretning og teknologi.',
     },
   ],
   linkedinHref: EXTERNAL_LINKS.linkedinPersonal,
