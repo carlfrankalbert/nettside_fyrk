@@ -192,15 +192,6 @@ export interface BulletPointProps {
 }
 
 /**
- * Props for competency/service cards
- */
-export interface CompetencyCardProps {
-  title: string;
-  description: string;
-  icon: string;
-}
-
-/**
  * Props for tool cards
  */
 export interface ToolCardProps {

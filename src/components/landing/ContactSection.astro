@@ -1,7 +1,7 @@
 ---
 /**
  * Contact section for the landing page
- * Displays contact information and call-to-action buttons
+ * Displays contact methods: email, LinkedIn, phone
  */
 import { PHONE_PARTS, PHONE_COUNTRY } from '../../utils/links';
 
@@ -10,13 +10,15 @@ interface Props {
   description: string;
   emailHref: string;
   emailLabel: string;
+  linkedinHref: string;
+  linkedinLabel: string;
   phoneLabel: string;
 }
 
-const { title, description, emailHref, emailLabel, phoneLabel } = Astro.props;
+const { title, description, emailHref, emailLabel, linkedinHref, linkedinLabel, phoneLabel } = Astro.props;
 ---
 
-<section id="kontakt" class="py-16 md:py-20 px-6 bg-neutral-50 scroll-mt-20">
+<section id="kontakt" class="py-16 md:py-20 px-6 bg-white scroll-mt-20">
   <div class="max-w-2xl mx-auto text-center">
     <h2 class="text-h3 font-semibold text-brand-navy mb-4">
       {title}
@@ -30,6 +32,15 @@ const { title, description, emailHref, emailLabel, phoneLabel } = Astro.props;
         {emailLabel}
       </a>
       <a
+        href={linkedinHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-outline no-underline inline-flex"
+        data-track-button="contact_linkedin"
+      >
+        {linkedinLabel}
+      </a>
+      <a
         id="contact-phone-btn"
         class="btn btn-outline no-underline inline-flex"
         data-c={PHONE_COUNTRY}
@@ -39,7 +50,6 @@ const { title, description, emailHref, emailLabel, phoneLabel } = Astro.props;
         {phoneLabel}
       </a>
     </div>
-
   </div>
 </section>
 

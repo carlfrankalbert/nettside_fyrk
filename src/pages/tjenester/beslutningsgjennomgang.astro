@@ -1,144 +1,18 @@
 ---
 /**
- * Beslutningsgjennomgang service page
- * Primary service offering from FYRK
+ * Redirect: beslutningsgjennomgang has been replaced by the landing page services section
  */
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import Breadcrumb from '../../components/ui/Breadcrumb.astro';
-import { EXTERNAL_LINKS, CONTACT_LABEL } from '../../utils/links';
-import { beslutningsgjennomgangContent as content } from '../../data/tjenester';
-
-const breadcrumbItems = [
-  { label: 'Tjenester', href: '/tjenester' },
-  { label: content.header.title },
-];
 ---
 
-<BaseLayout
-  title={content.seo.title}
-  description={content.seo.description}
->
-  <article class="py-16 md:py-24 px-6">
-    <div class="max-w-3xl mx-auto">
-      <Breadcrumb items={breadcrumbItems} />
-
-      <!-- Header -->
-      <header class="mb-12">
-        <h1 class="text-h3 sm:text-h2 md:text-h1 font-semibold text-brand-navy mb-4 leading-tight">
-          {content.header.title}
-        </h1>
-        <p class="text-xl md:text-2xl text-neutral-600 leading-relaxed">
-          {content.header.subtitle}
-        </p>
-      </header>
-
-      <!-- Ingress -->
-      <section class="mb-12">
-        <p class="text-lg text-neutral-700 leading-relaxed">
-          {content.ingress}
-        </p>
-      </section>
-
-      <!-- What you get -->
-      <section class="mb-12">
-        <h2 class="text-h3 font-semibold text-brand-navy mb-6">
-          {content.whatYouGet.heading}
-        </h2>
-        <ul class="space-y-4 text-neutral-700">
-          {content.whatYouGet.items.map((item) => (
-            <li class="flex items-start gap-3">
-              <svg class="w-5 h-5 text-brand-navy flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-              </svg>
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <!-- When to use -->
-      <section class="mb-12">
-        <h2 class="text-h3 font-semibold text-brand-navy mb-6">
-          {content.whenRelevant.heading}
-        </h2>
-        <ul class="space-y-4 text-neutral-700">
-          {content.whenRelevant.items.map((item) => (
-            <li class="flex items-start gap-3">
-              <span class="text-brand-navy font-semibold">•</span>
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <!-- Typical decisions -->
-      <section class="mb-12">
-        <h2 class="text-h3 font-semibold text-brand-navy mb-6">
-          {content.typicalDecisions.heading}
-        </h2>
-        <ul class="space-y-4 text-neutral-700">
-          {content.typicalDecisions.items.map((item) => (
-            <li class="flex items-start gap-3">
-              <span class="text-brand-navy font-semibold">•</span>
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
-        <p class="mt-6 text-neutral-700">
-          {content.typicalDecisions.footnote}
-        </p>
-      </section>
-
-      <!-- How it works -->
-      <section class="mb-12">
-        <h2 class="text-h3 font-semibold text-brand-navy mb-6">
-          {content.howItWorks.heading}
-        </h2>
-        <ol class="space-y-6 text-neutral-700">
-          {content.howItWorks.steps.map((step, i) => (
-            <li class="flex items-start gap-4">
-              <span class="flex-shrink-0 w-8 h-8 bg-brand-navy text-white rounded-full flex items-center justify-center text-sm font-semibold">{i + 1}</span>
-              <div>
-                <p class="font-semibold text-brand-navy mb-1">{step.title}</p>
-                <p>{step.description}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
-        <p class="mt-6 text-neutral-600 text-sm" set:html={content.howItWorks.footnoteHtml} />
-      </section>
-
-      <!-- What is one decision -->
-      <section class="mb-12">
-        <h2 class="text-h3 font-semibold text-brand-navy mb-6">
-          {content.whatIsOneDecision.heading}
-        </h2>
-        {content.whatIsOneDecision.paragraphs.map((paragraph, i) => (
-          <p class:list={['text-neutral-700', i < content.whatIsOneDecision.paragraphs.length - 1 ? 'mb-4' : '']}>
-            {paragraph}
-          </p>
-        ))}
-      </section>
-
-      <!-- Pricing & CTA -->
-      <section class="p-8 bg-white rounded-xl border border-neutral-200 text-center shadow-sm">
-        <h2 class="text-h3 font-semibold text-brand-navy mb-4">
-          {content.pricing.heading}
-        </h2>
-        <p class="text-neutral-700 mb-2">
-          {content.pricing.body}
-        </p>
-        <p class="text-neutral-700 mb-6">
-          {content.pricing.clarification}
-        </p>
-        <a
-          href={EXTERNAL_LINKS.email}
-          class="btn btn-primary no-underline"
-        >
-          {CONTACT_LABEL}
-        </a>
-        <p class="text-sm text-neutral-500 mt-6" set:html={content.pricing.disclaimerHtml} />
-      </section>
-    </div>
-  </article>
-</BaseLayout>
+<!doctype html>
+<html lang="no">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content="0;url=/" />
+    <link rel="canonical" href="/" />
+    <title>Omdirigerer...</title>
+  </head>
+  <body>
+    <p>Omdirigerer til <a href="/">forsiden</a>...</p>
+  </body>
+</html>

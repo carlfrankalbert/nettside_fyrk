@@ -1,38 +1,53 @@
 ---
 /**
  * Hero section for the landing page
- * Features headline and call-to-action
+ * Features headline, dual CTAs, and optional tagline
  */
 
 interface Props {
   headline: string;
   description: string;
-  subDescription?: string;
   ctaText: string;
   ctaHref: string;
+  secondaryCtaText?: string;
+  secondaryCtaHref?: string;
+  tagline?: string;
 }
 
-const { headline, description, subDescription, ctaText, ctaHref } = Astro.props;
+const { headline, description, ctaText, ctaHref, secondaryCtaText, secondaryCtaHref, tagline } = Astro.props;
 ---
 
-<section class="pt-32 pb-20 md:pt-40 md:pb-24 px-6 bg-white">
+<section class="pt-36 pb-24 md:pt-44 md:pb-32 px-6 bg-white">
   <div class="max-w-3xl mx-auto flex flex-col items-center text-center">
     <h1 class="text-h2 sm:text-h1 md:text-display font-semibold text-brand-navy mb-8 leading-tight md:text-balance max-w-4xl">
       {headline}
     </h1>
 
-    <p class="text-lg md:text-xl text-neutral-600 mb-4 max-w-2xl leading-relaxed">
+    <p class="text-lg md:text-xl text-neutral-600 mb-10 max-w-2xl leading-relaxed">
       {description}
     </p>
 
-    {subDescription && (
-      <p class="text-base text-neutral-500 max-w-2xl">
-        {subDescription}
+    <div class="flex flex-col sm:flex-row gap-4">
+      <a href={ctaHref} class="btn btn-primary no-underline" data-track-button="hero_cta">
+        {ctaText}
+      </a>
+      {secondaryCtaText && secondaryCtaHref && (
+        <a
+          href={secondaryCtaHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-outline no-underline"
+          data-track-button="hero_secondary_cta"
+        >
+          {secondaryCtaText}
+        </a>
+      )}
+    </div>
+
+    {tagline && (
+      <p class="mt-10 text-sm text-neutral-500 tracking-wide">
+        {tagline}
       </p>
     )}
-
-    <a href={ctaHref} class="btn btn-primary no-underline mt-10" data-track-button="hero_cta">
-      {ctaText}
-    </a>
   </div>
 </section>

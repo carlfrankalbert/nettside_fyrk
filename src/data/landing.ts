@@ -9,7 +9,7 @@ import { EXTERNAL_LINKS, CONTACT_LABEL } from '../utils/links';
  * Navigation links for the landing page
  */
 export const navLinks = [
-  { href: '/tjenester', label: 'Tjenester' },
+  { href: '/#tjenester', label: 'Tjenester' },
   { href: '/verktoy', label: 'Verktøy' },
   { href: EXTERNAL_LINKS.email, label: CONTACT_LABEL, isCta: true },
 ] as const;
@@ -18,11 +18,34 @@ export const navLinks = [
  * Hero section content
  */
 export const heroContent = {
-  headline: 'Tydeligere beslutningsgrunnlag. Operativ kapasitet.',
-  description: 'Rådgivning før viktige beslutninger – eller operativt ansvar når dere trenger forsterkning.',
-  subDescription: 'Én ansvarlig rådgiver. Senior erfaring. Ingen mellomledd.',
-  ctaText: 'Se tjenester',
-  ctaHref: '/tjenester',
+  headline: 'Senior produktledelse for regulerte bransjer.',
+  description: 'Jeg går inn i teamet ditt som produktleder eller produktcoach — og får ting til å fungere. 15+ års erfaring fra bank, fintech og offentlig sektor.',
+  ctaText: 'Ta kontakt',
+  ctaHref: EXTERNAL_LINKS.email,
+  secondaryCtaText: 'Se anbefalinger på LinkedIn',
+  secondaryCtaHref: EXTERNAL_LINKS.linkedinPersonal,
+  tagline: 'Én ansvarlig rådgiver. Senior erfaring. Ingen mellomledd.',
+} as const;
+
+/**
+ * Services section content
+ * 2 core services
+ */
+export const servicesContent = {
+  title: 'Hva jeg gjør',
+  intro: 'FYRK hjelper når teamet har mye på gang men lite som får fullt fokus, når OKR er innført men ikke driver verdi, eller når AI-initiativer trenger governance og retning.',
+  services: [
+    {
+      title: 'Interim produktleder',
+      description: 'Jeg tar operativt ansvar som produktleder eller produkteier i teamet ditt. Prioritering, stakeholder-håndtering, roadmap og leveranse — i komplekse, regulerte miljøer. Typisk 3–6 måneder med planlagt overlevering.',
+      fitWhen: 'Teamet trenger en erfaren produktleder på kort varsel, eller noen som kan ta harde prioriteringer uten å skape unødvendig uro.',
+    },
+    {
+      title: 'Produktcoaching',
+      description: 'Jeg coacher produktledere og produktteam som vil bli bedre på prioritering, målstyring og datadrevne beslutninger. Ikke teori fra en lærebok — praksis fra 15 år i regulerte bransjer. Inkluderer arbeid med OKR-rammeverk og AI-støttet produktutvikling der det er relevant.',
+      fitWhen: 'Dere har produktledere som trenger sparring og utvikling, eller team som skal gå fra prosjekt- til produkttankegang.',
+    },
+  ],
 } as const;
 
 /**
@@ -33,8 +56,8 @@ export const modesContent = {
   intro: 'FYRK kan brukes ulikt avhengig av behov. Beslutningsgjennomgang kan også være første trinn før et operativt oppdrag.',
   modes: [
     {
+      label: 'Rådgivning',
       title: 'Beslutningsklarhet',
-      subtitle: 'Rådgivning',
       description: 'Strukturert gjennomgang av én konkret beslutning. Lav forpliktelse, fast format.',
       characteristics: [
         'Avgrenset oppdrag (typisk 1–3 uker)',
@@ -45,8 +68,8 @@ export const modesContent = {
       isHighlight: true,
     },
     {
+      label: 'Operativ rolle',
       title: 'Leveranse og ledelse',
-      subtitle: 'Operativ rolle',
       description: 'Midlertidig ansvar i team som produktleder, kvalitetsleder eller teamleder.',
       characteristics: [
         'Lengre oppdrag (typisk 3–6 mnd)',
@@ -57,60 +80,73 @@ export const modesContent = {
       isHighlight: false,
     },
   ],
-  footnote: 'Typisk effekt: spissede prioriteringer, færre parallelle initiativ og tydeligere eierskap til beslutninger.',
+  footnote: 'Typisk effekt: spissede prioriteringer, færre parallelle initiativer og tydeligere eierskap til beslutninger.',
+  ctaText: 'Se tjenester',
+  ctaHref: '/tjenester',
 } as const;
 
 /**
- * Situations where FYRK can help
+ * About section content
  */
-export const situationsContent = {
-  title: 'FYRK hjelper når',
-  situations: [
-    'Teamet har mange parallelle initiativer – og ingenting får fullt fokus',
-    'Strategi finnes, men påvirker ikke prioriteringer i praksis',
-    'Smidige metoder følges, men gir lite reell effekt',
-    'Kvalitet fanges for sent i prosessen og skaper unødvendig friksjon',
-  ],
+export const aboutContent = {
+  title: 'Om Carl Johnson',
+  founder: {
+    heading: 'Om Carl Johnson',
+    image: '/images/carl-johnson.png',
+    paragraphs: [
+      'Jeg har brukt 15+ år på å lede produktutvikling i noen av Norges mest komplekse digitale miljøer — SpareBank 1 Utvikling, Vipps, Varner og Domstoladministrasjonen.',
+      'Jeg startet i test og kvalitet, og jobbet meg opp til produktledelse og strategi. Det betyr at jeg forstår hele kjeden — fra kode til forretning — og vet hva som kreves for å levere i regulerte omgivelser der compliance og fart må fungere sammen.',
+      'I dag driver jeg FYRK. Jeg tar oppdrag som interim produktleder, produktcoach og rådgiver. Jeg bygger også AI-agenter og automatiseringsløsninger, noe som gir meg en teknisk forståelse de fleste produktledere ikke har.',
+    ],
+    certifications: [
+      'CSPO (Certified Scrum Product Owner)',
+      'CSM (Certified Scrum Master)',
+      'AIPO (AI Product Owner)',
+      'ISTQB Advanced Test Manager',
+    ],
+    linkedinCta: {
+      text: 'Se arbeidshistorikk og anbefalinger på LinkedIn',
+      href: EXTERNAL_LINKS.linkedinPersonal,
+    },
+  },
 } as const;
 
 /**
- * Services section content
- * Beslutningsgjennomgang is primary, others are secondary
+ * Testimonials section content
  */
-export const servicesContent = {
-  title: 'Tjenester',
-  services: [
+export const testimonialsContent = {
+  title: 'Hva folk jeg har jobbet med sier',
+  testimonials: [
     {
-      title: 'Beslutningsgjennomgang',
-      description: 'Klarhet før du forplikter deg.',
-      details: 'En strukturert gjennomgang av én konkret beslutning – fra antakelser til tydelig anbefaling.',
-      href: '/tjenester/beslutningsgjennomgang',
-      ctaText: 'Les mer om beslutningsgjennomgang',
-      isPrimary: true,
-      // Target/checkmark icon - decision quality
-      iconPath: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
+      quote: 'Han er tydelig, konkret, robust og god til å kommunisere med utviklingsteamet og interessenter rundt teamet. Som produktleder har han vist vei i en reorganisering av et stort team til to mindre team som dekker et komplekst og tungt domene. Med høyt arbeidspress, krevende systemavhengigheter kombinert med mange interessenter ute i bank har Carl ledet an skyreisen på en solid måte.',
+      name: 'John Rasmus Moen',
+      role: 'Utviklingsleder',
+      context: 'Jobbet med Carl på samme team',
+      situation: 'Teamet hadde mange parallelle initiativer og trengte en produktleder som kunne samle trådene.',
     },
     {
-      title: 'Interim produktleder',
-      description: 'Senior produktledelse når dere trenger det.',
-      details: 'For team som trenger erfaren produktleder på kort varsel.',
-      href: '/tjenester/interim-produktleder',
-      ctaText: 'Les mer',
-      isPrimary: false,
-      // Chart/strategy icon
-      iconPath: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
+      quote: 'Carl kom inn som Produkteier i mitt team i januar. Han gikk umiddelbart i gang med å ta de harde, men nødvendige, prioriteringene ut mot bank, og innad i teamet, og bidro på den måten til mindre forstyrrelser og tydeligere fokus for gruppa. Videre var Carl pådriver i teamet for en fornuftig bruk av OKR-er og Definition of Done.',
+      name: 'Sondre Bjerkerud',
+      role: 'Senior Tech Lead and Fullstack Developer',
+      context: 'Rapporterte direkte til Carl',
+      situation: 'Teamet var i gang med mye, men manglet retning og tydelige prioriteringer.',
     },
     {
-      title: 'Kvalitet og leveranseledelse',
-      description: 'Kontroll på flyt, kvalitet og leveranser i komplekse miljøer.',
-      details: 'For organisasjoner som vil ha struktur uten å miste fart.',
-      href: '/tjenester/kvalitet-og-leveranseledelse',
-      ctaText: 'Les mer',
-      isPrimary: false,
-      // Quality checkmark icon
-      iconPath: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+      quote: 'Carl was always approachable, always driven, always positive, but somehow managing to stay empathic and... well.. human. He puts in the work. He is at his desk without fail. He is accessible. He will answer your questions. If he can\'t help you, he will find someone who can.',
+      name: 'Somaiah Nymoen-Kumbera',
+      role: 'Developer at SpareBank 1 Utvikling',
+      context: 'Rapporterte direkte til Carl',
+      situation: 'Vi trengte noen som kunne ta tak uten å skape avstand til teamet.',
+    },
+    {
+      quote: 'Jeg satte stor pris på å jobbe med Carl! Han har god forretningsforståelse og teft, i tillegg til sterk intuisjon og forståelse av smidige prosesser.',
+      name: 'Magne Kristoffer Davidsen',
+      role: 'Head of Technology at Blank',
+      context: 'Jobbet med Carl på samme team',
+      situation: 'Vi ønsket en produktleder som forsto samspillet mellom forretning og teknologi.',
     },
   ],
+  linkedinHref: EXTERNAL_LINKS.linkedinPersonal,
 } as const;
 
 /**
@@ -118,23 +154,23 @@ export const servicesContent = {
  */
 export const toolsContent = {
   title: 'Gratis verktøy',
-  intro: 'Strukturerte verktøy som hjelper deg se tydeligere før du forplikter deg. Ingen innlogging.',
+  intro: 'Strukturerte verktøy som hjelper deg tenke tydeligere. Ingen innlogging.',
   tools: [
     {
       name: 'Konseptspeilet',
-      description: 'Avdekker blindsoner og skjulte antakelser i produktideer.',
+      description: 'Avdekker blindsoner i produktideer.',
       href: '/konseptspeilet',
       ctaText: 'Prøv konseptspeilet',
     },
     {
       name: 'Antakelseskartet',
-      description: 'Gjør implisitte antakelser eksplisitte i beslutninger.',
+      description: 'Gjør implisitte antakelser eksplisitte.',
       href: '/antakelseskart',
       ctaText: 'Prøv antakelseskartet',
     },
     {
       name: 'OKR-sjekken',
-      description: 'Rask kvalitetssjekk av OKR-ene dine på under ett minutt.',
+      description: 'Rask kvalitetssjekk av OKR-ene dine.',
       href: '/okr-sjekken',
       ctaText: 'Prøv OKR-sjekken',
     },
@@ -142,39 +178,15 @@ export const toolsContent = {
 } as const;
 
 /**
- * About section content (Hvem står bak) - consolidated with experience and testimonials
- */
-export const aboutContent = {
-  title: 'Hvem står bak',
-  whyFyrk: {
-    heading: 'Om FYRK',
-    paragraphs: [
-      'FYRK er bygget på én overbevisning: bedre beslutninger gir bedre resultater. Ikke flere prosesser, ikke flere verktøy — men tydeligere grunnlag for de valgene som faktisk betyr noe.',
-    ],
-  },
-  founder: {
-    heading: 'Carl Johnson, grunnlegger',
-    image: '/images/carl-johnson.png',
-    paragraphs: [
-      'Jeg hjelper team med å gå fra friksjon til flyt. Det betyr færre overleveringer, mindre rapportering, og mer synlighet – slik at folk kan bruke tiden på det som skaper verdi.',
-      'Blir ofte brukt når det trengs tydelige prioriteringer uten å skape unødvendig uro.',
-    ],
-    experience: 'Bakgrunn fra bl.a. SpareBank 1, Vipps og offentlig sektor. Lang erfaring med å skape struktur som tåler endring – i komplekse, regulerte miljøer.',
-    linkedinCta: {
-      text: 'Se komplett CV på LinkedIn',
-      href: EXTERNAL_LINKS.linkedinPersonal,
-    },
-  },
-} as const;
-
-/**
  * Contact section content
  */
 export const contactContent = {
-  title: CONTACT_LABEL,
-  description: 'Usikker på hvor du skal starte? Kort, uforpliktende avklaringssamtale – 30 minutter. Jeg kartlegger situasjonen og avklarer om det er grunnlag for videre dialog.',
+  title: 'La oss snakke.',
+  description: 'En kort samtale er ofte nok til å avklare om det er en match. 30 minutter, ingen forpliktelse.',
   emailHref: EXTERNAL_LINKS.email,
   emailLabel: 'Send e-post',
+  linkedinHref: EXTERNAL_LINKS.linkedinPersonal,
+  linkedinLabel: 'LinkedIn',
   phoneLabel: 'Ring direkte',
 } as const;
 
@@ -182,10 +194,9 @@ export const contactContent = {
  * Footer navigation links
  */
 export const footerNavLinks = [
-  { href: '/tjenester', label: 'Tjenester' },
-  { href: '/verktoy', label: 'Verktøy' },
-  { href: '/releaselog', label: 'Releaselog' },
-  { href: EXTERNAL_LINKS.linkedin, label: 'LinkedIn', external: true },
+  { href: '/#tjenester', label: 'Tjenester' },
+  { href: '/verktoy', label: 'Gratisverktøy' },
+  { href: EXTERNAL_LINKS.linkedinPersonal, label: 'LinkedIn', external: true },
   { href: '/personvern', label: 'Personvern' },
   { href: '/vilkar', label: 'Vilkår' },
 ] as const;
@@ -194,6 +205,7 @@ export const footerNavLinks = [
  * Footer content
  */
 export const footerContent = {
+  companyName: 'FYRK / Carlfrankalbert AS',
   address: 'c/o Mesh Youngstorget, Møllergata 6, 0179 Oslo',
   orgNumber: '936 630 898',
 } as const;
