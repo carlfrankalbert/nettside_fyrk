@@ -36,6 +36,7 @@ const { title, description, emailHref, emailLabel, linkedinHref, linkedinLabel, 
         target="_blank"
         rel="noopener noreferrer"
         class="btn btn-outline no-underline inline-flex"
+        aria-label={`${linkedinLabel} (åpnes i ny fane)`}
         data-track-button="contact_linkedin"
       >
         {linkedinLabel}
@@ -43,6 +44,7 @@ const { title, description, emailHref, emailLabel, linkedinHref, linkedinLabel, 
       <a
         id="contact-phone-btn"
         class="btn btn-outline no-underline inline-flex"
+        aria-label="Ring oss"
         data-c={PHONE_COUNTRY}
         data-p={PHONE_PARTS.join(',')}
         data-track-button="contact_phone"

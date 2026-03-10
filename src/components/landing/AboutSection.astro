@@ -69,6 +69,7 @@ const { title, founder } = Astro.props;
           target="_blank"
           rel="noopener noreferrer"
           class="inline-flex items-center gap-1.5 text-sm font-medium text-brand-navy hover:text-brand-navy/80 transition-colors"
+          aria-label={`${founder.linkedinCta.text} (åpnes i ny fane)`}
           data-track-button="about_linkedin"
         >
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
