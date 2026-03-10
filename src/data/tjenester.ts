@@ -23,7 +23,7 @@ export const serviceContactCTA = {
 export const tjenesterIndexContent = {
   seo: {
     title: 'Tjenester | FYRK',
-    description: 'FYRK tilbyr beslutningsgjennomgang, interim produktledelse og kvalitet- og leveranseledelse. Rådgivning og operativ kapasitet for komplekse miljøer.',
+    description: 'FYRK tilbyr interim produktledelse, produktcoaching og beslutningsgjennomgang. Senior rådgivning og operativ kapasitet for regulerte bransjer.',
   },
   title: 'Tjenester',
   subtitle: 'Rådgivning før viktige beslutninger — eller operativt ansvar når dere trenger forsterkning.',

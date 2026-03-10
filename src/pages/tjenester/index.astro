@@ -29,7 +29,7 @@ const { seo, title, subtitle, contactBridge } = tjenesterIndexContent;
       </header>
 
       <!-- Services -->
-      <div class="space-y-6 mb-16">
+      <div class="space-y-6 mb-10">
         {servicesContent.services.map((service) => (
           <div class="block rounded-lg border bg-white text-neutral-700 border-neutral-200 shadow-sm p-6 md:p-8">
             <h2 class="text-h4 font-semibold text-brand-navy mb-2 hyphens-auto">
@@ -43,6 +43,20 @@ const { seo, title, subtitle, contactBridge } = tjenesterIndexContent;
             </p>
           </div>
         ))}
+      </div>
+
+      <!-- Beslutningsgjennomgang as entry point -->
+      <div class="mb-16">
+        <a
+          href="/tjenester/beslutningsgjennomgang"
+          class="block rounded-lg border border-neutral-200 bg-neutral-50 p-6 md:p-8 no-underline hover:border-neutral-300 transition-all"
+        >
+          <p class="text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Inngang</p>
+          <h2 class="text-h4 font-semibold text-brand-navy mb-2">Beslutningsgjennomgang</h2>
+          <p class="text-neutral-600">
+            Strukturert gjennomgang av én konkret beslutning. Lav forpliktelse, fast format — og ofte første trinn før et operativt oppdrag.
+          </p>
+        </a>
       </div>
 
       <!-- Contact bridge -->
