@@ -15,7 +15,6 @@ interface Founder {
   heading: string;
   image?: string;
   paragraphs: readonly string[];
-  certifications: readonly string[];
   linkedinCta: LinkedinCta;
 }
 
@@ -27,13 +26,13 @@ interface Props {
 const { title, founder } = Astro.props;
 ---
 
-<section id="om" class="py-16 md:py-20 px-6 bg-neutral-50 scroll-mt-20">
+<section id="om" class="py-20 md:py-28 px-6 bg-white scroll-mt-20">
   <div class="max-w-3xl mx-auto">
-    <h2 class="text-h3 font-semibold text-brand-navy mb-8 text-center">
+    <h2 class="text-h2 font-semibold text-brand-navy mb-8 text-center">
       {title}
     </h2>
 
-    <div class="bg-white rounded-xl p-8 border border-neutral-200">
+    <div>
       <div class="flex flex-col md:flex-row gap-6 mb-6">
         {founder.image && (
           <div class="flex-shrink-0">
@@ -54,16 +53,7 @@ const { title, founder } = Astro.props;
         </div>
       </div>
 
-      <!-- Certifications -->
       <div class="border-t border-neutral-100 pt-6">
-        <div class="flex flex-wrap gap-2 mb-4">
-          {founder.certifications.map((cert) => (
-            <span class="inline-block text-xs font-medium text-brand-navy bg-brand-navy/5 border border-brand-navy/10 rounded-full px-3 py-1">
-              {cert}
-            </span>
-          ))}
-        </div>
-
         <a
           href={founder.linkedinCta.href}
           target="_blank"

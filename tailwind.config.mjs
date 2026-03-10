@@ -68,6 +68,7 @@ export default {
         '16': '4rem', // 64px
         '20': '5rem', // 80px
         '24': '6rem', // 96px
+        '28': '7rem', // 112px
       },
       borderRadius: {
         sm: '0.25rem', // 4px

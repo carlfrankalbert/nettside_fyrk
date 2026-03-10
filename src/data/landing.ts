@@ -34,12 +34,12 @@ export const servicesContent = {
   services: [
     {
       title: 'Interim produktleder',
-      description: 'Jeg tar operativt ansvar som produktleder eller produkteier i teamet ditt. Prioritering, stakeholder-håndtering, roadmap og leveranse — i komplekse, regulerte miljøer. Typisk 3–6 måneder med planlagt overlevering.',
+      description: 'Jeg tar operativt ansvar som produktleder eller produkteier i teamet ditt. Prioritering, stakeholder-håndtering, roadmap og leveranse — i komplekse, regulerte miljøer.',
       fitWhen: 'Teamet trenger en erfaren produktleder på kort varsel, eller noen som kan ta harde prioriteringer uten å skape unødvendig uro.',
     },
     {
       title: 'Produktcoaching',
-      description: 'Jeg coacher produktledere og produktteam som vil bli bedre på prioritering, målstyring og datadrevne beslutninger. Ikke teori fra en lærebok — praksis fra 15 år i regulerte bransjer. Inkluderer arbeid med OKR-rammeverk og AI-støttet produktutvikling der det er relevant.',
+      description: 'Jeg coacher produktledere og produktteam som vil bli bedre på prioritering, målstyring og datadrevne beslutninger. Basert på det som faktisk fungerer — praksis fra 15 år i regulerte bransjer. Inkluderer arbeid med OKR-rammeverk og AI-støttet produktutvikling der det er relevant.',
       fitWhen: 'Dere har produktledere som trenger sparring og utvikling, eller team som skal gå fra prosjekt- til produkttankegang.',
     },
   ],
@@ -57,15 +57,10 @@ export const aboutContent = {
     heading: 'Om Carl Johnson',
     image: '/images/carl-johnson.png',
     paragraphs: [
-      'Jeg har brukt 15+ år på å lede produktutvikling i noen av Norges mest komplekse digitale miljøer — SpareBank 1 Utvikling, Vipps, Varner og Domstoladministrasjonen.',
-      'Jeg startet i test og kvalitet, og jobbet meg opp til produktledelse og strategi. Det betyr at jeg forstår hele kjeden — fra kode til forretning — og vet hva som kreves for å levere i regulerte omgivelser der compliance og fart må fungere sammen.',
-      'I dag driver jeg FYRK. Jeg tar oppdrag som interim produktleder, produktcoach og rådgiver. Jeg bruker AI aktivt som arbeidsverktøy i produktarbeidet — til research, testing av antakelser og raskere beslutningsgrunnlag.',
-    ],
-    certifications: [
-      'CSPO (Certified Scrum Product Owner)',
-      'CSM (Certified Scrum Master)',
-      'AIPO (AI Product Owner)',
-      'ISTQB Advanced Test Manager',
+      'Jeg har 15+ års erfaring fra bank, fintech og offentlig sektor — SpareBank 1 Utvikling, Vipps, Varner og Domstoladministrasjonen.',
+      'Jeg startet i test og kvalitet, og har jobbet meg til produktledelse og strategi. Det betyr at jeg forstår hele kjeden — fra kode til forretning — og vet hva som skal til for å faktisk levere i regulerte omgivelser der compliance og fart må fungere sammen.',
+      'I dag driver jeg FYRK. Jeg tar oppdrag som interim produktleder, produktcoach og rådgiver. Jeg bruker AI aktivt i produktarbeidet — til research, testing av antakelser og raskere beslutningsgrunnlag.',
+      'Jeg liker å løse problemer og har lite tålmodighet for arbeid som ikke skaper verdi.',
     ],
     linkedinCta: {
       text: 'Se arbeidshistorikk og anbefalinger på LinkedIn',
@@ -82,15 +77,23 @@ export const experienceContent = {
   entries: [
     {
       company: 'SpareBank 1 Utvikling',
+      role: 'Produktleder – mobilbank bedrift',
       description: 'Produktleder for mobilbank og betaling i bedriftsmarkedet. Ledet tre tverrfaglige team med ansvar for strategi, prioritering og leveranser.',
     },
     {
       company: 'Vipps',
+      role: 'Kvalitet og teststrategi',
       description: 'Ansvar for kvalitet og teststrategi for mobile plattformer i iOS og Android.',
     },
     {
       company: 'Domstoladministrasjonen',
+      role: 'Testleder – digitalisering',
       description: 'Testleder i digitaliseringsprosjekt for norske domstoler med koordinering mot politiet og kriminalomsorgen.',
+    },
+    {
+      company: 'Varner',
+      role: 'Testleder og produkteier',
+      description: 'Testleder og produkteier i utviklingen av ny e-handelsplattform. Koordinerte testing og prioritering på tvers av fire team.',
     },
   ],
 } as const;
@@ -149,7 +152,7 @@ export const toolsContent = {
  */
 export const contactContent = {
   title: 'La oss snakke.',
-  description: 'En kort samtale er ofte nok til å avklare om det er en match. 30 minutter, ingen forpliktelse.',
+  description: 'En kort samtale er ofte nok til å avklare om det er en match. Ingen forpliktelse.',
   emailHref: EXTERNAL_LINKS.email,
   emailLabel: 'Send e-post',
   linkedinHref: EXTERNAL_LINKS.linkedinPersonal,
@@ -172,7 +175,6 @@ export const footerNavLinks = [
  * Footer content
  */
 export const footerContent = {
-  companyName: 'FYRK / Carlfrankalbert AS',
   address: 'c/o Mesh Youngstorget, Møllergata 6, 0179 Oslo',
   orgNumber: '936 630 898',
 } as const;

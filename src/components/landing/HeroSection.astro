@@ -17,17 +17,17 @@ interface Props {
 const { headline, description, ctaText, ctaHref, secondaryCtaText, secondaryCtaHref, tagline } = Astro.props;
 ---
 
-<section class="pt-36 pb-24 md:pt-44 md:pb-32 px-6 bg-white">
-  <div class="max-w-3xl mx-auto flex flex-col items-center text-center">
-    <h1 class="text-h2 sm:text-h1 md:text-display font-semibold text-brand-navy mb-8 leading-tight md:text-balance max-w-4xl">
+<section class="py-[120px] md:py-[140px] px-6 bg-white">
+  <div class="max-w-4xl mx-auto flex flex-col items-center text-center">
+    <h1 class="text-h2 sm:text-h1 md:text-display font-semibold text-brand-navy leading-[1.15] md:text-balance max-w-4xl">
       {headline}
     </h1>
 
-    <p class="text-lg md:text-xl text-neutral-600 mb-10 max-w-2xl leading-relaxed">
+    <p class="text-lg md:text-xl text-neutral-600 mt-5 max-w-[650px] leading-relaxed">
       {description}
     </p>
 
-    <div class="flex flex-col sm:flex-row gap-4">
+    <div class="mt-8 flex flex-col sm:flex-row gap-4">
       <a href={ctaHref} class="btn btn-primary no-underline" data-track-button="hero_cta">
         {ctaText}
       </a>

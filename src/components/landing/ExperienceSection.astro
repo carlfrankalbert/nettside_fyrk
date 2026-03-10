@@ -1,11 +1,12 @@
 ---
 /**
  * Selected experience section
- * Simple list of key roles — no cards or boxes
+ * Card grid layout with company, role, and description
  */
 
 interface ExperienceEntry {
   company: string;
+  role: string;
   description: string;
 }
 
@@ -17,17 +18,18 @@ interface Props {
 const { title, entries } = Astro.props;
 ---
 
-<section class="py-16 md:py-20 px-6 bg-white">
+<section class="py-20 md:py-28 px-6 bg-neutral-50">
   <div class="max-w-3xl mx-auto">
-    <h2 class="text-h3 font-semibold text-brand-navy mb-10 text-center">
+    <h2 class="text-h2 font-semibold text-brand-navy mb-10 text-center">
       {title}
     </h2>
 
-    <div class="space-y-6">
+    <div class="grid md:grid-cols-2 gap-6">
       {entries.map((entry) => (
-        <div>
+        <div class="bg-white rounded-lg border border-neutral-200 p-6">
           <p class="font-semibold text-brand-navy">{entry.company}</p>
-          <p class="text-neutral-600 mt-1">{entry.description}</p>
+          <p class="text-sm text-neutral-500 mt-0.5">{entry.role}</p>
+          <p class="text-neutral-600 text-sm mt-3">{entry.description}</p>
         </div>
       ))}
     </div>

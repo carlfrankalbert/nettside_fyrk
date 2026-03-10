@@ -8,12 +8,11 @@ import { footerNavLinks } from '../../data/landing';
 import { PHONE_PARTS, PHONE_COUNTRY, EXTERNAL_LINKS } from '../../utils/links';
 
 interface Props {
-  companyName: string;
   address: string;
   orgNumber: string;
 }
 
-const { companyName, address, orgNumber } = Astro.props;
+const { address, orgNumber } = Astro.props;
 const emailAddress = EXTERNAL_LINKS.email.replace('mailto:', '');
 ---
 
@@ -23,7 +22,6 @@ const emailAddress = EXTERNAL_LINKS.email.replace('mailto:', '');
       <div class="flex flex-col items-center md:items-start gap-3">
         <LandingLogo variant="muted" />
         <div class="text-xs text-neutral-600 text-center md:text-left space-y-0.5">
-          <p class="font-medium">{companyName}</p>
           <p>{address}</p>
           <p>Org.nr: {orgNumber}</p>
           <p class="pt-2">
