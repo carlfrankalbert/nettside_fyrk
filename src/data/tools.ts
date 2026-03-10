@@ -69,7 +69,7 @@ export const okrTool = {
         'Som utgangspunkt for diskusjon i teamet',
       ],
       humanCTA: 'Vil du ha et menneskelig blikk i tillegg?',
-      footnote: 'OKR-sjekken er laget av FYRK som supplement til rådgivning.',
+      footnote: 'OKR-sjekken er et gratis verktøy laget av FYRK.',
     },
     // OKRResultDisplay strings
     result: {
