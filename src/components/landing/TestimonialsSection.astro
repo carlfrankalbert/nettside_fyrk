@@ -5,9 +5,8 @@
 
 interface Testimonial {
   quote: string;
-  name: string;
   role: string;
-  context: string;
+  company: string;
   situation?: string;
 }
 
@@ -48,9 +47,7 @@ const { title, testimonials, linkedinHref } = Astro.props;
           </p>
 
           <footer class="text-sm text-neutral-500">
-            <span class="font-medium text-brand-navy">{testimonial.name}</span>
-            <br />
-            {testimonial.role} &middot; {testimonial.context}
+            <span class="font-medium text-brand-navy">{testimonial.role}</span> &middot; {testimonial.company}
           </footer>
         </blockquote>
       ))}

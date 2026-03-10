@@ -116,16 +116,14 @@ export const testimonialsContent = {
   testimonials: [
     {
       quote: 'Han er tydelig, konkret, robust og god til å kommunisere med utviklingsteamet og interessenter rundt teamet. Som produktleder har han vist vei i en reorganisering av et stort team til to mindre team som dekker et komplekst og tungt domene. Med høyt arbeidspress, krevende systemavhengigheter kombinert med mange interessenter ute i bank har Carl ledet an skyreisen på en solid måte.',
-      name: 'John Rasmus Moen',
       role: 'Utviklingsleder',
-      context: 'Jobbet med Carl på samme team',
+      company: 'SpareBank 1 Utvikling',
       situation: 'Teamet hadde mange parallelle initiativer og trengte en produktleder som kunne samle trådene.',
     },
     {
       quote: 'Carl kom inn som Produkteier i mitt team i januar. Han gikk umiddelbart i gang med å ta de harde, men nødvendige, prioriteringene ut mot bank, og innad i teamet, og bidro på den måten til mindre forstyrrelser og tydeligere fokus for gruppa. Videre var Carl pådriver i teamet for en fornuftig bruk av OKR-er og Definition of Done.',
-      name: 'Sondre Bjerkerud',
-      role: 'Senior Tech Lead and Fullstack Developer',
-      context: 'Rapporterte direkte til Carl',
+      role: 'Senior Tech Lead',
+      company: 'SpareBank 1 Utvikling',
       situation: 'Teamet var i gang med mye, men manglet retning og tydelige prioriteringer.',
     },
   ],
