@@ -17,9 +17,18 @@ interface Props {
 const { headline, description, ctaText, ctaHref, secondaryCtaText, secondaryCtaHref, tagline } = Astro.props;
 ---
 
-<section class="py-[120px] md:py-[140px] px-6 bg-white">
-  <div class="max-w-4xl mx-auto flex flex-col items-center text-center">
-    <h1 class="text-h2 sm:text-h1 md:text-display font-semibold text-brand-navy leading-[1.15] md:text-balance max-w-4xl">
+<section class="py-[120px] md:py-[140px] px-6 bg-gradient-to-b from-slate-50 to-white relative overflow-hidden">
+  <svg class="absolute inset-0 w-full h-full pointer-events-none opacity-[0.03]" aria-hidden="true">
+    <defs>
+      <pattern id="dot-grid" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+        <circle cx="2" cy="2" r="1" fill="currentColor" />
+      </pattern>
+    </defs>
+    <rect x="50%" y="0" width="50%" height="100%" fill="url(#dot-grid)" />
+  </svg>
+
+  <div class="max-w-4xl mx-auto flex flex-col items-center text-center relative z-10">
+    <h1 class="text-h2 sm:text-h1 md:text-display font-bold text-brand-navy leading-[1.15] md:text-balance max-w-4xl">
       {headline}
     </h1>
 
@@ -28,7 +37,7 @@ const { headline, description, ctaText, ctaHref, secondaryCtaText, secondaryCtaH
     </p>
 
     <div class="mt-8 flex flex-col sm:flex-row gap-4">
-      <a href={ctaHref} class="btn btn-primary no-underline" data-track-button="hero_cta">
+      <a href={ctaHref} class="btn btn-primary px-8 py-4 text-lg no-underline" data-track-button="hero_cta">
         {ctaText}
       </a>
       {secondaryCtaText && secondaryCtaHref && (

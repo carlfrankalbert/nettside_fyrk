@@ -5,13 +5,18 @@
  */
 
 interface Props {
-  variant?: 'default' | 'muted';
+  variant?: 'default' | 'muted' | 'white';
   size?: 'sm' | 'md' | 'lg';
 }
 
 const { variant = 'default', size = 'md' } = Astro.props;
 
-const fillColor = variant === 'muted' ? '#717182' : '#001F3F';
+const fillColorMap: Record<string, string> = {
+  default: '#001F3F',
+  muted: '#717182',
+  white: '#FFFFFF',
+};
+const fillColor = fillColorMap[variant] ?? '#001F3F';
 
 const sizeConfig = {
   sm: { width: 60, height: 18 },

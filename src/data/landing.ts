@@ -105,16 +105,16 @@ export const testimonialsContent = {
   title: 'Hva folk jeg har jobbet med sier',
   testimonials: [
     {
-      quote: 'Han er tydelig, konkret, robust og god til å kommunisere med utviklingsteamet og interessenter rundt teamet. Som produktleder har han vist vei i en reorganisering av et stort team til to mindre team som dekker et komplekst og tungt domene. Med høyt arbeidspress, krevende systemavhengigheter kombinert med mange interessenter ute i bank har Carl ledet an skyreisen på en solid måte.',
+      highlight: 'Tydelig, konkret, robust og god til å kommunisere.',
+      quote: 'Som produktleder har han vist vei i en reorganisering av et stort team til to mindre team som dekker et komplekst og tungt domene. Med høyt arbeidspress og krevende systemavhengigheter har Carl ledet an på en solid måte.',
       role: 'Utviklingsleder',
       company: 'SpareBank 1 Utvikling',
-      situation: 'Teamet hadde mange parallelle initiativer og trengte en produktleder som kunne samle trådene.',
     },
     {
-      quote: 'Carl kom inn som Produkteier i mitt team i januar. Han gikk umiddelbart i gang med å ta de harde, men nødvendige, prioriteringene ut mot bank, og innad i teamet, og bidro på den måten til mindre forstyrrelser og tydeligere fokus for gruppa. Videre var Carl pådriver i teamet for en fornuftig bruk av OKR-er og Definition of Done.',
+      highlight: 'Tok de harde, men nødvendige, prioriteringene.',
+      quote: 'Han bidro til mindre forstyrrelser og tydeligere fokus for gruppa, og var pådriver for en fornuftig bruk av OKR-er og Definition of Done.',
       role: 'Senior Tech Lead',
       company: 'SpareBank 1 Utvikling',
-      situation: 'Teamet var i gang med mye, men manglet retning og tydelige prioriteringer.',
     },
   ],
 } as const;
@@ -165,7 +165,7 @@ export const contactContent = {
  */
 export const footerNavLinks = [
   { href: '/#tjenester', label: 'Tjenester' },
-  { href: '/verktoy', label: 'Gratisverktøy' },
+  { href: '/verktoy', label: 'Verktøy' },
   { href: EXTERNAL_LINKS.linkedinPersonal, label: 'LinkedIn', external: true },
   { href: '/personvern', label: 'Personvern' },
   { href: '/vilkar', label: 'Vilkår' },

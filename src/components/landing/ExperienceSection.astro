@@ -18,16 +18,17 @@ interface Props {
 const { title, entries } = Astro.props;
 ---
 
-<section class="py-20 md:py-28 px-6 bg-neutral-50">
+<section class="py-20 md:py-28 px-6 bg-white">
   <div class="max-w-3xl mx-auto">
-    <h2 class="text-h2 font-semibold text-brand-navy mb-10 text-center">
+    <h2 class="text-h2 font-semibold text-brand-navy mb-3 text-center">
       {title}
     </h2>
+    <div class="w-16 h-1 bg-brand-cyan-darker mx-auto mb-10"></div>
 
     <div class="grid md:grid-cols-2 gap-6">
       {entries.map((entry) => (
-        <div class="bg-white rounded-lg border border-neutral-200 p-6">
-          <p class="font-semibold text-brand-navy">{entry.company}</p>
+        <div class="bg-white rounded-xl border border-neutral-200 p-6 shadow-sm">
+          <p class="font-bold text-lg text-brand-navy">{entry.company}</p>
           <p class="text-sm text-neutral-500 mt-0.5">{entry.role}</p>
           <p class="text-neutral-600 text-sm mt-3">{entry.description}</p>
         </div>

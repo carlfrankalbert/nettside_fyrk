@@ -18,12 +18,13 @@ interface Props {
 const { title, description, emailHref, emailLabel, linkedinHref, linkedinLabel, phoneLabel } = Astro.props;
 ---
 
-<section id="kontakt" class="py-20 md:py-28 px-6 bg-neutral-50 scroll-mt-20">
+<section id="kontakt" class="py-16 md:py-24 px-6 bg-brand-navy scroll-mt-20">
   <div class="max-w-2xl mx-auto text-center">
-    <h2 class="text-h2 font-semibold text-brand-navy mb-4">
+    <h2 class="text-h2 font-bold text-white mb-3">
       {title}
     </h2>
-    <p class="text-lg text-neutral-600 mb-8">
+    <div class="w-12 h-1 bg-brand-cyan-darker mx-auto mb-6 rounded-full"></div>
+    <p class="text-lg text-neutral-300 mb-8">
       {description}
     </p>
 
@@ -35,7 +36,7 @@ const { title, description, emailHref, emailLabel, linkedinHref, linkedinLabel, 
         href={linkedinHref}
         target="_blank"
         rel="noopener noreferrer"
-        class="btn btn-outline no-underline inline-flex"
+        class="btn btn-outline-light no-underline inline-flex"
         aria-label={`${linkedinLabel} (åpnes i ny fane)`}
         data-track-button="contact_linkedin"
       >
@@ -43,7 +44,7 @@ const { title, description, emailHref, emailLabel, linkedinHref, linkedinLabel, 
       </a>
       <a
         id="contact-phone-btn"
-        class="btn btn-outline no-underline inline-flex"
+        class="btn btn-outline-light no-underline inline-flex"
         aria-label="Ring oss"
         data-c={PHONE_COUNTRY}
         data-p={PHONE_PARTS.join(',')}

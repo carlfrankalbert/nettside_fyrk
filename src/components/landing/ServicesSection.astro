@@ -22,11 +22,12 @@ interface Props {
 const { title, intro, services, footnote, ctaText, ctaHref } = Astro.props;
 ---
 
-<section id="tjenester" class="py-20 md:py-28 px-6 bg-neutral-50 scroll-mt-20">
+<section id="tjenester" class="py-20 md:py-28 px-6 bg-white scroll-mt-20">
   <div class="max-w-3xl mx-auto">
-    <h2 class="text-h2 font-semibold text-brand-navy mb-4 text-center">
+    <h2 class="text-h2 font-semibold text-brand-navy mb-3 text-center">
       {title}
     </h2>
+    <div class="w-16 h-1 bg-brand-cyan-darker mx-auto mb-4"></div>
 
     <p class="text-neutral-600 text-center mb-12 max-w-2xl mx-auto">
       {intro}
@@ -41,7 +42,7 @@ const { title, intro, services, footnote, ctaText, ctaHref } = Astro.props;
           <p class="text-neutral-600 mb-3">
             {service.description}
           </p>
-          <p class="text-sm italic text-neutral-500">
+          <p class="text-sm italic text-neutral-500 border-l-2 border-brand-cyan-darker pl-3">
             Passer når: {service.fitWhen}
           </p>
         </div>

@@ -26,22 +26,23 @@ interface Props {
 const { title, founder } = Astro.props;
 ---
 
-<section id="om" class="py-20 md:py-28 px-6 bg-white scroll-mt-20">
+<section id="om" class="py-20 md:py-28 px-6 bg-neutral-50 scroll-mt-20">
   <div class="max-w-3xl mx-auto">
-    <h2 class="text-h2 font-semibold text-brand-navy mb-8 text-center">
+    <h2 class="text-h2 font-semibold text-brand-navy mb-3 text-center">
       {title}
     </h2>
+    <div class="w-16 h-1 bg-brand-cyan-darker mx-auto mb-8"></div>
 
     <div>
-      <div class="flex flex-col md:flex-row gap-6 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 mb-6">
         {founder.image && (
           <div class="flex-shrink-0">
             <Image
               src={carlJohnsonImage}
               alt={founder.heading}
-              width={128}
-              height={128}
-              class="w-24 h-24 md:w-32 md:h-32 rounded-xl object-cover grayscale"
+              width={192}
+              height={192}
+              class="w-32 h-32 md:w-48 md:h-48 rounded-2xl object-cover grayscale shadow-lg ring-4 ring-neutral-100"
               loading="lazy"
             />
           </div>
@@ -58,7 +59,7 @@ const { title, founder } = Astro.props;
           href={founder.linkedinCta.href}
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center gap-1.5 text-sm font-medium text-brand-navy hover:text-brand-navy/80 transition-colors"
+          class="inline-flex items-center gap-1.5 text-sm font-medium text-brand-cyan-darker hover:text-brand-cyan-dark transition-colors"
           aria-label={`${founder.linkedinCta.text} (åpnes i ny fane)`}
           data-track-button="about_linkedin"
         >

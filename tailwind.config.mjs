@@ -7,12 +7,12 @@ export default {
       colors: {
         brand: {
           navy: '#001F3F',
-          cyan: '#5AB9D3',
-          'cyan-light': '#7CC8DD',
-          'cyan-lighter': '#9ED7E7',
-          'cyan-lightest': '#C0E6F1',
-          'cyan-dark': '#3A97B7',
-          'cyan-darker': '#2A7A92',
+          cyan: '#C4A07A',
+          'cyan-light': '#D4B896',
+          'cyan-lighter': '#E0CCAF',
+          'cyan-lightest': '#ECDEC8',
+          'cyan-dark': '#8A6249',
+          'cyan-darker': '#A0785A',
           white: '#FFFFFF',
         },
         neutral: {
@@ -84,7 +84,7 @@ export default {
         lg: '0 10px 15px rgba(0,0,0,0.1)',
         xl: '0 20px 25px rgba(0,0,0,0.1)',
         '2xl': '0 25px 50px -12px rgba(0,0,0,0.25)',
-        'brand-cyan': '0 10px 30px -5px rgba(90, 185, 211, 0.3)',
+        'brand-cyan': '0 10px 30px -5px rgba(160, 120, 90, 0.3)',
       },
       transitionDuration: {
         fast: '150ms',

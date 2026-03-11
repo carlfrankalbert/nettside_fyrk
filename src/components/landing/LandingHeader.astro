@@ -50,7 +50,7 @@ function isActive(href: string): boolean {
               href={link.href}
               class:list={[
                 'no-underline font-medium transition-colors',
-                isActive(link.href) ? 'text-brand-navy underline underline-offset-4 decoration-2' : 'text-neutral-700 hover:text-brand-navy'
+                isActive(link.href) ? 'text-brand-navy underline underline-offset-4 decoration-2 decoration-brand-cyan-darker' : 'text-neutral-700 hover:text-brand-cyan-darker'
               ]}
               aria-current={isActive(link.href) ? 'page' : undefined}
             >
@@ -93,7 +93,7 @@ function isActive(href: string): boolean {
               href={link.href}
               class:list={[
                 'no-underline font-medium py-2 min-h-[44px] flex items-center',
-                isActive(link.href) ? 'text-brand-navy font-semibold' : 'text-neutral-700 hover:text-brand-navy'
+                isActive(link.href) ? 'text-brand-navy font-semibold' : 'text-neutral-700 hover:text-brand-cyan-darker'
               ]}
               aria-current={isActive(link.href) ? 'page' : undefined}
             >
