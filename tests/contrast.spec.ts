@@ -66,10 +66,10 @@ test.describe('Contrast Tests - Light Mode', () => {
         return window.getComputedStyle(el).color;
       });
       
-      expect(bgColor).toContain('rgb(0, 31, 63)'); // brand-navy
+      expect(bgColor).toContain('rgb(142, 104, 74)'); // brand-cyan-darker (#8E684A)
       expect(textColor).toContain('rgb(255, 255, 255)'); // white
-      
-      const contrast = getContrastRatio('#001F3F', '#FFFFFF');
+
+      const contrast = getContrastRatio('#8E684A', '#FFFFFF');
       expect(contrast).toBeGreaterThanOrEqual(4.5);
     }
 
