@@ -151,7 +151,7 @@ describe('resolveAnthropicConfig', () => {
       runtime: { env: { ANTHROPIC_API_KEY: 'key' } },
     } as unknown as App.Locals;
     const result = resolveAnthropicConfig(locals);
-    expect(result.model).toBe('claude-sonnet-4-5-20250929');
+    expect(result.model).toBe('claude-sonnet-4-6');
   });
 
   it('returns undefined apiKey when none available', () => {
