@@ -15,8 +15,8 @@
 export const okrTool = {
   page: {
     seo: {
-      title: 'Gratis OKR-sjekk — AI-vurdering av dine OKR-er',
-      description: 'Lim inn Objective og Key Results og få umiddelbar vurdering med score, styrker og forbedringsforslag. Gratis OKR-verktøy uten registrering.',
+      title: 'OKR-sjekken — AI-vurdering av dine OKR-er',
+      description: 'Lim inn Objective og Key Results og få umiddelbar vurdering med score, styrker og forbedringsforslag. Ingen registrering.',
     },
     toolName: 'OKR-sjekken',
     breadcrumbLabel: 'OKR-sjekken',
@@ -69,7 +69,7 @@ export const okrTool = {
         'Som utgangspunkt for diskusjon i teamet',
       ],
       humanCTA: 'Vil du ha et menneskelig blikk i tillegg?',
-      footnote: 'OKR-sjekken er et gratis verktøy laget av FYRK.',
+      footnote: 'OKR-sjekken er laget av FYRK.',
     },
     // Context section strings
     contextToggle: 'Legg til kontekst (valgfritt)',
