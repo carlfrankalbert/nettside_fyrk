@@ -150,7 +150,7 @@ export const ANTHROPIC_CONFIG = {
   /** API version */
   VERSION: '2023-06-01',
   /** Default model */
-  DEFAULT_MODEL: 'claude-sonnet-4-5-20250929',
+  DEFAULT_MODEL: 'claude-sonnet-4-6',
   /** Max tokens for response */
   MAX_TOKENS: 4096,
   /** Request timeout in milliseconds (per attempt, before retries) */
@@ -181,8 +181,35 @@ export const CACHE_HEADERS = {
  * Cache key prefixes for AI tools
  * Versioned to allow cache invalidation when prompts change
  */
+/**
+ * OKR context options for industry, team type, and maturity selectors
+ */
+export const OKR_CONTEXT_OPTIONS = {
+  industry: [
+    { value: '', label: 'Velg bransje' },
+    { value: 'bank', label: 'Bank og finans' },
+    { value: 'public', label: 'Offentlig sektor' },
+    { value: 'saas', label: 'Tech / SaaS' },
+    { value: 'ecommerce', label: 'E-handel / retail' },
+    { value: 'other', label: 'Annet' },
+  ],
+  teamType: [
+    { value: '', label: 'Velg teamtype' },
+    { value: 'product', label: 'Produktteam' },
+    { value: 'platform', label: 'Plattformteam' },
+    { value: 'growth', label: 'Vekstteam' },
+    { value: 'leadership', label: 'Ledergruppe' },
+  ],
+  maturity: [
+    { value: '', label: 'Velg modenhetsnivå' },
+    { value: 'beginner', label: 'Første gang med OKR' },
+    { value: 'intermediate', label: '1\u20132 OKR-perioder' },
+    { value: 'experienced', label: 'Erfaren (3+ perioder)' },
+  ],
+} as const;
+
 export const CACHE_KEY_PREFIXES = {
-  OKR: 'okr:v1',
+  OKR: 'okr:v2',
   KONSEPTSPEIL: 'konseptspeil:v2',
   ANTAKELSESKART: 'antakelseskart:v1',
   PRE_MORTEM: 'premortem:v1',

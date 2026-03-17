@@ -57,13 +57,13 @@ const breadcrumbItems = [
 
       <slot name="hero" />
 
-      <ToolWhenToUse items={whenToUse} />
-
-      <ToolBenefits {...benefits} />
-
       <div class="mt-8">
         <slot />
       </div>
+
+      <ToolWhenToUse items={whenToUse} />
+
+      <ToolBenefits {...benefits} />
 
       <RelatedTools tools={relatedTools} />
 

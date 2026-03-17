@@ -43,14 +43,11 @@ const faqItems = [
     <p class="text-base md:text-lg text-neutral-600 leading-relaxed">
       {subtitle}
     </p>
-    <p class="text-sm md:text-base text-neutral-500 italic mt-1">
-      {disclaimer}
-    </p>
   </header>
 
   <OKRPageContent client:load />
 
-  <section slot="seo-content" class="mt-16 border-t border-neutral-200 pt-12 space-y-10">
+  <section slot="seo-content" class="mt-16 border-t border-neutral-200 pt-8">
     <script type="application/ld+json" set:html={JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
@@ -61,34 +58,35 @@ const faqItems = [
       })),
     })} />
 
-    <div>
-      <h2 class="text-xl font-semibold text-brand-navy mb-3">Hva er OKR?</h2>
-      <p class="text-neutral-600 leading-relaxed">
-        OKR (Objectives and Key Results) er et rammeverk for målstyring brukt av selskaper som Google, Spotify og DNB. Et <strong>Objective</strong> beskriver hva du vil oppnå — kvalitativt og inspirerende. <strong>Key Results</strong> er 2–5 målbare resultater som viser om du er på vei mot målet.
-      </p>
-    </div>
+    <details class="group">
+      <summary class="cursor-pointer text-sm font-medium text-neutral-500 hover:text-brand-navy select-none list-none flex items-center gap-1.5 transition-colors">
+        <svg class="w-4 h-4 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+        Mer om OKR og vanlige spørsmål
+      </summary>
 
-    <div>
-      <h2 class="text-xl font-semibold text-brand-navy mb-3">Slik bruker du OKR-sjekken</h2>
-      <ol class="list-decimal list-inside text-neutral-600 leading-relaxed space-y-2">
-        <li>Skriv eller lim inn ditt Objective og tilhørende Key Results.</li>
-        <li>Trykk «Sjekk OKR-settet ditt» for å få en AI-drevet vurdering.</li>
-        <li>Les gjennom score, styrker og forbedringsforslag.</li>
-        <li>Juster OKR-ene basert på tilbakemeldingen og test gjerne på nytt.</li>
-      </ol>
-    </div>
+      <div class="mt-6 space-y-8">
+        <div>
+          <h2 class="text-lg font-semibold text-brand-navy mb-2">Hva er OKR?</h2>
+          <p class="text-sm text-neutral-600 leading-relaxed">
+            OKR (Objectives and Key Results) er et rammeverk for målstyring brukt av selskaper som Google, Spotify og DNB. Et <strong>Objective</strong> beskriver hva du vil oppnå — kvalitativt og inspirerende. <strong>Key Results</strong> er 2–5 målbare resultater som viser om du er på vei mot målet.
+          </p>
+        </div>
 
-    <div>
-      <h2 class="text-xl font-semibold text-brand-navy mb-4">Vanlige spørsmål</h2>
-      <dl class="space-y-4">
-        {faqItems.map((faq) => (
-          <div>
-            <dt class="font-medium text-neutral-700">{faq.question}</dt>
-            <dd class="text-neutral-600 mt-1">{faq.answer}</dd>
-          </div>
-        ))}
-      </dl>
-    </div>
+        <div>
+          <h2 class="text-lg font-semibold text-brand-navy mb-3">Vanlige spørsmål</h2>
+          <dl class="space-y-3">
+            {faqItems.map((faq) => (
+              <div class="border-b border-neutral-100 pb-3 last:border-0">
+                <dt class="font-medium text-sm text-brand-navy">{faq.question}</dt>
+                <dd class="text-neutral-600 text-sm mt-1">{faq.answer}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </div>
+    </details>
   </section>
 </ToolLayout>
 

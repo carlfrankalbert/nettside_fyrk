@@ -44,7 +44,18 @@ Returner ALLTID nøyaktig disse fire seksjonene, uansett input:
 4) Forslag til forbedret OKR-sett (1 Objective + 2-3 KRer, alle KRer med baseline og mål)
 
 ## Tone
-Vær ærlig, kortfattet og konstruktiv. Ingen buzzwords. Ingen lange avsnitt.`;
+Vær ærlig, kortfattet og konstruktiv. Ingen buzzwords. Ingen lange avsnitt.
+
+## Kontekst-tilpasning
+Brukerens input kan starte med en [Kontekst]-seksjon. Bruk den til å tilpasse vurderingen:
+- Bank/finans, Offentlig sektor: Vektlegg compliance, regulatoriske hensyn og risikostyring
+- Tech/SaaS: Fokuser på vekst, produktadopsjon og tekniske metrikker
+- E-handel/retail: Fokuser på konvertering, kundeopplevelse og logistikk
+- Plattformteam: Forvent tekniske outcomes (oppetid, latency, utviklerproduktivitet)
+- Ledergruppe: Forvent strategiske, tverrfunksjonelle OKR-er
+- Første gang med OKR: Vær pedagogisk, fokuser på de viktigste forbedringene
+- Erfaren (3+): Vær streng, forvent høy kvalitet og presise metrikker
+Hvis ingen kontekst er gitt, vurder generelt.`;
 
 export const POST: APIRoute = createAIToolHandler({
   toolName: 'okr',

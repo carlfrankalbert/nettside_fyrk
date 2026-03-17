@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { parseOKRResult, getScoreColor } from '../utils/okr-parser';
-import { CheckIcon, WarningIcon, LightbulbIcon, CopyIcon, ThumbsUpIcon, ThumbsDownIcon } from './ui/Icon';
+import { CheckIcon, WarningIcon, LightbulbIcon, CopyIcon, RefreshIcon, ThumbsUpIcon, ThumbsDownIcon } from './ui/Icon';
 import { cn } from '../utils/classes';
 import { trackClick } from '../utils/tracking';
 import { useCopyToClipboard } from '../hooks/useCopyToClipboard';
@@ -11,6 +11,7 @@ const { result: resultStrings } = okrTool.ui;
 interface OKRResultDisplayProps {
   result: string;
   isStreaming: boolean;
+  onReEvaluate?: (suggestion: string) => void;
 }
 
 /**
@@ -127,7 +128,7 @@ function FeedbackCard({
 /**
  * Suggestion box with copy-to-clipboard functionality
  */
-function SuggestionBox({ suggestion, isStreaming }: { suggestion: string; isStreaming: boolean }) {
+function SuggestionBox({ suggestion, isStreaming, onReEvaluate }: { suggestion: string; isStreaming: boolean; onReEvaluate?: (suggestion: string) => void }) {
   const { copied, copyToClipboard } = useCopyToClipboard();
 
   const handleCopy = async () => {
@@ -159,7 +160,26 @@ function SuggestionBox({ suggestion, isStreaming }: { suggestion: string; isStre
               )}
             </pre>
             {!isStreaming && (
-              <div className="flex justify-end mt-4 pt-3 border-t border-brand-cyan-light/50">
+              <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-brand-cyan-light/50">
+                {onReEvaluate && (
+                  <button
+                    onClick={() => {
+                      trackClick('okr_re_evaluate');
+                      onReEvaluate(suggestion);
+                    }}
+                    className={cn(
+                      'inline-flex items-center gap-1.5 px-3 py-1.5',
+                      'text-sm font-medium text-brand-navy',
+                      'bg-white hover:bg-brand-cyan-lighter',
+                      'rounded-lg border border-brand-cyan-light',
+                      'transition-colors focus:outline-none',
+                      'focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2'
+                    )}
+                  >
+                    <RefreshIcon className="w-4 h-4" />
+                    {resultStrings.reEvaluateButton}
+                  </button>
+                )}
                 <button
                   onClick={handleCopy}
                   className={cn(
@@ -315,7 +335,7 @@ function SummarySection({ summary, isStreaming }: { summary: string; isStreaming
  * Main OKR Result Display component
  * Parses and displays the AI-generated OKR review in a structured format
  */
-export default function OKRResultDisplay({ result, isStreaming }: OKRResultDisplayProps) {
+export default function OKRResultDisplay({ result, isStreaming, onReEvaluate }: OKRResultDisplayProps) {
   const parsed = parseOKRResult(result);
 
   return (
@@ -351,7 +371,7 @@ export default function OKRResultDisplay({ result, isStreaming }: OKRResultDispl
       </div>
 
       {/* Suggestion box */}
-      <SuggestionBox suggestion={parsed.suggestion} isStreaming={isStreaming} />
+      <SuggestionBox suggestion={parsed.suggestion} isStreaming={isStreaming} onReEvaluate={onReEvaluate} />
 
       {/* Feedback buttons */}
       <FeedbackButtons isStreaming={isStreaming} />

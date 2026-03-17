@@ -57,8 +57,8 @@ export const okrTool = {
     resetButton: 'Start på nytt',
     resultLabel: 'Vurderingsresultat',
     privacy: {
-      introText: 'OKR-ene du legger inn brukes kun til å generere vurderingen. Unngå å lime inn konfidensiell eller sensitiv informasjon.',
-      howItWorks: 'Vurderingen genereres av Claude (Anthropic), en AI-modell som analyserer OKR-settet ditt basert på etablerte prinsipper for god målsetting.',
+      introText: 'OKR-ene du limer inn brukes kun til å generere vurderingen og lagres ikke. Unngå konfidensiell eller sensitiv informasjon.',
+      howItWorks: 'Vurderingen genereres av Claude Sonnet 4.6 fra Anthropic, som analyserer OKR-settet basert på etablerte prinsipper for god målsetting.',
     },
     // OKRPageContent strings
     whenUseful: {
@@ -71,6 +71,11 @@ export const okrTool = {
       humanCTA: 'Vil du ha et menneskelig blikk i tillegg?',
       footnote: 'OKR-sjekken er et gratis verktøy laget av FYRK.',
     },
+    // Context section strings
+    contextToggle: 'Legg til kontekst (valgfritt)',
+    industryLabel: 'Bransje',
+    teamTypeLabel: 'Teamtype',
+    maturityLabel: 'OKR-modenhet',
     // OKRResultDisplay strings
     result: {
       assessmentInProgress: 'Vurdering pågår...',
@@ -87,6 +92,7 @@ export const okrTool = {
       feedbackYes: 'Ja',
       feedbackNo: 'Nei',
       feedbackThanks: 'Takk for tilbakemeldingen!',
+      reEvaluateButton: 'Evaluer forslaget',
     },
   },
   example: `Objective:\nGjøre det enkelt og trygt for brukere å komme i gang med produktet.\n\nKey Results:\n1. Øke aktiveringsraten (fullført onboarding) fra 45 % til 70 %.\n2. Redusere tid til første verdi fra 10 minutter til under 3 minutter.\n3. Redusere onboarding-relaterte supporthenvendelser med 50 %.`,
@@ -152,7 +158,7 @@ export const konseptspeilTool = {
     resultLabel: 'Refleksjonsresultat',
     privacy: {
       introText: 'Teksten du skriver brukes kun til å generere refleksjonen. Unngå å lime inn konfidensiell eller sensitiv informasjon.',
-      howItWorks: 'Refleksjonen genereres av Claude (Anthropic), strukturert rundt de fire produktrisikoene (verdi, brukbarhet, gjennomførbarhet, levedyktighet).',
+      howItWorks: 'Refleksjonen genereres av Claude Sonnet 4.6 fra Anthropic, strukturert rundt de fire produktrisikoene (verdi, brukbarhet, gjennomførbarhet, levedyktighet).',
     },
     // KonseptSpeilResultDisplayV2 strings
     result: {
@@ -237,7 +243,7 @@ export const antakelseskartTool = {
     resultLabel: 'Antakelser',
     privacy: {
       introText: 'Teksten du skriver brukes kun til å identifisere antakelser. Unngå å lime inn konfidensiell eller sensitiv informasjon.',
-      howItWorks: 'Antakelsene genereres av Claude (Anthropic). Verktøyet analyserer teksten og identifiserer implisitte forutsetninger.',
+      howItWorks: 'Antakelsene genereres av Claude Sonnet 4.6 fra Anthropic. Verktøyet analyserer teksten og identifiserer implisitte forutsetninger.',
     },
     // AntakelseskartResultDisplay strings
     result: {
@@ -404,7 +410,7 @@ export const preMortemTool = {
     resultLabel: 'Pre-Mortem Brief resultat',
     privacy: {
       introText: 'Informasjonen du legger inn brukes kun til å generere Pre-Mortem Brief. Unngå å legge inn konfidensiell eller sensitiv informasjon.',
-      howItWorks: 'Briefen genereres av Claude (Anthropic), en AI-modell som analyserer beslutningsinformasjonen basert på etablerte risikoanalyseprinsipper.',
+      howItWorks: 'Briefen genereres av Claude Sonnet 4.6 fra Anthropic, som analyserer beslutningsinformasjonen basert på etablerte risikoanalyseprinsipper.',
     },
   },
   selectOptions: {
