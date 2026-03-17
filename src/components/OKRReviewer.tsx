@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { reviewOKRStreaming } from '../services/okr-service';
 import OKRResultDisplay from './OKRResultDisplay';
-import { CheckIcon, ErrorIcon, SpinnerIcon } from './ui/Icon';
+import { ErrorIcon, SpinnerIcon } from './ui/Icon';
 import { PrivacyAccordion } from './ui/PrivacyAccordion';
 import { cn } from '../utils/classes';
 import { INPUT_VALIDATION, UI_TIMING, OKR_CONTEXT_OPTIONS } from '../utils/constants';
