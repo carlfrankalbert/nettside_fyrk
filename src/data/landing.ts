@@ -63,7 +63,7 @@ export const aboutContent = {
       'Jeg liker å løse problemer og har lite tålmodighet for arbeid som ikke skaper verdi.',
     ],
     linkedinCta: {
-      text: 'Se arbeidshistorikk og anbefalinger på LinkedIn',
+      text: 'Se full CV på LinkedIn',
       href: EXTERNAL_LINKS.linkedinPersonal,
     },
   },
