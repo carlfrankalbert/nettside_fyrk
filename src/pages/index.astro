@@ -6,7 +6,6 @@
 
 import '../styles/global.css';
 import SEOHead from '../components/seo/SEOHead.astro';
-import { SITE_CONFIG } from '../config/site';
 import { ELEMENT_IDS } from '../utils/constants';
 
 // Landing page components
@@ -36,10 +35,47 @@ import {
 <html lang="no" class="scroll-smooth">
   <head>
     <SEOHead
-      title={`${SITE_CONFIG.name} | Senior produktledelse for regulerte bransjer`}
-      description="Senior produktledelse og produktcoaching for regulerte bransjer. Interim produktleder, OKR-implementering og AI governance. 15+ års erfaring fra bank, fintech og offentlig sektor."
+      title="Senior produktledelse for regulerte bransjer"
+      description="Interim produktleder og produktcoaching for bank, fintech og offentlig sektor. 15+ års erfaring. OKR, AI-verktøy og beslutningsstøtte."
       type="website"
     />
+    <script type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'LocalBusiness',
+          '@id': 'https://fyrk.no/#organization',
+          name: 'FYRK',
+          url: 'https://fyrk.no',
+          description: 'Produktledelse og coaching for regulerte bransjer.',
+          areaServed: { '@type': 'Country', name: 'NO' },
+          serviceType: ['Consulting', 'Product Management', 'Coaching'],
+          contactPoint: {
+            '@type': 'ContactPoint',
+            contactType: 'customer service',
+            email: 'hei@fyrk.no',
+            availableLanguage: 'Norwegian',
+          },
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: 'Møllergata 6',
+            addressLocality: 'Oslo',
+            postalCode: '0179',
+            addressCountry: 'NO',
+          },
+          founder: { '@id': 'https://fyrk.no/#founder' },
+        },
+        {
+          '@type': 'Person',
+          '@id': 'https://fyrk.no/#founder',
+          name: 'Carl Johnson',
+          url: 'https://fyrk.no',
+          jobTitle: 'Produktleder og rådgiver',
+          sameAs: ['https://www.linkedin.com/in/carlfajohnson/'],
+          worksFor: { '@id': 'https://fyrk.no/#organization' },
+        },
+      ],
+    })} />
   </head>
   <body class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
     <!-- Skip link for accessibility -->

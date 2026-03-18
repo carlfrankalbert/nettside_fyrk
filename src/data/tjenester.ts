@@ -22,8 +22,8 @@ export const serviceContactCTA = {
  */
 export const tjenesterIndexContent = {
   seo: {
-    title: 'Tjenester | FYRK',
-    description: 'FYRK tilbyr interim produktledelse, produktcoaching og beslutningsgjennomgang. Senior rådgivning og operativ kapasitet for regulerte bransjer.',
+    title: 'Interim produktledelse, coaching og beslutningsstøtte',
+    description: 'Interim produktledelse, produktcoaching og beslutningsgjennomgang for regulerte bransjer. Senior rådgivning og operativ kapasitet.',
   },
   title: 'Tjenester',
   subtitle: 'Rådgivning før viktige beslutninger — eller operativt ansvar når dere trenger forsterkning.',
@@ -38,7 +38,7 @@ export const tjenesterIndexContent = {
  */
 export const beslutningsgjennomgangContent = {
   seo: {
-    title: 'Beslutningsgjennomgang | FYRK',
+    title: 'Beslutningsgjennomgang — strukturert risikovurdering',
     description: 'En strukturert gjennomgang av én konkret beslutning – gir deg et bedre grunnlag for å vurdere veien videre.',
   },
   header: {
@@ -102,7 +102,7 @@ export const beslutningsgjennomgangContent = {
  */
 export const interimContent = {
   seo: {
-    title: 'Interim produktleder | FYRK',
+    title: 'Interim produktleder — senior kapasitet fra dag 1',
     description: 'Senior interim produktleder – operativ fra uke 1. Prioritering, beslutningsstøtte og fremdrift i komplekse miljøer.',
   },
   header: {
@@ -151,7 +151,7 @@ export const interimContent = {
  */
 export const kvalitetContent = {
   seo: {
-    title: 'Kvalitet og leveranseledelse | FYRK',
+    title: 'Kvalitet og leveranseledelse — forutsigbar flyt',
     description: 'Kvalitet og leveranseledelse i komplekse miljøer. Mer forutsigbar flyt, færre overraskelser og tydeligere ansvar.',
   },
   header: {

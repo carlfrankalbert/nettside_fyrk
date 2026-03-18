@@ -7,12 +7,12 @@ import { EXTERNAL_LINKS, CONTACT_LABEL } from '../utils/links';
 
 export const verktoyPageContent = {
   seo: {
-    title: 'Verktøy | FYRK',
-    description: 'Arbeidsverktøy for reelle beslutninger i komplekse miljøer. Refleksjon, antakelsesanalyse, beslutningslogg og pre-mortem – gratis og uten innlogging.',
+    title: 'Verktøy for OKR, antakelser og beslutninger',
+    description: 'Arbeidsverktøy for reelle beslutninger i komplekse miljøer. OKR-sjekk, antakelsesanalyse, beslutningslogg og pre-mortem — uten innlogging.',
   },
   title: 'Verktøy',
   subtitle: 'Arbeidsverktøy som hjelper deg se tydeligere — raskere — før du forplikter deg.',
-  tagline: 'Gratis. Ingen innlogging. Ingen data lagres.',
+  tagline: 'Ingen innlogging. Ingen data lagres.',
   sections: [
     {
       heading: 'Refleksjon og analyse',

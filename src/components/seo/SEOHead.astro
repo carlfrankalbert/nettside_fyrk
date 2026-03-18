@@ -48,7 +48,9 @@ const canonical = canonicalUrl || new URL(Astro.url.pathname, site);
 <meta name="twitter:description" content={metaDescription} />
 {type === 'article' && <meta name="twitter:image" content={ogImage} />}
 
-<!-- Canonical -->
+<!-- Canonical & hreflang -->
 <link rel="canonical" href={canonical} />
+<link rel="alternate" hreflang="nb" href={canonical} />
+<link rel="alternate" hreflang="x-default" href={canonical} />
 
 

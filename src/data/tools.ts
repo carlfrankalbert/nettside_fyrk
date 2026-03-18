@@ -105,8 +105,8 @@ export const okrTool = {
 export const konseptspeilTool = {
   page: {
     seo: {
-      title: 'Test og forbedre produktidéer – avdekk antakelser tidlig',
-      description: 'Gratis verktøy for å teste og forbedre produktidéer. Avdekker skjulte antakelser og hull i tidlige konsepter – på 1 min, uten registrering.',
+      title: 'Avdekk skjulte antakelser i produktidéer',
+      description: 'Test og forbedre produktidéer. Avdekker antakelser og hull i tidlige konsepter — på 1 minutt, uten registrering.',
     },
     toolName: 'Konseptspeilet',
     breadcrumbLabel: 'Konseptspeilet',
@@ -202,7 +202,7 @@ export const antakelseskartTool = {
   page: {
     seo: {
       title: 'Avdekk skjulte antakelser i produktbeslutninger',
-      description: 'Gratis verktøy som gjør implisitte antakelser eksplisitte. Identifiser risiko og blindsoner i produkt- og strategibeslutninger.',
+      description: 'Gjør implisitte antakelser eksplisitte. Identifiser risiko og blindsoner i produkt- og strategibeslutninger. Ingen registrering.',
     },
     toolName: 'Antakelseskartet',
     breadcrumbLabel: 'Antakelseskartet',
@@ -284,7 +284,7 @@ export const beslutningsloggTool = {
   page: {
     seo: {
       title: 'Beslutningslogg — dokumenter beslutninger strukturert',
-      description: 'Gratis verktøy for å dokumentere beslutninger strukturert. Eksporter til Markdown for Notion, Confluence eller GitHub. Ingen registrering.',
+      description: 'Dokumenter beslutninger strukturert. Eksporter til Markdown for Notion, Confluence eller GitHub. Ingen registrering.',
     },
     toolName: 'Beslutningslogg',
     breadcrumbLabel: 'Beslutningslogg',
@@ -348,7 +348,7 @@ export const preMortemTool = {
   page: {
     seo: {
       title: 'Pre-Mortem Brief — identifiser hva som kan gå galt',
-      description: 'Gratis verktøy for å avdekke failure modes, varselsignaler og stopp-kriterier før irreversible beslutninger. Ingen registrering.',
+      description: 'Avdekk failure modes, varselsignaler og stopp-kriterier før irreversible beslutninger. Ingen registrering.',
     },
     toolName: 'Pre-Mortem Brief',
     breadcrumbLabel: 'Pre-Mortem Brief',

@@ -9,12 +9,32 @@ import { EXTERNAL_LINKS, CONTACT_LABEL } from '../../utils/links';
 import { tjenesterIndexContent } from '../../data/tjenester';
 
 const { seo, title, subtitle, contactBridge } = tjenesterIndexContent;
+
+const serviceSchema = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  itemListElement: servicesContent.services.map((service, i) => ({
+    '@type': 'Service',
+    position: i + 1,
+    name: service.title,
+    description: service.description,
+    provider: {
+      '@type': 'LocalBusiness',
+      '@id': 'https://fyrk.no/#organization',
+      name: 'FYRK',
+      url: 'https://fyrk.no',
+    },
+    areaServed: { '@type': 'Country', name: 'NO' },
+    availableLanguage: 'nb',
+  })),
+});
 ---
 
 <BaseLayout
   title={seo.title}
   description={seo.description}
 >
+  <script type="application/ld+json" set:html={serviceSchema} />
   <article class="py-16 md:py-24 px-6">
     <div class="max-w-3xl mx-auto">
 
