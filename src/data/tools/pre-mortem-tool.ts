@@ -1,0 +1,101 @@
+/**
+ * Pre-Mortem Brief tool page content
+ */
+
+export const preMortemTool = {
+  page: {
+    seo: {
+      title: 'Pre-Mortem Brief — identifiser hva som kan gå galt',
+      description: 'Avdekk failure modes, varselsignaler og stopp-kriterier før irreversible beslutninger. Ingen registrering.',
+    },
+    toolName: 'Pre-Mortem Brief',
+    breadcrumbLabel: 'Pre-Mortem Brief',
+    h1: 'Hva kan gå galt?',
+    badge: 'Beta',
+    subtitle: 'Beskriv en beslutning du vurderer. AI-en hjelper deg å tenke gjennom failure modes, tidlige varselsignaler og kriterier for når du bør stoppe - før det er for sent.',
+    tagline: 'Ingen registrering · Ingen lagring · Bare klarhet',
+    whenToUse: [
+      'Før du forplikter deg til en større beslutning som er vanskelig å reversere',
+      'Når teamet er enige, men ingen har spurt "hva om vi tar feil?"',
+      'I styremøter og ledergrupper for å dokumentere risikovurdering',
+      'Når du vil ha konkrete kriterier for når du bør evaluere eller avbryte',
+    ],
+    benefits: {
+      items: [
+        '5-6 konkrete failure modes med konsekvenskategori',
+        'Tidlige varselsignaler du kan overvåke',
+        'Stopp-kriterier for PAUSE og FULL TILBAKETREKKING',
+        'Forslag til eierskap og ansvar',
+      ],
+      footnote: 'Ingen anbefaling om hva du bør gjøre. Bare strukturert risikotenkning.',
+    },
+    relatedTools: [
+      { name: 'Antakelseskartet', href: '/antakelseskart', description: 'Avdekk de implisitte antakelsene bak beslutningen.' },
+      { name: 'Beslutningslogg', href: '/beslutningslogg', description: 'Dokumenter risikobeslutningene du har tatt.' },
+    ],
+    mobileCTA: { buttonText: 'Generer Pre-Mortem Brief' },
+  },
+  ui: {
+    piiWarning: 'Unngå personopplysninger og hemmelige detaljer i skjemaet.',
+    beslutningLabel: 'Beslutning',
+    beslutningHelp: 'Beskriv beslutningen som skal tas',
+    beslutningPlaceholder: 'F.eks: Vi vurderer å bytte fra on-premise til cloud-basert infrastruktur for alle kundedatabaser...',
+    bransjeLabel: 'Bransje / Domene',
+    kundetypeLabel: 'Kundetype',
+    kontekstLabel: 'Kort kontekst',
+    kontekstHelp: 'Bakgrunn og relevante omstendigheter',
+    kontekstPlaceholder: 'F.eks: Vi har 50 000 aktive kunder og behandler ca. 2 millioner transaksjoner daglig. Dagens løsning er 8 år gammel...',
+    risikoLabel: 'Regulatorisk / Risikonivå',
+    risikoForklaringLabel: 'Forklaring (valgfritt)',
+    risikoForklaringHelp: 'Utdyp risikonivået',
+    risikoForklaringPlaceholder: 'F.eks: GDPR, PCI-DSS krav...',
+    beslutningsfristLabel: 'Beslutningsfrist',
+    beslutningsfristHelp: 'Når må beslutningen tas?',
+    beslutningsfristPlaceholder: 'F.eks: Innen Q2 2024, 15. mars...',
+    effekthorisontLabel: 'Effekthorisont',
+    effekthorisontHelp: 'Når forventes effekten?',
+    effekthorisontPlaceholder: 'F.eks: 6-24 måneder, 2-3 år...',
+    optionalFieldsToggle: 'Valgfrie felt (klikk for å utvide)',
+    tidligereForsokLabel: 'Tidligere forsøk eller relevant erfaring',
+    tidligereForsokPlaceholder: 'Har lignende beslutninger vært tatt før? Hva skjedde?',
+    interessenterLabel: 'Nøkkelinteressenter',
+    interessenterPlaceholder: 'Hvem påvirkes av beslutningen? Hvem har innflytelse?',
+    konfidensialitetLabel: 'Konfidensialitetsnivå',
+    konfidensialitetHelp: 'Påvirker detaljnivå i output',
+    submitButton: 'Generer Pre-Mortem Brief',
+    loadingButton: 'Genererer brief...',
+    resetButton: 'Start på nytt',
+    resultLabel: 'Pre-Mortem Brief resultat',
+    privacy: {
+      introText: 'Informasjonen du legger inn brukes kun til å generere Pre-Mortem Brief. Unngå å legge inn konfidensiell eller sensitiv informasjon.',
+      howItWorks: 'Briefen genereres av Claude Sonnet 4.6 fra Anthropic, som analyserer beslutningsinformasjonen basert på etablerte risikoanalyseprinsipper.',
+    },
+  },
+  selectOptions: {
+    bransje: [
+      { value: '', label: 'Velg bransje...' },
+      { value: 'bank_finans', label: 'Bank / Finans' },
+      { value: 'offentlig', label: 'Offentlig sektor' },
+      { value: 'energi', label: 'Energi' },
+      { value: 'b2b_saas', label: 'B2B SaaS' },
+      { value: 'annet', label: 'Annet' },
+    ],
+    risikoniva: [
+      { value: '', label: 'Velg nivå...' },
+      { value: 'lav', label: 'Lav' },
+      { value: 'medium', label: 'Medium' },
+      { value: 'hoy', label: 'Høy' },
+    ],
+    kundetype: [
+      { value: '', label: 'Velg kundetype...' },
+      { value: 'b2c', label: 'B2C' },
+      { value: 'b2b', label: 'B2B' },
+      { value: 'offentlig', label: 'Offentlig' },
+    ],
+    konfidensialitet: [
+      { value: 'intern', label: 'Intern (normal detalj)' },
+      { value: 'begrenset', label: 'Begrenset (moderat detalj)' },
+      { value: 'styresensitiv', label: 'Styresensitiv (abstrakt)' },
+    ],
+  },
+} as const;
