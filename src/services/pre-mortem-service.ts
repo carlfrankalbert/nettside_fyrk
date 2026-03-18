@@ -7,18 +7,23 @@ import { createStreamingService, DEFAULT_ERROR_MESSAGES } from '../lib/streaming
 import { isPreMortemResponseComplete } from '../utils/response-validator';
 import { API_ROUTES, CACHE_KEY_PREFIXES } from '../utils/constants';
 
+// ============================================================================
+// Constants
+// ============================================================================
+
 const API_ENDPOINT = API_ROUTES.PRE_MORTEM;
 const CACHE_KEY_PREFIX = `${CACHE_KEY_PREFIXES.PRE_MORTEM}:`;
 
-/**
- * Error messages for the pre-mortem service
- */
 const ERROR_MESSAGES = {
   ...DEFAULT_ERROR_MESSAGES,
   INVALID_OUTPUT: 'Kunne ikke generere komplett Pre-Mortem Brief. Prøv igjen.',
 } as const;
 
 export { ERROR_MESSAGES };
+
+// ============================================================================
+// Validators
+// ============================================================================
 
 /**
  * Validate that the output conforms to the expected markdown format.
@@ -27,7 +32,10 @@ export function isValidOutput(output: string): boolean {
   return isPreMortemResponseComplete(output);
 }
 
-// Create the streaming service instance
+// ============================================================================
+// Service instance
+// ============================================================================
+
 const service = createStreamingService({
   endpoint: API_ENDPOINT,
   cacheKeyPrefix: CACHE_KEY_PREFIX,
@@ -36,6 +44,10 @@ const service = createStreamingService({
   maxRetries: 1,
   retryEventName: 'premortem_retry',
 });
+
+// ============================================================================
+// Service functions
+// ============================================================================
 
 /**
  * Generate Pre-Mortem Brief with streaming response

@@ -6,18 +6,23 @@
 import { createStreamingService, DEFAULT_ERROR_MESSAGES } from '../lib/streaming-service-client';
 import { isAntakelseskartResponseComplete } from '../utils/response-validator';
 
+// ============================================================================
+// Constants
+// ============================================================================
+
 const API_ENDPOINT = '/api/antakelseskart';
 const CACHE_KEY_PREFIX = 'antakelseskart:v1:';
 
-/**
- * Error messages for the antakelseskart service
- */
 const ERROR_MESSAGES = {
   ...DEFAULT_ERROR_MESSAGES,
   INVALID_OUTPUT: 'Jeg fikk ikke gyldige antakelser denne gangen. Prøv igjen.',
 } as const;
 
 export { ERROR_MESSAGES };
+
+// ============================================================================
+// Validators
+// ============================================================================
 
 /**
  * Validate that the output conforms to the expected JSON format.
@@ -26,7 +31,10 @@ export function isValidOutput(output: string): boolean {
   return isAntakelseskartResponseComplete(output);
 }
 
-// Create the streaming service instance
+// ============================================================================
+// Service instance
+// ============================================================================
+
 const service = createStreamingService({
   endpoint: API_ENDPOINT,
   cacheKeyPrefix: CACHE_KEY_PREFIX,
@@ -35,6 +43,10 @@ const service = createStreamingService({
   maxRetries: 1,
   retryEventName: 'antakelseskart_retry',
 });
+
+// ============================================================================
+// Service functions
+// ============================================================================
 
 /**
  * Generate assumptions with streaming response

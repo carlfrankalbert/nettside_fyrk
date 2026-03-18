@@ -6,12 +6,13 @@
 import { createStreamingService, DEFAULT_ERROR_MESSAGES } from '../lib/streaming-service-client';
 import { isKonseptspeilResponseComplete } from '../utils/response-validator';
 
+// ============================================================================
+// Constants
+// ============================================================================
+
 const API_ENDPOINT = '/api/konseptspeilet';
 const CACHE_KEY_PREFIX = 'konseptspeil:v2:';
 
-/**
- * Error messages for the konseptspeil service
- */
 const ERROR_MESSAGES = {
   ...DEFAULT_ERROR_MESSAGES,
   INVALID_OUTPUT: 'Jeg fikk ikke et tydelig speil denne gangen. Prøv igjen.',
@@ -19,15 +20,21 @@ const ERROR_MESSAGES = {
 
 export { ERROR_MESSAGES };
 
+// ============================================================================
+// Validators
+// ============================================================================
+
 /**
  * Validate that the output conforms to the expected JSON format.
- * Returns true if valid, false if missing required sections.
  */
 export function isValidOutput(output: string): boolean {
   return isKonseptspeilResponseComplete(output);
 }
 
-// Create the streaming service instance
+// ============================================================================
+// Service instance
+// ============================================================================
+
 const service = createStreamingService({
   endpoint: API_ENDPOINT,
   cacheKeyPrefix: CACHE_KEY_PREFIX,
@@ -36,6 +43,10 @@ const service = createStreamingService({
   maxRetries: 1,
   retryEventName: 'konseptspeil_retry',
 });
+
+// ============================================================================
+// Service functions
+// ============================================================================
 
 /**
  * Speile konsept with streaming response
@@ -54,6 +65,7 @@ export async function speileKonseptStreaming(
 
 /**
  * Speile konsept without streaming (for simple use cases)
+ * @deprecated Only used in tests. Prefer speileKonseptStreaming for production use.
  */
 export async function speileKonsept(input: string): Promise<{ output: string; cached: boolean }> {
   return service.request(input);

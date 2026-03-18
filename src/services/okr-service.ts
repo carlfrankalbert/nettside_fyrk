@@ -7,17 +7,20 @@ import type { OKRReviewResult } from '../types';
 import { createStreamingService, DEFAULT_ERROR_MESSAGES } from '../lib/streaming-service-client';
 import { ERROR_MESSAGES as APP_ERROR_MESSAGES, API_ROUTES, CACHE_KEY_PREFIXES } from '../utils/constants';
 
-/**
- * Error messages for the OKR service
- * Streaming uses DEFAULT_ERROR_MESSAGES; non-streaming wrapper uses OKR-specific messages
- */
+// ============================================================================
+// Constants
+// ============================================================================
+
 const ERROR_MESSAGES = {
   ...DEFAULT_ERROR_MESSAGES,
 } as const;
 
 export { ERROR_MESSAGES };
 
-// Create the streaming service instance
+// ============================================================================
+// Service instance
+// ============================================================================
+
 const service = createStreamingService({
   endpoint: API_ROUTES.OKR_REVIEW,
   cacheKeyPrefix: `${CACHE_KEY_PREFIXES.OKR}:`,
@@ -26,8 +29,27 @@ const service = createStreamingService({
   maxRetries: 0,
 });
 
+// ============================================================================
+// Service functions
+// ============================================================================
+
+/**
+ * Submit an OKR for AI-powered review with streaming
+ */
+export async function reviewOKRStreaming(
+  input: string,
+  onChunk: (text: string) => void,
+  onComplete: () => void,
+  onError: (error: string) => void,
+  signal?: AbortSignal,
+  onRetry?: () => void
+): Promise<void> {
+  return service.streamRequest(input, onChunk, onComplete, onError, signal, onRetry);
+}
+
 /**
  * Submit an OKR for AI-powered review (non-streaming)
+ * @deprecated Only used in tests. Prefer reviewOKRStreaming for production use.
  */
 export async function reviewOKR(input: string): Promise<OKRReviewResult> {
   try {
@@ -49,19 +71,8 @@ export async function reviewOKR(input: string): Promise<OKRReviewResult> {
   }
 }
 
-/**
- * Submit an OKR for AI-powered review with streaming
- */
-export async function reviewOKRStreaming(
-  input: string,
-  onChunk: (text: string) => void,
-  onComplete: () => void,
-  onError: (error: string) => void,
-  signal?: AbortSignal,
-  onRetry?: () => void
-): Promise<void> {
-  return service.streamRequest(input, onChunk, onComplete, onError, signal, onRetry);
-}
+// ============================================================================
+// Exports
+// ============================================================================
 
-// Re-export types for convenience
 export type { OKRReviewResult };
