@@ -20,6 +20,7 @@ import { useCopyWithToast } from '../hooks/useCopyWithToast';
 import type { AssumptionAssignments } from './antakelseskart/AssumptionCard';
 import { CategorySection } from './antakelseskart/CategorySection';
 import { CriticalSummary } from './antakelseskart/CriticalSummary';
+import { ResultErrorState } from './ui/ResultErrorState';
 
 // ============================================================================
 // Types
@@ -110,42 +111,18 @@ export default function AntakelseskartResultDisplay({
 
   // Show parse error
   if (parsed.parseError && !isStreaming) {
-    return (
-      <div className="p-4 bg-feedback-error/10 border border-feedback-error/20 rounded-lg">
-        <p className="text-feedback-error text-sm">{parsed.parseError}</p>
-        {onRetry && (
-          <button
-            type="button"
-            onClick={onRetry}
-            className="mt-3 text-sm text-brand-navy hover:text-brand-cyan-darker underline"
-          >
-            Prøv igjen
-          </button>
-        )}
-      </div>
-    );
+    return <ResultErrorState variant="error" message={parsed.parseError} onRetry={onRetry} />;
   }
 
   // Show warning if incomplete
   if (!isStreaming && !hasContent(parsed)) {
     return (
-      <div className="p-4 bg-feedback-warning/10 border border-feedback-warning/20 rounded-lg">
-        <p className="text-feedback-warning text-sm font-medium mb-2">
-          Responsen ser ut til å være ufullstendig
-        </p>
-        <p className="text-neutral-600 text-sm mb-3">
-          AI-en returnerte ikke det forventede formatet. Dette kan skyldes et midlertidig problem.
-        </p>
-        {onRetry && (
-          <button
-            type="button"
-            onClick={onRetry}
-            className="text-sm text-brand-navy hover:text-brand-cyan-darker underline"
-          >
-            Prøv igjen
-          </button>
-        )}
-      </div>
+      <ResultErrorState
+        variant="warning"
+        message="Responsen ser ut til å være ufullstendig"
+        description="AI-en returnerte ikke det forventede formatet. Dette kan skyldes et midlertidig problem."
+        onRetry={onRetry}
+      />
     );
   }
 
