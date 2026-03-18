@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { generateAssumptionsStreaming, ERROR_MESSAGES, isValidOutput } from '../services/antakelseskart-service';
 import AntakelseskartResultDisplay from './AntakelseskartResultDisplay';
 import { SpinnerIcon } from './ui/Icon';
@@ -12,6 +12,7 @@ import { validateBeslutningInput } from '../utils/form-validation';
 import { useStreamingForm } from '../hooks/useStreamingForm';
 import { useFormInputHandlers } from '../hooks/useFormInputHandlers';
 import { antakelseskartTool } from '../data/tools';
+import { fillExample, scrollToTopAndFocus } from '../utils/form-interactions';
 
 // ============================================================================
 // Constants
@@ -26,6 +27,12 @@ const { ui } = antakelseskartTool;
 // ============================================================================
 
 export default function Antakelseskart() {
+  // ---------------------------------------------------------------------------
+  // Refs (component-specific)
+  // ---------------------------------------------------------------------------
+  const resultRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   // ---------------------------------------------------------------------------
   // Streaming Form Hook
   // ---------------------------------------------------------------------------
@@ -43,13 +50,13 @@ export default function Antakelseskart() {
     handleSubmit,
     clearError,
     reset,
-    abortControllerRef,
   } = useStreamingForm({
     toolName: 'antakelseskart',
     validateInput: validateBeslutningInput,
     streamingService: generateAssumptionsStreaming,
     isValidOutput,
     errorMessages: ERROR_MESSAGES,
+    resultRef,
   });
 
   // ---------------------------------------------------------------------------
@@ -57,12 +64,6 @@ export default function Antakelseskart() {
   // ---------------------------------------------------------------------------
   const [isExampleAnimating, setIsExampleAnimating] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-
-  // ---------------------------------------------------------------------------
-  // Refs (component-specific)
-  // ---------------------------------------------------------------------------
-  const resultRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // ---------------------------------------------------------------------------
   // Form Input Handlers Hook
@@ -94,63 +95,24 @@ export default function Antakelseskart() {
   const isNearingMinimum = trimmedLength >= 1 && trimmedLength < SUBMIT_THRESHOLD;
 
   // ---------------------------------------------------------------------------
-  // Effects
-  // ---------------------------------------------------------------------------
-
-  // Cleanup abort controller on unmount
-  useEffect(() => {
-    return () => {
-      abortControllerRef.current?.abort();
-    };
-  }, [abortControllerRef]);
-
-  // Scroll to results when streaming completes
-  useEffect(() => {
-    if (!isStreaming && result) {
-      setTimeout(() => {
-        resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-    }
-  }, [isStreaming, result]);
-
-  // ---------------------------------------------------------------------------
   // Event Handlers
   // ---------------------------------------------------------------------------
 
   const handleFillExample = () => {
-    trackClick('antakelseskart_example');
-    setIsExampleAnimating(true);
-    setInput(EXAMPLE_DECISION);
-    clearError();
-
-    setTimeout(() => {
-      const textarea = textareaRef.current;
-      if (textarea) {
-        textarea.focus();
-        textarea.setSelectionRange(EXAMPLE_DECISION.length, EXAMPLE_DECISION.length);
-      }
-    }, 50);
-
-    setTimeout(() => {
-      setIsExampleAnimating(false);
-    }, 600);
+    fillExample(EXAMPLE_DECISION, setInput, clearError, setIsExampleAnimating, textareaRef, {
+      trackingId: 'antakelseskart_example',
+    });
   };
 
   const handleEditInput = () => {
     trackClick('antakelseskart_edit');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(() => {
-      textareaRef.current?.focus();
-    }, 300);
+    scrollToTopAndFocus(textareaRef, 300);
   };
 
   const handleFullReset = useCallback(() => {
     trackClick('antakelseskart_reset');
     reset();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(() => {
-      textareaRef.current?.focus();
-    }, 100);
+    scrollToTopAndFocus(textareaRef);
   }, [reset]);
 
   // ---------------------------------------------------------------------------

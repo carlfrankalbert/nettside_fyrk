@@ -1,6 +1,7 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { STREAMING_CONSTANTS, ERROR_MESSAGES, type StreamingErrorType } from '../utils/constants';
 import { trackClick, logEvent } from '../utils/tracking';
+import { scrollToElement } from '../utils/form-interactions';
 
 /**
  * Patterns that indicate a network-related error
@@ -63,6 +64,8 @@ export interface UseStreamingFormConfig {
   getExternalInput?: () => string;
   /** Override the hard timeout in ms (default: 45 000) */
   timeoutMs?: number;
+  /** Optional ref to result element — auto-scrolls on streaming complete */
+  resultRef?: React.RefObject<HTMLElement | null>;
 }
 
 export interface UseStreamingFormReturn {
@@ -96,7 +99,7 @@ export interface UseStreamingFormReturn {
 // ============================================================================
 
 export function useStreamingForm(config: UseStreamingFormConfig): UseStreamingFormReturn {
-  const { toolName, validateInput, streamingService, isValidOutput, errorMessages, getExternalInput, timeoutMs } = config;
+  const { toolName, validateInput, streamingService, isValidOutput, errorMessages, getExternalInput, timeoutMs, resultRef } = config;
   const timeoutDuration = timeoutMs ?? HARD_TIMEOUT_MS;
 
   // ---------------------------------------------------------------------------
@@ -271,6 +274,24 @@ export function useStreamingForm(config: UseStreamingFormConfig): UseStreamingFo
       abortControllerRef.current.signal
     );
   }, [input, loading, toolName, validateInput, streamingService, isValidOutput, errorMessages, getExternalInput, timeoutDuration, clearTimeouts, setErrorWithType]);
+
+  // ---------------------------------------------------------------------------
+  // Effects
+  // ---------------------------------------------------------------------------
+
+  // Cleanup abort controller on unmount
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
+
+  // Scroll to results when streaming completes (if resultRef provided)
+  useEffect(() => {
+    if (resultRef && !isStreaming && result) {
+      scrollToElement(resultRef, 100);
+    }
+  }, [isStreaming, result, resultRef]);
 
   // ---------------------------------------------------------------------------
   // Return

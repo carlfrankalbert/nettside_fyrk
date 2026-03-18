@@ -9,6 +9,7 @@ import { trackClick, logEvent } from '../utils/tracking';
 import { validateOKRInput } from '../utils/form-validation';
 import { useFormInputHandlers } from '../hooks/useFormInputHandlers';
 import { okrTool } from '../data/tools';
+import { scrollToTopAndFocus, scrollToElement } from '../utils/form-interactions';
 
 const EXAMPLE_OKR = okrTool.example;
 const { ui } = okrTool;
@@ -69,10 +70,7 @@ export default function OKRReviewer() {
     setIndustry('');
     setTeamType('');
     setMaturity('');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(() => {
-      textareaRef.current?.focus();
-    }, 100);
+    scrollToTopAndFocus(textareaRef);
   };
 
   const handleSubmit = useCallback(async () => {
@@ -137,9 +135,7 @@ export default function OKRReviewer() {
         });
 
         // Scroll to result
-        setTimeout(() => {
-          resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, UI_TIMING.SCROLL_DELAY_MS);
+        scrollToElement(resultRef, UI_TIMING.SCROLL_DELAY_MS);
       },
       (errorMsg) => {
         // Error occurred

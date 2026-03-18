@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { speileKonseptStreaming, ERROR_MESSAGES, isValidOutput } from '../services/konseptspeil-service';
 import KonseptSpeilResultDisplayV2 from './KonseptSpeilResultDisplayV2';
 import { SpinnerIcon } from './ui/Icon';
@@ -16,6 +16,7 @@ import { trackClick } from '../utils/tracking';
 import { validateKonseptInput } from '../utils/form-validation';
 import { useStreamingForm } from '../hooks/useStreamingForm';
 import { useFormInputHandlers } from '../hooks/useFormInputHandlers';
+import { fillExample, scrollToTopAndFocus } from '../utils/form-interactions';
 
 // ============================================================================
 // Constants
@@ -28,6 +29,12 @@ const { SUBMIT_THRESHOLD } = STREAMING_CONSTANTS;
 // ============================================================================
 
 export default function KonseptSpeil() {
+  // ---------------------------------------------------------------------------
+  // Refs (component-specific)
+  // ---------------------------------------------------------------------------
+  const resultRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   // ---------------------------------------------------------------------------
   // Streaming Form Hook
   // ---------------------------------------------------------------------------
@@ -45,13 +52,13 @@ export default function KonseptSpeil() {
     handleSubmit,
     clearError,
     reset,
-    abortControllerRef,
   } = useStreamingForm({
     toolName: 'konseptspeil',
     validateInput: validateKonseptInput,
     streamingService: speileKonseptStreaming,
     isValidOutput,
     errorMessages: ERROR_MESSAGES,
+    resultRef,
   });
 
   // ---------------------------------------------------------------------------
@@ -59,12 +66,6 @@ export default function KonseptSpeil() {
   // ---------------------------------------------------------------------------
   const [isExampleAnimating, setIsExampleAnimating] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-
-  // ---------------------------------------------------------------------------
-  // Refs (component-specific)
-  // ---------------------------------------------------------------------------
-  const resultRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // ---------------------------------------------------------------------------
   // Form Input Handlers Hook
@@ -96,82 +97,30 @@ export default function KonseptSpeil() {
   const isNearingMinimum = trimmedLength >= 1 && trimmedLength < SUBMIT_THRESHOLD;
 
   // ---------------------------------------------------------------------------
-  // Effects
-  // ---------------------------------------------------------------------------
-
-  // Cleanup abort controller on unmount
-  useEffect(() => {
-    return () => {
-      abortControllerRef.current?.abort();
-    };
-  }, [abortControllerRef]);
-
-  // Scroll to results when streaming completes
-  useEffect(() => {
-    if (!isStreaming && result) {
-      setTimeout(() => {
-        resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-    }
-  }, [isStreaming, result]);
-
-  // ---------------------------------------------------------------------------
   // Event Handlers
   // ---------------------------------------------------------------------------
 
   const handleFillExample = () => {
-    trackClick('konseptspeil_example');
-    setIsExampleAnimating(true);
-    setInput(EXAMPLE_KONSEPT);
-    clearError();
-
-    setTimeout(() => {
-      const textarea = textareaRef.current;
-      if (textarea) {
-        textarea.focus();
-        textarea.setSelectionRange(EXAMPLE_KONSEPT.length, EXAMPLE_KONSEPT.length);
-      }
-    }, 50);
-
-    setTimeout(() => {
-      setIsExampleAnimating(false);
-    }, 600);
+    fillExample(EXAMPLE_KONSEPT, setInput, clearError, setIsExampleAnimating, textareaRef, {
+      trackingId: 'konseptspeil_example',
+    });
   };
 
   const handleFillShortExample = () => {
-    trackClick('konseptspeil_example');
-    setIsExampleAnimating(true);
-    setInput(SHORT_EXAMPLE);
-    clearError();
-
-    setTimeout(() => {
-      const textarea = textareaRef.current;
-      if (textarea) {
-        textarea.focus();
-        textarea.setSelectionRange(SHORT_EXAMPLE.length, SHORT_EXAMPLE.length);
-      }
-    }, 50);
-
-    setTimeout(() => {
-      setIsExampleAnimating(false);
-    }, 600);
+    fillExample(SHORT_EXAMPLE, setInput, clearError, setIsExampleAnimating, textareaRef, {
+      trackingId: 'konseptspeil_example',
+    });
   };
 
   const handleEditInput = () => {
     trackClick('konseptspeil_edit');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(() => {
-      textareaRef.current?.focus();
-    }, 300);
+    scrollToTopAndFocus(textareaRef, 300);
   };
 
   const handleFullReset = useCallback(() => {
     trackClick('konseptspeil_reset');
     reset();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(() => {
-      textareaRef.current?.focus();
-    }, 100);
+    scrollToTopAndFocus(textareaRef);
   }, [reset]);
 
   // ---------------------------------------------------------------------------
