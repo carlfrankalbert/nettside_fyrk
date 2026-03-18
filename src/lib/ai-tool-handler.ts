@@ -16,7 +16,7 @@ import type { APIContext } from 'astro';
 import type { AnthropicErrorResponse } from '../types';
 import { isValidAnthropicResponse, extractAnthropicText } from '../types';
 import { hashInput, createServerCacheManager, createRateLimiter } from '../utils/cache';
-import { ERROR_MESSAGES, ANTHROPIC_CONFIG, HTTP_HEADERS, INPUT_VALIDATION } from '../utils/constants';
+import { ERROR_MESSAGES, ANTHROPIC_CONFIG, INPUT_VALIDATION } from '../utils/constants';
 import {
   createAnthropicHeaders,
   getClientIP,
@@ -35,38 +35,13 @@ import { createKVCacheManager, createKVRateLimiter, createKVDailyBudget, createK
 import { createSLOMonitor } from './slo-monitoring';
 import { generateRequestId } from './request-utils';
 import { createContextLogger } from './structured-logger';
+import { isValidRequestBody } from './request-validation';
+import { createRateLimitResponse, createCircuitBreakerResponse, createDailyBudgetResponse } from './error-responses';
 
 /**
  * Tool name type for rate limit logging
  */
 export type ToolName = 'okr' | 'konseptspeil' | 'antakelseskart' | 'pre-mortem';
-
-/**
- * Expected request body shape
- */
-interface AIToolRequestBody {
-  input?: string;
-  stream?: boolean;
-}
-
-/**
- * Type guard to validate request body structure
- */
-function isValidRequestBody(body: unknown): body is AIToolRequestBody {
-  if (typeof body !== 'object' || body === null) {
-    return false;
-  }
-  const obj = body as Record<string, unknown>;
-  // input must be undefined or string
-  if (obj.input !== undefined && typeof obj.input !== 'string') {
-    return false;
-  }
-  // stream must be undefined or boolean
-  if (obj.stream !== undefined && typeof obj.stream !== 'boolean') {
-    return false;
-  }
-  return true;
-}
 
 /**
  * Configuration for an AI tool handler
@@ -464,62 +439,3 @@ export function createAIToolHandler(config: AIToolConfig) {
   };
 }
 
-/**
- * Create rate limit response
- */
-function createRateLimitResponse(requestId?: string): Response {
-  const headers: Record<string, string> = {
-    'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
-    'Retry-After': '60',
-  };
-  if (requestId) {
-    headers['X-Request-ID'] = requestId;
-  }
-  return new Response(
-    JSON.stringify({
-      error: ERROR_MESSAGES.RATE_LIMIT_EXCEEDED,
-      details: 'Vent litt før du prøver igjen',
-    }),
-    { status: 429, headers }
-  );
-}
-
-/**
- * Create circuit breaker response
- */
-function createCircuitBreakerResponse(requestId?: string): Response {
-  const headers: Record<string, string> = {
-    'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
-    'Retry-After': '30',
-  };
-  if (requestId) {
-    headers['X-Request-ID'] = requestId;
-  }
-  return new Response(
-    JSON.stringify({
-      error: ERROR_MESSAGES.SERVICE_UNAVAILABLE,
-      details: 'Vent litt før du prøver igjen',
-    }),
-    { status: 503, headers }
-  );
-}
-
-/**
- * Create daily budget exceeded response
- */
-function createDailyBudgetResponse(requestId?: string): Response {
-  const headers: Record<string, string> = {
-    'Content-Type': HTTP_HEADERS.CONTENT_TYPE_JSON,
-    'Retry-After': '3600', // 1 hour
-  };
-  if (requestId) {
-    headers['X-Request-ID'] = requestId;
-  }
-  return new Response(
-    JSON.stringify({
-      error: 'Daglig grense nådd',
-      details: 'Du har brukt opp din daglige kvote. Prøv igjen i morgen.',
-    }),
-    { status: 429, headers }
-  );
-}
