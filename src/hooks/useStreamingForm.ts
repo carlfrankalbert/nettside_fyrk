@@ -42,7 +42,8 @@ export type StreamingServiceFn = (
   onChunk: (chunk: string) => void,
   onComplete: () => void,
   onError: (error: string) => void,
-  signal: AbortSignal
+  signal: AbortSignal,
+  onRetry?: () => void
 ) => Promise<void>;
 
 export interface UseStreamingFormConfig {
@@ -271,7 +272,9 @@ export function useStreamingForm(config: UseStreamingFormConfig): UseStreamingFo
         setResult(null);
         abortControllerRef.current = null;
       },
-      abortControllerRef.current.signal
+      abortControllerRef.current.signal,
+      // onRetry: reset accumulated state to prevent duplicate chunks
+      () => { finalResult = ''; setResult(''); }
     );
   }, [input, loading, toolName, validateInput, streamingService, isValidOutput, errorMessages, getExternalInput, timeoutDuration, clearTimeouts, setErrorWithType]);
 
@@ -279,12 +282,13 @@ export function useStreamingForm(config: UseStreamingFormConfig): UseStreamingFo
   // Effects
   // ---------------------------------------------------------------------------
 
-  // Cleanup abort controller on unmount
+  // Cleanup timers and abort controller on unmount
   useEffect(() => {
     return () => {
+      clearTimeouts();
       abortControllerRef.current?.abort();
     };
-  }, []);
+  }, [clearTimeouts]);
 
   // Scroll to results when streaming completes (if resultRef provided)
   useEffect(() => {

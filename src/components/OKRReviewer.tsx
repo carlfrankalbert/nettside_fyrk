@@ -7,6 +7,7 @@ import { cn } from '../utils/classes';
 import { INPUT_VALIDATION, UI_TIMING, OKR_CONTEXT_OPTIONS } from '../utils/constants';
 import { trackClick, logEvent } from '../utils/tracking';
 import { validateOKRInput } from '../utils/form-validation';
+import { isValidOKROutput } from '../utils/output-validators';
 import { useFormInputHandlers } from '../hooks/useFormInputHandlers';
 import { okrTool } from '../data/tools';
 import { scrollToTopAndFocus, scrollToElement } from '../utils/form-interactions';
@@ -25,19 +26,21 @@ export default function OKRReviewer() {
   const [teamType, setTeamType] = useState('');
   const [maturity, setMaturity] = useState('');
   const abortControllerRef = useRef<AbortController | null>(null);
+  const hardTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const checkStartTimeRef = useRef<number>(0);
   const isSubmittingRef = useRef(false);
-  const pendingSubmitRef = useRef(false);
+  const finalResultRef = useRef('');
 
   const clearError = useCallback(() => setError(null), []);
   const trimmedLength = input.trim().length;
   const isButtonEnabled = !loading && trimmedLength >= INPUT_VALIDATION.MIN_LENGTH;
 
-  // Cleanup abort controller on unmount
+  // Cleanup timers and abort controller on unmount
   useEffect(() => {
     return () => {
+      if (hardTimeoutRef.current) clearTimeout(hardTimeoutRef.current);
       abortControllerRef.current?.abort();
     };
   }, []);
@@ -73,13 +76,15 @@ export default function OKRReviewer() {
     scrollToTopAndFocus(textareaRef);
   };
 
-  const handleSubmit = useCallback(async () => {
+  const handleSubmit = useCallback(async (overrideInput?: string) => {
     // Prevent duplicate submissions using ref for synchronous check
     if (isSubmittingRef.current || loading) return;
     isSubmittingRef.current = true;
 
+    const effectiveInput = overrideInput ?? input;
+
     // Validate input
-    const validationError = validateOKRInput(input);
+    const validationError = validateOKRInput(effectiveInput);
     if (validationError) {
       setError(validationError);
       isSubmittingRef.current = false;
@@ -96,10 +101,24 @@ export default function OKRReviewer() {
     setIsStreaming(true);
     setError(null);
     setResult('');
+    finalResultRef.current = '';
 
     // Cancel any existing request and create new abort controller
     abortControllerRef.current?.abort();
     abortControllerRef.current = new AbortController();
+
+    // Set up hard timeout (60s safety net)
+    if (hardTimeoutRef.current) clearTimeout(hardTimeoutRef.current);
+    hardTimeoutRef.current = setTimeout(() => {
+      hardTimeoutRef.current = null;
+      abortControllerRef.current?.abort();
+      setError('Det tok litt for lang tid. Prøv igjen.');
+      setLoading(false);
+      setIsStreaming(false);
+      setResult(null);
+      abortControllerRef.current = null;
+      isSubmittingRef.current = false;
+    }, 60_000);
 
     // Build contextual input with optional context prefix
     const contextLines: string[] = [];
@@ -115,13 +134,28 @@ export default function OKRReviewer() {
       : '';
 
     await reviewOKRStreaming(
-      contextPrefix + input.trim(),
+      contextPrefix + effectiveInput.trim(),
       (chunk) => {
         // Append streaming chunk
+        finalResultRef.current += chunk;
         setResult((prev) => (prev || '') + chunk);
       },
       () => {
-        // Streaming complete
+        // Clear hard timeout
+        if (hardTimeoutRef.current) { clearTimeout(hardTimeoutRef.current); hardTimeoutRef.current = null; }
+
+        // Validate output before marking success
+        if (!finalResultRef.current || !isValidOKROutput(finalResultRef.current)) {
+          setError('Kunne ikke generere en komplett vurdering. Prøv igjen.');
+          setLoading(false);
+          setIsStreaming(false);
+          setResult(null);
+          abortControllerRef.current = null;
+          isSubmittingRef.current = false;
+          return;
+        }
+
+        // Streaming complete — valid output
         setLoading(false);
         setIsStreaming(false);
         abortControllerRef.current = null;
@@ -130,7 +164,7 @@ export default function OKRReviewer() {
         // Track successful completion with metadata
         const processingTimeMs = Date.now() - checkStartTimeRef.current;
         logEvent('check_success', {
-          charCount: input.trim().length,
+          charCount: effectiveInput.trim().length,
           processingTimeMs,
         });
 
@@ -138,6 +172,9 @@ export default function OKRReviewer() {
         scrollToElement(resultRef, UI_TIMING.SCROLL_DELAY_MS);
       },
       (errorMsg) => {
+        // Clear hard timeout
+        if (hardTimeoutRef.current) { clearTimeout(hardTimeoutRef.current); hardTimeoutRef.current = null; }
+
         // Error occurred
         setError(errorMsg);
         setLoading(false);
@@ -148,7 +185,7 @@ export default function OKRReviewer() {
 
         // Track error
         logEvent('okr_error', {
-          charCount: input.trim().length,
+          charCount: effectiveInput.trim().length,
           processingTimeMs: Date.now() - checkStartTimeRef.current,
         });
       },
@@ -160,16 +197,8 @@ export default function OKRReviewer() {
     setInput(suggestion);
     setResult(null);
     setError(null);
-    pendingSubmitRef.current = true;
-  }, []);
-
-  // Auto-submit when pendingSubmitRef is set (after re-evaluate sets new input)
-  useEffect(() => {
-    if (pendingSubmitRef.current && input.trim().length >= INPUT_VALIDATION.MIN_LENGTH) {
-      pendingSubmitRef.current = false;
-      handleSubmit();
-    }
-  }, [input, handleSubmit]);
+    handleSubmit(suggestion);
+  }, [handleSubmit]);
 
   // Form input handlers (URL decoding, keyboard shortcuts, mobile events, auto-resize)
   const {
@@ -312,7 +341,7 @@ Key Results:
       <div className="hidden md:flex md:flex-row md:items-center gap-4">
         <button
           type="button"
-          onClick={handleSubmit}
+          onClick={() => handleSubmit()}
           disabled={loading}
           aria-busy={loading}
           className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
