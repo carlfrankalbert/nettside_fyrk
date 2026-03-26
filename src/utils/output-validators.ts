@@ -96,6 +96,7 @@ export function isValidAntakelseskartOutput(output: string): boolean {
  */
 export function isValidOKROutput(output: string): boolean {
   if (!output || output.trim().length < 100) return false;
+  if (containsSuspiciousPatterns(output)) return false;
 
   const content = output.toLowerCase();
 

@@ -37,6 +37,7 @@ import { generateRequestId } from './request-utils';
 import { createContextLogger } from './structured-logger';
 import { isValidRequestBody } from './request-validation';
 import { createRateLimitResponse, createCircuitBreakerResponse, createDailyBudgetResponse } from './error-responses';
+import { validateOrigin } from './validate-origin';
 
 /**
  * Tool name type for rate limit logging
@@ -138,8 +139,18 @@ export function createAIToolHandler(config: AIToolConfig) {
         return createErrorResponse('Invalid Content-Type. Expected application/json', 415, undefined, requestId);
       }
 
+      // CSRF / origin validation
+      if (!validateOrigin(request)) {
+        return createErrorResponse('Forbidden', 403, undefined, requestId);
+      }
+
       // Parse and validate request body
-      const body: unknown = await request.json();
+      let body: unknown;
+      try {
+        body = await request.json();
+      } catch {
+        return createErrorResponse('Invalid request body', 400, undefined, requestId);
+      }
       if (!isValidRequestBody(body)) {
         return createErrorResponse('Invalid request body format', 400, undefined, requestId);
       }
@@ -366,11 +377,16 @@ export function createAIToolHandler(config: AIToolConfig) {
         const latencyMs = Date.now() - requestStartTime;
         state.sloMonitor.recordError(anthropicResponse.status, latencyMs);
         const errorData = (await anthropicResponse.json()) as AnthropicErrorResponse;
-        log.error('Anthropic API error', { action: 'api_error', statusCode: anthropicResponse.status, durationMs: latencyMs });
+        log.error('Anthropic API error', {
+          action: 'api_error',
+          statusCode: anthropicResponse.status,
+          durationMs: latencyMs,
+          details: errorData?.error?.message,
+        });
         return createErrorResponse(
           errorMessage,
           500,
-          errorData?.error?.message || `API returned ${anthropicResponse.status}`,
+          undefined,
           requestId
         );
       }
