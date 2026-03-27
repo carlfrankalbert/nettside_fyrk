@@ -65,6 +65,12 @@ export const DEFAULT_FEATURES: FeatureToggle[] = [
     description: 'Tenk gjennom hva som kan gå galt før du tar irreversible beslutninger',
     status: 'beta',
   },
+  {
+    id: 'decision-loop',
+    name: 'Decision Loop',
+    description: 'Daglig beslutningsjournal. Lås én beslutning per dag, bygg en søkbar logg over tid.',
+    status: 'on',
+  },
 ];
 
 /**
