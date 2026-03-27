@@ -51,13 +51,13 @@ export const DEFAULT_FEATURES: FeatureToggle[] = [
     id: 'antakelseskart',
     name: 'Antakelseskartet',
     description: 'Avdekker implisitte antakelser i produkt- og strategibeslutninger',
-    status: 'on',
+    status: 'off',
   },
   {
     id: 'beslutningslogg',
     name: 'Beslutningsloggen',
     description: 'Dokumenter beslutninger med klarhet – eksporter som Markdown',
-    status: 'on',
+    status: 'off',
   },
   {
     id: 'pre-mortem',
@@ -69,7 +69,7 @@ export const DEFAULT_FEATURES: FeatureToggle[] = [
     id: 'decision-loop',
     name: 'Decision Loop',
     description: 'Daglig beslutningsjournal. Lås én beslutning per dag, bygg en søkbar logg over tid.',
-    status: 'on',
+    status: 'off',
   },
 ];
 

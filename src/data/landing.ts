@@ -133,12 +133,6 @@ export const toolsContent = {
       ctaText: 'Prøv konseptspeilet',
     },
     {
-      name: 'Antakelseskartet',
-      description: 'Gjør implisitte antakelser eksplisitte.',
-      href: '/antakelseskart',
-      ctaText: 'Prøv antakelseskartet',
-    },
-    {
       name: 'OKR-sjekken',
       description: 'Rask kvalitetssjekk av OKR-ene dine.',
       href: '/okr-sjekken',

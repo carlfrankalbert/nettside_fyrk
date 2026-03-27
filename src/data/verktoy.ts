@@ -8,7 +8,7 @@ import { EXTERNAL_LINKS, CONTACT_LABEL } from '../utils/links';
 export const verktoyPageContent = {
   seo: {
     title: 'Verktøy for OKR, antakelser og beslutninger',
-    description: 'Arbeidsverktøy for reelle beslutninger i komplekse miljøer. OKR-sjekk, antakelsesanalyse, beslutningslogg og pre-mortem — uten innlogging.',
+    description: 'Arbeidsverktøy for reelle beslutninger i komplekse miljøer. OKR-sjekk, konseptrefleksjon og pre-mortem — uten innlogging.',
   },
   title: 'Verktøy',
   subtitle: 'Arbeidsverktøy som hjelper deg se tydeligere — raskere — før du forplikter deg.',
@@ -18,21 +18,13 @@ export const verktoyPageContent = {
       heading: 'Refleksjon og analyse',
       tools: [
         { name: 'Konseptspeilet', description: 'Et rolig refleksjonsverktøy for produktkonsepter.', href: '/konseptspeilet', cta: 'Prøv konseptspeilet' },
-        { name: 'Antakelseskart', badge: 'Beta', description: 'Avdekker implisitte antakelser i produkt- og strategibeslutninger.', href: '/antakelseskart', cta: 'Prøv antakelseskartet' },
         { name: 'OKR-sjekken', description: 'Få et raskt, strukturert blikk på kvaliteten i OKR-ene deres.', href: '/okr-sjekken', cta: 'Prøv OKR-sjekken' },
       ],
     },
     {
       heading: 'Dokumentasjon og risiko',
       tools: [
-        { name: 'Beslutningslogg', badge: 'Beta', description: 'Dokumenter beslutninger med klarhet. Eksporter som Markdown.', href: '/beslutningslogg', cta: 'Lag beslutningslogg' },
         { name: 'Pre-Mortem Brief', badge: 'Beta', description: 'Tenk gjennom hva som kan gå galt før du tar irreversible beslutninger.', href: '/verktoy/pre-mortem', cta: 'Lag Pre-Mortem Brief' },
-      ],
-    },
-    {
-      heading: 'Personlig praksis',
-      tools: [
-        { name: 'Decision Loop', badge: 'Alpha', description: 'Daglig beslutningsjournal. Lås én beslutning per dag, bygg en søkbar logg over tid.', href: 'https://loop.fyrk.no', cta: 'Prøv Decision Loop' },
       ],
     },
   ],
