@@ -7,32 +7,48 @@ import { EXTERNAL_LINKS, CONTACT_LABEL } from '../utils/links';
 
 export const verktoyPageContent = {
   seo: {
-    title: 'Verktøy for OKR, antakelser og beslutninger',
-    description: 'Arbeidsverktøy for reelle beslutninger i komplekse miljøer. OKR-sjekk, konseptrefleksjon og pre-mortem — uten innlogging.',
+    title: 'Gratis verktøy for produktledere — OKR, konsept og risikoanalyse',
+    description: 'Tre AI-støttede verktøy for produktledere i komplekse miljøer. Sjekk OKR-kvalitet, avdekk blindsoner i konseptet ditt, og tenk gjennom hva som kan gå galt — uten innlogging.',
   },
   title: 'Verktøy',
-  subtitle: 'Arbeidsverktøy som hjelper deg se tydeligere — raskere — før du forplikter deg.',
+  subtitle: 'Tenk tydeligere før du forplikter deg.',
   tagline: 'Ingen innlogging. Ingen data lagres.',
   sections: [
     {
       heading: 'Refleksjon og analyse',
       tools: [
-        { name: 'Konseptspeilet', description: 'Et rolig refleksjonsverktøy for produktkonsepter.', href: '/konseptspeilet', cta: 'Prøv konseptspeilet' },
-        { name: 'OKR-sjekken', description: 'Få et raskt, strukturert blikk på kvaliteten i OKR-ene deres.', href: '/okr-sjekken', cta: 'Prøv OKR-sjekken' },
+        {
+          name: 'Konseptspeilet',
+          description: 'Avdekker blindsoner, implisitte antakelser og logiske hull i produktideen din — før du investerer tid i den.',
+          href: '/konseptspeilet',
+          cta: 'Speil konseptet ditt',
+        },
+        {
+          name: 'OKR-sjekken',
+          description: 'Lim inn OKR-settet ditt og få konkret tilbakemelding på målbarhet, ambisjonsnivå og kobling til Objective — på under ett minutt.',
+          href: '/okr-sjekken',
+          cta: 'Sjekk OKR-ene dine',
+        },
       ],
     },
     {
-      heading: 'Dokumentasjon og risiko',
+      heading: 'Risikoanalyse',
       tools: [
-        { name: 'Pre-Mortem Brief', badge: 'Beta', description: 'Tenk gjennom hva som kan gå galt før du tar irreversible beslutninger.', href: '/verktoy/pre-mortem', cta: 'Lag Pre-Mortem Brief' },
+        {
+          name: 'Pre-Mortem Brief',
+          badge: 'Beta',
+          description: 'Beskriv en beslutning du vurderer. Få 5–6 konkrete failure modes, tidlige varselsignaler og stopp-kriterier — før det er for sent å snu.',
+          href: '/verktoy/pre-mortem',
+          cta: 'Generer Pre-Mortem Brief',
+        },
       ],
     },
   ],
-  disclaimerHtml: 'Verktøyene erstatter ikke ansvar, kontekst eller erfaring. De er laget for å gi deg bedre beslutningsgrunnlag — ikke «fasiten». <a href="/personvern" class="underline hover:text-brand-navy">Personvern</a>.',
+  disclaimerHtml: 'Verktøyene erstatter ikke erfaring, kontekst eller ansvar. De gir deg et bedre grunnlag for egne vurderinger — ikke et svar. <a href="/personvern" class="underline hover:text-brand-navy">Personvern</a>.',
   bridgeCTA: {
-    heading: 'Trenger du dette brukt i praksis?',
-    body: 'Hvis beslutningen er viktig, kan jeg også bidra operativt — fra beslutningsgjennomgang til interim produktledelse.',
-    primaryLink: { href: '/tjenester', label: 'Se tjenester' },
+    heading: 'Vil du ha et menneskelig blikk i tillegg?',
+    body: 'Noen beslutninger krever mer enn et verktøy. Jeg tar oppdrag som interim produktleder og coach i regulerte bransjer — og kan gå dypere inn i det du jobber med.',
+    primaryLink: { href: '/tjenester', label: 'Se hva jeg tilbyr' },
     secondaryLink: { href: EXTERNAL_LINKS.email, label: CONTACT_LABEL },
   },
 } as const;
