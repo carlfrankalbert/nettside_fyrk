@@ -397,8 +397,10 @@ Astro.response.headers.set('Cache-Control', 'no-store');
           });
 
           if (response.ok) {
-            saveStatus.textContent = 'Lagret!';
+            saveStatus.textContent = 'Lagret! Laster på nytt...';
             saveStatus.className = 'save-status success';
+            // Reload to verify KV persistence
+            setTimeout(() => window.location.reload(), 500);
           } else {
             const data = await response.json();
             saveStatus.textContent = data.error || 'Feil ved lagring';
