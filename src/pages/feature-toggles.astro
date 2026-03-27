@@ -30,6 +30,9 @@ if (hasAccess) {
 
 // Generate beta activation URL
 const betaActivationUrl = betaToken ? `/beta?token=${betaToken}` : null;
+
+// Prevent CDN caching — always serve fresh KV data
+Astro.response.headers.set('Cache-Control', 'no-store');
 ---
 
 <!DOCTYPE html>

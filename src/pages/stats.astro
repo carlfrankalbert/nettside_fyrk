@@ -29,6 +29,9 @@ const tokenNotConfigured = !expectedToken;
 const tokenMismatch = expectedToken && providedToken !== expectedToken;
 const hasAccess = expectedToken && providedToken === expectedToken;
 
+// Prevent CDN caching — always serve fresh data
+Astro.response.headers.set('Cache-Control', 'no-store');
+
 // Data types
 type ButtonCounts = Record<string, { count: number; label: string }>;
 type PageStats = Record<string, { label: string; views: number; visitors: number }>;
