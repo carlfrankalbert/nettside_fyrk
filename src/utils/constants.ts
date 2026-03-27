@@ -232,4 +232,12 @@ export const UI_TIMING = {
   TEXTAREA_RESIZE_DELAY_MS: 0,
 } as const;
 
+/**
+ * Analytics KV storage configuration
+ */
+export const ANALYTICS_CONFIG = {
+  /** TTL for KV entries: 400 days in seconds */
+  KV_EXPIRATION_TTL: 400 * 24 * 60 * 60,
+} as const;
+
 // EXAMPLE_KONSEPT has been moved to src/data/tools.ts (konseptspeilTool.example)

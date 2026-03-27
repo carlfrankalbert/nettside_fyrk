@@ -5,7 +5,6 @@ import {
   sanitizeReferrer,
   sanitizeUtmValue,
   incrementField,
-  mergeAcquisitionData,
   emptyAcquisitionData,
   type AcquisitionData,
 } from '../../utils/acquisition';
@@ -13,11 +12,12 @@ import {
   API_HEADERS,
   getDateKey,
   getHourKey,
-  MONTH_NAMES,
-  TIME_PERIODS,
   fetchCountTimeseries,
+  getVisitorsTimeseriesData,
+  getAcquisitionData,
   type TimePeriod,
 } from '../../utils/analytics-helpers';
+import { ANALYTICS_CONFIG } from '../../utils/constants';
 
 export const prerender = false;
 
@@ -88,7 +88,7 @@ async function storeAcquisitionData(
   incrementField(acquisition.campaigns, campaign);
 
   await kv.put(key, JSON.stringify(acquisition), {
-    expirationTtl: 400 * 24 * 60 * 60,
+    expirationTtl: ANALYTICS_CONFIG.KV_EXPIRATION_TTL,
   });
 }
 
@@ -183,7 +183,7 @@ export const POST: APIRoute = async ({ locals, request }) => {
     const hourlyCount = await kv.get(hourlyKey);
     const newHourlyCount = (parseInt(hourlyCount || '0', 10) || 0) + 1;
     await kv.put(hourlyKey, String(newHourlyCount), {
-      expirationTtl: 400 * 24 * 60 * 60,
+      expirationTtl: ANALYTICS_CONFIG.KV_EXPIRATION_TTL,
     });
 
     // Store daily page view data
@@ -191,7 +191,7 @@ export const POST: APIRoute = async ({ locals, request }) => {
     const dailyCount = await kv.get(dailyKey);
     const newDailyCount = (parseInt(dailyCount || '0', 10) || 0) + 1;
     await kv.put(dailyKey, String(newDailyCount), {
-      expirationTtl: 400 * 24 * 60 * 60,
+      expirationTtl: ANALYTICS_CONFIG.KV_EXPIRATION_TTL,
     });
 
     // Track unique visitors per day using a set stored as JSON
@@ -213,7 +213,7 @@ export const POST: APIRoute = async ({ locals, request }) => {
       if (visitors.length < MAX_UNIQUE_VISITORS_PER_DAY) {
         visitors.push(visitorHash);
         await kv.put(visitorsKey, JSON.stringify(visitors), {
-          expirationTtl: 400 * 24 * 60 * 60,
+          expirationTtl: ANALYTICS_CONFIG.KV_EXPIRATION_TTL,
         });
       }
 
@@ -235,7 +235,7 @@ export const POST: APIRoute = async ({ locals, request }) => {
     console.error('Page view tracking error:', error);
     return new Response(
       JSON.stringify({ success: false, error: 'Tracking failed' }),
-      { status: 200, headers: API_HEADERS }
+      { status: 500, headers: API_HEADERS }
     );
   }
 };
@@ -369,124 +369,3 @@ export const GET: APIRoute = async ({ locals, url }) => {
   }
 };
 
-/**
- * Fetch unique visitors time-series data
- */
-async function getVisitorsTimeseriesData(
-  kv: KVNamespace,
-  pageId: PageId,
-  period: TimePeriod
-): Promise<{ label: string; value: number }[]> {
-  const config = TIME_PERIODS[period];
-  const now = Date.now();
-  const data: { label: string; value: number }[] = [];
-
-  // For hourly, we can't really show unique visitors per hour accurately
-  // So for 24h we'll just show the total for today
-  if (config.granularity === 'hourly') {
-    const todayKey = `visitors:${pageId}:${getDateKey(now)}`;
-    const todayVisitorsJson = await kv.get(todayKey);
-    let count = 0;
-    try {
-      const visitors = todayVisitorsJson ? JSON.parse(todayVisitorsJson) : [];
-      count = visitors.length;
-    } catch {
-      count = 0;
-    }
-
-    // Fill with same value for display purposes
-    for (let i = 0; i < 24; i++) {
-      const time = now - (23 - i) * 60 * 60 * 1000;
-      const date = new Date(time);
-      data.push({
-        label: `${String(date.getHours()).padStart(2, '0')}:00`,
-        value: i === 23 ? count : 0, // Only show on last hour
-      });
-    }
-  } else if (config.granularity === 'daily') {
-    const days = period === 'week' ? 7 : 30;
-    for (let i = 0; i < days; i++) {
-      const time = now - (days - 1 - i) * 24 * 60 * 60 * 1000;
-      const dateKey = getDateKey(time);
-      const key = `visitors:${pageId}:${dateKey}`;
-      const visitorsJson = await kv.get(key);
-      let count = 0;
-      try {
-        const visitors = visitorsJson ? JSON.parse(visitorsJson) : [];
-        count = visitors.length;
-      } catch {
-        count = 0;
-      }
-      const date = new Date(time);
-      data.push({
-        label: `${date.getDate()}/${date.getMonth() + 1}`,
-        value: count,
-      });
-    }
-  } else if (config.granularity === 'monthly') {
-    const months = period === 'year' ? 12 : 24;
-    for (let i = 0; i < months; i++) {
-      const monthDate = new Date(now);
-      monthDate.setMonth(monthDate.getMonth() - (months - 1 - i));
-      const year = monthDate.getFullYear();
-      const month = monthDate.getMonth();
-
-      // Count unique visitors across the month
-      const uniqueVisitors = new Set<string>();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const key = `visitors:${pageId}:${dateKey}`;
-        const visitorsJson = await kv.get(key);
-        try {
-          const visitors = visitorsJson ? JSON.parse(visitorsJson) : [];
-          visitors.forEach((v: string) => uniqueVisitors.add(v));
-        } catch {
-          // Skip
-        }
-      }
-
-      data.push({
-        label: `${MONTH_NAMES[month]} ${year.toString().slice(2)}`,
-        value: uniqueVisitors.size,
-      });
-    }
-  }
-
-  return data;
-}
-
-/**
- * Fetch acquisition data (referrer + UTM) aggregated across a time period
- */
-async function getAcquisitionData(
-  kv: KVNamespace,
-  pageId: PageId,
-  period: TimePeriod,
-): Promise<AcquisitionData> {
-  const now = Date.now();
-  const result: AcquisitionData = emptyAcquisitionData();
-
-  const days = period === '24h' ? 1
-    : period === 'week' ? 7
-    : period === 'month' ? 30
-    : period === 'year' ? 365
-    : 730;
-
-  for (let i = 0; i < days; i++) {
-    const time = now - i * 24 * 60 * 60 * 1000;
-    const dateKey = getDateKey(time);
-    const key = `acquisition:${pageId}:${dateKey}`;
-    const data = await kv.get(key);
-
-    if (data) {
-      try {
-        mergeAcquisitionData(result, JSON.parse(data));
-      } catch {
-        // Skip corrupt entries
-      }
-    }
-  }
-
-  return result;
-}

@@ -2,6 +2,8 @@ import type { APIRoute } from 'astro';
 import { shouldExcludeRequest } from '../../utils/tracking-exclusion';
 import { verifySignedRequest } from '../../utils/request-signing';
 import { API_HEADERS, getDateKey, getHourKey, fetchCountTimeseries, type TimePeriod } from '../../utils/analytics-helpers';
+import { ANALYTICS_CONFIG } from '../../utils/constants';
+import { aggregateEventMetrics, type EventMetadata, type ErrorType } from '../../utils/analytics-metrics';
 
 export const prerender = false;
 
@@ -94,23 +96,7 @@ export type ButtonId = keyof typeof TRACKED_BUTTONS;
 // Legacy key for backwards compatibility
 const LEGACY_KV_KEY = 'okr_button_clicks';
 
-/**
- * Error types for analytics categorization
- */
-type ErrorType = 'timeout' | 'rate_limit' | 'budget_exceeded' | 'validation' | 'api_error' | 'network' | 'unknown';
-
-/**
- * Metadata for events (no PII)
- */
-interface EventMetadata {
-  charCount?: number;
-  processingTimeMs?: number;
-  errorType?: ErrorType;
-  cached?: boolean;
-  inputLength?: number;
-  toolVersion?: string;
-  sessionId?: string;
-}
+// EventMetadata type imported from analytics-metrics.ts
 
 /**
  * POST /api/track
@@ -212,99 +198,17 @@ export const POST: APIRoute = async ({ locals, request }) => {
     const writePromises: Promise<void>[] = [
       kv.put(kvKey, String(newCount)),
       kv.put(hourlyKey, String(newHourlyCount), {
-        expirationTtl: 400 * 24 * 60 * 60,
+        expirationTtl: ANALYTICS_CONFIG.KV_EXPIRATION_TTL,
       }),
       kv.put(dailyKey, String(newDailyCount), {
-        expirationTtl: 400 * 24 * 60 * 60,
+        expirationTtl: ANALYTICS_CONFIG.KV_EXPIRATION_TTL,
       }),
     ];
 
     // Store aggregated metadata for events with metadata
     if (metadata) {
-      const metricsKey = `metrics:${buttonId}:${dateKey}`;
-      const existingMetricsJson = await kv.get(metricsKey);
-      let metrics: {
-        count: number;
-        totalCharCount: number;
-        totalProcessingTimeMs: number;
-        cachedCount: number;
-        freshCount: number;
-        errorTypes: Record<string, number>;
-        /** Estimated unique session count (not exact, uses hash-based deduplication) */
-        uniqueSessionCount: number;
-        /** Hash prefixes for deduplication (limited to 256 buckets for O(1) lookup) */
-        sessionHashBuckets: Record<string, boolean>;
-        /** Hourly distribution (0-23 UTC hours) */
-        hourlyDistribution: Record<string, number>;
-      } = {
-        count: 0,
-        totalCharCount: 0,
-        totalProcessingTimeMs: 0,
-        cachedCount: 0,
-        freshCount: 0,
-        errorTypes: {},
-        uniqueSessionCount: 0,
-        sessionHashBuckets: {},
-        hourlyDistribution: {},
-      };
-
-      try {
-        if (existingMetricsJson) {
-          const parsed = JSON.parse(existingMetricsJson);
-          metrics = {
-            ...metrics,
-            ...parsed,
-          };
-          // Migrate old uniqueSessions array to count (backwards compat)
-          if (parsed.uniqueSessions && Array.isArray(parsed.uniqueSessions)) {
-            metrics.uniqueSessionCount = Math.max(
-              metrics.uniqueSessionCount || 0,
-              parsed.uniqueSessions.length
-            );
-          }
-          // Ensure new fields exist
-          if (!metrics.sessionHashBuckets) metrics.sessionHashBuckets = {};
-          if (!metrics.hourlyDistribution) metrics.hourlyDistribution = {};
-          if (!metrics.errorTypes) metrics.errorTypes = {};
-        }
-      } catch {
-        // Reset if parsing fails
-      }
-
-      metrics.count += 1;
-      if (metadata.charCount) {
-        metrics.totalCharCount += metadata.charCount;
-      }
-      if (metadata.processingTimeMs) {
-        metrics.totalProcessingTimeMs += metadata.processingTimeMs;
-      }
-      if (metadata.cached === true) {
-        metrics.cachedCount += 1;
-      } else if (metadata.cached === false) {
-        metrics.freshCount += 1;
-      }
-      if (metadata.errorType) {
-        metrics.errorTypes[metadata.errorType] = (metrics.errorTypes[metadata.errorType] || 0) + 1;
-      }
-
-      // Track unique sessions using hash buckets (constant memory, ~256 entries max)
-      // Uses first 2 chars of session ID as bucket key for O(1) deduplication
-      if (metadata.sessionId) {
-        const hashBucket = metadata.sessionId.slice(0, 2);
-        if (!metrics.sessionHashBuckets[hashBucket]) {
-          metrics.sessionHashBuckets[hashBucket] = true;
-          metrics.uniqueSessionCount += 1;
-        }
-      }
-
-      // Track hourly distribution (UTC hours 0-23)
-      const utcHour = String(new Date(timestamp).getUTCHours());
-      metrics.hourlyDistribution[utcHour] = (metrics.hourlyDistribution[utcHour] || 0) + 1;
-
       writePromises.push(
-        kv.put(metricsKey, JSON.stringify(metrics), {
-          expirationTtl: 400 * 24 * 60 * 60,
-        })
+        aggregateEventMetrics(kv, buttonId, dateKey, metadata, timestamp)
       );
     }
 
@@ -318,7 +222,7 @@ export const POST: APIRoute = async ({ locals, request }) => {
     console.error('Tracking error:', error);
     return new Response(
       JSON.stringify({ success: false, error: 'Tracking failed' }),
-      { status: 200, headers: API_HEADERS }
+      { status: 500, headers: API_HEADERS }
     );
   }
 };
