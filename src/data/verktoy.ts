@@ -44,7 +44,7 @@ export const verktoyPageContent = {
       ],
     },
   ],
-  disclaimerHtml: 'Verktøyene erstatter ikke erfaring, kontekst eller ansvar. De gir deg et bedre grunnlag for egne vurderinger — ikke et svar. <a href="/personvern" class="underline hover:text-brand-navy">Personvern</a>.',
+  disclaimerHtml: '',
   bridgeCTA: {
     heading: 'Vil du ha et menneskelig blikk i tillegg?',
     body: 'Noen beslutninger krever mer enn et verktøy. Jeg tar oppdrag som interim produktleder og coach i regulerte bransjer — og kan gå dypere inn i det du jobber med.',
