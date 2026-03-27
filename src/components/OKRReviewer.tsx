@@ -1,206 +1,122 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { reviewOKRStreaming } from '../services/okr-service';
+import { useState, useRef, useCallback } from 'react';
+import { reviewOKRStreaming, ERROR_MESSAGES, isValidOutput } from '../services/okr-service';
 import OKRResultDisplay from './OKRResultDisplay';
 import { ErrorIcon, SpinnerIcon } from './ui/Icon';
 import { PrivacyAccordion } from './ui/PrivacyAccordion';
 import { cn } from '../utils/classes';
 import { INPUT_VALIDATION, UI_TIMING, OKR_CONTEXT_OPTIONS } from '../utils/constants';
-import { trackClick, logEvent } from '../utils/tracking';
+import { trackClick } from '../utils/tracking';
 import { validateOKRInput } from '../utils/form-validation';
-import { isValidOKROutput } from '../utils/output-validators';
+import { useStreamingForm } from '../hooks/useStreamingForm';
 import { useFormInputHandlers } from '../hooks/useFormInputHandlers';
 import { okrTool } from '../data/tools';
-import { scrollToTopAndFocus, scrollToElement } from '../utils/form-interactions';
+import { scrollToTopAndFocus } from '../utils/form-interactions';
 
 const EXAMPLE_OKR = okrTool.example;
 const { ui } = okrTool;
 
+// ============================================================================
+// Helpers
+// ============================================================================
+
+function buildContextPrefix(industry: string, teamType: string, maturity: string): string {
+  const contextLines: string[] = [];
+  const industryOption = OKR_CONTEXT_OPTIONS.industry.find(o => o.value === industry);
+  const teamTypeOption = OKR_CONTEXT_OPTIONS.teamType.find(o => o.value === teamType);
+  const maturityOption = OKR_CONTEXT_OPTIONS.maturity.find(o => o.value === maturity);
+  if (industryOption && industry) contextLines.push(`Bransje: ${industryOption.label}`);
+  if (teamTypeOption && teamType) contextLines.push(`Teamtype: ${teamTypeOption.label}`);
+  if (maturityOption && maturity) contextLines.push(`OKR-modenhet: ${maturityOption.label}`);
+  return contextLines.length > 0
+    ? `[Kontekst]\n${contextLines.join('\n')}\n\n[OKR-sett]\n`
+    : '';
+}
+
+// ============================================================================
+// Component
+// ============================================================================
+
 export default function OKRReviewer() {
-  const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<string | null>(null);
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [isExampleAnimating, setIsExampleAnimating] = useState(false);
+  // ---------------------------------------------------------------------------
+  // Component-specific state
+  // ---------------------------------------------------------------------------
   const [industry, setIndustry] = useState('');
   const [teamType, setTeamType] = useState('');
   const [maturity, setMaturity] = useState('');
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const hardTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isExampleAnimating, setIsExampleAnimating] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const checkStartTimeRef = useRef<number>(0);
-  const isSubmittingRef = useRef(false);
-  const finalResultRef = useRef('');
 
-  const clearError = useCallback(() => setError(null), []);
-  const trimmedLength = input.trim().length;
-  const isButtonEnabled = !loading && trimmedLength >= INPUT_VALIDATION.MIN_LENGTH;
+  // ---------------------------------------------------------------------------
+  // Streaming Form Hook
+  // ---------------------------------------------------------------------------
+  const {
+    input,
+    setInput,
+    loading,
+    error,
+    result,
+    isStreaming,
+    trimmedLength,
+    isButtonEnabled,
+    handleSubmit: hookSubmit,
+    setErrorWithType,
+    clearError,
+    reset,
+  } = useStreamingForm({
+    toolName: 'okr',
+    validateInput: validateOKRInput,
+    streamingService: reviewOKRStreaming,
+    isValidOutput,
+    errorMessages: ERROR_MESSAGES,
+    resultRef,
+    timeoutMs: 60_000,
+  });
 
-  // Cleanup timers and abort controller on unmount
-  useEffect(() => {
-    return () => {
-      if (hardTimeoutRef.current) clearTimeout(hardTimeoutRef.current);
-      abortControllerRef.current?.abort();
-    };
-  }, []);
+  // ---------------------------------------------------------------------------
+  // Submit wrapper: validate + add context prefix
+  // ---------------------------------------------------------------------------
+  const handleSubmit = useCallback(async (overrideText?: string) => {
+    const rawInput = overrideText ?? input;
+    const validationError = validateOKRInput(rawInput);
+    if (validationError) {
+      setErrorWithType(validationError, 'validation');
+      return;
+    }
+    const contextPrefix = buildContextPrefix(industry, teamType, maturity);
+    await hookSubmit(contextPrefix + rawInput.trim());
+  }, [input, hookSubmit, setErrorWithType, industry, teamType, maturity]);
+
+  // ---------------------------------------------------------------------------
+  // Event Handlers
+  // ---------------------------------------------------------------------------
 
   const handleFillExample = () => {
-    // Track button click
     trackClick('okr_example');
-
-    // Trigger animation
     setIsExampleAnimating(true);
     setInput(EXAMPLE_OKR);
-    setError(null);
-
-    // Focus textarea
-    setTimeout(() => {
-      textareaRef.current?.focus();
-    }, UI_TIMING.DEBOUNCE_MS);
-
-    // Reset animation state after animation completes
-    setTimeout(() => {
-      setIsExampleAnimating(false);
-    }, UI_TIMING.ANIMATION_DELAY_MS * 2);
+    clearError();
+    setTimeout(() => textareaRef.current?.focus(), UI_TIMING.DEBOUNCE_MS);
+    setTimeout(() => setIsExampleAnimating(false), UI_TIMING.ANIMATION_DELAY_MS * 2);
   };
 
-  const handleClearResult = () => {
+  const handleClearResult = useCallback(() => {
     trackClick('okr_reset');
-    setResult(null);
-    setError(null);
-    setInput('');
+    reset();
     setIndustry('');
     setTeamType('');
     setMaturity('');
     scrollToTopAndFocus(textareaRef);
-  };
-
-  const handleSubmit = useCallback(async (overrideInput?: string) => {
-    // Prevent duplicate submissions using ref for synchronous check
-    if (isSubmittingRef.current || loading) return;
-    isSubmittingRef.current = true;
-
-    const effectiveInput = overrideInput ?? input;
-
-    // Validate input
-    const validationError = validateOKRInput(effectiveInput);
-    if (validationError) {
-      setError(validationError);
-      isSubmittingRef.current = false;
-      return;
-    }
-
-    // Track button click (fire and forget - don't block the user)
-    trackClick('okr_submit');
-
-    // Record start time for processing duration tracking
-    checkStartTimeRef.current = Date.now();
-
-    setLoading(true);
-    setIsStreaming(true);
-    setError(null);
-    setResult('');
-    finalResultRef.current = '';
-
-    // Cancel any existing request and create new abort controller
-    abortControllerRef.current?.abort();
-    abortControllerRef.current = new AbortController();
-
-    // Set up hard timeout (60s safety net)
-    if (hardTimeoutRef.current) clearTimeout(hardTimeoutRef.current);
-    hardTimeoutRef.current = setTimeout(() => {
-      hardTimeoutRef.current = null;
-      abortControllerRef.current?.abort();
-      setError('Det tok litt for lang tid. Prøv igjen.');
-      setLoading(false);
-      setIsStreaming(false);
-      setResult(null);
-      abortControllerRef.current = null;
-      isSubmittingRef.current = false;
-    }, 60_000);
-
-    // Build contextual input with optional context prefix
-    const contextLines: string[] = [];
-    const industryOption = OKR_CONTEXT_OPTIONS.industry.find(o => o.value === industry);
-    const teamTypeOption = OKR_CONTEXT_OPTIONS.teamType.find(o => o.value === teamType);
-    const maturityOption = OKR_CONTEXT_OPTIONS.maturity.find(o => o.value === maturity);
-    if (industryOption && industry) contextLines.push(`Bransje: ${industryOption.label}`);
-    if (teamTypeOption && teamType) contextLines.push(`Teamtype: ${teamTypeOption.label}`);
-    if (maturityOption && maturity) contextLines.push(`OKR-modenhet: ${maturityOption.label}`);
-
-    const contextPrefix = contextLines.length > 0
-      ? `[Kontekst]\n${contextLines.join('\n')}\n\n[OKR-sett]\n`
-      : '';
-
-    await reviewOKRStreaming(
-      contextPrefix + effectiveInput.trim(),
-      (chunk) => {
-        // Append streaming chunk
-        finalResultRef.current += chunk;
-        setResult((prev) => (prev || '') + chunk);
-      },
-      () => {
-        // Clear hard timeout
-        if (hardTimeoutRef.current) { clearTimeout(hardTimeoutRef.current); hardTimeoutRef.current = null; }
-
-        // Validate output before marking success
-        if (!finalResultRef.current || !isValidOKROutput(finalResultRef.current)) {
-          setError('Kunne ikke generere en komplett vurdering. Prøv igjen.');
-          setLoading(false);
-          setIsStreaming(false);
-          setResult(null);
-          abortControllerRef.current = null;
-          isSubmittingRef.current = false;
-          return;
-        }
-
-        // Streaming complete — valid output
-        setLoading(false);
-        setIsStreaming(false);
-        abortControllerRef.current = null;
-        isSubmittingRef.current = false;
-
-        // Track successful completion with metadata
-        const processingTimeMs = Date.now() - checkStartTimeRef.current;
-        logEvent('check_success', {
-          charCount: effectiveInput.trim().length,
-          processingTimeMs,
-        });
-
-        // Scroll to result
-        scrollToElement(resultRef, UI_TIMING.SCROLL_DELAY_MS);
-      },
-      (errorMsg) => {
-        // Clear hard timeout
-        if (hardTimeoutRef.current) { clearTimeout(hardTimeoutRef.current); hardTimeoutRef.current = null; }
-
-        // Error occurred
-        setError(errorMsg);
-        setLoading(false);
-        setIsStreaming(false);
-        setResult(null);
-        abortControllerRef.current = null;
-        isSubmittingRef.current = false;
-
-        // Track error
-        logEvent('okr_error', {
-          charCount: effectiveInput.trim().length,
-          processingTimeMs: Date.now() - checkStartTimeRef.current,
-        });
-      },
-      abortControllerRef.current.signal
-    );
-  }, [input, loading, industry, teamType, maturity]);
+  }, [reset]);
 
   const handleReEvaluate = useCallback((suggestion: string) => {
     setInput(suggestion);
-    setResult(null);
-    setError(null);
     handleSubmit(suggestion);
-  }, [handleSubmit]);
+  }, [handleSubmit, setInput]);
 
-  // Form input handlers (URL decoding, keyboard shortcuts, mobile events, auto-resize)
+  // ---------------------------------------------------------------------------
+  // Form Input Handlers Hook
+  // ---------------------------------------------------------------------------
   const {
     handlePaste,
     handleKeyDown,
@@ -219,6 +135,9 @@ export default function OKRReviewer() {
     trimmedLength,
   });
 
+  // ---------------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------------
   return (
     <div className="space-y-6" aria-busy={loading}>
       {/* Context section */}

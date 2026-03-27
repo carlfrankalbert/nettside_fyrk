@@ -6,6 +6,7 @@
 import type { OKRReviewResult } from '../types';
 import { createStreamingService, DEFAULT_ERROR_MESSAGES } from '../lib/streaming-service-client';
 import { ERROR_MESSAGES as APP_ERROR_MESSAGES, API_ROUTES, CACHE_KEY_PREFIXES } from '../utils/constants';
+import { isValidOKROutput } from '../utils/output-validators';
 
 // ============================================================================
 // Constants
@@ -13,6 +14,7 @@ import { ERROR_MESSAGES as APP_ERROR_MESSAGES, API_ROUTES, CACHE_KEY_PREFIXES } 
 
 const ERROR_MESSAGES = {
   ...DEFAULT_ERROR_MESSAGES,
+  INVALID_OUTPUT: 'Kunne ikke generere en komplett vurdering. Prøv igjen.',
 } as const;
 
 export { ERROR_MESSAGES };
@@ -69,6 +71,17 @@ export async function reviewOKR(input: string): Promise<OKRReviewResult> {
     }
     return { success: false, error: APP_ERROR_MESSAGES.OKR_REVIEW_DEFAULT };
   }
+}
+
+// ============================================================================
+// Validators
+// ============================================================================
+
+/**
+ * Validate that the output conforms to the expected OKR review format.
+ */
+export function isValidOutput(output: string): boolean {
+  return isValidOKROutput(output);
 }
 
 // ============================================================================

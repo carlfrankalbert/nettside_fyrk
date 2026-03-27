@@ -85,7 +85,7 @@ export interface UseStreamingFormReturn {
   isButtonEnabled: boolean;
 
   // Actions
-  handleSubmit: () => Promise<void>;
+  handleSubmit: (overrideInput?: string) => Promise<void>;
   setError: (error: string | null) => void;
   setErrorWithType: (message: string, type: StreamingErrorType) => void;
   clearError: () => void;
@@ -160,16 +160,16 @@ export function useStreamingForm(config: UseStreamingFormConfig): UseStreamingFo
     setInput('');
   }, []);
 
-  const handleSubmit = useCallback(async () => {
+  const handleSubmit = useCallback(async (overrideInput?: string) => {
     // Prevent concurrent submissions
     if (isSubmittingRef.current || loading) return;
     isSubmittingRef.current = true;
 
-    // Resolve input: external source (multi-field form) or internal state
-    const effectiveInput = getExternalInput ? getExternalInput() : input;
+    // Resolve input: explicit override > external source > internal state
+    const effectiveInput = overrideInput ?? (getExternalInput ? getExternalInput() : input);
 
-    // Validate input (skip when external — caller validates before calling handleSubmit)
-    if (!getExternalInput) {
+    // Validate input (skip when external or override — caller validates before calling handleSubmit)
+    if (!getExternalInput && overrideInput === undefined) {
       const validationError = validateInput(effectiveInput);
       if (validationError) {
         setErrorWithType(validationError, 'validation');

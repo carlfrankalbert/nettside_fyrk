@@ -213,7 +213,7 @@ export default function Antakelseskart() {
         <div className="flex flex-col gap-3">
           <button
             type="button"
-            onClick={handleSubmit}
+            onClick={() => handleSubmit()}
             disabled={!isButtonEnabled}
             aria-busy={loading}
             className={cn(
