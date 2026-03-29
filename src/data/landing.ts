@@ -55,7 +55,7 @@ export const aboutContent = {
   title: 'Om Carl Johnson',
   founder: {
     heading: 'Om Carl Johnson',
-    image: '/images/carl-johnson.png',
+    image: '/images/carl-johnson.jpg',
     paragraphs: [
       'Jeg har 15+ års erfaring fra bank, fintech og offentlig sektor — SpareBank 1 Utvikling, Vipps, Varner og Domstoladministrasjonen.',
       'Jeg startet i test og kvalitet, og har jobbet meg til produktledelse og strategi. Det betyr at jeg forstår hele kjeden — fra kode til forretning — og vet hva som skal til for å faktisk levere i regulerte omgivelser der compliance og fart må fungere sammen.',
