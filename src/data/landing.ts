@@ -43,7 +43,7 @@ export const servicesContent = {
       fitWhen: 'Dere har produktledere som trenger sparring og utvikling, eller team som skal gå fra prosjekt- til produkttankegang.',
     },
   ],
-  footnote: 'Oppdrag er typisk 3–12 måneder.',
+  footnote: '',
   ctaText: 'Ta kontakt',
   ctaHref: '#kontakt',
 } as const;
