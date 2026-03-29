@@ -11,12 +11,12 @@ import { EXTERNAL_LINKS, CONTACT_LABEL } from '../utils/links';
 export const aboutPageContent = {
   seo: {
     title: 'Om FYRK',
-    description: 'Jeg har bakgrunn som senior produktleder og beslutningsstøtte i komplekse, regulerte miljøer. FYRK er bygget for én ting: å gi deg et bedre grunnlag før du forplikter deg.',
+    description: 'Jeg har bakgrunn som senior produktleder og beslutningsstøtte i komplekse, regulerte miljøer. FYRK er bygget for å gi deg et bedre grunnlag før du forplikter deg.',
   },
   heading: 'Om FYRK',
   intro: [
     'Jeg har bakgrunn som senior produktleder og beslutningsstøtte i komplekse, regulerte miljøer innen bank og finans, og har jobbet med beslutninger som har hatt betydelige økonomiske og organisatoriske konsekvenser.',
-    'FYRK er bygget for én ting: å gi deg et bedre grunnlag før du forplikter deg.',
+    'FYRK er bygget for å gi deg et bedre grunnlag før du forplikter deg.',
   ],
   founder: {
     name: 'Carl Johnson, grunnlegger',

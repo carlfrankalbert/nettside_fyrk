@@ -34,12 +34,12 @@ export const servicesContent = {
   services: [
     {
       title: 'Interim produktleder',
-      description: 'Jeg tar operativt ansvar som produktleder eller produkteier i teamet ditt. Prioritering, stakeholder-håndtering, roadmap og leveranse — i komplekse, regulerte miljøer.',
+      description: 'Jeg tar operativt ansvar som produktleder eller produkteier i teamet ditt. Prioritering, stakeholder-håndtering, roadmap og leveranse i komplekse, regulerte miljøer.',
       fitWhen: 'Teamet trenger en erfaren produktleder på kort varsel, eller noen som kan ta harde prioriteringer uten å skape unødvendig uro.',
     },
     {
       title: 'Produktcoaching',
-      description: 'Jeg coacher produktledere og produktteam som vil bli bedre på prioritering, målstyring og datadrevne beslutninger. Basert på det som faktisk fungerer — praksis fra 15 år i regulerte bransjer. Inkluderer arbeid med OKR-rammeverk og AI-støttet produktutvikling der det er relevant.',
+      description: 'Jeg coacher produktledere og produktteam som vil bli bedre på prioritering, målstyring og datadrevne beslutninger. Basert på 15 års praksis i regulerte bransjer. Inkluderer arbeid med OKR-rammeverk og AI-støttet produktutvikling der det er relevant.',
       fitWhen: 'Dere har produktledere som trenger sparring og utvikling, eller team som skal gå fra prosjekt- til produkttankegang.',
     },
   ],
@@ -57,9 +57,9 @@ export const aboutContent = {
     heading: 'Om Carl Johnson',
     image: '/images/carl-johnson.jpg',
     paragraphs: [
-      'Jeg har 15+ års erfaring fra bank, fintech og offentlig sektor — SpareBank 1 Utvikling, Vipps, Varner og Domstoladministrasjonen.',
-      'Jeg startet i test og kvalitet, og har jobbet meg til produktledelse og strategi. Det betyr at jeg forstår hele kjeden — fra kode til forretning — og vet hva som skal til for å faktisk levere i regulerte omgivelser der compliance og fart må fungere sammen.',
-      'I dag driver jeg FYRK. Jeg tar oppdrag som interim produktleder, produktcoach og rådgiver. Jeg bruker AI aktivt i produktarbeidet — til research, testing av antakelser og raskere beslutningsgrunnlag.',
+      'Jeg har 15+ års erfaring fra bank, fintech og offentlig sektor, blant annet SpareBank 1 Utvikling, Vipps, Varner og Domstoladministrasjonen.',
+      'Jeg startet i test og kvalitet, og har jobbet meg til produktledelse og strategi. Det betyr at jeg forstår hele kjeden fra kode til forretning, og vet hva som skal til for å faktisk levere i regulerte omgivelser der compliance og fart må fungere sammen.',
+      'I dag driver jeg FYRK. Jeg tar oppdrag som interim produktleder, produktcoach og rådgiver. Jeg bruker AI aktivt i produktarbeidet, til research, testing av antakelser og raskere beslutningsgrunnlag.',
       'Jeg liker å løse problemer og har lite tålmodighet for arbeid som ikke skaper verdi.',
     ],
     linkedinCta: {
@@ -77,7 +77,7 @@ export const experienceContent = {
   entries: [
     {
       company: 'SpareBank 1 Utvikling',
-      role: 'Produktleder – mobilbank bedrift',
+      role: 'Produktleder, mobilbank bedrift',
       description: 'Produktleder for mobilbank og betaling i bedriftsmarkedet. Ledet tre tverrfaglige team med ansvar for strategi, prioritering og leveranser.',
     },
     {
@@ -87,7 +87,7 @@ export const experienceContent = {
     },
     {
       company: 'Domstoladministrasjonen',
-      role: 'Testleder – digitalisering',
+      role: 'Testleder, digitalisering',
       description: 'Testleder i digitaliseringsprosjekt for norske domstoler med koordinering mot politiet og kriminalomsorgen.',
     },
     {
