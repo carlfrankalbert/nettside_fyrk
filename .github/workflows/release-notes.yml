@@ -54,7 +54,7 @@ jobs:
 
       - name: Create PR with release notes
         if: steps.find-pr.outputs.skip != 'true'
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           branch: release-notes/pr-${{ steps.find-pr.outputs.pr_number }}
           commit-message: 'docs: add release notes for PR #${{ steps.find-pr.outputs.pr_number }}'
