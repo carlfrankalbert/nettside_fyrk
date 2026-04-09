@@ -17,6 +17,7 @@ export const aboutPageContent = {
   intro: [
     'Jeg har bakgrunn som senior produktleder og beslutningsstøtte i komplekse, regulerte miljøer innen bank og finans, og har jobbet med beslutninger som har hatt betydelige økonomiske og organisatoriske konsekvenser.',
     'FYRK er bygget for å gi deg et bedre grunnlag før du forplikter deg.',
+    'FYRK er godkjent bemanningsforetak og leverer interim produktledelse til team som trenger senior kapasitet.',
   ],
   founder: {
     name: 'Carl Johnson, grunnlegger',
