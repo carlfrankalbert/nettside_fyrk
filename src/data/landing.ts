@@ -30,17 +30,17 @@ export const heroContent = {
  */
 export const servicesContent = {
   title: 'Hva jeg gjør',
-  intro: 'FYRK hjelper når teamet har mye på gang men lite som faktisk kommer i produksjon, når prioriteringene er uklare, eller når det trengs en erfaren produktleder som kan ta ansvar og skape fremdrift.',
+  intro: 'Jeg styrker team, arbeidsformer og produktorientering i store organisasjoner. Enten som operativ produktleder som tar ansvar fra dag én, eller som produktcoach som utvikler teamet og arbeidsformene deres over tid.',
   services: [
     {
       title: 'Interim produktleder',
-      description: 'Jeg tar operativt ansvar som produktleder eller produkteier i teamet ditt. Prioritering, stakeholder-håndtering, roadmap og leveranse i komplekse, regulerte miljøer.',
+      description: 'Jeg tar operativt ansvar som produktleder i teamet ditt. Prioritering, stakeholder-håndtering, roadmap og leveranse i komplekse, regulerte miljøer. Balanserer smidig fart med faglig integritet og krav til compliance.',
       fitWhen: 'Teamet trenger en erfaren produktleder på kort varsel, eller noen som kan ta harde prioriteringer uten å skape unødvendig uro.',
     },
     {
       title: 'Produktcoaching',
-      description: 'Jeg coacher produktledere og produktteam som vil bli bedre på prioritering, målstyring og datadrevne beslutninger. Basert på 15 års praksis i regulerte bransjer. Inkluderer arbeid med OKR-rammeverk og AI-støttet produktutvikling der det er relevant.',
-      fitWhen: 'Dere har produktledere som trenger sparring og utvikling, eller team som skal gå fra prosjekt- til produkttankegang.',
+      description: 'Jeg coacher produktledere og team som vil bli bedre på prioritering, målstyring og arbeidsformer. Innfører felles styringsrytmer, OKR og skreddersydde kompetansetiltak. Basert på 15 års praksis fra bank og offentlig sektor, med tight-loose-tight som styringsfilosofi: tydelige mål og rammer, autonomi i gjennomføring, tett oppfølging av effekt.',
+      fitWhen: 'Dere har produktledere som trenger sparring og utvikling, team som skal gå fra prosjekt til produkt, eller en organisasjon som trenger felles språk og rammer for produktorientert arbeid.',
     },
   ],
   footnote: '',
