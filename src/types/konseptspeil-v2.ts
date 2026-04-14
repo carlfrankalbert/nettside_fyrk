@@ -100,15 +100,6 @@ export const DIMENSION_LABELS: Record<DimensionKey, { name: string; subtitle: st
 };
 
 /**
- * Status icons for display (neutral symbols indicating coverage, not judgment)
- */
-export const STATUS_ICONS: Record<DimensionStatus, string> = {
-  ikke_nevnt: '○',
-  antatt: '◐',
-  beskrevet: '●',
-};
-
-/**
  * Status labels in Norwegian
  */
 export const STATUS_LABELS: Record<DimensionStatus, string> = {

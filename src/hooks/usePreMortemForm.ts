@@ -7,15 +7,6 @@ import {
   type PreMortemFormData,
 } from '../utils/form-validation';
 
-// Form field options — canonical source is preMortemTool.selectOptions in src/data/tools.ts
-// Re-exported here for backward compatibility
-import { preMortemTool } from '../data/tools';
-
-export const BRANSJE_OPTIONS = preMortemTool.selectOptions.bransje;
-export const RISIKONIVA_OPTIONS = preMortemTool.selectOptions.risikoniva;
-export const KUNDETYPE_OPTIONS = preMortemTool.selectOptions.kundetype;
-export const KONFIDENSIALITET_OPTIONS = preMortemTool.selectOptions.konfidensialitet;
-
 const INITIAL_FORM_STATE: PreMortemFormData = {
   beslutning: '',
   bransje: '',

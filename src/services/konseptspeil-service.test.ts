@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from 'vitest';
-import { speileKonsept, speileKonseptStreaming, isValidOutput, ERROR_MESSAGES } from './konseptspeil-service';
+import { speileKonseptStreaming, isValidOutput, ERROR_MESSAGES } from './konseptspeil-service';
 
 // Mock crypto.subtle for hashing
 const mockDigest = vi.fn().mockResolvedValue(new ArrayBuffer(32));
@@ -109,87 +109,6 @@ describe('konseptspeil-service', () => {
         }
       });
       expect(isValidOutput(missingSporsmal)).toBe(false);
-    });
-  });
-
-  describe('speileKonsept', () => {
-    it('should return cached result from localStorage', async () => {
-      // localStorageCache uses 'okr_cache_' prefix and stores JSON with output and timestamp
-      const cacheEntry = JSON.stringify({ output: VALID_JSON_RESPONSE, timestamp: Date.now() });
-      localStorageMock['okr_cache_0000000000000000000000000000000000000000000000000000000000000000'] = cacheEntry;
-
-      const result = await speileKonsept('Test input');
-
-      expect(result.output).toBe(VALID_JSON_RESPONSE);
-      expect(result.cached).toBe(true);
-      expect(fetchMock).not.toHaveBeenCalled();
-    });
-
-    it('should fetch from API when no cache exists', async () => {
-      fetchMock.mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({ output: VALID_JSON_RESPONSE, cached: false }),
-      });
-
-      const result = await speileKonsept('Test input');
-
-      expect(result.output).toBe(VALID_JSON_RESPONSE);
-      expect(fetchMock).toHaveBeenCalledWith(
-        '/api/konseptspeilet',
-        expect.objectContaining({
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ input: 'Test input', stream: false }),
-        })
-      );
-    });
-
-    it('should handle rate limit (429) error', async () => {
-      fetchMock.mockResolvedValue({
-        ok: false,
-        status: 429,
-        json: () => Promise.resolve({}),
-      });
-
-      await expect(speileKonsept('Test input')).rejects.toThrow(ERROR_MESSAGES.RATE_LIMIT);
-    });
-
-    it('should handle API errors', async () => {
-      fetchMock.mockResolvedValue({
-        ok: false,
-        status: 500,
-        json: () => Promise.resolve({}),
-      });
-
-      await expect(speileKonsept('Test input')).rejects.toThrow(ERROR_MESSAGES.DEFAULT);
-    });
-
-    it('should handle network errors', async () => {
-      fetchMock.mockRejectedValue(new Error('Network error'));
-
-      await expect(speileKonsept('Test input')).rejects.toThrow('Network error');
-    });
-
-    it('should cache successful API response', async () => {
-      fetchMock.mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({ output: VALID_JSON_RESPONSE, cached: false }),
-      });
-
-      await speileKonsept('Test input');
-
-      expect(localStorage.setItem).toHaveBeenCalled();
-    });
-
-    it('should return empty string when output is missing', async () => {
-      fetchMock.mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({ cached: false }),
-      });
-
-      const result = await speileKonsept('Test input');
-
-      expect(result.output).toBe('');
     });
   });
 

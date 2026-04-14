@@ -67,18 +67,6 @@ export const API_ROUTES = {
 } as const;
 
 /**
- * Page routes
- */
-export const PAGE_ROUTES = {
-  HOME: '/',
-  OKR_REVIEWER: '/okr-sjekken',
-  KONSEPTSPEIL: '/konseptspeilet',
-  ANTAKELSESKART: '/antakelseskart',
-  BESLUTNINGSLOGG: '/beslutningslogg',
-  PRE_MORTEM: '/verktoy/pre-mortem',
-} as const;
-
-/**
  * Input validation constants
  */
 export const INPUT_VALIDATION = {

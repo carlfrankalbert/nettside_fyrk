@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from 'vitest';
-import { reviewOKR, reviewOKRStreaming } from './okr-service';
+import { reviewOKRStreaming } from './okr-service';
 
 // Mock crypto.subtle for hashing
 const mockDigest = vi.fn().mockResolvedValue(new ArrayBuffer(32));
@@ -40,133 +40,6 @@ describe('okr-service', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
-  });
-
-  describe('reviewOKR', () => {
-    it('should return cached result from localStorage', async () => {
-      const cachedData = {
-        output: 'Cached OKR review',
-        timestamp: Date.now(),
-      };
-      localStorageMock['okr_cache_0000000000000000000000000000000000000000000000000000000000000000'] =
-        JSON.stringify(cachedData);
-
-      const result = await reviewOKR('Test OKR');
-
-      expect(result.success).toBe(true);
-      if (result.success) {
-        expect(result.output).toBe('Cached OKR review');
-        expect(result.cached).toBe(true);
-      }
-      expect(fetchMock).not.toHaveBeenCalled();
-    });
-
-    it('should fetch from API when no cache exists', async () => {
-      fetchMock.mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({ output: 'API OKR review', cached: false }),
-      });
-
-      const result = await reviewOKR('Test OKR');
-
-      expect(result.success).toBe(true);
-      if (result.success) {
-        expect(result.output).toBe('API OKR review');
-      }
-      expect(fetchMock).toHaveBeenCalledWith(
-        '/api/okr-sjekken',
-        expect.objectContaining({
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ input: 'Test OKR', stream: false }),
-        })
-      );
-    });
-
-    it('should handle rate limit (429) error', async () => {
-      fetchMock.mockResolvedValue({
-        ok: false,
-        status: 429,
-        json: () => Promise.resolve({}),
-      });
-
-      const result = await reviewOKR('Test OKR');
-
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error).toContain('For mange forespørsler');
-      }
-    });
-
-    it('should handle API errors', async () => {
-      fetchMock.mockResolvedValue({
-        ok: false,
-        status: 500,
-        json: () => Promise.resolve({}),
-      });
-
-      const result = await reviewOKR('Test OKR');
-
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error).toBe('Noe gikk galt under vurderingen. Prøv igjen om litt.');
-      }
-    });
-
-    it('should handle network errors', async () => {
-      fetchMock.mockRejectedValue(new Error('Network error'));
-
-      const result = await reviewOKR('Test OKR');
-
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error).toBe('Noe gikk galt under vurderingen. Prøv igjen om litt.');
-      }
-    });
-
-    it('should handle missing output in response', async () => {
-      fetchMock.mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({ cached: false }),
-      });
-
-      const result = await reviewOKR('Test OKR');
-
-      expect(result.success).toBe(false);
-    });
-
-    it('should cache successful API response', async () => {
-      fetchMock.mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({ output: 'New OKR review', cached: false }),
-      });
-
-      await reviewOKR('Test OKR');
-
-      expect(localStorage.setItem).toHaveBeenCalled();
-    });
-
-    it('should expire old cached entries', async () => {
-      const oldCachedData = {
-        output: 'Old cached review',
-        timestamp: Date.now() - 25 * 60 * 60 * 1000, // 25 hours ago
-      };
-      localStorageMock['okr_cache_0000000000000000000000000000000000000000000000000000000000000000'] =
-        JSON.stringify(oldCachedData);
-
-      fetchMock.mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({ output: 'Fresh review', cached: false }),
-      });
-
-      const result = await reviewOKR('Test OKR');
-
-      expect(result.success).toBe(true);
-      if (result.success) {
-        expect(result.output).toBe('Fresh review');
-      }
-      expect(fetchMock).toHaveBeenCalled();
-    });
   });
 
   describe('reviewOKRStreaming', () => {

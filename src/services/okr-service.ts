@@ -3,9 +3,8 @@
  * Handles API communication for OKR analysis with caching and streaming support
  */
 
-import type { OKRReviewResult } from '../types';
 import { createStreamingService, DEFAULT_ERROR_MESSAGES } from '../lib/streaming-service-client';
-import { ERROR_MESSAGES as APP_ERROR_MESSAGES, API_ROUTES, CACHE_KEY_PREFIXES } from '../utils/constants';
+import { API_ROUTES, CACHE_KEY_PREFIXES } from '../utils/constants';
 import { isValidOKROutput } from '../utils/output-validators';
 
 // ============================================================================
@@ -49,30 +48,6 @@ export async function reviewOKRStreaming(
   return service.streamRequest(input, onChunk, onComplete, onError, signal, onRetry);
 }
 
-/**
- * Submit an OKR for AI-powered review (non-streaming)
- * @deprecated Only used in tests. Prefer reviewOKRStreaming for production use.
- */
-export async function reviewOKR(input: string): Promise<OKRReviewResult> {
-  try {
-    const result = await service.request(input);
-    if (!result.output) {
-      return { success: false, error: APP_ERROR_MESSAGES.OKR_REVIEW_DEFAULT };
-    }
-    return {
-      success: true,
-      output: result.output,
-      cached: result.cached,
-    };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : '';
-    if (message === ERROR_MESSAGES.RATE_LIMIT) {
-      return { success: false, error: message };
-    }
-    return { success: false, error: APP_ERROR_MESSAGES.OKR_REVIEW_DEFAULT };
-  }
-}
-
 // ============================================================================
 // Validators
 // ============================================================================
@@ -84,8 +59,3 @@ export function isValidOutput(output: string): boolean {
   return isValidOKROutput(output);
 }
 
-// ============================================================================
-// Exports
-// ============================================================================
-
-export type { OKRReviewResult };

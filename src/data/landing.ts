@@ -55,7 +55,6 @@ export const aboutContent = {
   title: 'Om Carl Johnson',
   founder: {
     heading: 'Om Carl Johnson',
-    image: '/images/carl-johnson.jpg',
     paragraphs: [
       'Jeg har 15+ års erfaring fra bank, fintech og offentlig sektor, blant annet SpareBank 1 Utvikling, Vipps, Varner og Domstoladministrasjonen.',
       'Jeg startet i test og kvalitet, og har jobbet meg til produktledelse og strategi. Det betyr at jeg forstår hele kjeden fra kode til forretning, og vet hva som skal til for å faktisk levere i regulerte omgivelser der compliance og fart må fungere sammen.',
@@ -115,28 +114,6 @@ export const testimonialsContent = {
       quote: 'Han bidro til mindre forstyrrelser og tydeligere fokus for gruppa, og var pådriver for en fornuftig bruk av OKR-er og Definition of Done.',
       role: 'Senior Tech Lead',
       company: 'SpareBank 1 Utvikling',
-    },
-  ],
-} as const;
-
-/**
- * Tools showcase section content
- */
-export const toolsContent = {
-  title: 'Gratis verktøy',
-  intro: 'Strukturerte verktøy som hjelper deg tenke tydeligere. Ingen innlogging.',
-  tools: [
-    {
-      name: 'Konseptspeilet',
-      description: 'Avdekker blindsoner i produktideer.',
-      href: '/konseptspeilet',
-      ctaText: 'Prøv konseptspeilet',
-    },
-    {
-      name: 'OKR-sjekken',
-      description: 'Rask kvalitetssjekk av OKR-ene dine.',
-      href: '/okr-sjekken',
-      ctaText: 'Prøv OKR-sjekken',
     },
   ],
 } as const;

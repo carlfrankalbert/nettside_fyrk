@@ -93,9 +93,6 @@ export const TRACKED_BUTTONS = {
 
 export type ButtonId = keyof typeof TRACKED_BUTTONS;
 
-// Legacy key for backwards compatibility
-const LEGACY_KV_KEY = 'okr_button_clicks';
-
 // EventMetadata type imported from analytics-metrics.ts
 
 /**
@@ -296,12 +293,8 @@ export const GET: APIRoute = async ({ locals, url }) => {
       );
     }
 
-    // Default: return legacy okr_button_clicks for backwards compatibility
-    const currentCount = await kv.get(LEGACY_KV_KEY);
-    const count = parseInt(currentCount || '0', 10) || 0;
-
     return new Response(
-      JSON.stringify({ count }),
+      JSON.stringify({ counts: null, message: 'No buttonId or all=true specified' }),
       { status: 200, headers: API_HEADERS }
     );
   } catch (error) {

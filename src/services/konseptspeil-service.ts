@@ -63,10 +63,3 @@ export async function speileKonseptStreaming(
   return service.streamRequest(input, onChunk, onComplete, onError, signal, onRetry);
 }
 
-/**
- * Speile konsept without streaming (for simple use cases)
- * @deprecated Only used in tests. Prefer speileKonseptStreaming for production use.
- */
-export async function speileKonsept(input: string): Promise<{ output: string; cached: boolean }> {
-  return service.request(input);
-}
