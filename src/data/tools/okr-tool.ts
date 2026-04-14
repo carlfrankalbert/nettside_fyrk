@@ -27,7 +27,6 @@ export const okrTool = {
       footnote: 'Ment som støtte til refleksjon – ikke fasit.',
     },
     relatedTools: [
-      { name: 'Beslutningslogg', href: '/beslutningslogg', description: 'Dokumenter OKR-beslutningene dere har tatt.' },
       { name: 'Konseptspeilet', href: '/konseptspeilet', description: 'Test og forbedre produktideer før dere setter OKR-er.' },
     ],
     mobileCTA: { buttonText: 'Sjekk OKR-settet', disabled: false, showArrow: true },

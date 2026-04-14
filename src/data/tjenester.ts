@@ -143,7 +143,7 @@ export const interimContent = {
       { question: 'Hva er typisk varighet på et interimoppdrag?', answer: 'Vanligvis 3–6 måneder, men det varierer. Jeg har lang erfaring med interim produktledelse i komplekse og regulerte miljøer, der noen oppdrag er kortere og avgrenset, andre strekker seg lengre ved behov.', isLast: true },
     ],
   },
-  internalLinkHtml: 'Vurder også <a href="/tjenester/beslutningsgjennomgang" class="text-brand-navy underline hover:text-brand-cyan-darker">Beslutningsgjennomgang</a> hvis dere står foran en viktig beslutning.',
+  internalLinkHtml: 'Vurder også <a href="/tjenester" class="text-brand-navy underline hover:text-brand-cyan-darker">rådgivning</a> hvis dere står foran en viktig beslutning.',
 } as const;
 
 /**
@@ -200,5 +200,5 @@ export const kvalitetContent = {
       { question: 'Passer dette i regulerte miljøer?', answer: 'Ja. Jeg har erfaring fra bank, finans og offentlig sektor, og jobber aktivt med mer forutsigbare leveranser i regulerte og risikoutsatte miljøer der compliance er en del av hverdagen.', isLast: true },
     ],
   },
-  internalLinkHtml: 'Hvis dere står foran en vanskelig beslutning, start med <a href="/tjenester/beslutningsgjennomgang" class="text-brand-navy underline hover:text-brand-cyan-darker">Beslutningsgjennomgang</a>.',
+  internalLinkHtml: 'Hvis dere står foran en vanskelig beslutning, start med <a href="/tjenester" class="text-brand-navy underline hover:text-brand-cyan-darker">rådgivning</a>.',
 } as const;

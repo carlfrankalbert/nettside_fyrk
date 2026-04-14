@@ -13,7 +13,6 @@ interface LinkedinCta {
 
 interface Founder {
   heading: string;
-  image?: string;
   paragraphs: readonly string[];
   linkedinCta: LinkedinCta;
 }
@@ -35,18 +34,16 @@ const { title, founder } = Astro.props;
 
     <div>
       <div class="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 mb-6">
-        {founder.image && (
-          <div class="flex-shrink-0">
-            <Image
-              src={carlJohnsonImage}
-              alt={founder.heading}
-              width={192}
-              height={192}
-              class="w-32 h-32 md:w-48 md:h-48 rounded-2xl object-cover grayscale shadow-lg ring-4 ring-neutral-100"
-              loading="lazy"
-            />
-          </div>
-        )}
+        <div class="flex-shrink-0">
+          <Image
+            src={carlJohnsonImage}
+            alt={founder.heading}
+            width={192}
+            height={192}
+            class="w-32 h-32 md:w-48 md:h-48 rounded-2xl object-cover grayscale shadow-lg ring-4 ring-neutral-100"
+            loading="lazy"
+          />
+        </div>
         <div class="flex-1 space-y-4">
           {founder.paragraphs.map((paragraph) => (
             <p class="text-neutral-600">{paragraph}</p>

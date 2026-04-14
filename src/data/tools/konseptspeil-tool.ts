@@ -26,10 +26,7 @@ export const konseptspeilTool = {
       ],
       footnote: 'Ingen scoring. Ingen fasit. Bare et ærlig speil.',
     },
-    relatedTools: [
-      { name: 'Antakelseskartet', href: '/antakelseskart', description: 'Avdekk de skjulte antakelsene i konseptet ditt.' },
-      { name: 'Beslutningslogg', href: '/beslutningslogg', description: 'Dokumenter beslutningene du tar etter refleksjonen.' },
-    ],
+    relatedTools: [],
     mobileCTA: { buttonText: 'Start speiling' },
   },
   ui: {

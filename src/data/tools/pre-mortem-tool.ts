@@ -29,10 +29,7 @@ export const preMortemTool = {
       ],
       footnote: 'Ingen anbefaling om hva du bør gjøre. Bare strukturert risikotenkning.',
     },
-    relatedTools: [
-      { name: 'Antakelseskartet', href: '/antakelseskart', description: 'Avdekk de implisitte antakelsene bak beslutningen.' },
-      { name: 'Beslutningslogg', href: '/beslutningslogg', description: 'Dokumenter risikobeslutningene du har tatt.' },
-    ],
+    relatedTools: [],
     mobileCTA: { buttonText: 'Generer Pre-Mortem Brief' },
   },
   ui: {

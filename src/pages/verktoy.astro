@@ -52,7 +52,7 @@ const { seo, title, subtitle, tagline, sections, disclaimerHtml, bridgeCTA } = v
       ))}
 
       <!-- Disclaimer -->
-      <p class="text-sm text-neutral-500 mb-16" set:html={disclaimerHtml} />
+      {disclaimerHtml && <p class="text-sm text-neutral-500 mb-16" set:html={disclaimerHtml} />}
 
       <!-- Bridge CTA -->
       <section class="bg-neutral-50 rounded-lg p-8 md:p-10 border border-neutral-200">
