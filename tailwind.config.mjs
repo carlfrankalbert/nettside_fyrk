@@ -13,6 +13,7 @@ export default {
           'cyan-lightest': '#ECDEC8',
           'cyan-dark': '#8A6249',
           'cyan-darker': '#8E684A',
+          sand: '#C4A07A',
           white: '#FFFFFF',
         },
         neutral: {
