@@ -1,0 +1,27 @@
+---
+interface Props {
+  id?: string;
+  title: string;
+  items: readonly string[];
+}
+
+const { id, title, items } = Astro.props;
+---
+
+<section id={id} class="py-20 md:py-28 px-6 bg-neutral-50 scroll-mt-20">
+  <div class="max-w-3xl mx-auto">
+    <h2 class="text-h2 font-semibold text-brand-navy mb-3 text-center">
+      {title}
+    </h2>
+    <div class="w-16 h-1 bg-brand-cyan-darker mx-auto mb-10"></div>
+
+    <ul class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-5">
+      {items.map((item) => (
+        <li class="flex items-start gap-3 text-neutral-700 leading-relaxed">
+          <span class="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-brand-cyan-darker flex-shrink-0" aria-hidden="true"></span>
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>

@@ -1,7 +1,7 @@
 ---
 /**
  * Landing page for FYRK
- * Senior product leadership for regulated industries
+ * Produktledelse og rådgivning for komplekse produktmiljøer
  */
 
 import '../styles/global.css';
@@ -11,20 +11,24 @@ import { ELEMENT_IDS } from '../utils/constants';
 // Landing page components
 import LandingHeader from '../components/landing/LandingHeader.astro';
 import HeroSection from '../components/landing/HeroSection.astro';
-import ServicesSection from '../components/landing/ServicesSection.astro';
-import AboutSection from '../components/landing/AboutSection.astro';
+import IntroSection from '../components/landing/IntroSection.astro';
+import ContributionsSection from '../components/landing/ContributionsSection.astro';
+import WhenFitsSection from '../components/landing/WhenFitsSection.astro';
 import ExperienceSection from '../components/landing/ExperienceSection.astro';
-import TestimonialsSection from '../components/landing/TestimonialsSection.astro';
+import AboutSection from '../components/landing/AboutSection.astro';
 import ContactSection from '../components/landing/ContactSection.astro';
+import TestimonialsSection from '../components/landing/TestimonialsSection.astro';
 import LandingFooter from '../components/landing/LandingFooter.astro';
 
 // Content data
 import {
   navLinks,
   heroContent,
-  servicesContent,
-  aboutContent,
+  introContent,
+  contributionsContent,
+  whenFitsContent,
   experienceContent,
+  aboutContent,
   testimonialsContent,
   contactContent,
   footerContent,
@@ -35,8 +39,8 @@ import {
 <html lang="no" class="scroll-smooth">
   <head>
     <SEOHead
-      title="Senior produktledelse for regulerte bransjer"
-      description="Interim produktleder og produktcoaching for bank, fintech og offentlig sektor. 15+ års erfaring. OKR, AI-verktøy og beslutningsstøtte."
+      title="Produktledelse og rådgivning for komplekse produktmiljøer"
+      description="FYRK hjelper produktområder med mer struktur, tydeligere prioriteringer og bedre fremdrift. Erfaring fra bank, digitale finansielle tjenester, retail og offentlig sektor."
       type="website"
     />
     <script type="application/ld+json" set:html={JSON.stringify({
@@ -47,9 +51,9 @@ import {
           '@id': 'https://fyrk.no/#organization',
           name: 'FYRK',
           url: 'https://fyrk.no',
-          description: 'Produktledelse og coaching for regulerte bransjer.',
+          description: 'Produktledelse og rådgivning for komplekse produktmiljøer.',
           areaServed: { '@type': 'Country', name: 'NO' },
-          serviceType: ['Consulting', 'Product Management', 'Coaching'],
+          serviceType: ['Product Management', 'Consulting'],
           contactPoint: {
             '@type': 'ContactPoint',
             contactType: 'customer service',
@@ -86,13 +90,25 @@ import {
     <main id={ELEMENT_IDS.MAIN} class="flex-1">
       <HeroSection {...heroContent} />
 
-      <ServicesSection
-        title={servicesContent.title}
-        intro={servicesContent.intro}
-        services={servicesContent.services}
-        footnote={servicesContent.footnote}
-        ctaText={servicesContent.ctaText}
-        ctaHref={servicesContent.ctaHref}
+      <IntroSection paragraphs={introContent.paragraphs} />
+
+      <ContributionsSection
+        id="bidrag"
+        title={contributionsContent.title}
+        items={contributionsContent.items}
+      />
+
+      <WhenFitsSection
+        title={whenFitsContent.title}
+        statement={whenFitsContent.statement}
+        lead={whenFitsContent.lead}
+        items={whenFitsContent.items}
+      />
+
+      <ExperienceSection
+        title={experienceContent.title}
+        lead={experienceContent.lead}
+        entries={experienceContent.entries}
       />
 
       <AboutSection
@@ -100,17 +116,12 @@ import {
         founder={aboutContent.founder}
       />
 
-      <ExperienceSection
-        title={experienceContent.title}
-        entries={experienceContent.entries}
-      />
+      <ContactSection {...contactContent} />
 
       <TestimonialsSection
         title={testimonialsContent.title}
         testimonials={testimonialsContent.testimonials}
       />
-
-      <ContactSection {...contactContent} />
     </main>
 
     <LandingFooter {...footerContent} />

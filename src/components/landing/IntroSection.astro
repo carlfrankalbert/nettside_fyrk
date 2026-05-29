@@ -1,0 +1,15 @@
+---
+interface Props {
+  paragraphs: readonly string[];
+}
+
+const { paragraphs } = Astro.props;
+---
+
+<section class="py-16 md:py-20 px-6 bg-white">
+  <div class="max-w-3xl mx-auto space-y-5">
+    {paragraphs.map((paragraph) => (
+      <p class="text-lg text-neutral-700 leading-relaxed">{paragraph}</p>
+    ))}
+  </div>
+</section>

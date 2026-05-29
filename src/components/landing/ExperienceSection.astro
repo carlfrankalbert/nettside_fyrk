@@ -12,10 +12,11 @@ interface ExperienceEntry {
 
 interface Props {
   title: string;
+  lead?: string;
   entries: readonly ExperienceEntry[];
 }
 
-const { title, entries } = Astro.props;
+const { title, lead, entries } = Astro.props;
 ---
 
 <section class="py-20 md:py-28 px-6 bg-white">
@@ -23,7 +24,13 @@ const { title, entries } = Astro.props;
     <h2 class="text-h2 font-semibold text-brand-navy mb-3 text-center">
       {title}
     </h2>
-    <div class="w-16 h-1 bg-brand-cyan-darker mx-auto mb-10"></div>
+    <div class="w-16 h-1 bg-brand-cyan-darker mx-auto mb-8"></div>
+
+    {lead && (
+      <p class="text-lg text-neutral-700 leading-relaxed mb-10 text-center max-w-2xl mx-auto">
+        {lead}
+      </p>
+    )}
 
     <div class="grid md:grid-cols-2 gap-6">
       {entries.map((entry) => (

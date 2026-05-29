@@ -1,0 +1,38 @@
+---
+interface Props {
+  title: string;
+  statement?: string;
+  lead: string;
+  items: readonly string[];
+}
+
+const { title, statement, lead, items } = Astro.props;
+---
+
+<section class="py-20 md:py-28 px-6 bg-white">
+  <div class="max-w-3xl mx-auto">
+    <h2 class="text-h2 font-semibold text-brand-navy mb-3 text-center">
+      {title}
+    </h2>
+    <div class="w-16 h-1 bg-brand-cyan-darker mx-auto mb-8"></div>
+
+    {statement && (
+      <p class="text-xl md:text-2xl text-brand-navy font-medium leading-snug mb-8 text-center max-w-2xl mx-auto text-balance">
+        {statement}
+      </p>
+    )}
+
+    <p class="text-neutral-600 leading-relaxed mb-6 text-center max-w-2xl mx-auto">
+      {lead}
+    </p>
+
+    <ul class="space-y-4 max-w-2xl mx-auto">
+      {items.map((item) => (
+        <li class="flex items-start gap-3 text-neutral-700 leading-relaxed">
+          <span class="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-brand-cyan-darker flex-shrink-0" aria-hidden="true"></span>
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>

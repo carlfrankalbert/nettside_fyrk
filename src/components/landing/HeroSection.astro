@@ -6,7 +6,7 @@
 
 interface Props {
   headline: string;
-  description: string;
+  description: string | readonly string[];
   ctaText: string;
   ctaHref: string;
   secondaryCtaText?: string;
@@ -15,6 +15,7 @@ interface Props {
 }
 
 const { headline, description, ctaText, ctaHref, secondaryCtaText, secondaryCtaHref, tagline } = Astro.props;
+const paragraphs = Array.isArray(description) ? description : [description];
 ---
 
 <section class="py-[120px] md:py-[140px] px-6 bg-gradient-to-b from-slate-50 to-white relative overflow-hidden">
@@ -32,9 +33,13 @@ const { headline, description, ctaText, ctaHref, secondaryCtaText, secondaryCtaH
       {headline}
     </h1>
 
-    <p class="text-lg md:text-xl text-neutral-600 mt-5 max-w-[650px] leading-relaxed">
-      {description}
-    </p>
+    <div class="mt-5 max-w-[650px] space-y-4">
+      {paragraphs.map((paragraph) => (
+        <p class="text-lg md:text-xl text-neutral-600 leading-relaxed">
+          {paragraph}
+        </p>
+      ))}
+    </div>
 
     <div class="mt-8 flex flex-col sm:flex-row gap-4">
       <a href={ctaHref} class="btn btn-primary px-8 py-4 text-lg no-underline" data-track-button="hero_cta">

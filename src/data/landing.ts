@@ -9,7 +9,7 @@ import { EXTERNAL_LINKS, CONTACT_LABEL } from '../utils/links';
  * Navigation links for the landing page
  */
 export const navLinks = [
-  { href: '/#tjenester', label: 'Tjenester' },
+  { href: '/#bidrag', label: 'Hva FYRK gjør' },
   { href: '/verktoy', label: 'Verktøy' },
   { href: EXTERNAL_LINKS.email, label: CONTACT_LABEL, isCta: true },
 ] as const;
@@ -18,29 +18,32 @@ export const navLinks = [
  * Hero section content
  */
 export const heroContent = {
-  headline: 'Senior produktledelse for regulerte bransjer.',
-  description: 'Jeg går inn i team som produktleder eller produktcoach når mye er i gang, men for lite faktisk kommer helt ut i produksjon.',
+  headline: 'Produktledelse og rådgivning for komplekse produktmiljøer.',
+  description: [
+    'FYRK hjelper produktområder med å få mer struktur, tydeligere prioriteringer og bedre fremdrift.',
+    'Når mange hensyn, avhengigheter og team er involvert, kan arbeidet lett stoppe opp mellom produkt, teknologi og forretning. Da trengs det noen som kan skape oversikt, få frem hva som må avklares og hjelpe arbeidet videre.',
+  ],
   ctaText: 'Ta kontakt',
   ctaHref: EXTERNAL_LINKS.email,
 } as const;
 
 /**
- * Services section content
- * 2 core services
+ * Services content used by the /tjenester pages (not rendered on the landing page).
+ * The landing page uses contributionsContent + whenFitsContent for positioning.
  */
 export const servicesContent = {
-  title: 'Hva jeg gjør',
-  intro: 'Jeg styrker team, arbeidsformer og produktorientering i store organisasjoner. Enten som operativ produktleder som tar ansvar fra dag én, eller som produktcoach som utvikler teamet og arbeidsformene deres over tid.',
+  title: 'Tjenester',
+  intro: 'FYRK leverer produktledelse og rådgivning til komplekse produktmiljøer. Oppdrag tilpasses behov, fra operativ produktledelse til strukturert rådgivning og sparring.',
   services: [
     {
       title: 'Interim produktleder',
-      description: 'Jeg tar operativt ansvar som produktleder i teamet ditt. Prioritering, stakeholder-håndtering, roadmap og leveranse i komplekse, regulerte miljøer. Balanserer smidig fart med faglig integritet og krav til compliance.',
-      fitWhen: 'Teamet trenger en erfaren produktleder på kort varsel, eller noen som kan ta harde prioriteringer uten å skape unødvendig uro.',
+      description: 'Operativt ansvar som produktleder i teamet. Prioritering, stakeholder-håndtering, roadmap og leveranse i komplekse miljøer.',
+      fitWhen: 'Teamet trenger en erfaren produktleder på kort varsel, eller noen som kan ta tydelige prioriteringer uten å skape unødvendig uro.',
     },
     {
-      title: 'Produktcoaching',
-      description: 'Jeg coacher produktledere og team som vil bli bedre på prioritering, målstyring og arbeidsformer. Innfører felles styringsrytmer, OKR og skreddersydde kompetansetiltak. Basert på 15 års praksis fra bank og offentlig sektor, med tight-loose-tight som styringsfilosofi: tydelige mål og rammer, autonomi i gjennomføring, tett oppfølging av effekt.',
-      fitWhen: 'Dere har produktledere som trenger sparring og utvikling, team som skal gå fra prosjekt til produkt, eller en organisasjon som trenger felles språk og rammer for produktorientert arbeid.',
+      title: 'Rådgivning og sparring',
+      description: 'Strukturert rådgivning til produktledere, team og ledelse. Hjelp til å få oversikt, prioritere riktig og få fremdrift i arbeid med mange avhengigheter.',
+      fitWhen: 'Dere trenger noen utenfra som kan se helheten, stille de riktige spørsmålene og gi konkrete anbefalinger.',
     },
   ],
   footnote: '',
@@ -49,30 +52,53 @@ export const servicesContent = {
 } as const;
 
 /**
- * About section content
+ * Short introduction under hero
  */
-export const aboutContent = {
-  title: 'Om Carl Johnson',
-  founder: {
-    heading: 'Om Carl Johnson',
-    paragraphs: [
-      'Jeg har 15+ års erfaring fra bank, fintech og offentlig sektor, blant annet SpareBank 1 Utvikling, Vipps, Varner og Domstoladministrasjonen.',
-      'Jeg startet i test og kvalitet, og har jobbet meg til produktledelse og strategi. Det betyr at jeg forstår hele kjeden fra kode til forretning, og vet hva som skal til for å faktisk levere i regulerte omgivelser der compliance og fart må fungere sammen.',
-      'I dag driver jeg FYRK. Jeg tar oppdrag som interim produktleder, produktcoach og rådgiver. Jeg bruker AI aktivt i produktarbeidet, til research, testing av antakelser og raskere beslutningsgrunnlag.',
-      'Jeg liker å løse problemer og har lite tålmodighet for arbeid som ikke skaper verdi.',
-    ],
-    linkedinCta: {
-      text: 'Se full CV på LinkedIn',
-      href: EXTERNAL_LINKS.linkedinPersonal,
-    },
-  },
+export const introContent = {
+  paragraphs: [
+    'FYRK jobber med produktledelse og rådgivning i komplekse produktmiljøer.',
+    'Typiske situasjoner er uklare prioriteringer, mange avhengigheter, flere team involvert eller arbeid som stopper opp mellom produkt, teknologi og forretning.',
+    'Bidraget handler ofte om å skape bedre oversikt over hva som må avklares, hva som bør prioriteres, hvem som må involveres og hvordan arbeidet kan komme videre.',
+  ],
 } as const;
 
 /**
- * Selected experience section content
+ * Contributions section: what FYRK delivers
+ */
+export const contributionsContent = {
+  title: 'Hva FYRK bidrar med',
+  items: [
+    'Produktledelse i komplekse miljøer',
+    'Strukturering av roadmap og prioriteringer',
+    'Bedre flyt mellom produkt, teknologi og forretning',
+    'Støtte til produktledere, team og ledelse',
+    'Fremdrift i arbeid med mange avhengigheter',
+    'Tydeligere beslutningsgrunnlag og gjennomføring',
+  ],
+} as const;
+
+/**
+ * When FYRK fits: situational fit
+ */
+export const whenFitsContent = {
+  title: 'Når FYRK passer',
+  statement: 'FYRK passer best når produktmiljøet har mange flinke folk, men for lav fremdrift.',
+  lead: 'Typiske situasjoner:',
+  items: [
+    'Prioriteringer er uklare eller endres ofte',
+    'Viktige avklaringer blir liggende for lenge',
+    'Produkt, teknologi og forretning ikke trekker tydelig nok i samme retning',
+    'Et område trenger mer struktur i roadmap, ansvar og beslutninger',
+    'Ledelsen trenger bedre oversikt over hva som faktisk stopper arbeidet',
+  ],
+} as const;
+
+/**
+ * Experience section content
  */
 export const experienceContent = {
-  title: 'Utvalgt erfaring',
+  title: 'Erfaring',
+  lead: 'FYRK bygger på erfaring fra bank, digitale finansielle tjenester, retail og offentlig sektor.',
   entries: [
     {
       company: 'SpareBank 1 Utvikling',
@@ -95,6 +121,25 @@ export const experienceContent = {
       description: 'Testleder og produkteier i utviklingen av ny e-handelsplattform. Koordinerte testing og prioritering på tvers av fire team.',
     },
   ],
+} as const;
+
+/**
+ * About section content (short profile)
+ */
+export const aboutContent = {
+  title: 'Om Carl Johnson',
+  founder: {
+    heading: 'Om Carl Johnson',
+    paragraphs: [
+      'Carl Johnson er produktleder og rådgiver med erfaring fra bank, digitale finansielle tjenester og offentlig sektor.',
+      'Han jobber best i komplekse produktmiljøer der det er behov for mer struktur, tydeligere prioriteringer og bedre fremdrift.',
+      'Bakgrunnen spenner fra test og kvalitet til team- og produktledelse, med praktisk erfaring fra tverrfaglige team, digitale produkter og regulerte miljøer.',
+    ],
+    linkedinCta: {
+      text: 'Se full CV på LinkedIn',
+      href: EXTERNAL_LINKS.linkedinPersonal,
+    },
+  },
 } as const;
 
 /**
@@ -122,8 +167,8 @@ export const testimonialsContent = {
  * Contact section content
  */
 export const contactContent = {
-  title: 'La oss snakke.',
-  description: 'En kort samtale er ofte nok til å avklare om det er en match. Ingen forpliktelse.',
+  title: 'La oss ta en prat.',
+  description: 'Har dere et produktområde der fremdriften stopper opp mellom prioriteringer, avhengigheter og beslutninger? En kort samtale er ofte nok til å avklare om det er en match.',
   emailHref: EXTERNAL_LINKS.email,
   emailLabel: 'Send e-post',
   linkedinHref: EXTERNAL_LINKS.linkedinPersonal,
@@ -135,7 +180,7 @@ export const contactContent = {
  * Footer navigation links
  */
 export const footerNavLinks = [
-  { href: '/#tjenester', label: 'Tjenester' },
+  { href: '/#bidrag', label: 'Hva FYRK gjør' },
   { href: '/verktoy', label: 'Verktøy' },
   { href: EXTERNAL_LINKS.linkedinPersonal, label: 'LinkedIn', external: true },
   { href: '/personvern', label: 'Personvern' },
