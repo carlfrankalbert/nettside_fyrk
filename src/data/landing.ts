@@ -57,7 +57,7 @@ export const servicesContent = {
 export const introContent = {
   paragraphs: [
     'FYRK jobber med produktledelse og rådgivning i komplekse produktmiljøer.',
-    'Typiske situasjoner er uklare prioriteringer, mange avhengigheter, flere team involvert eller arbeid som stopper opp mellom produkt, teknologi og forretning.',
+    'Typiske situasjoner er uklare prioriteringer, mange avhengigheter, flere team er involvert eller arbeid som stopper opp mellom produkt, teknologi og forretning.',
     'Bidraget handler ofte om å skape bedre oversikt over hva som må avklares, hva som bør prioriteres, hvem som må involveres og hvordan arbeidet kan komme videre.',
   ],
 } as const;
@@ -88,7 +88,7 @@ export const whenFitsContent = {
   items: [
     'Prioriteringer er uklare eller endres ofte',
     'Viktige avklaringer blir liggende for lenge',
-    'Produkt, teknologi og forretning ikke trekker tydelig nok i samme retning',
+    'Produkt, teknologi og forretning trekker ikke tydelig nok i samme retning',
     'Et område trenger mer struktur i roadmap, ansvar og beslutninger',
     'Ledelsen trenger bedre oversikt over hva som faktisk stopper arbeidet',
   ],
