@@ -9,7 +9,7 @@ import { EXTERNAL_LINKS, CONTACT_LABEL } from '../utils/links';
  * Navigation links for the landing page
  */
 export const navLinks = [
-  { href: '/#bidrag', label: 'Hva FYRK gjør' },
+  { href: '/#bidrag', label: 'Hva jeg gjør' },
   { href: '/verktoy', label: 'Verktøy' },
   { href: EXTERNAL_LINKS.email, label: CONTACT_LABEL, isCta: true },
 ] as const;
@@ -18,7 +18,7 @@ export const navLinks = [
  * Hero section content
  */
 export const heroContent = {
-  headline: 'Produktledelse og rådgivning for komplekse produktmiljøer.',
+  headline: 'Senior produktledelse for komplekse og regulerte produktmiljøer.',
   description: [
     'FYRK hjelper produktområder med å få mer struktur, tydeligere prioriteringer og bedre fremdrift.',
     'Når mange hensyn, avhengigheter og team er involvert, kan arbeidet lett stoppe opp mellom produkt, teknologi og forretning. Da trengs det noen som kan skape oversikt, få frem hva som må avklares og hjelpe arbeidet videre.',
@@ -66,7 +66,8 @@ export const introContent = {
  * Contributions section: what FYRK delivers
  */
 export const contributionsContent = {
-  title: 'Hva FYRK bidrar med',
+  title: 'Hva jeg gjør',
+  intro: 'Jeg hjelper produktområder som har mange flinke folk, men for lav fremdrift.',
   items: [
     'Produktledelse i komplekse miljøer',
     'Strukturering av roadmap og prioriteringer',
@@ -134,6 +135,7 @@ export const aboutContent = {
       'Carl Johnson er produktleder og rådgiver med erfaring fra bank, digitale finansielle tjenester og offentlig sektor.',
       'Han jobber best i komplekse produktmiljøer der det er behov for mer struktur, tydeligere prioriteringer og bedre fremdrift.',
       'Bakgrunnen spenner fra test og kvalitet til team- og produktledelse, med praktisk erfaring fra tverrfaglige team, digitale produkter og regulerte miljøer.',
+      'Han trives best i situasjoner der det er viktig å forstå helheten, rydde i uklarhet og få arbeidet videre.',
     ],
     linkedinCta: {
       text: 'Se full CV på LinkedIn',
@@ -180,7 +182,7 @@ export const contactContent = {
  * Footer navigation links
  */
 export const footerNavLinks = [
-  { href: '/#bidrag', label: 'Hva FYRK gjør' },
+  { href: '/#bidrag', label: 'Hva jeg gjør' },
   { href: '/verktoy', label: 'Verktøy' },
   { href: EXTERNAL_LINKS.linkedinPersonal, label: 'LinkedIn', external: true },
   { href: '/personvern', label: 'Personvern' },
