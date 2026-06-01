@@ -9,7 +9,7 @@ import { EXTERNAL_LINKS, CONTACT_LABEL } from '../utils/links';
  * Navigation links for the landing page
  */
 export const navLinks = [
-  { href: '/#bidrag', label: 'Hva jeg gjør' },
+  { href: '/#bidrag', label: 'Hva FYRK bidrar med' },
   { href: '/verktoy', label: 'Verktøy' },
   { href: EXTERNAL_LINKS.email, label: CONTACT_LABEL, isCta: true },
 ] as const;
@@ -66,8 +66,8 @@ export const introContent = {
  * Contributions section: what FYRK delivers
  */
 export const contributionsContent = {
-  title: 'Hva jeg gjør',
-  intro: 'Jeg hjelper produktområder som har mange flinke folk, men for lav fremdrift.',
+  title: 'Hva FYRK bidrar med',
+  intro: 'FYRK hjelper produktområder med å få bedre oversikt, tydeligere prioriteringer og mer fremdrift når mange team, avhengigheter og beslutninger påvirker arbeidet.',
   items: [
     'Produktledelse i komplekse miljøer',
     'Strukturering av roadmap og prioriteringer',
@@ -148,7 +148,7 @@ export const aboutContent = {
  * Testimonials section content
  */
 export const testimonialsContent = {
-  title: 'Hva folk jeg har jobbet med sier',
+  title: 'Hva folk som har jobbet med FYRK sier',
   testimonials: [
     {
       highlight: 'Tydelig, konkret, robust og god til å kommunisere.',
@@ -169,7 +169,7 @@ export const testimonialsContent = {
  * Contact section content
  */
 export const contactContent = {
-  title: 'La oss ta en prat.',
+  title: 'Ta en prat med FYRK.',
   description: 'Har dere et produktområde der fremdriften stopper opp mellom prioriteringer, avhengigheter og beslutninger? En kort samtale er ofte nok til å avklare om det er en match.',
   emailHref: EXTERNAL_LINKS.email,
   emailLabel: 'Send e-post',
@@ -182,7 +182,7 @@ export const contactContent = {
  * Footer navigation links
  */
 export const footerNavLinks = [
-  { href: '/#bidrag', label: 'Hva jeg gjør' },
+  { href: '/#bidrag', label: 'Hva FYRK bidrar med' },
   { href: '/verktoy', label: 'Verktøy' },
   { href: EXTERNAL_LINKS.linkedinPersonal, label: 'LinkedIn', external: true },
   { href: '/personvern', label: 'Personvern' },
