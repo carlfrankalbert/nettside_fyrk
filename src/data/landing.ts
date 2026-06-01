@@ -148,7 +148,7 @@ export const aboutContent = {
  * Testimonials section content
  */
 export const testimonialsContent = {
-  title: 'Hva folk som har jobbet med FYRK sier',
+  title: 'Hva tidligere kolleger og samarbeidspartnere sier',
   testimonials: [
     {
       highlight: 'Tydelig, konkret, robust og god til å kommunisere.',
@@ -169,7 +169,7 @@ export const testimonialsContent = {
  * Contact section content
  */
 export const contactContent = {
-  title: 'Ta en prat med FYRK.',
+  title: 'Kontakt FYRK',
   description: 'Har dere et produktområde der fremdriften stopper opp mellom prioriteringer, avhengigheter og beslutninger? En kort samtale er ofte nok til å avklare om det er en match.',
   emailHref: EXTERNAL_LINKS.email,
   emailLabel: 'Send e-post',
