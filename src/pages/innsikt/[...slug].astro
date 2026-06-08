@@ -21,17 +21,38 @@ interface Props {
 
 const { insight } = Astro.props;
 const { Content } = await insight.render();
+
+const canonicalUrl = `https://fyrk.no/innsikt/${insight.slug}/`;
+
+const articleLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: insight.data.title,
+  description: insight.data.excerpt,
+  author: {
+    '@type': 'Person',
+    name: 'Carl Johnson',
+    url: 'https://fyrk.no',
+  },
+  publisher: { '@id': 'https://fyrk.no/#organization' },
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': canonicalUrl,
+  },
+  inLanguage: 'nb-NO',
+};
 ---
 
 <BaseLayout
-  title={`${insight.data.title} | FYRK`}
+  title={insight.data.title}
   description={insight.data.excerpt}
   type="article"
 >
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(articleLd)} />
   <article class="py-16 md:py-24 px-6">
     <div class="max-w-3xl mx-auto">
 
-      <a href="/innsikt" class="text-sm text-neutral-500 hover:text-brand-navy transition-colors no-underline mb-8 inline-block">
+      <a href="/innsikt/" class="text-sm text-neutral-500 hover:text-brand-navy transition-colors no-underline mb-8 inline-block">
         &larr; Tilbake til innsikt
       </a>
 
@@ -53,8 +74,19 @@ const { Content } = await insight.render();
         <Content />
       </div>
 
+      {insight.data.summary && (
+        <section class="mt-16 rounded-lg bg-neutral-50 border border-neutral-200 p-6 md:p-8">
+          <h2 class="text-h5 font-semibold text-brand-navy mb-3">
+            Kort forklart
+          </h2>
+          <p class="text-neutral-700 leading-relaxed">
+            {insight.data.summary}
+          </p>
+        </section>
+      )}
+
       {insight.data.closing && (
-        <aside class="mt-16 pt-8 border-t border-neutral-200 text-sm text-neutral-500 leading-relaxed">
+        <aside class="mt-10 pt-8 border-t border-neutral-200 text-sm text-neutral-500 leading-relaxed">
           {insight.data.closing}
         </aside>
       )}

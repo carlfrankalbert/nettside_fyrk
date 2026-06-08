@@ -8,7 +8,7 @@ import { EXTERNAL_LINKS, CONTACT_LABEL } from '../utils/links';
 export const verktoyPageContent = {
   seo: {
     title: 'Verktøy for klarere produktbeslutninger',
-    description: 'Tre AI-støttede verktøy for produktledere i komplekse miljøer. Sjekk OKR-kvalitet, avdekk blindsoner i konseptet ditt, og tenk gjennom hva som kan gå galt. Uten innlogging.',
+    description: 'Enkle verktøy for produktledere som vil teste OKR-er, produktideer og beslutninger før teamene bruker kapasitet.',
   },
   title: 'Verktøy',
   subtitle: 'Tenk tydeligere før du forplikter deg.',

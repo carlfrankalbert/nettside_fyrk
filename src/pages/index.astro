@@ -1,7 +1,7 @@
 ---
 /**
  * Landing page for FYRK
- * Produktledelse og rådgivning for komplekse produktmiljøer
+ * Senior produktleder og operativ rådgiver
  */
 
 import '../styles/global.css';
@@ -16,6 +16,7 @@ import ContributionsSection from '../components/landing/ContributionsSection.ast
 import WhenFitsSection from '../components/landing/WhenFitsSection.astro';
 import ExperienceSection from '../components/landing/ExperienceSection.astro';
 import AboutSection from '../components/landing/AboutSection.astro';
+import FaqSection from '../components/landing/FaqSection.astro';
 import ContactSection from '../components/landing/ContactSection.astro';
 import TestimonialsSection from '../components/landing/TestimonialsSection.astro';
 import LandingFooter from '../components/landing/LandingFooter.astro';
@@ -29,57 +30,47 @@ import {
   whenFitsContent,
   experienceContent,
   aboutContent,
+  faqContent,
   testimonialsContent,
   contactContent,
   footerContent,
 } from '../data/landing';
+
+const personLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': 'https://fyrk.no/#carl-johnson',
+  name: 'Carl Johnson',
+  url: 'https://fyrk.no',
+  jobTitle: 'Senior produktleder og operativ rådgiver',
+  sameAs: ['https://www.linkedin.com/in/carlfajohnson/'],
+  worksFor: { '@id': 'https://fyrk.no/#organization' },
+};
+
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqContent.items.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: item.answer,
+    },
+  })),
+};
 ---
 
 <!doctype html>
 <html lang="no" class="scroll-smooth">
   <head>
     <SEOHead
-      title="Senior produktledelse for komplekse og regulerte produktmiljøer"
-      description="FYRK hjelper produktområder med å få bedre oversikt, tydeligere prioriteringer og mer fremdrift når mange team, avhengigheter og beslutninger påvirker arbeidet. Erfaring fra bank, digitale finansielle tjenester, retail og offentlig sektor."
+      title="Senior produktleder og operativ rådgiver"
+      description="FYRK bistår komplekse og regulerte produktmiljøer med prioritering, roadmap, avhengigheter og fremdrift."
       type="website"
     />
-    <script type="application/ld+json" set:html={JSON.stringify({
-      '@context': 'https://schema.org',
-      '@graph': [
-        {
-          '@type': 'LocalBusiness',
-          '@id': 'https://fyrk.no/#organization',
-          name: 'FYRK',
-          url: 'https://fyrk.no',
-          description: 'Senior produktledelse for komplekse og regulerte produktmiljøer.',
-          areaServed: { '@type': 'Country', name: 'NO' },
-          serviceType: ['Product Management', 'Consulting'],
-          contactPoint: {
-            '@type': 'ContactPoint',
-            contactType: 'customer service',
-            email: 'hei@fyrk.no',
-            availableLanguage: 'Norwegian',
-          },
-          address: {
-            '@type': 'PostalAddress',
-            streetAddress: 'Møllergata 6',
-            addressLocality: 'Oslo',
-            postalCode: '0179',
-            addressCountry: 'NO',
-          },
-          founder: { '@id': 'https://fyrk.no/#founder' },
-        },
-        {
-          '@type': 'Person',
-          '@id': 'https://fyrk.no/#founder',
-          name: 'Carl Johnson',
-          url: 'https://fyrk.no',
-          jobTitle: 'Produktleder og rådgiver',
-          sameAs: ['https://www.linkedin.com/in/carlfajohnson/'],
-          worksFor: { '@id': 'https://fyrk.no/#organization' },
-        },
-      ],
-    })} />
+    <script type="application/ld+json" set:html={JSON.stringify(personLd)} />
+    <script type="application/ld+json" set:html={JSON.stringify(faqLd)} />
   </head>
   <body class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
     <!-- Skip link for accessibility -->
@@ -116,6 +107,17 @@ import {
         title={aboutContent.title}
         founder={aboutContent.founder}
       />
+
+      <FaqSection title={faqContent.title} items={faqContent.items} />
+
+      <section class="pt-4 pb-16 md:pb-20 px-6 bg-neutral-50">
+        <div class="max-w-3xl mx-auto text-center text-sm text-neutral-500">
+          Les også
+          <a href="/innsikt/" class="text-brand-cyan-darker hover:text-brand-navy transition-colors underline underline-offset-4 mx-1">FYRKs innsikt</a>
+          eller
+          <a href="/verktoy/" class="text-brand-cyan-darker hover:text-brand-navy transition-colors underline underline-offset-4 mx-1">verktøy for produktledere</a>.
+        </div>
+      </section>
 
       <ContactSection {...contactContent} />
 

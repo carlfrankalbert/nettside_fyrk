@@ -3,6 +3,7 @@ title: "Det er sjelden teamene det er noe galt med"
 excerpt: "Når flinke team ikke får fremdrift, ligger problemet ofte ikke inne i teamet, men i systemet rundt dem."
 category: "Fremdrift"
 order: 1
+summary: "Når flinke team har lav fremdrift, ligger årsaken ofte ikke inne i teamet, men i koblingen mellom mål, prioritering og gjennomføring. Teamet blir stedet der problemet synes, selv om kilden ofte ligger i systemet rundt."
 closing: "Dette er typiske situasjoner FYRK arbeider med: produktmiljøer der mye er i gang samtidig, og der koblingen mellom mål, prioritering og leveranse må bli tydeligere."
 ---
 

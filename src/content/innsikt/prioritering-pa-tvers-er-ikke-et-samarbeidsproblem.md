@@ -3,6 +3,7 @@ title: "Prioritering på tvers er ikke et samarbeidsproblem"
 excerpt: "Mange tverrgående initiativer stopper ikke fordi folk ikke vil samarbeide, men fordi ingen eier hva som skal vike."
 category: "Prioritering"
 order: 2
+summary: "Prioritering på tvers handler om å avgjøre hva som skal vike når flere områder har viktige behov samtidig. Problemet er ofte ikke manglende samarbeid, men uklart eierskap til helhetsprioriteringen."
 ---
 
 Mange organisasjoner har ikke et samarbeidsproblem.

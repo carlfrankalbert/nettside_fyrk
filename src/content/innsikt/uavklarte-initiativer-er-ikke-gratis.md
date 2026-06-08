@@ -3,6 +3,7 @@ title: "Uavklarte initiativer er ikke gratis"
 excerpt: "Uklare initiativer kan bruke kapasitet lenge før noen faktisk leverer på dem."
 category: "Avklaring"
 order: 4
+summary: "Uavklarte initiativer kan bruke kapasitet lenge før teamene faktisk leverer på dem. De skaper oppmerksomhet, usikkerhet og skyggearbeid hvis eierskap, ramme og forventning til teamene ikke er tydelig."
 ---
 
 Et initiativ kan tære på produktteam lenge før det er klart hva de faktisk skal gjøre med det.

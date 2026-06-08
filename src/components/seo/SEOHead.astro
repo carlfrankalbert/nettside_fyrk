@@ -7,7 +7,7 @@ interface Props {
   canonicalUrl?: URL;
 }
 
-const { 
+const {
   title,
   description,
   image,
@@ -16,10 +16,42 @@ const {
 } = Astro.props;
 
 const site = Astro.site || new URL('https://fyrk.no');
-const fullTitle = `${title} | Fyrk`;
-const metaDescription = description || 'Fyrk leverer produktledelse der kvalitet møter forretningsverdi.';
+const fullTitle = `${title} | FYRK`;
+const metaDescription = description || 'FYRK bistår komplekse og regulerte produktmiljøer med prioritering, roadmap, avhengigheter og fremdrift.';
 const ogImage = image ? new URL(image, site) : new URL('/og-image.png', site);
 const canonical = canonicalUrl || new URL(Astro.url.pathname, site);
+
+const baseStructuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': 'https://fyrk.no/#organization',
+      name: 'FYRK',
+      url: 'https://fyrk.no',
+      logo: 'https://fyrk.no/fyrk-logo-primary-navy.svg',
+      email: 'hei@fyrk.no',
+      telephone: '+47 929 11 929',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'c/o Mesh Youngstorget, Møllergata 6',
+        postalCode: '0179',
+        addressLocality: 'Oslo',
+        addressCountry: 'NO',
+      },
+      identifier: '936 630 898',
+      areaServed: { '@type': 'Country', name: 'NO' },
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://fyrk.no/#website',
+      url: 'https://fyrk.no',
+      name: 'FYRK',
+      inLanguage: 'nb-NO',
+      publisher: { '@id': 'https://fyrk.no/#organization' },
+    },
+  ],
+};
 ---
 
 <meta charset="UTF-8" />
@@ -40,7 +72,7 @@ const canonical = canonicalUrl || new URL(Astro.url.pathname, site);
 <meta property="og:url" content={canonical} />
 <meta property="og:image" content={ogImage} />
 <meta property="og:locale" content="nb_NO" />
-<meta property="og:site_name" content="Fyrk" />
+<meta property="og:site_name" content="FYRK" />
 
 <!-- Twitter -->
 <meta name="twitter:card" content={type === 'article' ? 'summary_large_image' : 'summary'} />
@@ -53,4 +85,5 @@ const canonical = canonicalUrl || new URL(Astro.url.pathname, site);
 <link rel="alternate" hreflang="nb" href={canonical} />
 <link rel="alternate" hreflang="x-default" href={canonical} />
 
-
+<!-- Organization + WebSite JSON-LD on every page -->
+<script type="application/ld+json" set:html={JSON.stringify(baseStructuredData)} />

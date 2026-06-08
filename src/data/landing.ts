@@ -179,6 +179,31 @@ export const contactContent = {
 } as const;
 
 /**
+ * FAQ section content
+ */
+export const faqContent = {
+  title: 'Vanlige spørsmål',
+  items: [
+    {
+      question: 'Hva hjelper FYRK med?',
+      answer: 'FYRK hjelper produktområder med struktur, prioritering og fremdrift når mange team, avhengigheter og beslutninger påvirker arbeidet.',
+    },
+    {
+      question: 'Når passer FYRK best?',
+      answer: 'FYRK passer best i komplekse produktmiljøer der flinke folk har lav fremdrift fordi prioriteringer, avhengigheter eller beslutninger er uklare.',
+    },
+    {
+      question: 'Jobber FYRK som interim produktleder?',
+      answer: 'Ja. FYRK tar oppdrag som interim produktleder og operativ rådgiver, særlig i regulerte og komplekse produktmiljøer.',
+    },
+    {
+      question: 'Hvilke bransjer er mest relevante?',
+      answer: 'FYRK er særlig relevant for bank, finans, fintech, offentlig sektor og andre miljøer med komplekse digitale produkter, mange interessenter og høye krav til gjennomføring.',
+    },
+  ],
+} as const;
+
+/**
  * Footer navigation links
  */
 export const footerNavLinks = [

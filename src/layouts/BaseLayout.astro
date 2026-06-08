@@ -41,6 +41,7 @@ const sentryRelease = import.meta.env.PUBLIC_SENTRY_RELEASE;
     {sentryDsn && <meta name="sentry-dsn" content={sentryDsn} />}
     <meta name="sentry-environment" content={sentryEnvironment} />
     {sentryRelease && <meta name="sentry-release" content={sentryRelease} />}
+    <slot name="head" />
   </head>
   <body class="min-h-screen flex flex-col">
     <a href="#main-content" class="skip-link">Hopp til hovedinnhold</a>

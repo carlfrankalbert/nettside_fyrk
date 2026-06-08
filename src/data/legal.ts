@@ -7,7 +7,7 @@ export const lastUpdated = 'Februar 2026' as const;
 
 export const personvernContent = {
   seo: {
-    title: 'Personvern | Fyrk',
+    title: 'Personvern',
     description: 'Informasjon om hvordan Fyrk behandler personopplysninger.',
   },
   title: 'Personvernerklæring',
@@ -44,7 +44,7 @@ export const personvernContent = {
 
 export const vilkarContent = {
   seo: {
-    title: 'Vilkår for bruk | Fyrk',
+    title: 'Vilkår for bruk',
     description: 'Vilkår og betingelser for bruk av Fyrk sine tjenester og verktøy.',
   },
   title: 'Vilkår for bruk',
