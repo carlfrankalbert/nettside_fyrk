@@ -7,7 +7,7 @@ import { EXTERNAL_LINKS, CONTACT_LABEL } from '../utils/links';
 
 export const verktoyPageContent = {
   seo: {
-    title: 'Gratis verktøy for produktledere: OKR, konsept og risikoanalyse',
+    title: 'Verktøy for klarere produktbeslutninger',
     description: 'Tre AI-støttede verktøy for produktledere i komplekse miljøer. Sjekk OKR-kvalitet, avdekk blindsoner i konseptet ditt, og tenk gjennom hva som kan gå galt. Uten innlogging.',
   },
   title: 'Verktøy',
@@ -47,7 +47,7 @@ export const verktoyPageContent = {
   disclaimerHtml: '',
   bridgeCTA: {
     heading: 'Vil du ha et menneskelig blikk i tillegg?',
-    body: 'Noen beslutninger krever mer enn et verktøy. Jeg tar oppdrag som interim produktleder og coach i regulerte bransjer, og kan gå dypere inn i det du jobber med.',
+    body: 'Noen beslutninger krever mer enn et verktøy. FYRK bistår som interim produktleder og operativ rådgiver i komplekse og regulerte produktmiljøer, særlig der prioritering, avhengigheter og uklare beslutninger gjør det vanskelig å få fremdrift.',
     primaryLink: { href: '/tjenester', label: 'Se hva jeg tilbyr' },
     secondaryLink: { href: EXTERNAL_LINKS.email, label: CONTACT_LABEL },
   },
