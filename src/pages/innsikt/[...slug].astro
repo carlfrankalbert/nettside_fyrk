@@ -1,0 +1,64 @@
+---
+/**
+ * Innsikt detail page
+ * Renders a single insight text
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const insights = await getCollection('innsikt', ({ data }) => !data.draft);
+  return insights.map((insight) => ({
+    params: { slug: insight.slug },
+    props: { insight },
+  }));
+}
+
+interface Props {
+  insight: CollectionEntry<'innsikt'>;
+}
+
+const { insight } = Astro.props;
+const { Content } = await insight.render();
+---
+
+<BaseLayout
+  title={`${insight.data.title} | Innsikt | FYRK`}
+  description={insight.data.excerpt}
+  type="article"
+>
+  <article class="py-16 md:py-24 px-6">
+    <div class="max-w-3xl mx-auto">
+
+      <a href="/innsikt" class="text-sm text-neutral-500 hover:text-brand-navy transition-colors no-underline mb-8 inline-block">
+        &larr; Tilbake til innsikt
+      </a>
+
+      <header class="mb-10">
+        {insight.data.category && (
+          <span class="inline-block text-xs font-medium uppercase tracking-wide text-brand-cyan-darker mb-3">
+            {insight.data.category}
+          </span>
+        )}
+        <h1 class="text-h2 md:text-h1 font-semibold text-brand-navy mb-4 leading-tight">
+          {insight.data.title}
+        </h1>
+        <p class="text-xl text-neutral-600 leading-relaxed">
+          {insight.data.excerpt}
+        </p>
+      </header>
+
+      <div class="prose prose-neutral max-w-none">
+        <Content />
+      </div>
+
+      {insight.data.closing && (
+        <aside class="mt-16 pt-8 border-t border-neutral-200 text-sm text-neutral-500 leading-relaxed">
+          {insight.data.closing}
+        </aside>
+      )}
+
+    </div>
+  </article>
+</BaseLayout>

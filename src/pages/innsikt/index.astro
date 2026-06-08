@@ -1,0 +1,61 @@
+---
+/**
+ * Innsikt list page
+ * Short, substantive texts on product leadership and prioritisation
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const insights = (await getCollection('innsikt', ({ data }) => !data.draft))
+  .sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout
+  title="Innsikt | FYRK"
+  description="Korte tekster om produktledelse, prioritering og fremdrift i komplekse produktmiljøer."
+>
+  <article class="py-16 md:py-24 px-6">
+    <div class="max-w-3xl mx-auto">
+
+      <header class="mb-16">
+        <h1 class="text-h2 md:text-h1 font-semibold text-brand-navy mb-4 leading-tight">
+          Innsikt
+        </h1>
+        <p class="text-xl md:text-2xl text-neutral-600 leading-relaxed mb-4">
+          Korte tekster om produktledelse, prioritering og fremdrift i komplekse produktmiljøer.
+        </p>
+        <p class="text-neutral-600 leading-relaxed">
+          FYRK skriver for ledere, produktledere og produktmiljøer som har mange flinke folk, men likevel opplever at fremdriften stopper opp mellom prioriteringer, avhengigheter og uklare beslutninger.
+        </p>
+      </header>
+
+      <ul class="space-y-4">
+        {insights.map((insight) => (
+          <li>
+            <a
+              href={`/innsikt/${insight.slug}`}
+              class="block rounded-lg border border-neutral-200 bg-white shadow-sm p-6 md:p-7 no-underline hover:border-brand-cyan-darker hover:shadow-md transition-all"
+            >
+              {insight.data.category && (
+                <span class="inline-block text-xs font-medium uppercase tracking-wide text-brand-cyan-darker mb-3">
+                  {insight.data.category}
+                </span>
+              )}
+              <h2 class="text-h4 font-semibold text-brand-navy mb-2 leading-snug">
+                {insight.data.title}
+              </h2>
+              <p class="text-neutral-600 leading-relaxed">
+                {insight.data.excerpt}
+              </p>
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      {insights.length === 0 && (
+        <p class="text-neutral-500">Ingen tekster ennå.</p>
+      )}
+
+    </div>
+  </article>
+</BaseLayout>

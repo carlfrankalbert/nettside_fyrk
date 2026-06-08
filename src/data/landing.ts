@@ -10,6 +10,7 @@ import { EXTERNAL_LINKS, CONTACT_LABEL } from '../utils/links';
  */
 export const navLinks = [
   { href: '/#bidrag', label: 'Hva FYRK bidrar med' },
+  { href: '/innsikt', label: 'Innsikt' },
   { href: '/verktoy', label: 'Verktøy' },
   { href: EXTERNAL_LINKS.email, label: CONTACT_LABEL, isCta: true },
 ] as const;
@@ -183,6 +184,7 @@ export const contactContent = {
  */
 export const footerNavLinks = [
   { href: '/#bidrag', label: 'Hva FYRK bidrar med' },
+  { href: '/innsikt', label: 'Innsikt' },
   { href: '/verktoy', label: 'Verktøy' },
   { href: EXTERNAL_LINKS.linkedinPersonal, label: 'LinkedIn', external: true },
   { href: '/personvern', label: 'Personvern' },

@@ -12,7 +12,19 @@ const releaselogCollection = defineCollection({
   }),
 });
 
+const innsiktCollection = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    excerpt: z.string(),
+    category: z.string().optional(),
+    order: z.number().default(0),
+    closing: z.string().optional(),
+    draft: z.boolean().default(false),
+  }),
+});
+
 export const collections = {
   releaselog: releaselogCollection,
+  innsikt: innsiktCollection,
 };
-
