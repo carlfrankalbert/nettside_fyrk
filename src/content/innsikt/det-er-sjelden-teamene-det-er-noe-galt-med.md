@@ -3,7 +3,7 @@ title: "Det er sjelden teamene det er noe galt med"
 excerpt: "Når flinke team ikke får fremdrift, ligger problemet ofte ikke inne i teamet, men i systemet rundt dem."
 category: "Fremdrift"
 order: 1
-closing: "FYRK hjelper produktorganisasjoner i regulerte bransjer med å skape bedre sammenheng mellom mål, prioritering og leveranse, særlig der mye er i gang samtidig."
+closing: "Dette er typiske situasjoner FYRK arbeider med: produktmiljøer der mye er i gang samtidig, og der koblingen mellom mål, prioritering og leveranse må bli tydeligere."
 ---
 
 Etter å ha jobbet i produktmiljøer med mange team, avhengigheter, styringskrav og sterke fagmiljøer, har jeg sett det samme mønsteret flere ganger.

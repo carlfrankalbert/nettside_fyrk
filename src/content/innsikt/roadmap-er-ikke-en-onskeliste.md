@@ -25,11 +25,14 @@ Ikke som en perfekt plan.
 
 Men som en praktisk måte å gjøre prioriteringene synlige på.
 
-**NOW:** Dette er hovedfokuset vårt nå.
+Now:  
+Dette er hovedfokuset vårt nå.
 
-**NEXT:** Dette ser vi som det mest aktuelle etterpå.
+Next:  
+Dette ser vi som det mest aktuelle etterpå.
 
-**LATER:** Dette ligger i horisonten, men er ikke forpliktet ennå.
+Later:  
+Dette ligger i horisonten, men er ikke forpliktet ennå.
 
 Formatet fungerer bare hvis det er tydelig at de tre nivåene ikke betyr samme grad av forpliktelse.
 
