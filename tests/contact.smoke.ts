@@ -32,11 +32,11 @@ test.describe('Contact Smoke Tests', () => {
       await page.getByLabel('Åpne meny').click();
       const ctaLink = page.getByRole('link', { name: /Ta kontakt/i }).first();
       await expect(ctaLink).toBeVisible();
-      await expect(ctaLink).toHaveAttribute('href', 'mailto:hei@fyrk.no');
+      await expect(ctaLink).toHaveAttribute('href', '/#kontakt');
     } else {
       const ctaLink = page.getByRole('link', { name: /Ta kontakt/i }).first();
       await expect(ctaLink).toBeVisible();
-      await expect(ctaLink).toHaveAttribute('href', 'mailto:hei@fyrk.no');
+      await expect(ctaLink).toHaveAttribute('href', '/#kontakt');
     }
   });
 });
