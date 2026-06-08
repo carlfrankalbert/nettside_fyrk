@@ -16,16 +16,16 @@ Særlig når mange initiativer går parallelt, flere team er avhengige av hveran
 
 For å forstå et produktområde ville jeg startet med å finne ut dette:
 
-1. Vet teamene hvilke mål som er viktigst akkurat nå?
-2. Er det tydelig hvem som prioriterer når flere hensyn krasjer?
-3. Har produktlederne reelt handlingsrom, eller bare ansvar?
-4. Er avhengigheter mellom team synlige før de blir problemer?
-5. Klarer organisasjonen å si nei til nok ting?
-6. Er veikartet et styringsverktøy, eller mest en forventningsliste?
-7. Har teamene nok kontekst til å ta gode beslutninger selv?
-8. Måles teamene på effekt, leveranse eller aktivitet?
-9. Finnes det en fast rytme for læring og justering?
-10. Er det tydelig hva som ikke skal gjøres nå?
+- Vet teamene hvilke mål som er viktigst akkurat nå?
+- Er det tydelig hvem som prioriterer når flere hensyn krasjer?
+- Har produktlederne reelt handlingsrom, eller bare ansvar?
+- Er avhengigheter mellom team synlige før de blir problemer?
+- Klarer organisasjonen å si nei til nok ting?
+- Er veikartet et styringsverktøy, eller mest en forventningsliste?
+- Har teamene nok kontekst til å ta gode beslutninger selv?
+- Måles teamene på effekt, leveranse eller aktivitet?
+- Finnes det en fast rytme for læring og justering?
+- Er det tydelig hva som ikke skal gjøres nå?
 
 Min erfaring er at mange produktmiljøer ikke mangler flinke folk.
 
