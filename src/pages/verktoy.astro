@@ -6,7 +6,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { verktoyPageContent } from '../data/verktoy';
 
-const { seo, title, subtitle, tagline, sections, disclaimerHtml, bridgeCTA } = verktoyPageContent;
+const { seo, title, subtitle, tagline, sections, disclaimerHtml } = verktoyPageContent;
 ---
 
 <BaseLayout
@@ -53,18 +53,6 @@ const { seo, title, subtitle, tagline, sections, disclaimerHtml, bridgeCTA } = v
 
       <!-- Disclaimer -->
       {disclaimerHtml && <p class="text-sm text-neutral-500 mb-16" set:html={disclaimerHtml} />}
-
-      <!-- Bridge CTA -->
-      <section class="bg-neutral-50 rounded-lg p-8 md:p-10 border border-neutral-200">
-        <h2 class="text-h4 font-semibold text-brand-navy mb-3">{bridgeCTA.heading}</h2>
-        <p class="text-neutral-600 mb-6">
-          {bridgeCTA.body}
-        </p>
-        <div class="flex flex-wrap gap-3">
-          <a href={bridgeCTA.primaryLink.href} class="btn btn-primary no-underline inline-flex">{bridgeCTA.primaryLink.label}</a>
-          <a href={bridgeCTA.secondaryLink.href} class="btn btn-outline no-underline inline-flex">{bridgeCTA.secondaryLink.label}</a>
-        </div>
-      </section>
 
     </div>
   </article>

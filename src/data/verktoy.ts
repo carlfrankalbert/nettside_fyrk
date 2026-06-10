@@ -3,8 +3,6 @@
  * Single source of truth for the tools listing page
  */
 
-import { EXTERNAL_LINKS, CONTACT_LABEL } from '../utils/links';
-
 export const verktoyPageContent = {
   seo: {
     title: 'Verktøy for klarere produktbeslutninger',
@@ -45,10 +43,4 @@ export const verktoyPageContent = {
     },
   ],
   disclaimerHtml: '',
-  bridgeCTA: {
-    heading: 'Vil du ha et menneskelig blikk i tillegg?',
-    body: 'Noen beslutninger krever mer enn et verktøy. FYRK bistår som interim produktleder og operativ rådgiver i komplekse og regulerte produktmiljøer, særlig der prioritering, avhengigheter og uklare beslutninger gjør det vanskelig å få fremdrift.',
-    primaryLink: { href: '/tjenester', label: 'Se hva jeg tilbyr' },
-    secondaryLink: { href: EXTERNAL_LINKS.email, label: CONTACT_LABEL },
-  },
 } as const;
