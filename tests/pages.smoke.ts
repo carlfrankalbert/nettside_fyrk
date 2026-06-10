@@ -10,7 +10,7 @@ test.describe('All Pages Smoke Tests', () => {
 
   test('homepage loads correctly', async ({ page }) => {
     await page.goto('/');
-    await expect(page).toHaveTitle(/Fyrk/);
+    await expect(page).toHaveTitle(/FYRK/i);
     await expect(page.locator('main')).toBeVisible();
     await expect(page.locator('nav')).toBeVisible();
     await expect(page.getByRole('contentinfo')).toBeVisible();
