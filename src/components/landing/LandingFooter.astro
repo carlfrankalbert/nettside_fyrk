@@ -26,7 +26,7 @@ const emailAddress = EXTERNAL_LINKS.email.replace('mailto:', '');
           <p>{address}</p>
           <p>Org.nr: {orgNumber}{registration && ` · ${registration}`}</p>
           <p class="pt-2">
-            <a href={EXTERNAL_LINKS.email} class="text-neutral-300 hover:text-white transition-colors no-underline">{emailAddress}</a>
+            <a href={EXTERNAL_LINKS.email} class="text-neutral-300 hover:text-white transition-colors no-underline" data-testid="footer-email">{emailAddress}</a>
           </p>
         </div>
       </div>
@@ -36,6 +36,7 @@ const emailAddress = EXTERNAL_LINKS.email.replace('mailto:', '');
           <a
             href={link.href}
             class="text-neutral-300 hover:text-white transition-colors no-underline"
+            data-testid={`footer-link-${link.label.toLowerCase()}`}
             {...('external' in link && link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
           >
             {link.label}

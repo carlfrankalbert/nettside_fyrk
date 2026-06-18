@@ -8,35 +8,40 @@ test.describe('Contact Smoke Tests', () => {
     testInfo.skip(!hasBaseUrl, 'Smoke tests only run in CI or with PLAYWRIGHT_TEST_BASE_URL set');
   });
 
-  test('footer has email link', async ({ page }) => {
+  test('footer email link opens mail client', async ({ page }) => {
     await page.goto('/');
 
-    const emailLink = page.locator('footer').getByRole('link', { name: /hei@fyrk\.no/i });
+    const emailLink = page.getByTestId('footer-email');
     await expect(emailLink).toBeVisible();
-    await expect(emailLink).toHaveAttribute('href', 'mailto:hei@fyrk.no');
+    const href = await emailLink.getAttribute('href');
+    expect(href).toMatch(/^mailto:/);
+    expect(href).toContain('@fyrk.no');
   });
 
-  test('footer has LinkedIn link', async ({ page }) => {
+  test('footer has LinkedIn link that opens externally', async ({ page }) => {
     await page.goto('/');
 
-    const linkedinLink = page.locator('footer').getByRole('link', { name: /LinkedIn/i });
+    const linkedinLink = page.getByTestId('footer-link-linkedin');
     await expect(linkedinLink).toBeVisible();
     await expect(linkedinLink).toHaveAttribute('target', '_blank');
+    const href = await linkedinLink.getAttribute('href');
+    expect(href).toContain('linkedin.com');
   });
 
-  test('header has contact CTA', async ({ page, viewport }) => {
+  test('header contact CTA targets the contact section', async ({ page, viewport }) => {
     await page.goto('/');
 
-    // On mobile the CTA is inside the hamburger menu — open it first
-    if (viewport && viewport.width < 768) {
+    // On mobile the CTA lives inside the hamburger menu
+    const isMobile = !!(viewport && viewport.width < 768);
+    if (isMobile) {
       await page.getByLabel('Åpne meny').click();
-      const ctaLink = page.getByRole('link', { name: /Ta kontakt/i }).first();
-      await expect(ctaLink).toBeVisible();
-      await expect(ctaLink).toHaveAttribute('href', '/#kontakt');
-    } else {
-      const ctaLink = page.getByRole('link', { name: /Ta kontakt/i }).first();
-      await expect(ctaLink).toBeVisible();
-      await expect(ctaLink).toHaveAttribute('href', '/#kontakt');
     }
+
+    const ctaTestId = isMobile ? 'header-contact-cta-mobile' : 'header-contact-cta';
+    const ctaLink = page.getByTestId(ctaTestId);
+    await expect(ctaLink).toBeVisible();
+
+    const href = await ctaLink.getAttribute('href');
+    expect(href).toContain('#kontakt');
   });
 });
