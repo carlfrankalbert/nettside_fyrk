@@ -28,30 +28,6 @@ export const heroContent = {
 } as const;
 
 /**
- * Services content used by the /tjenester pages (not rendered on the landing page).
- * The landing page uses contributionsContent + whenFitsContent for positioning.
- */
-export const servicesContent = {
-  title: 'Tjenester',
-  intro: 'FYRK leverer produktledelse og rådgivning til komplekse produktmiljøer. Oppdrag tilpasses behov, fra operativ produktledelse til strukturert rådgivning og sparring.',
-  services: [
-    {
-      title: 'Interim produktleder',
-      description: 'Operativt ansvar som produktleder i teamet. Prioritering, stakeholder-håndtering, roadmap og leveranse i komplekse miljøer.',
-      fitWhen: 'Teamet trenger en erfaren produktleder på kort varsel, eller noen som kan ta tydelige prioriteringer uten å skape unødvendig uro.',
-    },
-    {
-      title: 'Rådgivning og sparring',
-      description: 'Strukturert rådgivning til produktledere, team og ledelse. Hjelp til å få oversikt, prioritere riktig og få fremdrift i arbeid med mange avhengigheter.',
-      fitWhen: 'Dere trenger noen utenfra som kan se helheten, stille de riktige spørsmålene og gi konkrete anbefalinger.',
-    },
-  ],
-  footnote: '',
-  ctaText: 'Ta kontakt',
-  ctaHref: '#kontakt',
-} as const;
-
-/**
  * Short introduction under hero
  */
 export const introContent = {

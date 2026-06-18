@@ -13,6 +13,7 @@ export default defineConfig({
       filter: (page) =>
         !page.includes('/stats') &&
         !page.includes('/feature-toggles') &&
+        !page.includes('/beta') &&
         !page.includes('/api/'),
     }),
   ],
