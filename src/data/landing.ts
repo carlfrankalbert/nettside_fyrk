@@ -175,7 +175,6 @@ export const contactContent = {
   emailLabel: 'Send e-post',
   linkedinHref: EXTERNAL_LINKS.linkedinPersonal,
   linkedinLabel: 'LinkedIn',
-  phoneLabel: 'Ring direkte',
 } as const;
 
 /**

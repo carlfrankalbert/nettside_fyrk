@@ -5,7 +5,7 @@
  */
 import LandingLogo from '../ui/LandingLogo.astro';
 import { footerNavLinks } from '../../data/landing';
-import { PHONE_PARTS, PHONE_COUNTRY, EXTERNAL_LINKS } from '../../utils/links';
+import { EXTERNAL_LINKS } from '../../utils/links';
 
 interface Props {
   address: string;
@@ -28,15 +28,6 @@ const emailAddress = EXTERNAL_LINKS.email.replace('mailto:', '');
           <p class="pt-2">
             <a href={EXTERNAL_LINKS.email} class="text-neutral-300 hover:text-white transition-colors no-underline">{emailAddress}</a>
           </p>
-          <p>
-            <a
-              id="phone-link"
-              class="text-neutral-300 hover:text-white transition-colors no-underline"
-              data-c={PHONE_COUNTRY}
-              data-p={PHONE_PARTS.join(',')}
-              aria-label="Ring FYRK"
-            ></a>
-          </p>
         </div>
       </div>
 
@@ -54,15 +45,3 @@ const emailAddress = EXTERNAL_LINKS.email.replace('mailto:', '');
     </div>
   </div>
 </footer>
-
-<script>
-  const el = document.getElementById('phone-link');
-  if (el) {
-    const c = el.dataset.c;
-    const p = (el.dataset.p ?? '').split(',').join(' ');
-    el.setAttribute('href', `tel:${c}${(el.dataset.p ?? '').split(',').join('')}`);
-    el.textContent = `${c} ${p}`;
-    el.removeAttribute('data-c');
-    el.removeAttribute('data-p');
-  }
-</script>

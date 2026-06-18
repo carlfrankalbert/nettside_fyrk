@@ -1,9 +1,8 @@
 ---
 /**
  * Contact section for the landing page
- * Displays contact methods: email, LinkedIn, phone
+ * Displays contact methods: email and LinkedIn
  */
-import { PHONE_PARTS, PHONE_COUNTRY } from '../../utils/links';
 
 interface Props {
   title: string;
@@ -12,10 +11,9 @@ interface Props {
   emailLabel: string;
   linkedinHref: string;
   linkedinLabel: string;
-  phoneLabel: string;
 }
 
-const { title, description, emailHref, emailLabel, linkedinHref, linkedinLabel, phoneLabel } = Astro.props;
+const { title, description, emailHref, emailLabel, linkedinHref, linkedinLabel } = Astro.props;
 ---
 
 <section id="kontakt" class="py-16 md:py-24 px-6 bg-brand-navy scroll-mt-20">
@@ -42,27 +40,6 @@ const { title, description, emailHref, emailLabel, linkedinHref, linkedinLabel, 
       >
         {linkedinLabel}
       </a>
-      <a
-        id="contact-phone-btn"
-        class="btn btn-outline-light no-underline inline-flex"
-        aria-label="Ring FYRK"
-        data-c={PHONE_COUNTRY}
-        data-p={PHONE_PARTS.join(',')}
-        data-track-button="contact_phone"
-      >
-        {phoneLabel}
-      </a>
     </div>
   </div>
 </section>
-
-<script>
-  const el = document.getElementById('contact-phone-btn');
-  if (el) {
-    const c = el.dataset.c;
-    const parts = (el.dataset.p ?? '').split(',');
-    el.setAttribute('href', `tel:${c}${parts.join('')}`);
-    el.removeAttribute('data-c');
-    el.removeAttribute('data-p');
-  }
-</script>
