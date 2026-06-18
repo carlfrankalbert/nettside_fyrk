@@ -1,10 +1,15 @@
 ---
+import { BRAND } from '../../utils/brand';
+
 interface Props {
+  /** Page-specific title. The site name is appended automatically unless appendSiteName=false. */
   title: string;
   description?: string;
   image?: string;
   type?: 'website' | 'article';
   canonicalUrl?: URL;
+  /** Set to false when title already contains the brand name (rare). Default: true. */
+  appendSiteName?: boolean;
 }
 
 const {
@@ -12,13 +17,14 @@ const {
   description,
   image,
   type = 'website',
-  canonicalUrl
+  canonicalUrl,
+  appendSiteName = true,
 } = Astro.props;
 
-const site = Astro.site || new URL('https://fyrk.no');
-const fullTitle = `${title} | FYRK`;
-const metaDescription = description || 'FYRK bistår komplekse og regulerte produktmiljøer med prioritering, roadmap, avhengigheter og fremdrift.';
-const ogImage = image ? new URL(image, site) : new URL('/og-image.png', site);
+const site = Astro.site || new URL(BRAND.url);
+const fullTitle = appendSiteName ? `${title} | ${BRAND.name}` : title;
+const metaDescription = description || BRAND.description;
+const ogImage = image ? new URL(image, site) : new URL(BRAND.ogImage, site);
 const canonical = canonicalUrl || new URL(Astro.url.pathname, site);
 
 const baseStructuredData = {
@@ -26,29 +32,26 @@ const baseStructuredData = {
   '@graph': [
     {
       '@type': 'Organization',
-      '@id': 'https://fyrk.no/#organization',
-      name: 'FYRK',
-      url: 'https://fyrk.no',
-      logo: 'https://fyrk.no/fyrk-logo-primary-navy.svg',
-      email: 'hei@fyrk.no',
-      telephone: '+47 929 11 929',
+      '@id': `${BRAND.url}/#organization`,
+      name: BRAND.name,
+      url: BRAND.url,
+      logo: `${BRAND.url}${BRAND.logo}`,
+      email: BRAND.email,
+      telephone: BRAND.phone,
       address: {
         '@type': 'PostalAddress',
-        streetAddress: 'c/o Mesh Youngstorget, Møllergata 6',
-        postalCode: '0179',
-        addressLocality: 'Oslo',
-        addressCountry: 'NO',
+        ...BRAND.address,
       },
-      identifier: '936 630 898',
+      identifier: BRAND.orgNumber,
       areaServed: { '@type': 'Country', name: 'NO' },
     },
     {
       '@type': 'WebSite',
-      '@id': 'https://fyrk.no/#website',
-      url: 'https://fyrk.no',
-      name: 'FYRK',
-      inLanguage: 'nb-NO',
-      publisher: { '@id': 'https://fyrk.no/#organization' },
+      '@id': `${BRAND.url}/#website`,
+      url: BRAND.url,
+      name: BRAND.name,
+      inLanguage: BRAND.inLanguage,
+      publisher: { '@id': `${BRAND.url}/#organization` },
     },
   ],
 };
@@ -71,8 +74,8 @@ const baseStructuredData = {
 <meta property="og:type" content={type} />
 <meta property="og:url" content={canonical} />
 <meta property="og:image" content={ogImage} />
-<meta property="og:locale" content="nb_NO" />
-<meta property="og:site_name" content="FYRK" />
+<meta property="og:locale" content={BRAND.locale} />
+<meta property="og:site_name" content={BRAND.name} />
 
 <!-- Twitter -->
 <meta name="twitter:card" content={type === 'article' ? 'summary_large_image' : 'summary'} />
