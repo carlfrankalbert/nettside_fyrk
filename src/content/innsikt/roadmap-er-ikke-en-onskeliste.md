@@ -3,6 +3,7 @@ title: "Roadmap er ikke en ønskeliste"
 excerpt: "Et roadmap mister styringsevne når det viser alt organisasjonen ønsker, men ikke hva den faktisk velger."
 category: "Roadmap"
 order: 3
+date: 2026-05-27
 summary: "Et roadmap er nyttig når det viser prioriteringer, ikke bare ønsker. I komplekse produktmiljøer bør roadmapet gjøre det tydelig hva som er hovedfokus nå, hva som kan komme senere, og hva som ikke er forpliktet ennå."
 ---
 

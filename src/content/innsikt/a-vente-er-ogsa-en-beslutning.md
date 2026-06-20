@@ -3,6 +3,7 @@ title: "Å vente er også en beslutning"
 excerpt: "Når organisasjonen venter på en person som ikke har begynt ennå, stopper avklaringer opp uten at noen har bestemt det."
 category: "Eierskap"
 order: 5
+date: 2026-06-10
 ---
 
 Noen ganger venter ikke organisasjonen på en beslutning. Den venter på en person som ikke har begynt ennå.

@@ -19,6 +19,8 @@ const innsiktCollection = defineCollection({
     excerpt: z.string(),
     category: z.string().optional(),
     order: z.number().default(0),
+    date: z.date(),
+    author: z.string().default('Carl Johnson'),
     summary: z.string().optional(),
     closing: z.string().optional(),
     draft: z.boolean().default(false),

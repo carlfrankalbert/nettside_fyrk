@@ -24,14 +24,22 @@ const { Content } = await insight.render();
 
 const canonicalUrl = `https://fyrk.no/innsikt/${insight.slug}/`;
 
+const formattedDate = insight.data.date.toLocaleDateString('nb-NO', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+const isoDate = insight.data.date.toISOString().slice(0, 10);
+
 const articleLd = {
   '@context': 'https://schema.org',
   '@type': 'Article',
   headline: insight.data.title,
   description: insight.data.excerpt,
+  datePublished: isoDate,
   author: {
     '@type': 'Person',
-    name: 'Carl Johnson',
+    name: insight.data.author,
     url: 'https://fyrk.no',
   },
   publisher: { '@id': 'https://fyrk.no/#organization' },
@@ -67,6 +75,9 @@ const articleLd = {
         </h1>
         <p class="text-xl text-neutral-600 leading-relaxed">
           {insight.data.excerpt}
+        </p>
+        <p class="mt-6 text-sm text-neutral-500">
+          Av {insight.data.author} · Publisert <time datetime={isoDate}>{formattedDate}</time>
         </p>
       </header>
 

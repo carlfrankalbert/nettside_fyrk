@@ -3,6 +3,7 @@ title: "Aktivitet er ikke det samme som fremdrift"
 excerpt: "Når en leveranse står fast, er det lett å fylle tiden med detaljer og varianter. Det skaper aktivitet, men ikke nødvendigvis fremdrift mot produksjon."
 category: "Fremdrift"
 order: 6
+date: 2026-06-17
 ---
 
 Når en leveranse står fast, er det lett å fortsette med det arbeidet som fortsatt er mulig.
