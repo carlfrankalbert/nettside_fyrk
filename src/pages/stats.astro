@@ -13,9 +13,7 @@ import '@fontsource/inter/700.css';
 const cloudflareEnv = Astro.locals.runtime?.env;
 const expectedToken = cloudflareEnv?.STATS_TOKEN;
 
-// Check token and period from URL
 const url = new URL(Astro.request.url);
-const providedToken = url.searchParams.get('token');
 
 const validPeriods = ['today', '7d', '30d', 'all'] as const;
 type Period = typeof validPeriods[number];
@@ -24,13 +22,52 @@ const period: Period = rawPeriod && (validPeriods as readonly string[]).includes
   ? rawPeriod as Period
   : 'today';
 
-// Validate access with specific error reasons
-const tokenNotConfigured = !expectedToken;
-const tokenMismatch = expectedToken && providedToken !== expectedToken;
-const hasAccess = expectedToken && providedToken === expectedToken;
+// Constant-time comparison so the token can't be recovered via response timing.
+function timingSafeEqual(a: string, b: string): boolean {
+  const enc = new TextEncoder();
+  const ab = enc.encode(a);
+  const bb = enc.encode(b);
+  let diff = ab.length ^ bb.length;
+  for (let i = 0; i < bb.length; i++) {
+    diff |= bb[i] ^ (ab[i % ab.length] ?? 0);
+  }
+  return diff === 0;
+}
+
+// Token arrives in the URL on first visit, then via an httpOnly cookie so the
+// secret stops travelling in URLs, browser history, logs and Referer headers.
+const STATS_COOKIE = 'stats_token';
+const queryToken = url.searchParams.get('token');
+const cookieToken = Astro.cookies.get(STATS_COOKIE)?.value ?? null;
+const providedToken = queryToken ?? cookieToken;
 
 // Prevent CDN caching — always serve fresh data
 Astro.response.headers.set('Cache-Control', 'no-store');
+
+// Validate access with specific error reasons
+const tokenNotConfigured = !expectedToken;
+const tokenProvided = !!providedToken;
+const hasAccess = !!expectedToken && !!providedToken && timingSafeEqual(providedToken, expectedToken);
+const tokenMismatch = !tokenNotConfigured && tokenProvided && !hasAccess;
+
+// Valid token in the URL: persist it in a cookie and redirect to a clean URL,
+// so the token doesn't linger in history/logs after the first hit.
+if (hasAccess && queryToken) {
+  Astro.cookies.set(STATS_COOKIE, queryToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'strict',
+    path: '/stats',
+    maxAge: 60 * 60 * 8,
+  });
+  url.searchParams.delete('token');
+  return Astro.redirect(url.pathname + url.search, 302);
+}
+
+// Drop a stale cookie (e.g. after token rotation) so the error page isn't sticky.
+if (tokenMismatch && cookieToken) {
+  Astro.cookies.delete(STATS_COOKIE, { path: '/stats' });
+}
 
 // Data types
 type ButtonCounts = Record<string, { count: number; label: string }>;
@@ -241,6 +278,18 @@ if (hasAccess) {
         <p class="text-slate-500">Legg til STATS_TOKEN i Cloudflare Pages milj&oslash;variabler.</p>
       </div>
     </div>
+  ) : !tokenProvided ? (
+    <div class="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+      <div class="bg-white border border-slate-200 rounded-2xl p-8 text-center max-w-md shadow-lg">
+        <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+          </svg>
+        </div>
+        <h1 class="text-xl font-bold text-slate-900 mb-2">Token mangler</h1>
+        <p class="text-slate-500">Legg til <code>?token=&lt;STATS_TOKEN&gt;</code> i URL-en for &aring; &aring;pne dashboardet.</p>
+      </div>
+    </div>
   ) : tokenMismatch ? (
     <div class="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div class="bg-white border border-red-200 rounded-2xl p-8 text-center max-w-md shadow-lg">
@@ -250,7 +299,7 @@ if (hasAccess) {
           </svg>
         </div>
         <h1 class="text-xl font-bold text-slate-900 mb-2">Feil token</h1>
-        <p class="text-slate-500">Token i URL matcher ikke STATS_TOKEN.</p>
+        <p class="text-slate-500">Token matcher ikke STATS_TOKEN.</p>
       </div>
     </div>
   ) : buttonCounts !== null && pageStats !== null ? (
@@ -260,7 +309,6 @@ if (hasAccess) {
       buttonCounts={buttonCounts}
       pageStats={pageStats}
       totalClicks={totalClicks}
-      refreshToken={providedToken || ''}
       toolMetrics={toolMetrics || {}}
       dataTimestamp={dataTimestamp || Date.now()}
     />

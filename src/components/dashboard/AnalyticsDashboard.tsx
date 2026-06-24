@@ -39,7 +39,6 @@ interface AnalyticsDashboardProps {
   buttonCounts: Record<string, ButtonCount>;
   pageStats: Record<string, PageStat>;
   totalClicks: number;
-  refreshToken: string;
   toolMetrics: Record<string, ToolMetrics>;
   dataTimestamp?: number;
 }
@@ -64,7 +63,7 @@ const PERIOD_BADGES: Record<Period, string> = {
   all: 'All tid',
 };
 
-export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClicks, refreshToken, toolMetrics, dataTimestamp }: AnalyticsDashboardProps) {
+export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClicks, toolMetrics, dataTimestamp }: AnalyticsDashboardProps) {
   const totalViews = Object.values(pageStats).reduce((sum, p) => sum + p.views, 0);
   const totalVisitors = Object.values(pageStats).reduce((sum, p) => sum + p.visitors, 0);
 
@@ -181,7 +180,7 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
                 </span>
               )}
               <a
-                href={`/stats?token=${refreshToken}&period=${period}`}
+                href={`/stats?period=${period}`}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition-colors"
               >
                 <Sparkles className="w-4 h-4" />
@@ -195,7 +194,7 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
             {PERIOD_OPTIONS.map(({ id, label }) => (
               <a
                 key={id}
-                href={`/stats?token=${refreshToken}&period=${id}`}
+                href={`/stats?period=${id}`}
                 className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
                   period === id
                     ? 'bg-white text-slate-900 shadow-sm'
