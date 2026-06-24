@@ -1,4 +1,4 @@
-import { MousePointer, Eye, Zap, BarChart3, ExternalLink, Sparkles, ThumbsUp, Lightbulb, Map, FileText, TrendingUp, Globe } from 'lucide-react';
+import { MousePointer, Eye, Zap, BarChart3, ExternalLink, Sparkles, ThumbsUp, Lightbulb, Map, FileText, TrendingUp, Globe, BookOpen } from 'lucide-react';
 import { KPICard } from './KPICard';
 import { TrafficChart } from './TrafficChart';
 import { AcquisitionChart } from './AcquisitionChart';
@@ -17,6 +17,13 @@ interface ButtonCount {
 
 interface PageStat {
   label: string;
+  views: number;
+  visitors: number;
+}
+
+interface ArticleStat {
+  slug: string;
+  title: string;
   views: number;
   visitors: number;
 }
@@ -40,6 +47,7 @@ interface AnalyticsDashboardProps {
   pageStats: Record<string, PageStat>;
   totalClicks: number;
   toolMetrics: Record<string, ToolMetrics>;
+  articleStats?: ArticleStat[];
   dataTimestamp?: number;
 }
 
@@ -63,7 +71,7 @@ const PERIOD_BADGES: Record<Period, string> = {
   all: 'All tid',
 };
 
-export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClicks, toolMetrics, dataTimestamp }: AnalyticsDashboardProps) {
+export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClicks, toolMetrics, articleStats = [], dataTimestamp }: AnalyticsDashboardProps) {
   const totalViews = Object.values(pageStats).reduce((sum, p) => sum + p.views, 0);
   const totalVisitors = Object.values(pageStats).reduce((sum, p) => sum + p.visitors, 0);
 
@@ -304,6 +312,48 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
             ))}
           </div>
         </CollapsibleSection>
+
+        {/* Innsikt — per-article reads */}
+        {articleStats.length > 0 && (
+          <CollapsibleSection
+            id="innsikt"
+            title="Innsikt — mest lest"
+            icon={<BookOpen className="w-5 h-5" />}
+            collapsedSummary={`${articleStats.length} ${articleStats.length === 1 ? 'tekst' : 'tekster'} lest, ${articleStats.reduce((s, a) => s + a.views, 0).toLocaleString('no-NO')} visninger`}
+          >
+            <ol className="space-y-2">
+              {articleStats.map((article, i) => {
+                const maxViews = articleStats[0].views || 1;
+                return (
+                  <li key={article.slug} className="flex items-center gap-3">
+                    <span className="w-5 shrink-0 text-sm font-semibold text-slate-400 text-right">{i + 1}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-baseline justify-between gap-3">
+                        <a
+                          href={`/innsikt/${article.slug}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="truncate text-sm font-medium text-slate-700 hover:text-slate-900"
+                        >
+                          {article.title}
+                        </a>
+                        <span className="shrink-0 text-sm tabular-nums text-slate-500">
+                          {article.views.toLocaleString('no-NO')} visn. · {article.visitors.toLocaleString('no-NO')} unike
+                        </span>
+                      </div>
+                      <div className="mt-1 h-1.5 w-full rounded-full bg-slate-100">
+                        <div
+                          className="h-1.5 rounded-full bg-indigo-400"
+                          style={{ width: `${Math.max(4, Math.round((article.views / maxViews) * 100))}%` }}
+                        />
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          </CollapsibleSection>
+        )}
 
         {/* Acquisition */}
         <CollapsibleSection

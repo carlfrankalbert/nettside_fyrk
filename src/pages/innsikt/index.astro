@@ -59,3 +59,8 @@ const insights = (await getCollection('innsikt', ({ data }) => !data.draft))
     </div>
   </article>
 </BaseLayout>
+
+<script>
+  import { initPageViewTracking } from '../../scripts/pageview-tracking';
+  initPageViewTracking('innsikt');
+</script>

@@ -7,10 +7,12 @@ import { shouldExcludeFromTracking } from './tracking-exclusion';
 import { signRequest } from '../utils/request-signing';
 import { fetchWithRetryFireAndForget } from '../utils/fetch-retry';
 
-type PageId = 'home' | 'okr' | 'konseptspeil' | 'antakelseskart' | 'beslutningslogg' | 'premortem';
+type PageId = 'home' | 'okr' | 'konseptspeil' | 'antakelseskart' | 'beslutningslogg' | 'premortem' | 'innsikt' | 'verktoy';
 
 interface PageViewPayload {
   pageId: PageId;
+  /** Innsikt article slug — enables per-article view counts. Validated server-side. */
+  articleSlug?: string;
   referrer?: string;
   utmSource?: string;
   utmMedium?: string;
@@ -62,10 +64,11 @@ function getUtmParams(): Pick<PageViewPayload, 'utmSource' | 'utmMedium' | 'utmC
  * Track a page view (fire and forget with retry)
  * Includes referrer and UTM data when available
  */
-function trackPageView(pageId: PageId): void {
+function trackPageView(pageId: PageId, articleSlug?: string): void {
   if (shouldExcludeFromTracking()) return;
 
   const payload: PageViewPayload = { pageId };
+  if (articleSlug) payload.articleSlug = articleSlug;
 
   const referrer = getReferrerDomain();
   if (referrer) payload.referrer = referrer;
@@ -84,8 +87,9 @@ function trackPageView(pageId: PageId): void {
 
 /**
  * Initialize page view tracking
- * Call this on page load with the appropriate page ID
+ * Call this on page load with the appropriate page ID.
+ * Pass articleSlug on Innsikt article pages to record per-article reads.
  */
-export function initPageViewTracking(pageId: PageId): void {
-  trackPageView(pageId);
+export function initPageViewTracking(pageId: PageId, articleSlug?: string): void {
+  trackPageView(pageId, articleSlug);
 }

@@ -1,6 +1,7 @@
 ---
 export const prerender = false;
 
+import { getCollection } from 'astro:content';
 import { TRACKED_BUTTONS } from './api/track';
 import { TRACKED_PAGES } from './api/pageview';
 import { AnalyticsDashboard } from '../components/dashboard';
@@ -83,10 +84,12 @@ type ToolMetrics = {
   hourlyDistribution: Record<string, number>;
 };
 type AllMetrics = Record<string, ToolMetrics>;
+type ArticleStat = { slug: string; title: string; views: number; visitors: number };
 
 let buttonCounts: ButtonCounts | null = null;
 let pageStats: PageStats | null = null;
 let toolMetrics: AllMetrics | null = null;
+let articleStats: ArticleStat[] = [];
 let totalClicks = 0;
 let dataTimestamp: number | null = null;
 
@@ -240,6 +243,41 @@ if (hasAccess) {
         }
       }
     }
+
+    // --- Per-article Innsikt reads (which texts actually get read) ---
+    const insights = await getCollection('innsikt', ({ data }) => !data.draft);
+    const dates = period === 'all' ? [] : getDateRange(period);
+    const articleResults = await Promise.all(insights.map(async (entry): Promise<ArticleStat> => {
+      const slug = entry.slug;
+      if (period === 'all') {
+        const [v, vis] = await Promise.all([
+          kv.get(`article_views_total:innsikt:${slug}`),
+          kv.get(`article_visitors_total:innsikt:${slug}`),
+        ]);
+        return {
+          slug,
+          title: entry.data.title,
+          views: parseInt(v || '0', 10) || 0,
+          visitors: parseInt(vis || '0', 10) || 0,
+        };
+      }
+      const [viewResults, visitorResults] = await Promise.all([
+        Promise.all(dates.map(d => kv.get(`article_views_daily:innsikt:${slug}:${d}`))),
+        Promise.all(dates.map(d => kv.get(`article_visitors:innsikt:${slug}:${d}`))),
+      ]);
+      const views = viewResults.reduce((sum, x) => sum + (parseInt(x || '0', 10) || 0), 0);
+      const uniqueHashes = new Set<string>();
+      for (const json of visitorResults) {
+        try {
+          const hashes: string[] = json ? JSON.parse(json) : [];
+          hashes.forEach(h => uniqueHashes.add(h));
+        } catch { /* skip invalid JSON */ }
+      }
+      return { slug, title: entry.data.title, views, visitors: uniqueHashes.size };
+    }));
+    articleStats = articleResults
+      .filter(a => a.views > 0)
+      .sort((a, b) => b.views - a.views);
   }
 }
 ---
@@ -310,6 +348,7 @@ if (hasAccess) {
       pageStats={pageStats}
       totalClicks={totalClicks}
       toolMetrics={toolMetrics || {}}
+      articleStats={articleStats}
       dataTimestamp={dataTimestamp || Date.now()}
     />
   ) : (

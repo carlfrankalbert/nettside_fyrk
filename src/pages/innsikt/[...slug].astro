@@ -106,6 +106,13 @@ const articleLd = {
   </article>
 </BaseLayout>
 
+<script>
+  import { initPageViewTracking } from '../../scripts/pageview-tracking';
+  // Slug comes from the URL; the server validates it against published Innsikt entries.
+  const match = location.pathname.match(/^\/innsikt\/([^/]+)\/?$/);
+  initPageViewTracking('innsikt', match?.[1]);
+</script>
+
 <style is:global>
   .innsikt-prose ul,
   .innsikt-prose ol {

@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { getCollection } from 'astro:content';
 import { shouldExcludeRequest } from '../../utils/tracking-exclusion';
 import { verifySignedRequest } from '../../utils/request-signing';
 import {
@@ -38,9 +39,68 @@ export const TRACKED_PAGES = {
   antakelseskart: { key: 'pageviews_antakelseskart', label: 'fyrk.no/antakelseskart' },
   beslutningslogg: { key: 'pageviews_beslutningslogg', label: 'fyrk.no/beslutningslogg' },
   premortem: { key: 'pageviews_premortem', label: 'fyrk.no/verktoy/pre-mortem' },
+  innsikt: { key: 'pageviews_innsikt', label: 'fyrk.no/innsikt' },
+  verktoy: { key: 'pageviews_verktoy', label: 'fyrk.no/verktoy' },
 } as const;
 
 export type PageId = keyof typeof TRACKED_PAGES;
+
+/**
+ * Cache of published Innsikt slugs, used to validate article-level tracking so
+ * arbitrary slugs can't create unbounded KV keys. Lives for the worker's lifetime.
+ */
+let innsiktSlugCache: Set<string> | null = null;
+async function getInnsiktSlugs(): Promise<Set<string>> {
+  if (innsiktSlugCache) return innsiktSlugCache;
+  const entries = await getCollection('innsikt', ({ data }) => !data.draft);
+  innsiktSlugCache = new Set(entries.map(e => e.slug));
+  return innsiktSlugCache;
+}
+
+/** KV key prefix for per-article Innsikt metrics. */
+const ARTICLE_NS = 'innsikt';
+
+/**
+ * Record a single Innsikt article read: total + daily views, and unique visitors
+ * (daily set + all-time counter). Mirrors the per-page scheme, namespaced by slug.
+ */
+async function trackArticleView(
+  kv: KVNamespace,
+  slug: string,
+  dateKey: string,
+  visitorHash: string,
+): Promise<void> {
+  const totalKey = `article_views_total:${ARTICLE_NS}:${slug}`;
+  const dailyKey = `article_views_daily:${ARTICLE_NS}:${slug}:${dateKey}`;
+  const visitorsKey = `article_visitors:${ARTICLE_NS}:${slug}:${dateKey}`;
+  const visitorsTotalKey = `article_visitors_total:${ARTICLE_NS}:${slug}`;
+
+  const total = await kv.get(totalKey);
+  await kv.put(totalKey, String((parseInt(total || '0', 10) || 0) + 1));
+
+  const daily = await kv.get(dailyKey);
+  await kv.put(dailyKey, String((parseInt(daily || '0', 10) || 0) + 1), {
+    expirationTtl: ANALYTICS_CONFIG.KV_EXPIRATION_TTL,
+  });
+
+  const visitorsJson = await kv.get(visitorsKey);
+  let visitors: string[] = [];
+  try {
+    visitors = visitorsJson ? JSON.parse(visitorsJson) : [];
+  } catch {
+    visitors = [];
+  }
+  if (!visitors.includes(visitorHash)) {
+    if (visitors.length < MAX_UNIQUE_VISITORS_PER_DAY) {
+      visitors.push(visitorHash);
+      await kv.put(visitorsKey, JSON.stringify(visitors), {
+        expirationTtl: ANALYTICS_CONFIG.KV_EXPIRATION_TTL,
+      });
+    }
+    const totalVisitors = await kv.get(visitorsTotalKey);
+    await kv.put(visitorsTotalKey, String((parseInt(totalVisitors || '0', 10) || 0) + 1));
+  }
+}
 
 /**
  * Create a SHA-256 hash of a string (for anonymous visitor tracking)
@@ -122,6 +182,7 @@ export const POST: APIRoute = async ({ locals, request }) => {
     // Parse and verify signed request
     interface PageViewBody {
       pageId?: string;
+      articleSlug?: string;
       referrer?: string;
       utmSource?: string;
       utmMedium?: string;
@@ -129,7 +190,8 @@ export const POST: APIRoute = async ({ locals, request }) => {
     }
 
     let pageId: PageId = 'home';
-    let acquisitionFields: Omit<PageViewBody, 'pageId'> = {};
+    let articleSlug: string | null = null;
+    let acquisitionFields: Omit<PageViewBody, 'pageId' | 'articleSlug'> = {};
     try {
       const rawBody = await request.json() as {
         payload?: PageViewBody;
@@ -150,6 +212,14 @@ export const POST: APIRoute = async ({ locals, request }) => {
       const body = verification.payload;
       if (body.pageId && body.pageId in TRACKED_PAGES) {
         pageId = body.pageId as PageId;
+      }
+
+      // Per-article tracking only for Innsikt, and only for published slugs.
+      if (pageId === 'innsikt' && typeof body.articleSlug === 'string') {
+        const validSlugs = await getInnsiktSlugs();
+        if (validSlugs.has(body.articleSlug)) {
+          articleSlug = body.articleSlug;
+        }
       }
 
       acquisitionFields = {
@@ -222,6 +292,11 @@ export const POST: APIRoute = async ({ locals, request }) => {
       const currentTotalVisitors = await kv.get(totalVisitorsKey);
       const newTotalVisitors = (parseInt(currentTotalVisitors || '0', 10) || 0) + 1;
       await kv.put(totalVisitorsKey, String(newTotalVisitors));
+    }
+
+    // Record per-article read when a valid Innsikt slug was provided
+    if (articleSlug) {
+      await trackArticleView(kv, articleSlug, dateKey, visitorHash);
     }
 
     // Store acquisition data (referrer + UTM) - non-blocking for the response
