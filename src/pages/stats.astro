@@ -51,18 +51,29 @@ const tokenProvided = !!providedToken;
 const hasAccess = !!expectedToken && !!providedToken && timingSafeEqual(providedToken, expectedToken);
 const tokenMismatch = !tokenNotConfigured && tokenProvided && !hasAccess;
 
-// Valid token in the URL: persist it in a cookie and redirect to a clean URL,
-// so the token doesn't linger in history/logs after the first hit.
+// Valid token in the URL: persist it in a cookie and redirect to a clean URL so
+// the token doesn't linger in history/logs after the first hit. Set-Cookie is
+// written directly on the 302 because the Cloudflare adapter can drop
+// Astro.cookies on redirect responses, and SameSite=Lax so the browser actually
+// sends the freshly set cookie on the redirect navigation.
 if (hasAccess && queryToken) {
-  Astro.cookies.set(STATS_COOKIE, queryToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'strict',
-    path: '/stats',
-    maxAge: 60 * 60 * 8,
-  });
   url.searchParams.delete('token');
-  return Astro.redirect(url.pathname + url.search, 302);
+  const cookie = [
+    `${STATS_COOKIE}=${queryToken}`,
+    'Path=/stats',
+    `Max-Age=${60 * 60 * 8}`,
+    'HttpOnly',
+    'Secure',
+    'SameSite=Lax',
+  ].join('; ');
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: url.pathname + url.search,
+      'Set-Cookie': cookie,
+      'Cache-Control': 'no-store',
+    },
+  });
 }
 
 // Drop a stale cookie (e.g. after token rotation) so the error page isn't sticky.
