@@ -6,6 +6,7 @@ import {
   BETA_COOKIE_MAX_AGE,
   hasBetaAccess,
 } from '../utils/feature-toggles';
+import { verifyToken } from '../utils/verify-token';
 
 // Get the secret token from environment
 const cloudflareEnv = Astro.locals.runtime?.env;
@@ -19,7 +20,7 @@ const providedToken = url.searchParams.get('token');
 const deactivate = url.searchParams.get('deactivate') === 'true';
 
 // Validate token
-const validToken = expectedToken && providedToken === expectedToken;
+const validToken = verifyToken(providedToken, expectedToken);
 
 // Check current beta status
 const currentlyHasBeta = hasBetaAccess(Astro.cookies);

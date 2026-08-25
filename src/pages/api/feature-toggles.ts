@@ -10,17 +10,7 @@ import {
 } from '../../utils/feature-toggles';
 import { API_HEADERS } from '../../utils/analytics-helpers';
 import { validateOrigin } from '../../lib/validate-origin';
-
-/**
- * Extract token from Authorization header (Bearer token only)
- */
-function extractToken(request: Request): string | null {
-  const authHeader = request.headers.get('Authorization');
-  if (authHeader?.startsWith('Bearer ')) {
-    return authHeader.slice(7);
-  }
-  return null;
-}
+import { verifyToken, extractBearerToken } from '../../utils/verify-token';
 
 /**
  * GET /api/feature-toggles
@@ -32,9 +22,9 @@ export const GET: APIRoute = async ({ request, locals }) => {
   const expectedToken = cloudflareEnv?.FEATURE_TOGGLE_TOKEN;
 
   // Check authorization
-  const providedToken = extractToken(request);
+  const providedToken = extractBearerToken(request);
 
-  if (!expectedToken || providedToken !== expectedToken) {
+  if (!verifyToken(providedToken, expectedToken)) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: API_HEADERS,
@@ -86,8 +76,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   // Check authorization via Bearer header only
-  const providedToken = extractToken(request);
-  if (!expectedToken || providedToken !== expectedToken) {
+  const providedToken = extractBearerToken(request);
+  if (!verifyToken(providedToken, expectedToken)) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: API_HEADERS,
