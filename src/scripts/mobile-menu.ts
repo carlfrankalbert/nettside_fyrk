@@ -83,14 +83,3 @@ export function initMobileMenu(options: MobileMenuOptions = {}): void {
   });
 }
 
-/**
- * Legacy support - initialize with default element IDs
- * @deprecated Use initMobileMenu() with options instead
- */
-export function initLegacyMobileMenu(): void {
-  initMobileMenu({
-    buttonId: 'mobile-menu-button',
-    menuId: 'mobile-menu',
-  });
-}
-
