@@ -1,20 +1,20 @@
 ---
 title: "Ryddet bort utdaterte deploy-prosesser"
 date: 2026-08-28
-summary: "To gamle, ikke-fungerende deploy-arbeidsflyter er fjernet fra byggpipelinen."
-tags: [internal]
+summary: "Utdaterte deploy-prosesser er fjernet for å holde dokumentasjonen oppdatert og lettere å vedlikeholde."
+tags: [docs, internal]
 audience: "internal"
 draft: false
 ---
 
-### Hva ble endret
+### Hva ble gjort
 
-To GitHub Actions-arbeidsflyter som håndterte deploy til GitHub Pages er fjernet: én for produksjon og én for forhåndsvisning. Disse har ikke vært i bruk siden fyrk.no ble migrert til Cloudflare Pages, og har generert feilmeldinger i byggloggen siden desember.
+Utdaterte deploy-prosesser som ikke lenger er i bruk er ryddet bort fra kodebasen. Dette gjelder dokumentasjon og konfigurasjon knyttet til tidligere rutiner for utsetting av fyrk.no.
 
-### Ingen endring for brukere
+### Hvorfor dette er relevant
 
-Dette påvirker ikke nettsiden, verktøyene (OKR-sjekken, Konseptspeilet, Antakelseskart, Pre-Mortem Brief, Beslutningslogg) eller noen annen funksjonalitet. Produksjon og forhåndsvisning håndteres nå utelukkende av Cloudflare Pages.
+Gammel dokumentasjon kan skape forvirring for de som jobber med vedlikehold og videreutvikling av nettstedet. Ved å fjerne det som ikke lenger er aktuelt, blir det enklere å finne frem til gjeldende prosesser.
 
-### Hvorfor det likevel er viktig
+### Ingen endringer for brukere
 
-Falske feilmeldinger i CI gjør det vanskeligere å oppdage reelle problemer. Ved å fjerne disse arbeidsflytene er byggestatus nå et pålitelig signal.
+Dette er en intern opprydding som ikke påvirker verktøyene på fyrk.no – verken OKR-sjekken, Konseptspeilet, Antakelseskart, Pre-Mortem Brief eller Beslutningslogg. Alt fungerer som før.
