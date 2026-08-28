@@ -5,6 +5,7 @@ import { getCollection } from 'astro:content';
 import { TRACKED_BUTTONS } from './api/track';
 import { TRACKED_PAGES } from './api/pageview';
 import { AnalyticsDashboard } from '../components/dashboard';
+import { verifyToken } from '../utils/verify-token';
 import '@fontsource/inter/400.css';
 import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
@@ -23,18 +24,6 @@ const period: Period = rawPeriod && (validPeriods as readonly string[]).includes
   ? rawPeriod as Period
   : 'today';
 
-// Constant-time comparison so the token can't be recovered via response timing.
-function timingSafeEqual(a: string, b: string): boolean {
-  const enc = new TextEncoder();
-  const ab = enc.encode(a);
-  const bb = enc.encode(b);
-  let diff = ab.length ^ bb.length;
-  for (let i = 0; i < bb.length; i++) {
-    diff |= bb[i] ^ (ab[i % ab.length] ?? 0);
-  }
-  return diff === 0;
-}
-
 // Token arrives in the URL on first visit, then via an httpOnly cookie so the
 // secret stops travelling in URLs, browser history, logs and Referer headers.
 const STATS_COOKIE = 'stats_token';
@@ -48,7 +37,7 @@ Astro.response.headers.set('Cache-Control', 'no-store');
 // Validate access with specific error reasons
 const tokenNotConfigured = !expectedToken;
 const tokenProvided = !!providedToken;
-const hasAccess = !!expectedToken && !!providedToken && timingSafeEqual(providedToken, expectedToken);
+const hasAccess = verifyToken(providedToken, expectedToken);
 const tokenMismatch = !tokenNotConfigured && tokenProvided && !hasAccess;
 
 // Valid token in the URL: persist it in a cookie and redirect to a clean URL so

@@ -1,0 +1,145 @@
+{
+  "$schema": "https://tr.designtokens.org/format/",
+  "$description": "FYRK design tokens (fyrk.no). W3C DTCG format — importable into Figma via the Tokens Studio plugin. Source of truth: tailwind.config.mjs + src/styles/global.css.",
+  "color": {
+    "$type": "color",
+    "brand": {
+      "navy": {
+        "$value": "#001F3F",
+        "$description": "Primary brand color. Headings, primary text, dark surfaces."
+      },
+      "sand": {
+        "$value": "#C4A07A",
+        "$description": "Accent color (warm sand/beige). Aliased as 'cyan' in code."
+      },
+      "sand-light": {
+        "$value": "#D4B896",
+        "$description": "Lighter accent (cyan-light)."
+      },
+      "sand-lighter": {
+        "$value": "#E0CCAF",
+        "$description": "cyan-lighter."
+      },
+      "sand-lightest": {
+        "$value": "#ECDEC8",
+        "$description": "cyan-lightest. Subtle tinted backgrounds."
+      },
+      "sand-dark": {
+        "$value": "#8A6249",
+        "$description": "cyan-dark."
+      },
+      "sand-darker": {
+        "$value": "#8E684A",
+        "$description": "cyan-darker. Link hover, outline buttons (AA contrast on white)."
+      },
+      "white": {
+        "$value": "#FFFFFF"
+      }
+    },
+    "neutral": {
+      "50": { "$value": "#FAFAFA" },
+      "100": { "$value": "#F5F5F5" },
+      "200": { "$value": "#E0E0E0" },
+      "300": { "$value": "#CBCED4" },
+      "500": {
+        "$value": "#5A5A6E",
+        "$description": "Muted text. Contrast-adjusted (was #717182)."
+      },
+      "700": {
+        "$value": "#333333",
+        "$description": "Body text default."
+      },
+      "900": { "$value": "#0F1419" }
+    },
+    "feedback": {
+      "success": { "$value": "#0F7C3E" },
+      "error": { "$value": "#C41E3A" },
+      "warning": { "$value": "#E67E22" },
+      "info": { "$value": "#1E88E5" }
+    }
+  },
+  "font": {
+    "family": {
+      "$type": "fontFamily",
+      "primary": {
+        "$value": ["Inter", "InterVariable", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+        "$description": "Headings (h1–h6) and buttons. Loaded locally via @fontsource/inter."
+      },
+      "body": {
+        "$value": ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
+        "$description": "Body copy. System font stack."
+      },
+      "mono": {
+        "$value": ["Courier New", "Courier", "monospace"]
+      }
+    },
+    "weight": {
+      "$type": "fontWeight",
+      "regular": { "$value": 400 },
+      "medium": { "$value": 500 },
+      "semibold": { "$value": 600 },
+      "bold": { "$value": 700 }
+    }
+  },
+  "fontSize": {
+    "$type": "dimension",
+    "display": { "$value": "3.5rem", "$description": "56px" },
+    "h1": { "$value": "3rem", "$description": "48px" },
+    "h2": { "$value": "2.25rem", "$description": "36px" },
+    "h3": { "$value": "1.75rem", "$description": "28px" },
+    "h4": { "$value": "1.5rem", "$description": "24px" },
+    "h5": { "$value": "1.25rem", "$description": "20px" },
+    "h6": { "$value": "1.125rem", "$description": "18px" },
+    "lg": { "$value": "1.125rem", "$description": "18px" },
+    "base": { "$value": "1rem", "$description": "16px" },
+    "sm": { "$value": "0.875rem", "$description": "14px" },
+    "xs": { "$value": "0.75rem", "$description": "12px" }
+  },
+  "lineHeight": {
+    "$type": "number",
+    "tight": { "$value": 1.2 },
+    "snug": { "$value": 1.3 },
+    "normal": { "$value": 1.5 },
+    "relaxed": { "$value": 1.6 }
+  },
+  "spacing": {
+    "$type": "dimension",
+    "1": { "$value": "0.25rem", "$description": "4px" },
+    "2": { "$value": "0.5rem", "$description": "8px" },
+    "3": { "$value": "0.75rem", "$description": "12px" },
+    "4": { "$value": "1rem", "$description": "16px" },
+    "5": { "$value": "1.25rem", "$description": "20px" },
+    "6": { "$value": "1.5rem", "$description": "24px" },
+    "8": { "$value": "2rem", "$description": "32px" },
+    "10": { "$value": "2.5rem", "$description": "40px" },
+    "12": { "$value": "3rem", "$description": "48px" },
+    "16": { "$value": "4rem", "$description": "64px" },
+    "20": { "$value": "5rem", "$description": "80px" },
+    "24": { "$value": "6rem", "$description": "96px" },
+    "28": { "$value": "7rem", "$description": "112px" }
+  },
+  "borderRadius": {
+    "$type": "dimension",
+    "sm": { "$value": "0.25rem", "$description": "4px" },
+    "md": { "$value": "0.375rem", "$description": "6px" },
+    "lg": { "$value": "0.5rem", "$description": "8px" },
+    "xl": { "$value": "0.75rem", "$description": "12px" },
+    "2xl": { "$value": "1rem", "$description": "16px" },
+    "full": { "$value": "9999px" }
+  },
+  "shadow": {
+    "$type": "shadow",
+    "sm": { "$value": { "offsetX": "0", "offsetY": "1px", "blur": "2px", "spread": "0", "color": "rgba(0,0,0,0.05)" } },
+    "md": { "$value": { "offsetX": "0", "offsetY": "4px", "blur": "6px", "spread": "0", "color": "rgba(0,0,0,0.1)" } },
+    "lg": { "$value": { "offsetX": "0", "offsetY": "10px", "blur": "15px", "spread": "0", "color": "rgba(0,0,0,0.1)" } },
+    "xl": { "$value": { "offsetX": "0", "offsetY": "20px", "blur": "25px", "spread": "0", "color": "rgba(0,0,0,0.1)" } },
+    "2xl": { "$value": { "offsetX": "0", "offsetY": "25px", "blur": "50px", "spread": "-12px", "color": "rgba(0,0,0,0.25)" } },
+    "brand-sand": { "$value": { "offsetX": "0", "offsetY": "10px", "blur": "30px", "spread": "-5px", "color": "rgba(160,120,90,0.3)" } }
+  },
+  "duration": {
+    "$type": "duration",
+    "fast": { "$value": "150ms" },
+    "normal": { "$value": "250ms" },
+    "slow": { "$value": "350ms" }
+  }
+}

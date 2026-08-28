@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { verifyToken, extractBearerToken } from '../../utils/verify-token';
 
 export const prerender = false;
 
@@ -197,10 +198,9 @@ export const GET: APIRoute = async ({ request, locals }) => {
   const kv = cloudflareEnv?.ANALYTICS_KV;
 
   if (statsToken) {
-    const authHeader = request.headers.get('Authorization');
-    const providedToken = authHeader?.replace('Bearer ', '');
+    const providedToken = extractBearerToken(request);
 
-    if (providedToken !== statsToken) {
+    if (!verifyToken(providedToken, statsToken)) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { status: 401, headers: { 'Content-Type': 'application/json' } }

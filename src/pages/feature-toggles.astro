@@ -2,6 +2,7 @@
 export const prerender = false;
 
 import { getFeatureToggles, type FeatureToggle } from '../utils/feature-toggles';
+import { verifyToken } from '../utils/verify-token';
 
 // Get the secret token from environment
 const cloudflareEnv = Astro.locals.runtime?.env;
@@ -13,7 +14,7 @@ const url = new URL(Astro.request.url);
 const providedToken = url.searchParams.get('token');
 
 // Validate access
-const hasAccess = expectedToken && providedToken === expectedToken;
+const hasAccess = verifyToken(providedToken, expectedToken);
 
 // Get feature toggles if authorized
 let features: FeatureToggle[] = [];
