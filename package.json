@@ -47,7 +47,7 @@
     "recharts": "^3.6.0"
   },
   "devDependencies": {
-    "@anthropic-ai/sdk": "^0.72.1",
+    "@anthropic-ai/sdk": "^0.120.0",
     "@astrojs/check": "^0.9.6",
     "@cloudflare/workers-types": "^4.20260702.1",
     "@astrojs/tailwind": "^5.1.0",
