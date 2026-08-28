@@ -36,13 +36,19 @@ jobs:
           if [ -n "${{ inputs.pr_number }}" ]; then
             echo "pr_number=${{ inputs.pr_number }}" >> "$GITHUB_OUTPUT"
           else
-            PR_NUMBER=$(gh pr list --state merged --search "${{ github.sha }}" --json number --jq '.[0].number // empty')
-            if [ -z "$PR_NUMBER" ]; then
+            PR=$(gh pr list --state merged --search "${{ github.sha }}" --json number,headRefName --jq '.[0] // empty')
+            if [ -z "$PR" ]; then
               echo "No merged PR found for this push, skipping."
               echo "skip=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi
-            echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+            HEAD_REF=$(echo "$PR" | jq -r '.headRefName')
+            if [[ "$HEAD_REF" == release-notes/* ]]; then
+              echo "Merged PR is itself a release-notes PR ($HEAD_REF); skipping to avoid a generation loop."
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "pr_number=$(echo "$PR" | jq -r '.number')" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Generate release notes
