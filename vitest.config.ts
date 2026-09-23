@@ -10,12 +10,13 @@ export default defineConfig({
       reporter: ['text', 'json', 'json-summary', 'html'],
       include: ['src/utils/**', 'src/services/**', 'src/lib/**', 'src/hooks/**'],
       exclude: ['**/*.test.ts', '**/*.d.ts'],
-      // Coverage thresholds - floor to prevent regression, raise gradually
+      // Floor to prevent regression, set to what is actually achieved and
+      // raised as tracks of docs/modernization-plan.md land. Not an aspiration.
       thresholds: {
-        lines: 50,
-        functions: 53,
-        branches: 49,
-        statements: 50,
+        lines: 60,
+        functions: 65,
+        branches: 57,
+        statements: 59,
       },
     },
   },
