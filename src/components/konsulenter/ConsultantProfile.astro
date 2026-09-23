@@ -1,7 +1,7 @@
 ---
 /**
- * About section for the landing page
- * Bio, certifications, and prominent LinkedIn link
+ * Consultant profile section
+ * Portrait, bio, areas of expertise, and prominent LinkedIn link
  */
 import { Image } from 'astro:assets';
 import carlJohnsonImage from '../../assets/images/carl-johnson.jpg';
@@ -11,25 +11,35 @@ interface LinkedinCta {
   href: string;
 }
 
-interface Founder {
+interface Expertise {
+  label: string;
+  items: readonly string[];
+}
+
+interface Consultant {
   heading: string;
+  role?: string;
   paragraphs: readonly string[];
+  expertise?: Expertise;
   linkedinCta: LinkedinCta;
 }
 
 interface Props {
   title: string;
-  founder: Founder;
+  consultant: Consultant;
 }
 
-const { title, founder } = Astro.props;
+const { title, consultant } = Astro.props;
 ---
 
-<section id="om" class="py-20 md:py-28 px-6 bg-neutral-50 scroll-mt-20">
+<section id="carl-johnson" class="py-20 md:py-28 px-6 bg-white scroll-mt-20">
   <div class="max-w-3xl mx-auto">
     <h2 class="text-h2 font-semibold text-brand-navy mb-3 text-center">
       {title}
     </h2>
+    {consultant.role && (
+      <p class="text-lg text-neutral-600 text-center mb-3">{consultant.role}</p>
+    )}
     <div class="w-16 h-1 bg-brand-cyan-darker mx-auto mb-8"></div>
 
     <div>
@@ -37,7 +47,7 @@ const { title, founder } = Astro.props;
         <div class="flex-shrink-0">
           <Image
             src={carlJohnsonImage}
-            alt={founder.heading}
+            alt={consultant.heading}
             width={192}
             height={192}
             densities={[1, 2]}
@@ -46,25 +56,36 @@ const { title, founder } = Astro.props;
           />
         </div>
         <div class="flex-1 space-y-4">
-          {founder.paragraphs.map((paragraph) => (
+          {consultant.paragraphs.map((paragraph) => (
             <p class="text-neutral-600">{paragraph}</p>
           ))}
         </div>
       </div>
 
+      {consultant.expertise && (
+        <div class="border-t border-neutral-100 pt-6 mb-6">
+          <p class="text-xs font-medium uppercase tracking-wide text-brand-cyan-darker mb-2">
+            {consultant.expertise.label}
+          </p>
+          <p class="text-neutral-600">
+            {consultant.expertise.items.join(' · ')}
+          </p>
+        </div>
+      )}
+
       <div class="border-t border-neutral-100 pt-6">
         <a
-          href={founder.linkedinCta.href}
+          href={consultant.linkedinCta.href}
           target="_blank"
           rel="noopener noreferrer"
           class="inline-flex items-center gap-1.5 text-sm font-medium text-brand-cyan-darker hover:text-brand-cyan-dark transition-colors"
-          aria-label={`${founder.linkedinCta.text} (åpnes i ny fane)`}
+          aria-label={`${consultant.linkedinCta.text} (åpnes i ny fane)`}
           data-track-button="about_linkedin"
         >
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M19 3A2 2 0 0 1 21 5V19A2 2 0 0 1 19 21H5A2 2 0 0 1 3 19V5A2 2 0 0 1 5 3H19M18.5 18.5V13.2A3.26 3.26 0 0 0 15.24 9.94C14.39 9.94 13.4 10.46 12.92 11.24V10.13H10.13V18.5H12.92V13.57C12.92 12.8 13.54 12.17 14.31 12.17A1.4 1.4 0 0 1 15.71 13.57V18.5H18.5M6.88 8.56A1.68 1.68 0 0 0 8.56 6.88C8.56 5.95 7.81 5.19 6.88 5.19A1.69 1.69 0 0 0 5.19 6.88C5.19 7.81 5.95 8.56 6.88 8.56M8.27 18.5V10.13H5.5V18.5H8.27Z"/>
           </svg>
-          {founder.linkedinCta.text}
+          {consultant.linkedinCta.text}
         </a>
       </div>
     </div>

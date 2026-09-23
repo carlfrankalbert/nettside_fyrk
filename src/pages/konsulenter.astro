@@ -1,0 +1,75 @@
+---
+/**
+ * Konsulenter page
+ * Presents FYRK's consultants and how FYRK collaborates around assignments
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ConsultantProfile from '../components/konsulenter/ConsultantProfile.astro';
+import TestimonialsSection from '../components/konsulenter/TestimonialsSection.astro';
+import {
+  konsulenterHeader,
+  consultantContent,
+  testimonialsContent,
+  collaborationContent,
+} from '../data/konsulenter';
+import { EXTERNAL_LINKS } from '../utils/links';
+import { BRAND } from '../utils/brand';
+
+const personLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': `${BRAND.url}/#carl-johnson`,
+  name: consultantContent.consultant.heading,
+  url: `${BRAND.url}/konsulenter/`,
+  jobTitle: consultantContent.consultant.role,
+  sameAs: [EXTERNAL_LINKS.linkedinPersonal],
+  worksFor: { '@id': `${BRAND.url}/#organization` },
+};
+---
+
+<BaseLayout
+  title={konsulenterHeader.title}
+  description={konsulenterHeader.lead}
+>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(personLd)} />
+
+  <section class="pt-16 md:pt-24 pb-4 px-6">
+    <div class="max-w-3xl mx-auto">
+      <h1 class="text-h2 md:text-h1 font-semibold text-brand-navy mb-4 leading-tight">
+        {konsulenterHeader.title}
+      </h1>
+      <p class="text-xl md:text-2xl text-neutral-600 leading-relaxed">
+        {konsulenterHeader.lead}
+      </p>
+    </div>
+  </section>
+
+  <ConsultantProfile
+    title={consultantContent.title}
+    consultant={consultantContent.consultant}
+  />
+
+  <TestimonialsSection
+    title={testimonialsContent.title}
+    testimonials={testimonialsContent.testimonials}
+  />
+
+  <section class="py-20 md:py-28 px-6 bg-white">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-h3 font-semibold text-brand-navy mb-3 text-center">
+        {collaborationContent.title}
+      </h2>
+      <div class="w-16 h-1 bg-brand-cyan-darker mx-auto mb-8"></div>
+      <div class="space-y-4">
+        {collaborationContent.paragraphs.map((paragraph) => (
+          <p class="text-neutral-600">{paragraph}</p>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { initPageViewTracking } from '../scripts/pageview-tracking';
+  initPageViewTracking('konsulenter');
+</script>
