@@ -39,7 +39,7 @@ export const consultantContent = {
       ],
     },
     linkedinCta: {
-      text: 'Se full CV på LinkedIn',
+      text: 'Se profil på LinkedIn',
       href: EXTERNAL_LINKS.linkedinPersonal,
     },
   },

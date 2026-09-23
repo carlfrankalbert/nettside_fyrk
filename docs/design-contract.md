@@ -86,7 +86,7 @@ Binding rules for all UI/UX changes on fyrk.no. Updated only by explicit decisio
 | Ta kontakt | `/#kontakt` in the header, `mailto:hei@fyrk.no` elsewhere | Contact CTAs (header, sections, pages) |
 | Send e-post | `mailto:hei@fyrk.no` | Contact section primary button only |
 | LinkedIn | Company LinkedIn (external) | Contact section, footer |
-| Se full CV på LinkedIn | Personal LinkedIn (external) | Consultant profile inline only |
+| Se profil på LinkedIn | Personal LinkedIn (external) | Consultant profile inline only |
 | Prøv [verktøynavn] | Tool page (internal) | Verktøy page cards |
 | Lag [verktøynavn] | Tool page (internal) | Verktøy page cards (beslutningslogg, pre-mortem) |
 | Les mer om personvern | `/personvern` | Fine print inline links |
@@ -110,7 +110,7 @@ Binding rules for all UI/UX changes on fyrk.no. Updated only by explicit decisio
 
 - **Mailto actions: No icons.** The pattern is learned after one interaction.
 - **External links: No icons.** B2B audience, no external-link indicator needed.
-- **Exception:** LinkedIn SVG icon allowed in the consultant profile inline link ("Se full CV på LinkedIn") to differentiate it from surrounding text.
+- **Exception:** LinkedIn SVG icon allowed in the consultant profile inline link ("Se profil på LinkedIn") to differentiate it from surrounding text.
 - **Rule: No mixed states.** If one instance of an action has an icon, all instances must. If one doesn't, none should.
 
 ---
