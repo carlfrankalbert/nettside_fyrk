@@ -1,13 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-// Smoke tests require a baseURL (CI or explicit PLAYWRIGHT_TEST_BASE_URL)
-const hasBaseUrl = !!process.env.PLAYWRIGHT_TEST_BASE_URL || !!process.env.CI;
-
 test.describe('Contact Smoke Tests', () => {
-  test.beforeEach(({ }, testInfo) => {
-    testInfo.skip(!hasBaseUrl, 'Smoke tests only run in CI or with PLAYWRIGHT_TEST_BASE_URL set');
-  });
-
   test('footer email link opens mail client', async ({ page }) => {
     await page.goto('/');
 

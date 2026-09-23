@@ -9,6 +9,7 @@ import { EXTERNAL_LINKS, CONTACT_LABEL } from '../utils/links';
  * Navigation links for the landing page
  */
 export const navLinks = [
+  { href: '/konsulenter', label: 'Konsulenter' },
   { href: '/innsikt', label: 'Innsikt' },
   { href: '/verktoy', label: 'Verktøy' },
   { href: '/#kontakt', label: CONTACT_LABEL, isCta: true },
@@ -74,8 +75,8 @@ export const whenFitsContent = {
  * Experience section content
  */
 export const experienceContent = {
-  title: 'Erfaring',
-  lead: 'FYRK bygger på erfaring fra bank, digitale finansielle tjenester, retail og offentlig sektor.',
+  title: 'Erfaring fra komplekse produktmiljøer',
+  lead: 'FYRK kombinerer erfaring fra bank, fintech, retail og offentlig sektor, blant annet fra SpareBank 1, Vipps, Varner og Domstoladministrasjonen.',
   entries: [
     {
       company: 'SpareBank 1 Utvikling',
@@ -96,47 +97,6 @@ export const experienceContent = {
       company: 'Varner',
       role: 'Testleder og produkteier',
       description: 'Testleder og produkteier i utviklingen av ny e-handelsplattform. Koordinerte testing og prioritering på tvers av fire team.',
-    },
-  ],
-} as const;
-
-/**
- * About section content (short profile)
- */
-export const aboutContent = {
-  title: 'Om Carl Johnson',
-  founder: {
-    heading: 'Om Carl Johnson',
-    paragraphs: [
-      'Carl Johnson er produktleder og rådgiver med erfaring fra bank, digitale finansielle tjenester og offentlig sektor.',
-      'Han jobber best i komplekse produktmiljøer der det er behov for mer struktur, tydeligere prioriteringer og bedre fremdrift.',
-      'Bakgrunnen spenner fra test og kvalitet til team- og produktledelse, med praktisk erfaring fra tverrfaglige team, digitale produkter og regulerte miljøer.',
-      'Han trives best i situasjoner der det er viktig å forstå helheten, rydde i uklarhet og få arbeidet videre.',
-    ],
-    linkedinCta: {
-      text: 'Se full CV på LinkedIn',
-      href: EXTERNAL_LINKS.linkedinPersonal,
-    },
-  },
-} as const;
-
-/**
- * Testimonials section content
- */
-export const testimonialsContent = {
-  title: 'Hva tidligere kolleger og samarbeidspartnere sier',
-  testimonials: [
-    {
-      highlight: 'Tydelig, konkret, robust og god til å kommunisere.',
-      quote: 'Som produktleder har han vist vei i en reorganisering av et stort team til to mindre team som dekker et komplekst og tungt domene. Med høyt arbeidspress og krevende systemavhengigheter har Carl ledet an på en solid måte.',
-      role: 'Utviklingsleder',
-      company: 'SpareBank 1 Utvikling',
-    },
-    {
-      highlight: 'Tok de harde, men nødvendige, prioriteringene.',
-      quote: 'Han bidro til mindre forstyrrelser og tydeligere fokus for gruppa, og var pådriver for en fornuftig bruk av OKR-er og Definition of Done.',
-      role: 'Senior Tech Lead',
-      company: 'SpareBank 1 Utvikling',
     },
   ],
 } as const;
@@ -182,6 +142,7 @@ export const faqContent = {
  * Footer navigation links
  */
 export const footerNavLinks = [
+  { href: '/konsulenter', label: 'Konsulenter' },
   { href: '/innsikt', label: 'Innsikt' },
   { href: '/verktoy', label: 'Verktøy' },
   { href: EXTERNAL_LINKS.linkedinPersonal, label: 'LinkedIn', external: true },

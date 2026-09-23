@@ -1,20 +1,24 @@
 /**
  * Smoke Tests - Error Pages (404 and 500)
  *
- * Tests that error pages handle errors gracefully and redirect appropriately
+ * Tests that error pages handle errors gracefully and redirect appropriately.
+ *
+ * Serving unmatched routes is host behavior — Cloudflare Pages serves
+ * 404.html, the dev server does not — so those blocks only run against a
+ * deployed URL. The API error handling block is the opposite: it needs the
+ * local server, since production API routes are not exercised from here.
  */
 
 import { test, expect } from '@playwright/test';
 
-// Smoke tests require a baseURL (CI or explicit PLAYWRIGHT_TEST_BASE_URL)
-const hasBaseUrl = !!process.env.PLAYWRIGHT_TEST_BASE_URL || !!process.env.CI;
+const deployedTarget = process.env.PLAYWRIGHT_TEST_BASE_URL;
+const isDeployedTarget = !!deployedTarget && !deployedTarget.includes('localhost');
+const DEPLOYED_ONLY = 'Host-level 404 handling requires a deployed URL (PLAYWRIGHT_TEST_BASE_URL)';
 
 test.describe('Error Pages Smoke Tests', () => {
-  test.beforeEach(({ }, testInfo) => {
-    testInfo.skip(!hasBaseUrl, 'Smoke tests only run in CI or with PLAYWRIGHT_TEST_BASE_URL set');
-  });
-
   test.describe('404 Not Found', () => {
+    test.skip(!isDeployedTarget, DEPLOYED_ONLY);
+
     test('should return 404 status for non-existent page', async ({ page }) => {
       const response = await page.goto('/this-page-does-not-exist-12345');
       const status = response?.status();
@@ -90,6 +94,8 @@ test.describe('Error Pages Smoke Tests', () => {
   });
 
   test.describe('Error Page Content', () => {
+    test.skip(!isDeployedTarget, DEPLOYED_ONLY);
+
     test('should not expose sensitive information', async ({ page }) => {
       await page.goto('/non-existent', { waitUntil: 'domcontentloaded' });
       const content = await page.content();
@@ -154,14 +160,8 @@ test.describe('Error Pages Smoke Tests', () => {
     });
   });
 
-  // Skip API tests when running against production (GitHub Pages)
-  // since API routes are only available on Cloudflare Workers
-  const isProduction = process.env.PLAYWRIGHT_TEST_BASE_URL?.includes('fyrk.no');
-
   test.describe('API Error Handling', () => {
-    test.beforeEach(async ({}, testInfo) => {
-      testInfo.skip(isProduction === true, 'API routes not available on GitHub Pages');
-    });
+    test.skip(isDeployedTarget, 'API error handling is verified against the local server');
 
     test('should return JSON error for invalid API request', async ({ request }) => {
       const response = await request.post('/api/okr-sjekken', {
@@ -185,6 +185,8 @@ test.describe('Error Pages Smoke Tests', () => {
   });
 
   test.describe('Error Page Accessibility', () => {
+    test.skip(!isDeployedTarget, DEPLOYED_ONLY);
+
     test('should have proper language attribute', async ({ page }) => {
       await page.goto('/non-existent', { waitUntil: 'domcontentloaded' });
 
@@ -208,6 +210,8 @@ test.describe('Error Pages Smoke Tests', () => {
   });
 
   test.describe('Multiple 404 Patterns', () => {
+    test.skip(!isDeployedTarget, DEPLOYED_ONLY);
+
     const notFoundPaths = [
       '/admin',
       '/wp-admin',

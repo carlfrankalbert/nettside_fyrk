@@ -1,7 +1,7 @@
 # Retired orphan routes: positioning consolidated to the front page
 
-/about         /#om      301
-/about/        /#om      301
+/about         /konsulenter  301
+/about/        /konsulenter  301
 /tjenester     /#bidrag  301
 /tjenester/    /#bidrag  301
 /tjenester/*   /#bidrag  301

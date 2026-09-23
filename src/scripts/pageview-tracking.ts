@@ -7,7 +7,7 @@ import { shouldExcludeFromTracking } from './tracking-exclusion';
 import { signRequest } from '../utils/request-signing';
 import { fetchWithRetryFireAndForget } from '../utils/fetch-retry';
 
-type PageId = 'home' | 'okr' | 'konseptspeil' | 'antakelseskart' | 'beslutningslogg' | 'premortem' | 'innsikt' | 'verktoy';
+type PageId = 'home' | 'okr' | 'konseptspeil' | 'antakelseskart' | 'beslutningslogg' | 'premortem' | 'innsikt' | 'verktoy' | 'konsulenter';
 
 interface PageViewPayload {
   pageId: PageId;

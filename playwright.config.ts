@@ -1,11 +1,12 @@
 import { defineConfig, devices } from '@playwright/test';
 
-// Check if we're testing against an external URL (not localhost)
-const testBaseUrl = process.env.PLAYWRIGHT_TEST_BASE_URL;
-const isExternalUrl = testBaseUrl && !testBaseUrl.includes('localhost');
+const LOCAL_BASE_URL = 'http://localhost:4321';
 
-// Smoke tests run against production only (CI or explicit URL)
-const smokeTestBaseUrl = process.env.PLAYWRIGHT_TEST_BASE_URL || (process.env.CI ? 'https://fyrk.no' : undefined);
+// Tests run against the local app under test, so a pull request is verified by
+// its own code. Workflows that deliberately check the deployed site (daily
+// smoke test) set PLAYWRIGHT_TEST_BASE_URL themselves.
+const baseURL = process.env.PLAYWRIGHT_TEST_BASE_URL || LOCAL_BASE_URL;
+const isExternalUrl = !baseURL.includes('localhost');
 
 export default defineConfig({
   testDir: './tests',
@@ -19,35 +20,26 @@ export default defineConfig({
   snapshotPathTemplate: '{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}-{projectName}{ext}',
 
   use: {
-    baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || (process.env.CI ? 'https://fyrk.no' : 'http://localhost:4321'),
+    baseURL,
     trace: 'on-first-retry',
   },
 
   projects: [
-    // Smoke tests - CI only (run against production URL)
+    // Smoke tests
     {
       name: 'smoke',
       testMatch: /.*\.smoke\.ts/,
-      use: {
-        ...devices['Desktop Chrome'],
-        baseURL: smokeTestBaseUrl,
-      },
+      use: { ...devices['Desktop Chrome'] },
     },
     {
       name: 'smoke-mobile',
       testMatch: /.*\.smoke\.ts/,
-      use: {
-        ...devices['iPhone 14'],
-        baseURL: smokeTestBaseUrl,
-      },
+      use: { ...devices['iPhone 14'] },
     },
     {
       name: 'smoke-tablet',
       testMatch: /.*\.smoke\.ts/,
-      use: {
-        ...devices['iPad Pro'],
-        baseURL: smokeTestBaseUrl,
-      },
+      use: { ...devices['iPad Pro'] },
     },
 
     // Visual regression - monthly, top configurations
@@ -149,9 +141,12 @@ export default defineConfig({
     ? undefined
     : {
         command: 'npm run dev',
-        url: 'http://localhost:4321',
+        url: LOCAL_BASE_URL,
         reuseExistingServer: !process.env.CI,
         timeout: 120 * 1000,
+        // The Astro dev toolbar is a dev-only overlay. Keep it out of visual
+        // baselines and accessibility scans.
+        env: { ASTRO_DEV_TOOLBAR: 'false' },
       },
 });
 

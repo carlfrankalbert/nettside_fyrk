@@ -1,13 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-// Smoke tests require a baseURL (CI or explicit PLAYWRIGHT_TEST_BASE_URL)
-const hasBaseUrl = !!process.env.PLAYWRIGHT_TEST_BASE_URL || !!process.env.CI;
-
 test.describe('All Pages Smoke Tests', () => {
-  test.beforeEach(({ }, testInfo) => {
-    testInfo.skip(!hasBaseUrl, 'Smoke tests only run in CI or with PLAYWRIGHT_TEST_BASE_URL set');
-  });
-
   test('homepage loads correctly', async ({ page }) => {
     await page.goto('/');
     await expect(page).toHaveTitle(/FYRK/i);
@@ -22,6 +15,15 @@ test.describe('All Pages Smoke Tests', () => {
     await expect(page.locator('main')).toBeVisible();
     // OKR page has a heading instead of nav
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  });
+
+  test('Konsulenter page loads correctly', async ({ page }) => {
+    await page.goto('/konsulenter');
+    await expect(page).toHaveTitle(/Konsulenter/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Konsulenter' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2, name: 'Carl Johnson' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2, name: 'Samarbeid med FYRK' })).toBeVisible();
+    await expect(page.getByRole('contentinfo')).toBeVisible();
   });
 
   test('homepage has accessible navigation', async ({ page }) => {

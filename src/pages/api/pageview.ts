@@ -41,6 +41,7 @@ export const TRACKED_PAGES = {
   premortem: { key: 'pageviews_premortem', label: 'fyrk.no/verktoy/pre-mortem' },
   innsikt: { key: 'pageviews_innsikt', label: 'fyrk.no/innsikt' },
   verktoy: { key: 'pageviews_verktoy', label: 'fyrk.no/verktoy' },
+  konsulenter: { key: 'pageviews_konsulenter', label: 'fyrk.no/konsulenter' },
 } as const;
 
 export type PageId = keyof typeof TRACKED_PAGES;

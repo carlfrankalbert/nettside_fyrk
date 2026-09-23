@@ -48,11 +48,10 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps
 
-      # Update baselines if requested
+      # Baselines are generated from this ref's app, so a UI change can be
+      # baselined on its own branch before it is deployed.
       - name: Update snapshots if requested
         if: ${{ inputs.update_snapshots }}
-        env:
-          PLAYWRIGHT_TEST_BASE_URL: https://fyrk.no
         run: npx playwright test --update-snapshots --project=visual --project=visual-firefox --project=visual-safari --project=visual-iphone14 --project=visual-pixel7 --project=visual-ipad --project=visual-mobile
 
       - name: Commit updated snapshots
@@ -66,13 +65,9 @@ jobs:
       # Visual regression tests verify appearance against approved baselines
       - name: Run visual regression tests
         if: ${{ !inputs.update_snapshots }}
-        env:
-          PLAYWRIGHT_TEST_BASE_URL: https://fyrk.no
         run: npx playwright test --project=visual --project=visual-firefox --project=visual-safari --project=visual-iphone14 --project=visual-pixel7 --project=visual-ipad --project=visual-mobile
 
       - name: Run mobile UX tests
-        env:
-          PLAYWRIGHT_TEST_BASE_URL: https://fyrk.no
         run: npx playwright test --project=ux-mobile
 
       - name: Upload visual diff artifacts

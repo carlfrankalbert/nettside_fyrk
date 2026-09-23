@@ -5,6 +5,7 @@ FYRK er et norsk konsulentselskap som tilbyr senior produktledelse, interim prod
 ## Relevante sider
 
 - Forside: https://fyrk.no/
+- Konsulenter: https://fyrk.no/konsulenter/
 - Innsikt: https://fyrk.no/innsikt/
 - Verktøy: https://fyrk.no/verktoy/
 

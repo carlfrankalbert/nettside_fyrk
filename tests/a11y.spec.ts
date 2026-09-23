@@ -13,6 +13,7 @@ import type { Result } from 'axe-core';
 // Pages to test for accessibility
 const PAGES_TO_TEST = [
   { path: '/', name: 'Landing page' },
+  { path: '/konsulenter', name: 'Konsulenter' },
   { path: '/okr-sjekken', name: 'OKR-sjekken' },
   { path: '/konseptspeilet', name: 'Konseptspeilet' },
   { path: '/personvern', name: 'Personvern' },
