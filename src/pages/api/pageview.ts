@@ -54,7 +54,7 @@ let innsiktSlugCache: Set<string> | null = null;
 async function getInnsiktSlugs(): Promise<Set<string>> {
   if (innsiktSlugCache) return innsiktSlugCache;
   const entries = await getCollection('innsikt', ({ data }) => !data.draft);
-  innsiktSlugCache = new Set(entries.map(e => e.slug));
+  innsiktSlugCache = new Set(entries.map(e => e.id));
   return innsiktSlugCache;
 }
 

@@ -10,7 +10,7 @@ export const GET: APIRoute = async () => {
     title: post.data.title,
     date: post.data.date.toISOString(),
     summary: post.data.summary,
-    slug: post.slug,
+    slug: post.id,
     tags: post.data.tags ?? [],
   }));
 
