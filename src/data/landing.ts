@@ -95,8 +95,8 @@ export const experienceContent = {
     },
     {
       company: 'Varner',
-      role: 'Testleder og produkteier',
-      description: 'Testleder og produkteier i utviklingen av ny e-handelsplattform. Koordinerte testing og prioritering på tvers av fire team.',
+      role: 'Testleder',
+      description: 'Testleder i utviklingen av ny e-handelsplattform. Koordinerte testing på tvers av fire team.',
     },
   ],
 } as const;
