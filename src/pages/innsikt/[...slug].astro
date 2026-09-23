@@ -4,13 +4,13 @@
  * Renders a single insight text
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 
 export async function getStaticPaths() {
   const insights = await getCollection('innsikt', ({ data }) => !data.draft);
   return insights.map((insight) => ({
-    params: { slug: insight.slug },
+    params: { slug: insight.id },
     props: { insight },
   }));
 }
@@ -20,9 +20,9 @@ interface Props {
 }
 
 const { insight } = Astro.props;
-const { Content } = await insight.render();
+const { Content } = await render(insight);
 
-const canonicalUrl = `https://fyrk.no/innsikt/${insight.slug}/`;
+const canonicalUrl = `https://fyrk.no/innsikt/${insight.id}/`;
 
 const formattedDate = insight.data.date.toLocaleDateString('nb-NO', {
   day: 'numeric',

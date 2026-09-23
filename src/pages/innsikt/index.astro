@@ -33,7 +33,7 @@ const insights = (await getCollection('innsikt', ({ data }) => !data.draft))
         {insights.map((insight) => (
           <li>
             <a
-              href={`/innsikt/${insight.slug}`}
+              href={`/innsikt/${insight.id}`}
               class="block rounded-lg border border-neutral-200 bg-white shadow-sm p-6 md:p-7 no-underline hover:border-brand-cyan-darker hover:shadow-md transition-all"
             >
               {insight.data.category && (

@@ -6,6 +6,7 @@ import { TRACKED_BUTTONS } from './api/track';
 import { TRACKED_PAGES } from './api/pageview';
 import { AnalyticsDashboard } from '../components/dashboard';
 import { verifyToken } from '../utils/verify-token';
+import '../styles/global.css';
 import '@fontsource/inter/400.css';
 import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
@@ -248,7 +249,7 @@ if (hasAccess) {
     const insights = await getCollection('innsikt', ({ data }) => !data.draft);
     const dates = period === 'all' ? [] : getDateRange(period);
     const articleResults = await Promise.all(insights.map(async (entry): Promise<ArticleStat> => {
-      const slug = entry.slug;
+      const slug = entry.id;
       if (period === 'all') {
         const [v, vis] = await Promise.all([
           kv.get(`article_views_total:innsikt:${slug}`),

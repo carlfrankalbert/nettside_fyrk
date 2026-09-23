@@ -1,7 +1,9 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+import { glob } from 'astro/loaders';
+import { z } from 'astro/zod';
 
 const releaselogCollection = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/*.md', base: './src/content/releaselog' }),
   schema: z.object({
     title: z.string(),
     date: z.date(),
@@ -13,7 +15,7 @@ const releaselogCollection = defineCollection({
 });
 
 const innsiktCollection = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/*.md', base: './src/content/innsikt' }),
   schema: z.object({
     title: z.string(),
     excerpt: z.string(),
