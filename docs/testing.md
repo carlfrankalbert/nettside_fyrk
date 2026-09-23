@@ -6,10 +6,19 @@
 |-------|---------|---------|-------------|
 | Unit | `npm run test:unit` | Logic in utils/services/lib | Every change |
 | Unit + coverage | `npm run test:unit:coverage` | Same + coverage report | Before PR |
-| Smoke | `npx playwright test --project=smoke` | Site is alive, key routes 200 | Before deploy |
+| Smoke | `npx playwright test --project=smoke` | Key routes render, nav and contact links intact | Every change |
+| Smoke (deployed) | `PLAYWRIGHT_TEST_BASE_URL=https://fyrk.no npx playwright test --project=smoke` | Same, plus host-level 404 handling | After deploy |
 | Visual | `npx playwright test --project=visual` | Screenshot comparison | After UI changes |
 | Mobile UX | `npx playwright test --project=ux-mobile` | Touch targets, spacing | After mobile changes |
 | A11y | `npm run test:a11y` | axe-core violations | After UI changes |
+
+## What tests run against
+
+Playwright starts a local server and tests that, so a pull request is verified
+by its own code. Only the workflows that check the live site set
+`PLAYWRIGHT_TEST_BASE_URL=https://fyrk.no` — the Daily Smoke workflow, and any
+local run where you pass it yourself. Blocks that assert host behavior (how
+unmatched routes are served) skip unless such a URL is set.
 
 ## Updating visual snapshots
 
@@ -58,7 +67,7 @@ If you add new files to `src/utils/`, `src/services/`, or `src/lib/`, add tests 
 | Workflow | Schedule | What it checks |
 |----------|----------|----------------|
 | Daily Smoke | 06:00 UTC daily | Production health (smoke + UX + contrast) |
-| Monthly Visual | 1st of month 08:00 UTC | Visual regression across browsers/devices |
+| Monthly Visual | 1st of month 08:00 UTC | Visual regression across browsers/devices, against the checked-out ref |
 | Nightly Full Suite | 03:00 UTC daily | Typecheck + lint + unit coverage + E2E |
 
 ## Flake prevention

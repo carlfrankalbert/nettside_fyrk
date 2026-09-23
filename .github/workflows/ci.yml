@@ -61,13 +61,6 @@ jobs:
       - name: Build site
         run: npm run build
 
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: build-dist
-          path: dist/
-          retention-days: 1
-
   e2e-smoke:
     name: E2E Smoke Tests
     runs-on: ubuntu-latest
@@ -85,12 +78,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Download build artifact
-        uses: actions/download-artifact@v6
-        with:
-          name: build-dist
-          path: dist/
-
       - name: Cache Playwright browsers
         id: playwright-cache
         uses: actions/cache@v5
@@ -106,6 +93,8 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
 
+      # Runs against this commit's app (Playwright starts the local server),
+      # not against production.
       - name: Run smoke tests
         run: npm run test:e2e
 
@@ -136,12 +125,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Download build artifact
-        uses: actions/download-artifact@v6
-        with:
-          name: build-dist
-          path: dist/
-
       - name: Cache Playwright browsers
         id: playwright-cache
         uses: actions/cache@v5
@@ -157,6 +140,8 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
 
+      # Runs against this commit's app (Playwright starts the local server),
+      # not against production.
       - name: Run accessibility tests
         run: npm run test:a11y
 
