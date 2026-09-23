@@ -72,6 +72,7 @@ One file per operational procedure. Required sections:
 | Testing | `docs/testing.md` |
 | Design principles | `docs/DESIGN_PRINCIPLES.md` |
 | Security tests | `docs/security/SECURITY_TESTS.md` |
+| Modernization plan | `docs/modernization-plan.md` |
 | Dependency audit & accepted advisories | `docs/security/dependency-audit.md` |
 
 ### Feature docs

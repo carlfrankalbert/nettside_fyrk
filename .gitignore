@@ -42,3 +42,7 @@ load-tests/results/*.json
 
 # Lighthouse CI
 .lighthouseci/
+
+# iCloud duplicates ("file 2.ext") created while the repo lives under ~/Desktop.
+# See docs/modernization-plan.md track 1 — the real fix is moving the repo.
+* 2.*
