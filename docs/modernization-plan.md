@@ -49,7 +49,7 @@ requires it, and moving now decouples the runtime bump from the framework bump.
 
 **Risk:** low, CI covers it. **Blocks:** track 4.
 
-### 3. Test the AI plumbing — highest value per hour
+### 3. Test the AI plumbing — highest value per hour — IN PROGRESS
 
 `lib/` sits at 39% while it holds the code most likely to break in production:
 `ai-tool-handler.ts` (457 lines), `slo-monitoring.ts` (349), `anthropic-client.ts`,
@@ -61,6 +61,16 @@ Raise the coverage floor from 35% only after the tests land, and raise it to
 what was actually achieved, not to an aspiration.
 
 **Risk:** none. **Blocks:** nothing. **Do this while tracks 4 and 5 are being planned.**
+
+**Done so far:** overall 51% → 60%, lib 39% → 55%, hooks 0% → 21%, 526 → 592
+tests. Covered: the request gates in `ai-tool-handler` (content type, origin,
+body shape, input length, mock mode), `validate-origin`, `streaming-response`,
+`structured-logger`, `request-utils`, `debounce`, `useCopyToClipboard`,
+`useCopyWithToast`. Thresholds raised to match.
+
+**Still open:** `slo-monitoring.ts` (0%), `useStreamingForm.ts` (303 lines, 0%),
+`usePreMortemForm.ts`, `useFormInputHandlers.ts`, `analytics-helpers.ts` (0%),
+`kv-circuit-breaker.ts` (62%), `cache.ts` (61%).
 
 ### 4. Astro 5 → 7, which is a hosting migration
 
