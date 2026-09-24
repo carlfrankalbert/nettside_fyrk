@@ -3,18 +3,27 @@ export const prerender = false;
 
 import { env } from 'cloudflare:workers';
 import { getFeatureToggles, type FeatureToggle } from '../utils/feature-toggles';
-import { verifyToken } from '../utils/verify-token';
+import { resolveTokenGate, FEATURE_TOGGLES_TOKEN_COOKIE } from '../lib/token-cookie';
 
 // Get the secret token from environment
 const expectedToken = env.FEATURE_TOGGLE_TOKEN;
 const betaToken = env.BETA_TOKEN;
 
-// Check token from URL
-const url = new URL(Astro.request.url);
-const providedToken = url.searchParams.get('token');
+// Token arrives in the URL on first visit and is exchanged for an httpOnly
+// cookie. The cookie also authorizes saves to /api/feature-toggles, so the
+// token is never written into the page.
+const gate = resolveTokenGate(
+  new URL(Astro.request.url),
+  Astro.cookies.get(FEATURE_TOGGLES_TOKEN_COOKIE.name)?.value,
+  expectedToken,
+  FEATURE_TOGGLES_TOKEN_COOKIE
+);
+if (gate.status === 'redirect') return gate.response;
+if (gate.status === 'mismatch' && gate.clearCookie) {
+  Astro.cookies.delete(FEATURE_TOGGLES_TOKEN_COOKIE.name, { path: FEATURE_TOGGLES_TOKEN_COOKIE.path });
+}
 
-// Validate access
-const hasAccess = verifyToken(providedToken, expectedToken);
+const hasAccess = gate.status === 'granted';
 
 // Get feature toggles if authorized
 let features: FeatureToggle[] = [];
@@ -326,13 +335,13 @@ Astro.response.headers.set('Cache-Control', 'no-store');
 
       {updatedAt && (
         <p class="refresh">
-          <a href={`/feature-toggles?token=${providedToken}`}>Oppdater</a> · Sist endret: {new Date(updatedAt).toLocaleString('no-NO')}
+          <a href="/feature-toggles">Oppdater</a> · Sist endret: {new Date(updatedAt).toLocaleString('no-NO')}
         </p>
       )}
     </div>
   )}
 
-  <script is:inline define:vars={{ providedToken }}>
+  <script is:inline>
     // Copy beta URL to clipboard
     const betaUrlEl = document.getElementById('beta-url');
     if (betaUrlEl) {
@@ -392,8 +401,9 @@ Astro.response.headers.set('Cache-Control', 'no-store');
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${providedToken}`,
             },
+            // The httpOnly token cookie authorizes the request
+            credentials: 'same-origin',
             body: JSON.stringify({ features }),
           });
 

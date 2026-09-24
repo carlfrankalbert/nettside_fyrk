@@ -144,10 +144,12 @@ lint-staged 16 → 17, `lucide-react` 0.563 → 1.x.
 
 ### 7. Smaller items
 
-- `?token=` in the URL for `/stats`, `/beta`, `/feature-toggles` puts tokens in
-  CDN and server logs. `/stats` already migrates to an httpOnly cookie after the
-  first hit; decide whether the other two should, or whether query-token auth
-  goes away entirely.
+- ~~`?token=` in the URL for `/stats`, `/beta`, `/feature-toggles`~~ — done
+  2026-09-24. `src/lib/token-cookie.ts` exchanges a URL token for an httpOnly
+  cookie and redirects to the clean URL (`/stats`, `/feature-toggles`); the
+  `/api/feature-toggles` save uses that cookie, so the token is no longer
+  written into the page. `/beta?token=` stays the invite link but redirects to
+  `/beta?activated=1` after setting the beta cookie.
 - ~~PR labels for the release-notes contract~~ — created 2026-09-24.
 - The `/stats` dashboard ships 416 KB of JavaScript (recharts). It is
   token-protected and internal, so this is a comfort issue, not a user-facing
