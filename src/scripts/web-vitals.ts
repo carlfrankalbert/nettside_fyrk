@@ -349,12 +349,6 @@ class WebVitalsMonitor {
   }
 }
 
-// Type declarations for PerformanceEventTiming (extends browser API)
-interface PerformanceEventTiming extends PerformanceEntry {
-  readonly processingStart: number;
-  readonly interactionId?: number;
-}
-
 // Extended observer options for INP measurement
 interface PerformanceObserverInitExtended extends PerformanceObserverInit {
   durationThreshold?: number;

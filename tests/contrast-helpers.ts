@@ -66,10 +66,9 @@ export function getContrastRatio(color1: string, color2: string): number {
  */
 export function getElementBackground(element: HTMLElement): string {
   let parent: HTMLElement | null = element.parentElement;
-  let bg: string | null = null;
 
   while (parent && parent !== document.body) {
-    bg = window.getComputedStyle(parent).backgroundColor;
+    const bg = window.getComputedStyle(parent).backgroundColor;
     if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent' && bg !== 'rgb(0, 0, 0)') {
       return bg;
     }
@@ -77,8 +76,8 @@ export function getElementBackground(element: HTMLElement): string {
   }
 
   // Fallback to body background
-  bg = window.getComputedStyle(document.body).backgroundColor;
-  return bg || 'rgb(255, 255, 255)'; // Default to white if still not found
+  const bodyBg = window.getComputedStyle(document.body).backgroundColor;
+  return bodyBg || 'rgb(255, 255, 255)'; // Default to white if still not found
 }
 
 /**
