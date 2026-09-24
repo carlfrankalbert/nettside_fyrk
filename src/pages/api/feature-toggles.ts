@@ -1,4 +1,4 @@
-import type { APIRoute } from 'astro';
+import type { APIRoute, AstroCookies } from 'astro';
 import { env } from 'cloudflare:workers';
 
 export const prerender = false;
@@ -12,19 +12,22 @@ import {
 import { API_HEADERS } from '../../utils/analytics-helpers';
 import { validateOrigin } from '../../lib/validate-origin';
 import { verifyToken, extractBearerToken } from '../../utils/verify-token';
+import { FEATURE_TOGGLES_TOKEN_COOKIE } from '../../lib/token-cookie';
+
+/** Bearer header (scripts) or the cookie set by the /feature-toggles page (browser). */
+function providedToken(request: Request, cookies: AstroCookies): string | null {
+  return extractBearerToken(request) ?? cookies.get(FEATURE_TOGGLES_TOKEN_COOKIE.name)?.value ?? null;
+}
 
 /**
  * GET /api/feature-toggles
  * Returns all feature toggles
- * Auth: Authorization: Bearer <token> (preferred) or ?token=<token> (deprecated)
+ * Auth: Authorization: Bearer <token>, or the feature_toggles_token cookie
  */
-export const GET: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async ({ request, cookies }) => {
   const expectedToken = env.FEATURE_TOGGLE_TOKEN;
 
-  // Check authorization
-  const providedToken = extractBearerToken(request);
-
-  if (!verifyToken(providedToken, expectedToken)) {
+  if (!verifyToken(providedToken(request, cookies), expectedToken)) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: API_HEADERS,
@@ -50,10 +53,10 @@ export const GET: APIRoute = async ({ request }) => {
 /**
  * POST /api/feature-toggles
  * Updates feature toggles
- * Auth: Authorization: Bearer <token> (preferred) or body.token (deprecated)
+ * Auth: Authorization: Bearer <token>, or the feature_toggles_token cookie
  * Body: { features: FeatureToggle[] }
  */
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, cookies }) => {
   // CSRF protection - validate origin header
   if (!validateOrigin(request)) {
     return new Response(JSON.stringify({ error: 'CSRF check failed' }), {
@@ -64,7 +67,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   const expectedToken = env.FEATURE_TOGGLE_TOKEN;
 
-  let body: { token?: string; features?: FeatureToggle[] };
+  let body: { features?: FeatureToggle[] };
   try {
     body = await request.json();
   } catch {
@@ -74,9 +77,7 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  // Check authorization via Bearer header only
-  const providedToken = extractBearerToken(request);
-  if (!verifyToken(providedToken, expectedToken)) {
+  if (!verifyToken(providedToken(request, cookies), expectedToken)) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: API_HEADERS,

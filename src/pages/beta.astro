@@ -8,49 +8,37 @@ import {
   hasBetaAccess,
 } from '../utils/feature-toggles';
 import { verifyToken } from '../utils/verify-token';
+import { redirectWithCookie, serializeCookie, type CookieConfig } from '../lib/token-cookie';
 
-// Get the secret token from environment
-const expectedToken = env.BETA_TOKEN;
+const BETA_COOKIE: CookieConfig = {
+  name: BETA_COOKIE_NAME,
+  path: '/',
+  maxAgeSeconds: BETA_COOKIE_MAX_AGE,
+};
 
-// Check token from URL
+// Response depends on the visitor's cookie — never cache it
+Astro.response.headers.set('Cache-Control', 'no-store');
+
 const url = new URL(Astro.request.url);
-const providedToken = url.searchParams.get('token');
-
-// Check if user wants to deactivate
 const deactivate = url.searchParams.get('deactivate') === 'true';
+const inviteToken = url.searchParams.get('token');
 
-// Validate token
-const validToken = verifyToken(providedToken, expectedToken);
-
-// Check current beta status
-const currentlyHasBeta = hasBetaAccess(Astro.cookies);
-
-// Handle activation/deactivation
-let activated = false;
-let deactivated = false;
-
-if (deactivate && currentlyHasBeta) {
-  // Remove beta cookie
-  Astro.cookies.delete(BETA_COOKIE_NAME, { path: '/' });
-  deactivated = true;
-} else if (validToken && !currentlyHasBeta) {
-  // Set beta cookie
-  Astro.cookies.set(BETA_COOKIE_NAME, 'true', {
-    path: '/',
-    maxAge: BETA_COOKIE_MAX_AGE,
-    httpOnly: true,
-    secure: true,
-    sameSite: 'lax',
-  });
-  activated = true;
-} else if (validToken && currentlyHasBeta) {
-  // Already has beta access
-  activated = false;
+// /beta?token=… is the invite link. A valid one sets the beta cookie and
+// redirects to /beta without the token, so it leaves history and logs.
+if (!deactivate && inviteToken && verifyToken(inviteToken, env.BETA_TOKEN)) {
+  return redirectWithCookie('/beta?activated=1', serializeCookie('true', BETA_COOKIE));
 }
 
-const showSuccess = activated || (validToken && currentlyHasBeta);
-const showDeactivated = deactivated;
-const showError = !validToken && !deactivate && !currentlyHasBeta;
+if (deactivate) {
+  Astro.cookies.delete(BETA_COOKIE_NAME, { path: '/' });
+}
+
+const hasBeta = !deactivate && hasBetaAccess(Astro.cookies);
+const justActivated = url.searchParams.get('activated') === '1';
+
+const showSuccess = hasBeta;
+const showDeactivated = deactivate;
+const showError = !deactivate && !hasBeta;
 ---
 
 <!DOCTYPE html>
@@ -151,13 +139,13 @@ const showError = !validToken && !deactivate && !currentlyHasBeta;
       <h1>Beta aktivert!</h1>
       <p>
         Du har nå tilgang til beta-funksjoner på FYRK.
-        {activated ? 'Tilgangen varer i 30 dager.' : 'Du hadde allerede tilgang.'}
+        {justActivated ? 'Tilgangen varer i 30 dager.' : 'Du hadde allerede tilgang.'}
       </p>
       <div class="buttons">
         <a href="/" class="btn btn-primary">Gå til forsiden</a>
       </div>
       <p class="note">
-        Vil du deaktivere beta? <a href={`/beta?token=${providedToken}&deactivate=true`}>Klikk her</a>
+        Vil du deaktivere beta? <a href="/beta?deactivate=true">Klikk her</a>
       </p>
     </div>
   )}
