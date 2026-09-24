@@ -10,6 +10,12 @@ import { isBot, isAutomatedBrowser } from './bot-patterns';
  * Detects automated browsers, test traffic, and bots
  */
 export function shouldExcludeRequest(request: Request): boolean {
+  // The Worker's workers.dev URL and its per-branch preview URLs share the
+  // production KV namespace with fyrk.no; only the real site counts
+  if (isNonProductionHost(request)) {
+    return true;
+  }
+
   const userAgent = request.headers.get('user-agent')?.toLowerCase() || '';
 
   // Exclude if no user agent (likely automated)
@@ -34,4 +40,12 @@ export function shouldExcludeRequest(request: Request): boolean {
   }
 
   return false;
+}
+
+function isNonProductionHost(request: Request): boolean {
+  try {
+    return new URL(request.url).hostname.endsWith('.workers.dev');
+  } catch {
+    return false;
+  }
 }
