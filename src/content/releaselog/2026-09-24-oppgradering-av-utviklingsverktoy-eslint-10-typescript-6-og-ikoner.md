@@ -21,4 +21,4 @@ Typekontroll, linting og 638 enhetstester er gjennomført uten feil. Visuelle re
 
 ### Tekniske justeringer
 
-TypeScript 6 sin innebygde DOM-definisjon for `PerformanceEventTiming` erstattet vår egendefinerte kopi. ESLints nye regel `no-useless-assignment` avdekket fire variabler som aldri ble brukt etter initialisering — disse er ryddet bort.
+TypeScript 6 sin innebygde DOM-definisjon for `PerformanceEventTiming` erstattet vår egendefinerte kopi. ESLints nye regel `no-useless-assignment` avdekket fire startverdier som alltid ble overskrevet før bruk — de er fjernet.
