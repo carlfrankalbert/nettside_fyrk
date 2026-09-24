@@ -9,7 +9,7 @@ draft: false
 
 ### Hva er endret
 
-Sidene `/stats`, `/feature-toggles` og `/beta` brukte tidligere `?token=` i URL-en ved hvert besøk. Nå blir tokenet byttet mot en sikker informasjonskapsel ved første forespørsel, og siden lastes på nytt uten token i adressen.
+`/feature-toggles` leste tidligere `?token=` fra URL-en ved hvert besøk, og `/beta`-invitasjonen ble liggende med token i adressefeltet. `/stats` gjorde allerede dette riktig. Nå bruker alle tre samme løsning: tokenet byttes mot en sikker informasjonskapsel ved første forespørsel, og siden lastes på nytt uten token i adressen.
 
 ### Hvorfor det er viktig
 
