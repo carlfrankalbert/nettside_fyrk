@@ -4,6 +4,10 @@
   "main": "@astrojs/cloudflare/entrypoints/server",
   "compatibility_date": "2026-09-01",
   "compatibility_flags": ["nodejs_compat"],
+  // workers.dev URL and per-branch preview URLs, used to verify a build before
+  // it reaches fyrk.no (see docs/routines/deploy.md)
+  "workers_dev": true,
+  "preview_urls": true,
   "kv_namespaces": [
     {
       "binding": "ANALYTICS_KV",
