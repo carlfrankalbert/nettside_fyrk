@@ -25,7 +25,7 @@ coverage of the AI plumbing, and in one environment problem.
 
 ## Tracks
 
-### 1. Repository location — do this first, it is 20 minutes
+### 1. Repository location — DONE
 
 The repo lives under `~/Desktop`, which iCloud syncs. iCloud is actively
 creating duplicates of source files: `postcss.config 2.mjs` and
@@ -38,7 +38,9 @@ gets easier and less flaky afterwards.
 
 **Risk:** none. **Blocks:** nothing, but makes every other track less painful.
 
-### 2. Minor and patch currency — low risk, do continuously
+**Done 2026-09-23:** moved to `~/code/nettside_fyrk`.
+
+### 2. Minor and patch currency — DONE (keep doing it continuously)
 
 React 19.2.8 → 19.3, Playwright 1.62 → 1.63, `@typescript-eslint` 8.68 → 8.70,
 happy-dom, `@astrojs/sitemap` 3.7.3 → 3.7.4, wrangler 4.136 → 4.137.
@@ -48,6 +50,8 @@ declared rather than implied, and move CI from Node 20 to Node 22 — Astro 7
 requires it, and moving now decouples the runtime bump from the framework bump.
 
 **Risk:** low, CI covers it. **Blocks:** track 4.
+
+**Done:** PR #175 (minors current, `engines`, CI on Node 22).
 
 ### 3. Test the AI plumbing — highest value per hour — IN PROGRESS
 
@@ -72,7 +76,7 @@ body shape, input length, mock mode), `validate-origin`, `streaming-response`,
 `usePreMortemForm.ts`, `useFormInputHandlers.ts`, `analytics-helpers.ts` (0%),
 `kv-circuit-breaker.ts` (62%), `cache.ts` (61%).
 
-### 4. Astro 5 → 7, which is a hosting migration
+### 4. Astro 5 → 7, which is a hosting migration — DONE
 
 This is the one that matters, and it is not a dependency bump. Astro 7 requires
 `@astrojs/cloudflare` 14, which **dropped Cloudflare Pages support**. It means:
@@ -98,6 +102,24 @@ Playwright suites → move the custom domain → delete the Pages project.
 **Risk:** high if the domain moves before verification; low if it moves last.
 **Blocked by:** track 2.
 
+**Done 2026-09-24** (PR #183, #185). fyrk.no and www.fyrk.no are served by the
+`nettside-fyrk` Worker; `npm audit` reports 0 vulnerabilities. What differs from
+the plan above, and why:
+
+- Server code reads bindings and secrets via `import { env } from
+  'cloudflare:workers'`. The `import.meta.env` fallback for secrets is gone —
+  Astro 6+ inlines it at build time.
+- `wrangler types` generates only the `Env` type (`npm run cf-typegen`).
+  Runtime types stay on `@cloudflare/workers-types` v5: the generated runtime
+  types declare a global `ImageMetadata` that collides with Astro's.
+- Custom domains are declared in `wrangler.jsonc`; the dashboard flow failed to
+  create `www.fyrk.no`. `www` → apex is a Cloudflare Redirect Rule, because
+  static assets are served before the Worker runs.
+- Trailing-slash redirects are 307 on Workers (308 on Pages). Canonical tags
+  point at the slash URL, so this was accepted.
+- **Still open:** delete the paused Pages project after 2026-10-01 (#187). Until
+  then it is the rollback: move the two domains back to it.
+
 ### 5. Tailwind 3 → 4
 
 `@astrojs/tailwind` is already gone; Tailwind now runs through PostCSS, so this
@@ -112,10 +134,11 @@ is what the visual regression workflow is now for.
 
 ### 6. Tooling majors — batch when convenient
 
-ESLint 9 → 10, TypeScript 5 → 7, Vitest 4 → 5, lint-staged 16 → 17,
-`lucide-react` 0.563 → 1.x, `@anthropic-ai/sdk` 0.120 → 0.128,
-`@cloudflare/workers-types` 4 → 5 (drop the v4 pin and switch to
-`wrangler types` as part of track 4).
+ESLint 9 → 10 (with `eslint-plugin-astro` 3), TypeScript 5 → 7, Vitest 4 → 5,
+lint-staged 16 → 17, `lucide-react` 0.563 → 1.x.
+
+**Done:** `@anthropic-ai/sdk` → 0.127 (#177), `@cloudflare/workers-types`
+4 → 5 with the pin dropped (track 4).
 
 **Risk:** low, none of it reaches production output except `lucide-react`.
 
@@ -125,13 +148,18 @@ ESLint 9 → 10, TypeScript 5 → 7, Vitest 4 → 5, lint-staged 16 → 17,
   CDN and server logs. `/stats` already migrates to an httpOnly cookie after the
   first hit; decide whether the other two should, or whether query-token auth
   goes away entirely.
-- The PR labels the release-notes contract refers to (`user-facing`, `internal`,
-  `security`, `performance`, `breaking`) do not exist in the repository.
+- ~~PR labels for the release-notes contract~~ — created 2026-09-24.
 - The `/stats` dashboard ships 416 KB of JavaScript (recharts). It is
   token-protected and internal, so this is a comfort issue, not a user-facing
   one — but it is the only heavy bundle in the project.
 - `deploy-test.yml` is the last GitHub Pages workflow. Decide whether
-  test.fyrk.no is a live environment or the workflow should go.
+  test.fyrk.no is a live environment or the workflow should go. Workers preview
+  URLs now cover the staging need.
+- The Pixel 7 homepage visual baselines are stale since #173 (a copy change),
+  so the visual workflow fails on `main`. Regenerate them.
+- The `okr-api` and `security` Playwright projects fail on `main`: `okr-api`
+  asserts the old English error message, `security` expects 429/415 where the
+  API returns other codes. Neither runs in CI, which is why nobody noticed.
 
 ## Order
 
