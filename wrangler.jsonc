@@ -8,6 +8,11 @@
   // it reaches fyrk.no (see docs/routines/deploy.md)
   "workers_dev": true,
   "preview_urls": true,
+  // Custom domains. Deploy creates the DNS records and certificates.
+  "routes": [
+    { "pattern": "fyrk.no", "custom_domain": true },
+    { "pattern": "www.fyrk.no", "custom_domain": true }
+  ],
   "kv_namespaces": [
     {
       "binding": "ANALYTICS_KV",
