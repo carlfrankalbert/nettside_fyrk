@@ -38,7 +38,8 @@ Or: `npx wrangler rollback`. Or revert the commit and push to `main`.
 
 | What | Where |
 |------|-------|
-| Worker name, KV binding, compatibility date | `wrangler.jsonc` |
+| Worker name, KV binding, compatibility date, custom domains (`fyrk.no`, `www.fyrk.no`) | `wrangler.jsonc` |
+| `www.fyrk.no` → `fyrk.no` 301 | Cloudflare Redirect Rule on the `fyrk.no` zone (static assets are served before the Worker runs, so it cannot live in code) |
 | Secrets (`ANTHROPIC_API_KEY`, `STATS_TOKEN`, `FEATURE_TOGGLE_TOKEN`, `BETA_TOKEN`) | Worker → Settings → Variables and Secrets, or `npx wrangler secret put` |
 | Build-time variables (`PUBLIC_SENTRY_*`) | Worker → Settings → Build → Variables |
 | Full list of runtime names | `.dev.vars.example` (also the source for `npm run cf-typegen`) |
