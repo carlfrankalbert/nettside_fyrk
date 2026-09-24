@@ -9,7 +9,7 @@ draft: false
 
 ### Hva ble gjort
 
-Fem dokumentasjonsfiler under `docs/deployment/` er fjernet. Guidene beskrev oppsett for GitHub Pages, Domeneshop DNS og egendefinert domene via `CNAME`-fil – en hosting-løsning som ble faset ut i november 2025.
+Fem dokumentasjonsfiler under `docs/deployment/` er fjernet. Guidene beskrev oppsett for GitHub Pages, Domeneshop DNS og egendefinert domene via `CNAME`-fil – en hosting-løsning som ikke lenger er i bruk: GitHub Pages ble avviklet i august 2026, og fyrk.no flyttet til Cloudflare Workers i september 2026.
 
 ### Hvorfor
 
