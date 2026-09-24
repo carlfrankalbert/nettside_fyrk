@@ -118,16 +118,25 @@
 /*
   space-y with v3 semantics. v4 puts the gap on every child but the last as
   margin-bottom; v3 put it on every child but the first as margin-top and zeroed
-  their margin-bottom. With children that carry their own margins (every <p>
-  here has mb-6 from the base layer) the two differ visibly. This rule wins over
-  v4's zero-specificity :where() rule for all non-first children. The core rule
-  still sets margin-bottom on the first child; a first child that relies on the
-  base-layer p margin needs an explicit mb-* class.
+  their margin-bottom. With children that carry their own margins (every <p> has
+  mb-6) the two differ visibly. This rule wins over v4's zero-specificity
+  :where() rule for all non-first children.
 */
 @utility space-y-* {
   & > :not([hidden]) ~ :not([hidden]) {
     margin-top: calc(var(--spacing) * --value(number));
     margin-bottom: 0;
+  }
+}
+
+/*
+  The default paragraph margin lives in the utilities layer, not base, so that
+  (like in v3) it beats v4's zero-specificity space-y rule on a first child,
+  while any mb-* class on the element still overrides it.
+*/
+@layer utilities {
+  p {
+    margin-bottom: calc(var(--spacing) * 6);
   }
 }
 
@@ -184,11 +193,11 @@
   }
   
   body {
-    @apply font-body text-base text-neutral-700 bg-white leading-relaxed;
+    @apply font-body text-base text-neutral-700 bg-white;
+    line-height: var(--leading-relaxed);
   }
   
   p {
-    @apply mb-6;
     overflow-wrap: break-word;
   }
   
@@ -200,28 +209,39 @@
     -webkit-hyphens: auto;
   }
   
+  /*
+    Line heights as plain declarations, not @apply leading-*: in v4 that sets
+    --tw-leading on the element, which then overrides the line height of a
+    text-xl/2xl/… utility on the same heading. v3 let the utility win.
+  */
   h1 {
-    @apply text-h1 leading-tight;
+    @apply text-h1;
+    line-height: var(--leading-tight);
   }
   
   h2 {
-    @apply text-h2 leading-tight;
+    @apply text-h2;
+    line-height: var(--leading-tight);
   }
   
   h3 {
-    @apply text-h3 leading-snug;
+    @apply text-h3;
+    line-height: var(--leading-snug);
   }
   
   h4 {
-    @apply text-h4 leading-snug;
+    @apply text-h4;
+    line-height: var(--leading-snug);
   }
   
   h5 {
-    @apply text-h5 leading-normal;
+    @apply text-h5;
+    line-height: var(--leading-normal);
   }
   
   h6 {
-    @apply text-h6 leading-normal;
+    @apply text-h6;
+    line-height: var(--leading-normal);
   }
   
   a {
