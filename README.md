@@ -204,7 +204,6 @@ Lokalt leses disse fra `.env`. I produksjon er de Worker-secrets. `.dev.vars.exa
 | [docs/README.md](./docs/README.md) | Dokumentasjonsindeks |
 | [docs/features/](./docs/features/) | Feature-dokumentasjon |
 | [docs/routines/](./docs/routines/) | Operasjonelle rutiner |
-| [docs/deployment/](./docs/deployment/) | Deploy-guider |
 | [docs/development/](./docs/development/) | Utvikler-dokumentasjon |
 | [docs/design/](./docs/design/) | Design-prinsipper |
 | [docs/security/](./docs/security/) | Sikkerhetstesting |

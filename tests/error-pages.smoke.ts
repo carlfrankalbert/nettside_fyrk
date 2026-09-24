@@ -3,7 +3,7 @@
  *
  * Tests that error pages handle errors gracefully and redirect appropriately.
  *
- * Serving unmatched routes is host behavior — Cloudflare Pages serves
+ * Serving unmatched routes is host behavior — Cloudflare Workers static assets serve
  * 404.html, the dev server does not — so those blocks only run against a
  * deployed URL. The API error handling block is the opposite: it needs the
  * local server, since production API routes are not exercised from here.
@@ -22,7 +22,7 @@ test.describe('Error Pages Smoke Tests', () => {
     test('should return 404 status for non-existent page', async ({ page }) => {
       const response = await page.goto('/this-page-does-not-exist-12345');
       const status = response?.status();
-      // Accept 404 (standard) or 200 (Cloudflare Pages may serve 404.html with 200 in some configs)
+      // Accept 404 (standard) or 200 (some hosts serve 404.html with 200)
       // The key is that the page handles gracefully and doesn't crash
       expect([200, 404]).toContain(status);
     });
@@ -33,7 +33,7 @@ test.describe('Error Pages Smoke Tests', () => {
       await page.goto('/non-existent-page');
 
       // Wait for redirect to complete (meta refresh or JS redirect)
-      // Use a longer wait since Cloudflare Pages may have processing delay
+      // Use a longer wait since the host may have processing delay
       try {
         await page.waitForURL('**/', { timeout: 8000 });
       } catch {
