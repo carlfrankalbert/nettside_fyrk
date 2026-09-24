@@ -73,8 +73,10 @@ body shape, input length, mock mode), `validate-origin`, `streaming-response`,
 `useCopyWithToast`. Thresholds raised to match.
 
 **Still open:** `slo-monitoring.ts` (0%), `useStreamingForm.ts` (303 lines, 0%),
-`usePreMortemForm.ts`, `useFormInputHandlers.ts`, `analytics-helpers.ts` (0%),
-`kv-circuit-breaker.ts` (62%), `cache.ts` (61%).
+`analytics-helpers.ts` (0%), `kv-circuit-breaker.ts` (62%), `cache.ts` (61%).
+
+**2026-09-24:** `useFormInputHandlers` and `usePreMortemForm` (+ `useMobileSync`)
+covered — hooks 21% → 54%, overall 60% → 65% lines; thresholds raised to match.
 
 ### 4. Astro 5 → 7, which is a hosting migration — DONE
 
