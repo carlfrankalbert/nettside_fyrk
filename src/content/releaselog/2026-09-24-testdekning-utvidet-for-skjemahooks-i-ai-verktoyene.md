@@ -1,7 +1,7 @@
 ---
 title: "Testdekning utvidet for skjemahooks i AI-verktøyene"
 date: 2026-09-24
-summary: "Alle skjemahooks bak AI-verktøyene er nå fullstendig testet, noe som styrker stabiliteten i fremtidige oppdateringer."
+summary: "Tre av skjemahookene bak AI-verktøyene har fått tester, noe som gjør fremtidige endringer tryggere. useStreamingForm er fortsatt uten tester."
 tags: [internal]
 audience: "internal"
 draft: false
