@@ -15,7 +15,6 @@
 docs/
   features/        Feature docs (one per tool/area)
   routines/        Operational runbooks (deploy, rollback, migrations, etc.)
-  deployment/      Hosting, DNS, domain setup
   development/     Dev workflow, branches, testing, monitoring
   design/          Design principles, contrast, WCAG
   security/        Security testing docs
@@ -84,13 +83,6 @@ One file per operational procedure. Required sections:
 
 - [Deploy to production](routines/deploy.md)
 - [_template](routines/_template.md) — copy this when adding a new routine
-
-### Deployment
-
-- [Quick deploy](deployment/DEPLOY_QUICK.md)
-- [GitHub deploy](deployment/GITHUB_DEPLOY.md)
-- [Custom domain](deployment/CUSTOM_DOMAIN_SETUP.md)
-- [Domeneshop DNS](deployment/DOMENESHOP_DNS_SETUP.md)
 
 ### Development
 

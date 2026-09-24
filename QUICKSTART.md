@@ -19,7 +19,7 @@
 
 ```bash
 npm run build     # Bygg for produksjon (dist/)
-npm run preview   # Forhåndsvis med lokal Wrangler-server (simulerer Cloudflare Pages)
+npm run preview   # Bygg og forhåndsvis produksjonsbygget lokalt i workerd
 ```
 
 ## Sider
@@ -55,9 +55,9 @@ npm run test:load      # k6 load-tester
 
 ## Deployment
 
-### Cloudflare Pages (produksjon)
+### Cloudflare Workers (produksjon)
 
-Deploy skjer automatisk ved push til `main`. Miljøvariabler settes i Cloudflare Pages dashboard:
+Deploy skjer automatisk ved push til `main` (Cloudflare Workers Builds). Secrets settes på Workeren `nettside-fyrk` under Settings → Variables and Secrets:
 
 | Variabel | Påkrevd | Beskrivelse |
 |----------|---------|-------------|
@@ -65,7 +65,7 @@ Deploy skjer automatisk ved push til `main`. Miljøvariabler settes i Cloudflare
 | `STATS_TOKEN` | Nei | Token for /stats-dashboardet |
 | `PUBLIC_SENTRY_DSN` | Nei | Sentry error tracking |
 
-Se [docs/deployment/](./docs/deployment/) for detaljerte guider.
+Se [docs/routines/deploy.md](./docs/routines/deploy.md) for deploy, rollback og konfigurasjon.
 
 ## Videre lesing
 
