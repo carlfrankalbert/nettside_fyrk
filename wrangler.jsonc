@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "nettside-fyrk",
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "kv_namespaces": [
+    {
+      "binding": "ANALYTICS_KV",
+      // The existing namespace bound to the Pages project, so analytics history
+      // carries over. Find it under Pages > nettside-fyrk > Settings > Bindings.
+      "id": "REPLACE_WITH_ANALYTICS_KV_NAMESPACE_ID"
+    }
+  ],
+  // Secrets are set in the dashboard or with `wrangler secret put`, never here:
+  // ANTHROPIC_API_KEY, STATS_TOKEN, FEATURE_TOGGLE_TOKEN, BETA_TOKEN.
+  // Locally they come from .dev.vars.
+  "observability": { "enabled": true }
+}

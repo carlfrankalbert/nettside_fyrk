@@ -137,26 +137,25 @@ describe('createAnthropicRequestBody', () => {
 });
 
 describe('resolveAnthropicConfig', () => {
-  it('uses cloudflare env when present', () => {
-    const locals = {
-      runtime: { env: { ANTHROPIC_API_KEY: 'cf-key', ANTHROPIC_MODEL: 'cf-model' } },
-    } as unknown as App.Locals;
-    const result = resolveAnthropicConfig(locals);
+  it('uses the key and model from env', () => {
+    const result = resolveAnthropicConfig({ ANTHROPIC_API_KEY: 'cf-key', ANTHROPIC_MODEL: 'cf-model' });
     expect(result.apiKey).toBe('cf-key');
     expect(result.model).toBe('cf-model');
   });
 
   it('uses default model when none set', () => {
-    const locals = {
-      runtime: { env: { ANTHROPIC_API_KEY: 'key' } },
-    } as unknown as App.Locals;
-    const result = resolveAnthropicConfig(locals);
+    const result = resolveAnthropicConfig({ ANTHROPIC_API_KEY: 'key' });
+    expect(result.model).toBe('claude-sonnet-4-6');
+  });
+
+  it('treats empty strings as unset', () => {
+    const result = resolveAnthropicConfig({ ANTHROPIC_API_KEY: '', ANTHROPIC_MODEL: '' });
+    expect(result.apiKey).toBeUndefined();
     expect(result.model).toBe('claude-sonnet-4-6');
   });
 
   it('returns undefined apiKey when none available', () => {
-    const locals = {} as unknown as App.Locals;
-    const result = resolveAnthropicConfig(locals);
+    const result = resolveAnthropicConfig({});
     expect(result.apiKey).toBeUndefined();
   });
 });

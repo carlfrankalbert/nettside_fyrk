@@ -140,7 +140,10 @@ export default defineConfig({
   webServer: isExternalUrl
     ? undefined
     : {
-        command: 'npm run dev',
+        // --ignore-lock keeps the server in the foreground. Astro 7 otherwise
+        // detaches `astro dev` when an AI agent runs it, and Playwright then
+        // sees the process exit. Playwright owns this server's lifecycle.
+        command: 'npm run dev -- --ignore-lock',
         url: LOCAL_BASE_URL,
         reuseExistingServer: !process.env.CI,
         timeout: 120 * 1000,

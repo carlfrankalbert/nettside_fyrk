@@ -18,17 +18,12 @@ below in hand.
 
 ## Currently accepted
 
-| Advisory | Package | Accepted because | Cleared by |
-|----------|---------|------------------|------------|
-| [GHSA-26w7-cxv4-gfx2](https://github.com/advisories/GHSA-26w7-cxv4-gfx2) — RCE via AVIF image optimization (CVSS 9.8) | `astro` ≤ 7.2.7 | Build-time only, in `libheif` via Sharp. It requires Astro to process an **untrusted** AVIF image. This site optimizes images committed to the repository; there is no user-supplied image path. | Astro 7.2.8+ |
-| [GHSA-f88m-g3jw-g9cj](https://github.com/advisories/GHSA-f88m-g3jw-g9cj) — libvips vulnerabilities in Sharp | `sharp` | Same reasoning: build-time image optimization of our own assets. | Astro 7 (pulls a patched Sharp) |
+None. `npm audit` reports 0 vulnerabilities.
 
-Both clear with the same upgrade, which is not a dependency bump: Astro 7
-requires `@astrojs/cloudflare` 14, which **dropped Cloudflare Pages support** in
-favour of Workers. That is a hosting migration — new Workers project, KV
-bindings moved into Wrangler config, `Astro.locals.runtime` replaced, custom
-domain moved — and it is tracked separately, not carried along by an unrelated
-change.
+The two advisories previously listed here — GHSA-26w7-cxv4-gfx2 (RCE via AVIF
+image optimization in `astro` ≤ 7.2.7) and GHSA-f88m-g3jw-g9cj (libvips in
+`sharp`) — cleared with the move to Astro 7 and `@astrojs/cloudflare` 14, which
+also moved hosting from Cloudflare Pages to Workers.
 
 ## When adding to the list
 

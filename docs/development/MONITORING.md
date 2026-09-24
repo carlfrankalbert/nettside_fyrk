@@ -20,7 +20,7 @@ The monitoring stack consists of three main components:
 
 ### Configuration
 
-Add the following environment variables to Cloudflare Pages:
+Add the following as **build variables** on the Cloudflare Worker (Settings → Build → Variables). They are `PUBLIC_*`, so they are inlined at build time, not read at runtime:
 
 ```bash
 PUBLIC_SENTRY_DSN=https://your-key@o123456.ingest.sentry.io/1234567

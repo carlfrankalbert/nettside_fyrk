@@ -21,7 +21,7 @@ Fyrk is a high-performance consulting site built with Astro and TypeScript. Mini
 
 ## 📋 Project Overview
 
-Fyrk is a consulting website with AI-powered tools, deployed on **Cloudflare Pages**. Key features:
+Fyrk is a consulting website with AI-powered tools, deployed on **Cloudflare Workers** (static assets + SSR routes, config in `wrangler.jsonc`). Key features:
 
 - **Landing page** (`/`) - Main marketing site
 - **OKR-sjekken** (`/okr-sjekken`) - AI-powered OKR review tool using Anthropic SDK
@@ -96,7 +96,8 @@ When asked to "check" or "refactor" the code:
 
 - Dev server: `npm run dev`
 - Build: `npm run build`
-- Preview (Cloudflare): `npm run preview`
+- Preview (workerd, production build): `npm run preview`
+- Deploy manually: `npm run deploy` (normally Workers Builds deploys on push to `main`)
 - Type check: `npx astro check`
 
 ## 🧪 Testing Strategy
@@ -130,10 +131,12 @@ Copy `.env.example` to `.env` for local development:
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `ANTHROPIC_API_KEY` | Yes (prod) | Anthropic API key for Claude |
-| `ANTHROPIC_MODEL` | No | Override default model (defaults to claude-sonnet-4-20250514) |
+| `ANTHROPIC_MODEL` | No | Override default model (defaults to claude-sonnet-4-6) |
 | `KONSEPTSPEILET_MOCK` | No | Set to `true` for mock responses during local dev |
 | `PUBLIC_SENTRY_DSN` | No | Sentry DSN for error tracking |
 | `STATS_TOKEN` | No | Token for accessing `/stats` dashboard |
+
+Server code reads these via `import { env } from 'cloudflare:workers'` — never `import.meta.env`, which Astro inlines at build time (only `PUBLIC_*` belongs there). In production they are Worker secrets. `.dev.vars.example` is the canonical list; after adding a name there (or a binding in `wrangler.jsonc`), run `npm run cf-typegen`. Vitest aliases `cloudflare:workers` to `src/test/cloudflare-workers-stub.ts`.
 
 ## 🔄 API Patterns
 

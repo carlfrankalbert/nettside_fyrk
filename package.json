@@ -6,7 +6,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "preview": "wrangler pages dev dist --compatibility-date=2024-01-01 --port=4321",
+    "preview": "astro build && astro preview",
     "astro": "astro",
     "typecheck": "astro check",
     "lint": "eslint . --max-warnings 0",
@@ -33,14 +33,16 @@
     "test:load:sustained": "k6 run --env SCENARIO=load load-tests/okr-api.js",
     "test:load:stress": "k6 run --env SCENARIO=stress load-tests/okr-api.js",
     "test:load:spike": "k6 run --env SCENARIO=spike load-tests/okr-api.js",
-    "prepare": "husky"
+    "prepare": "husky",
+    "cf-typegen": "wrangler types --env-file .dev.vars.example --include-runtime false",
+    "deploy": "astro build && wrangler deploy"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^12.6.12",
-    "@astrojs/react": "^4.0.0",
+    "@astrojs/cloudflare": "^14.3.3",
+    "@astrojs/react": "^7.0.0",
     "@astrojs/sitemap": "^3.7.4",
     "@fontsource/inter": "^5.2.8",
-    "astro": "^5.16.11",
+    "astro": "^7.3.4",
     "lucide-react": "^0.563.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
@@ -48,9 +50,9 @@
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.127.0",
-    "@astrojs/check": "^0.9.6",
+    "@astrojs/check": "^0.9.10",
     "@axe-core/playwright": "^4.11.0",
-    "@cloudflare/workers-types": "^4.20260702.1",
+    "@cloudflare/workers-types": "^5.20260924.1",
     "@eslint/js": "^9.39.2",
     "@playwright/test": "^1.63.0",
     "@testing-library/react": "^16.3.3",
@@ -72,13 +74,12 @@
     "wrangler": "^4.137.0"
   },
   "lint-staged": {
-    "*.{ts,tsx,js}": "eslint --fix --max-warnings 0",
-    "*.astro": "eslint --fix --max-warnings 0"
+    "*.{ts,tsx,js}": "eslint --fix --max-warnings 0 --no-warn-ignored",
+    "*.astro": "eslint --fix --max-warnings 0 --no-warn-ignored"
   },
   "overrides": {
     "undici": "^7.19.0",
-    "wrangler": "^4.137.0",
-    "@cloudflare/workers-types": "^4.20260702.1"
+    "wrangler": "^4.137.0"
   },
   "engines": {
     "node": ">=22.12.0"

@@ -21,6 +21,9 @@ export default defineConfig({
   devToolbar: { enabled: process.env.ASTRO_DEV_TOOLBAR !== 'false' },
   output: 'static',
   adapter: cloudflare({ imageService: 'compile' }),
+  // No Astro sessions in use; otherwise the adapter adds a SESSION KV binding
+  // and wrangler provisions an empty namespace for it on deploy.
+  session: false,
   site: 'https://fyrk.no'
 });
 

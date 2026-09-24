@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { env } from 'cloudflare:workers';
 import { shouldExcludeRequest } from '../../utils/tracking-exclusion';
 import { verifySignedRequest } from '../../utils/request-signing';
 import { API_HEADERS, getDateKey, getHourKey, fetchCountTimeseries, type TimePeriod } from '../../utils/analytics-helpers';
@@ -103,7 +104,7 @@ export type ButtonId = keyof typeof TRACKED_BUTTONS;
  * Request body: { buttonId: string, metadata?: { charCount?: number, processingTimeMs?: number } }
  * If no buttonId provided, defaults to 'okr_submit' for backwards compatibility
  */
-export const POST: APIRoute = async ({ locals, request }) => {
+export const POST: APIRoute = async ({ request }) => {
   try {
     // Exclude automated browsers and test traffic
     if (shouldExcludeRequest(request)) {
@@ -113,8 +114,7 @@ export const POST: APIRoute = async ({ locals, request }) => {
       );
     }
 
-    const cloudflareEnv = (locals as App.Locals).runtime?.env;
-    const kv = cloudflareEnv?.ANALYTICS_KV;
+    const kv = env.ANALYTICS_KV;
 
     if (!kv) {
       console.warn('ANALYTICS_KV not configured, tracking disabled');
@@ -235,10 +235,9 @@ export const POST: APIRoute = async ({ locals, request }) => {
  * - timeseries: (optional) if 'true', returns time-series data
  * - period: (optional) time period for timeseries: '24h', 'week', 'month', 'year', 'all'
  */
-export const GET: APIRoute = async ({ locals, url }) => {
+export const GET: APIRoute = async ({ url }) => {
   try {
-    const cloudflareEnv = (locals as App.Locals).runtime?.env;
-    const kv = cloudflareEnv?.ANALYTICS_KV;
+    const kv = env.ANALYTICS_KV;
 
     if (!kv) {
       return new Response(

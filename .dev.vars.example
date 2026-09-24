@@ -1,0 +1,16 @@
+# Every secret and variable the Worker reads from `env` (cloudflare:workers).
+# `npm run cf-typegen` generates the Env type from this file, so add new names here.
+#
+# Production: Worker secrets, set in the Cloudflare dashboard or with
+# `npx wrangler secret put <NAME>`.
+# Local dev: your existing .env works (workerd falls back to it). A .dev.vars
+# file, if present, takes precedence over .env.
+ANTHROPIC_API_KEY=
+# Optional: override the default model
+ANTHROPIC_MODEL=
+# Optional: `true` returns canned Konseptspeilet responses without calling the API
+KONSEPTSPEILET_MOCK=
+# Optional: tokens for the internal /stats, /feature-toggles and /beta pages
+STATS_TOKEN=
+FEATURE_TOGGLE_TOKEN=
+BETA_TOKEN=

@@ -1,6 +1,7 @@
 ---
 export const prerender = false;
 
+import { env } from 'cloudflare:workers';
 import {
   BETA_COOKIE_NAME,
   BETA_COOKIE_MAX_AGE,
@@ -9,8 +10,7 @@ import {
 import { verifyToken } from '../utils/verify-token';
 
 // Get the secret token from environment
-const cloudflareEnv = Astro.locals.runtime?.env;
-const expectedToken = cloudflareEnv?.BETA_TOKEN;
+const expectedToken = env.BETA_TOKEN;
 
 // Check token from URL
 const url = new URL(Astro.request.url);
