@@ -97,7 +97,22 @@ export const POST: APIRoute = async ({ request }) => {
 };
 ```
 
-## Performance Monitoring
+## What counts in `/stats`
+
+`/api/pageview` and `/api/track` ignore (see `src/utils/tracking-exclusion.ts` and
+`src/scripts/tracking-exclusion.ts`):
+
+- Requests to `*.workers.dev` — the Worker's own URL and branch previews share
+  the production `ANALYTICS_KV` namespace, so only fyrk.no traffic counts
+- Automated browsers (Playwright, Puppeteer, headless Chrome, `navigator.webdriver`)
+  and known bots
+- Requests with the header `x-exclude-from-stats: true`
+- Browsers that opted out: run `fyrk.excludeFromStats()` in the console on
+  https://fyrk.no (undo with `fyrk.includeInStats()`). The flag lives in
+  localStorage, so it applies per browser and per domain.
+
+Local dev writes to its own local KV and never touches production numbers.
+
 
 ### Real User Monitoring (RUM)
 
