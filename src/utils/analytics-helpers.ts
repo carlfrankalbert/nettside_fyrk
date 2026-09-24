@@ -150,7 +150,7 @@ export async function getVisitorsTimeseriesData(
   if (config.granularity === 'hourly') {
     const todayKey = `visitors:${pageId}:${getDateKey(now)}`;
     const todayVisitorsJson = await kv.get(todayKey);
-    let count = 0;
+    let count: number;
     try {
       const visitors = todayVisitorsJson ? JSON.parse(todayVisitorsJson) : [];
       count = visitors.length;
@@ -173,7 +173,7 @@ export async function getVisitorsTimeseriesData(
       const dateKey = getDateKey(time);
       const key = `visitors:${pageId}:${dateKey}`;
       const visitorsJson = await kv.get(key);
-      let count = 0;
+      let count: number;
       try {
         const visitors = visitorsJson ? JSON.parse(visitorsJson) : [];
         count = visitors.length;

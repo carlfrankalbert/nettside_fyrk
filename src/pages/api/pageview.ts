@@ -86,7 +86,7 @@ async function trackArticleView(
   });
 
   const visitorsJson = await kv.get(visitorsKey);
-  let visitors: string[] = [];
+  let visitors: string[];
   try {
     visitors = visitorsJson ? JSON.parse(visitorsJson) : [];
   } catch {

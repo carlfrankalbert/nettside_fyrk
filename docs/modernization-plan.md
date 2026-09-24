@@ -134,13 +134,14 @@ is what the visual regression workflow is now for.
 
 **Risk:** medium, entirely visual. **Blocks:** nothing.
 
-### 6. Tooling majors — batch when convenient
+### 6. Tooling majors — DONE except TypeScript 7
 
-ESLint 9 → 10 (with `eslint-plugin-astro` 3), TypeScript 5 → 7, Vitest 4 → 5,
-lint-staged 16 → 17, `lucide-react` 0.563 → 1.x.
+**Done 2026-09-24:** ESLint 10 (+ `@eslint/js` 10, `eslint-plugin-astro` 3),
+TypeScript 6, lint-staged 17, `lucide-react` 1.x (all icons in use still exist),
+`@anthropic-ai/sdk` 0.127, `@cloudflare/workers-types` 5.
 
-**Done:** `@anthropic-ai/sdk` → 0.127 (#177), `@cloudflare/workers-types`
-4 → 5 with the pin dropped (track 4).
+**Still open:** TypeScript 7 — blocked until `@astrojs/check` supports it (it
+declares `typescript: ^5 || ^6`). Vitest 5 when it ships.
 
 **Risk:** low, none of it reaches production output except `lucide-react`.
 
