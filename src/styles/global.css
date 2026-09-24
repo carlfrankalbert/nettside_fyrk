@@ -115,6 +115,22 @@
   }
 }
 
+/*
+  space-y with v3 semantics. v4 puts the gap on every child but the last as
+  margin-bottom; v3 put it on every child but the first as margin-top and zeroed
+  their margin-bottom. With children that carry their own margins (every <p>
+  here has mb-6 from the base layer) the two differ visibly. This rule wins over
+  v4's zero-specificity :where() rule for all non-first children. The core rule
+  still sets margin-bottom on the first child; a first child that relies on the
+  base-layer p margin needs an explicit mb-* class.
+*/
+@utility space-y-* {
+  & > :not([hidden]) ~ :not([hidden]) {
+    margin-top: calc(var(--spacing) * --value(number));
+    margin-bottom: 0;
+  }
+}
+
 @utility btn {
   @apply inline-flex items-center justify-center font-primary font-medium rounded-lg transition-all duration-normal;
   @apply min-h-[48px] px-6;
