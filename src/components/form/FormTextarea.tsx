@@ -37,7 +37,7 @@ export function FormTextarea({
         className={cn(
           'w-full px-3 py-2 text-sm text-neutral-700 bg-white border-2 rounded-lg',
           'resize-none placeholder:text-neutral-400',
-          'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker',
+          'focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker',
           'disabled:opacity-60 disabled:cursor-not-allowed',
           error ? 'border-feedback-error' : 'border-neutral-300'
         )}

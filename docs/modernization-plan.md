@@ -122,17 +122,15 @@ the plan above, and why:
 - **Still open:** delete the paused Pages project after 2026-10-01 (#187). Until
   then it is the rollback: move the two domains back to it.
 
-### 5. Tailwind 3 → 4
+### 5. Tailwind 3 → 4 — DONE
 
-`@astrojs/tailwind` is already gone; Tailwind now runs through PostCSS, so this
-is decoupled from track 4 and can happen before or after it. Tailwind 4 moves
-configuration from `tailwind.config.mjs` to CSS-first `@theme`, which means
-re-declaring the brand colour tokens, and it changes several utility defaults.
-
-**Do it as its own PR with visual baselines regenerated in the same PR** — that
-is what the visual regression workflow is now for.
-
-**Risk:** medium, entirely visual. **Blocks:** nothing.
+**Done 2026-09-24.** Migrated with `@tailwindcss/upgrade`: theme moved to the
+`@theme` block in `src/styles/global.css` (no `tailwind.config.mjs`), class-based
+dark mode is a `@custom-variant`, utilities renamed for v4's shifted scales, and a
+compatibility rule keeps v3's default border colour. Tailwind runs as the
+`@tailwindcss/vite` plugin; `postcss.config.mjs` and `autoprefixer` are gone.
+The PostCSS plugin broke the Inter font URLs (it inlines `@fontsource` imports
+without rebasing them); the Vite plugin does not.
 
 ### 6. Tooling majors — DONE except TypeScript 7
 

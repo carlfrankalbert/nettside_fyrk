@@ -18,7 +18,7 @@ export function ValidationError({ message, id }: ValidationErrorProps) {
       className="p-4 bg-neutral-50 border border-neutral-200 rounded-lg flex items-start gap-3"
     >
       <svg
-        className="w-5 h-5 text-neutral-500 flex-shrink-0 mt-0.5"
+        className="w-5 h-5 text-neutral-500 shrink-0 mt-0.5"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"

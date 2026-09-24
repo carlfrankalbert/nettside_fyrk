@@ -267,7 +267,7 @@ export default function PreMortemBrief() {
         {displayError && (
           <div className="p-3 bg-feedback-error/10 border border-feedback-error/20 rounded-lg">
             <p className="text-sm text-feedback-error flex items-center gap-2">
-              <ErrorIcon className="w-4 h-4 flex-shrink-0" />
+              <ErrorIcon className="w-4 h-4 shrink-0" />
               {displayError}
             </p>
           </div>
@@ -278,7 +278,7 @@ export default function PreMortemBrief() {
           <button
             type="submit"
             disabled={streaming.loading}
-            className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+            className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
           >
             {streaming.loading ? (
               <>
@@ -294,7 +294,7 @@ export default function PreMortemBrief() {
             <button
               type="button"
               onClick={handleReset}
-              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
+              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
             >
               Start på nytt
             </button>
@@ -320,7 +320,7 @@ export default function PreMortemBrief() {
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
+                  className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
                 >
                   Start på nytt
                 </button>

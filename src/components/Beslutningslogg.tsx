@@ -176,8 +176,8 @@ export default function Beslutningslogg() {
               'w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 rounded-lg',
               'resize-none min-h-[120px]',
               'placeholder:text-neutral-500',
-              'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker',
-              'aria-[invalid=true]:border-feedback-error',
+              'focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker',
+              'aria-invalid:border-feedback-error',
               validationError ? 'border-feedback-error' : 'border-neutral-300'
             )}
           />
@@ -211,7 +211,7 @@ export default function Beslutningslogg() {
             onChange={(e) => setDato(e.target.value)}
             className={cn(
               'w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 border-neutral-300 rounded-lg',
-              'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker'
+              'focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker'
             )}
           />
         </div>
@@ -230,7 +230,7 @@ export default function Beslutningslogg() {
             className={cn(
               'w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 border-neutral-300 rounded-lg',
               'placeholder:text-neutral-500',
-              'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker'
+              'focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker'
             )}
           />
         </div>
@@ -249,7 +249,7 @@ export default function Beslutningslogg() {
               'w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 border-neutral-300 rounded-lg',
               'resize-none min-h-[100px]',
               'placeholder:text-neutral-500',
-              'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker'
+              'focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker'
             )}
           />
           <p className="mt-1 text-xs text-neutral-500">Én antakelse per linje</p>
@@ -269,7 +269,7 @@ export default function Beslutningslogg() {
               'w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 border-neutral-300 rounded-lg',
               'resize-none min-h-[100px]',
               'placeholder:text-neutral-500',
-              'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker'
+              'focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker'
             )}
           />
           <p className="mt-1 text-xs text-neutral-500">Én usikkerhet per linje</p>
@@ -284,7 +284,7 @@ export default function Beslutningslogg() {
           disabled={!isValid}
           className={cn(
             'inline-flex items-center justify-center px-8 py-4 text-base font-semibold rounded-xl transition-all',
-            'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2',
+            'focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2',
             isValid
               ? 'bg-brand-navy text-white hover:bg-brand-navy/90 hover:scale-[1.02] active:scale-100 shadow-lg hover:shadow-xl'
               : 'bg-neutral-200 text-neutral-500 cursor-not-allowed'
@@ -306,7 +306,7 @@ export default function Beslutningslogg() {
                 onClick={handleCopy}
                 className={cn(
                   'inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all',
-                  'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2',
+                  'focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2',
                   copied
                     ? 'bg-feedback-success text-white'
                     : 'bg-brand-navy text-white hover:bg-brand-navy/90'
@@ -397,7 +397,7 @@ export default function Beslutningslogg() {
                   'inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all',
                   'border-2 border-neutral-300 text-neutral-700 bg-white',
                   'hover:border-brand-navy hover:text-brand-navy',
-                  'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2'
+                  'focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2'
                 )}
               >
                 Rediger
@@ -409,7 +409,7 @@ export default function Beslutningslogg() {
                   'inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all',
                   'border-2 border-neutral-300 text-neutral-700 bg-white',
                   'hover:border-feedback-error hover:text-feedback-error',
-                  'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2'
+                  'focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2'
                 )}
               >
                 Start på nytt

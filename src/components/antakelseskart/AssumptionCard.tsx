@@ -36,7 +36,7 @@ export function AssumptionCard({ assumption, assignments, onAssign, showAssignme
           <select
             value={assignment.certainty || ''}
             onChange={(e) => onAssign(assumption.id, 'certainty', e.target.value)}
-            className="text-xs px-2 py-1.5 border border-neutral-200 rounded bg-white focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker"
+            className="text-xs px-2 py-1.5 border border-neutral-200 rounded-sm bg-white focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker"
             aria-label="Hvor sikker er du?"
           >
             <option value="">Sikkerhet?</option>
@@ -48,7 +48,7 @@ export function AssumptionCard({ assumption, assignments, onAssign, showAssignme
           <select
             value={assignment.consequence || ''}
             onChange={(e) => onAssign(assumption.id, 'consequence', e.target.value)}
-            className="text-xs px-2 py-1.5 border border-neutral-200 rounded bg-white focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker"
+            className="text-xs px-2 py-1.5 border border-neutral-200 rounded-sm bg-white focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker"
             aria-label="Konsekvens hvis feil"
           >
             <option value="">Konsekvens?</option>
@@ -60,7 +60,7 @@ export function AssumptionCard({ assumption, assignments, onAssign, showAssignme
           <select
             value={assignment.status || ''}
             onChange={(e) => onAssign(assumption.id, 'status', e.target.value)}
-            className="text-xs px-2 py-1.5 border border-neutral-200 rounded bg-white focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker"
+            className="text-xs px-2 py-1.5 border border-neutral-200 rounded-sm bg-white focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker"
             aria-label="Status"
           >
             <option value="">Status?</option>

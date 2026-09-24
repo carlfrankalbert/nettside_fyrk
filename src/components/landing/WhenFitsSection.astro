@@ -29,7 +29,7 @@ const { title, statement, lead, items } = Astro.props;
     <ul class="space-y-4 max-w-2xl mx-auto">
       {items.map((item) => (
         <li class="flex items-start gap-3 text-neutral-700 leading-relaxed">
-          <span class="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-brand-cyan-darker flex-shrink-0" aria-hidden="true"></span>
+          <span class="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-brand-cyan-darker shrink-0" aria-hidden="true"></span>
           <span>{item}</span>
         </li>
       ))}

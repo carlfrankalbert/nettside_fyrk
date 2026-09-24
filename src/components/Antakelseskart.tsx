@@ -136,7 +136,7 @@ export default function Antakelseskart() {
           <button
             type="button"
             onClick={handleFillExample}
-            className="text-sm text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded transition-colors"
+            className="text-sm text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded-sm transition-colors"
           >
             Prøv dette eksempelet
           </button>
@@ -168,9 +168,9 @@ export default function Antakelseskart() {
             'w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 rounded-lg',
             'resize-none min-h-[160px] overflow-hidden',
             'placeholder:text-neutral-500',
-            'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker',
+            'focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker',
             'disabled:opacity-60 disabled:cursor-not-allowed',
-            'aria-[invalid=true]:border-feedback-error transition-all duration-300',
+            'aria-invalid:border-feedback-error transition-all duration-300',
             isExampleAnimating
               ? 'border-brand-cyan bg-brand-cyan-lightest/50 ring-2 ring-brand-cyan scale-[1.01]'
               : 'border-neutral-300'
@@ -184,7 +184,7 @@ export default function Antakelseskart() {
             id="beslutning-helper"
             aria-live="polite"
             aria-atomic="true"
-            className="min-h-[1.25rem]"
+            className="min-h-5"
           >
             {showMinimumHelper && (
               <span className="text-xs text-neutral-500 italic">
@@ -217,7 +217,7 @@ export default function Antakelseskart() {
             disabled={!isButtonEnabled}
             aria-busy={loading}
             className={cn(
-              'inline-flex items-center justify-center px-8 py-4 text-base font-semibold rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2',
+              'inline-flex items-center justify-center px-8 py-4 text-base font-semibold rounded-xl transition-all focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2',
               loading
                 ? 'bg-brand-navy/80 text-white cursor-wait'
                 : isButtonEnabled

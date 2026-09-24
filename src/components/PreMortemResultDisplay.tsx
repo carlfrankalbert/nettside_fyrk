@@ -40,7 +40,7 @@ function CopyButton({
   };
 
   const baseStyles =
-    'inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2';
+    'inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2';
 
   const variantStyles =
     variant === 'outline'
@@ -90,7 +90,7 @@ function MarkdownContent({ content }: { content: string }) {
         if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('• ')) {
           return (
             <div key={index} className="flex items-start gap-2 text-neutral-700">
-              <span className="text-brand-cyan-darker mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-cyan-darker flex-shrink-0" />
+              <span className="text-brand-cyan-darker mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-cyan-darker shrink-0" />
               <span className="flex-1">{parseInlineBold(trimmedLine.slice(2))}</span>
             </div>
           );

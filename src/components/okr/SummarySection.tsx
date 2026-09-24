@@ -24,8 +24,8 @@ export function SummarySection({ summary, isStreaming }: { summary: string; isSt
       <div className={cn('text-sm text-neutral-600 leading-relaxed', shouldCollapse && 'line-clamp-3')}>
         {summary || (
           <div className="space-y-2">
-            <div className="h-3 w-full bg-neutral-200 rounded animate-pulse" />
-            <div className="h-3 w-5/6 bg-neutral-200 rounded animate-pulse" />
+            <div className="h-3 w-full bg-neutral-200 rounded-sm animate-pulse" />
+            <div className="h-3 w-5/6 bg-neutral-200 rounded-sm animate-pulse" />
           </div>
         )}
       </div>
@@ -37,7 +37,7 @@ export function SummarySection({ summary, isStreaming }: { summary: string; isSt
             }
             setIsExpanded(!isExpanded);
           }}
-          className="mt-2 text-sm text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded"
+          className="mt-2 text-sm text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded-sm"
         >
           {isExpanded ? resultStrings.readLess : resultStrings.readMore}
         </button>

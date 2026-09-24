@@ -50,7 +50,7 @@ export function SuggestionBox({ suggestion, isStreaming, onReEvaluate }: { sugge
                       'text-sm font-medium text-brand-navy',
                       'bg-white hover:bg-brand-cyan-lighter',
                       'rounded-lg border border-brand-cyan-light',
-                      'transition-colors focus:outline-none',
+                      'transition-colors focus:outline-hidden',
                       'focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2'
                     )}
                   >
@@ -65,7 +65,7 @@ export function SuggestionBox({ suggestion, isStreaming, onReEvaluate }: { sugge
                     'text-sm font-medium text-brand-navy',
                     'bg-white hover:bg-brand-cyan-lighter',
                     'rounded-lg border border-brand-cyan-light',
-                    'transition-colors focus:outline-none',
+                    'transition-colors focus:outline-hidden',
                     'focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2'
                   )}
                   aria-label={copied ? resultStrings.copiedButton : 'Kopier til utklippstavle'}
@@ -87,9 +87,9 @@ export function SuggestionBox({ suggestion, isStreaming, onReEvaluate }: { sugge
           </>
         ) : (
           <div className="space-y-2">
-            <div className="h-3 w-full bg-brand-cyan-lighter/50 rounded animate-pulse" />
-            <div className="h-3 w-4/5 bg-brand-cyan-lighter/50 rounded animate-pulse" />
-            <div className="h-3 w-3/4 bg-brand-cyan-lighter/50 rounded animate-pulse" />
+            <div className="h-3 w-full bg-brand-cyan-lighter/50 rounded-sm animate-pulse" />
+            <div className="h-3 w-4/5 bg-brand-cyan-lighter/50 rounded-sm animate-pulse" />
+            <div className="h-3 w-3/4 bg-brand-cyan-lighter/50 rounded-sm animate-pulse" />
           </div>
         )}
       </div>

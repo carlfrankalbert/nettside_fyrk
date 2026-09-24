@@ -45,7 +45,7 @@ export function FeedbackButtons({ isStreaming }: { isStreaming: boolean }) {
               'text-sm font-medium text-neutral-600',
               'bg-neutral-100 hover:bg-feedback-success/10 hover:text-feedback-success',
               'rounded-lg border border-neutral-200 hover:border-feedback-success/30',
-              'transition-colors focus:outline-none',
+              'transition-colors focus:outline-hidden',
               'focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2'
             )}
             aria-label="Ja, dette var nyttig"
@@ -61,7 +61,7 @@ export function FeedbackButtons({ isStreaming }: { isStreaming: boolean }) {
               'text-sm font-medium text-neutral-600',
               'bg-neutral-100 hover:bg-feedback-error/10 hover:text-feedback-error',
               'rounded-lg border border-neutral-200 hover:border-feedback-error/30',
-              'transition-colors focus:outline-none',
+              'transition-colors focus:outline-hidden',
               'focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2'
             )}
             aria-label="Nei, dette var ikke nyttig"
