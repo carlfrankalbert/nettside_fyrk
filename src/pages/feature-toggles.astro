@@ -1,13 +1,13 @@
 ---
 export const prerender = false;
 
+import { env } from 'cloudflare:workers';
 import { getFeatureToggles, type FeatureToggle } from '../utils/feature-toggles';
 import { verifyToken } from '../utils/verify-token';
 
 // Get the secret token from environment
-const cloudflareEnv = Astro.locals.runtime?.env;
-const expectedToken = cloudflareEnv?.FEATURE_TOGGLE_TOKEN;
-const betaToken = cloudflareEnv?.BETA_TOKEN;
+const expectedToken = env.FEATURE_TOGGLE_TOKEN;
+const betaToken = env.BETA_TOKEN;
 
 // Check token from URL
 const url = new URL(Astro.request.url);
@@ -21,7 +21,7 @@ let features: FeatureToggle[] = [];
 let updatedAt = '';
 
 if (hasAccess) {
-  const kv = cloudflareEnv?.ANALYTICS_KV;
+  const kv = env.ANALYTICS_KV;
   if (kv) {
     const togglesData = await getFeatureToggles(kv);
     features = togglesData.features;

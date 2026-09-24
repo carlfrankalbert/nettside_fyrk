@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { env } from 'cloudflare:workers';
 import { resolveAnthropicConfig } from '../../lib/anthropic-client';
 
 export const prerender = false;
@@ -36,7 +37,7 @@ function isHealthRateLimited(ip: string): boolean {
  * Health check endpoint for monitoring.
  * Rate limited. Returns dependency status without exposing sensitive details.
  */
-export const GET: APIRoute = async ({ locals, request }) => {
+export const GET: APIRoute = async ({ request }) => {
   const ip = request.headers.get('cf-connecting-ip')
     || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
     || 'unknown';
@@ -58,7 +59,7 @@ export const GET: APIRoute = async ({ locals, request }) => {
 
   try {
     // Check Anthropic API key is configured
-    const { apiKey } = resolveAnthropicConfig(locals as App.Locals);
+    const { apiKey } = resolveAnthropicConfig(env);
     checks.api_key = apiKey ? 'ok' : 'missing';
   } catch {
     checks.api_key = 'error';
@@ -66,8 +67,7 @@ export const GET: APIRoute = async ({ locals, request }) => {
 
   try {
     // Check KV storage is available
-    const cloudflareEnv = (locals as App.Locals).runtime?.env;
-    const kv = cloudflareEnv?.ANALYTICS_KV;
+    const kv = env.ANALYTICS_KV;
 
     if (kv) {
       // Quick read test

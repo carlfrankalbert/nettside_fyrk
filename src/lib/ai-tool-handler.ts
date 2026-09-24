@@ -13,6 +13,7 @@
  */
 
 import type { APIContext } from 'astro';
+import { env } from 'cloudflare:workers';
 import type { AnthropicErrorResponse } from '../types';
 import { isValidAnthropicResponse, extractAnthropicText } from '../types';
 import { hashInput, createServerCacheManager, createRateLimiter } from '../utils/cache';
@@ -127,7 +128,7 @@ export function createAIToolHandler(config: AIToolConfig) {
   let kvDailyBudget: ReturnType<typeof createKVDailyBudget> | null = null;
   let kvCircuitBreaker: ReturnType<typeof createKVCircuitBreaker> | null = null;
 
-  return async function handler({ request, locals }: APIContext): Promise<Response> {
+  return async function handler({ request }: APIContext): Promise<Response> {
     const requestStartTime = Date.now();
     const requestId = generateRequestId();
     const log = createContextLogger({ requestId, tool: toolName });
@@ -182,8 +183,7 @@ export function createAIToolHandler(config: AIToolConfig) {
         );
       }
 
-      const cloudflareEnv = (locals as App.Locals).runtime?.env;
-      const analyticsKV = cloudflareEnv?.ANALYTICS_KV;
+      const analyticsKV = env.ANALYTICS_KV;
 
       // Initialize KV-backed resources lazily (once per Worker isolate)
       // Use flag to prevent race condition from concurrent requests
@@ -277,7 +277,7 @@ export function createAIToolHandler(config: AIToolConfig) {
       }
 
       // Resolve API configuration
-      const { apiKey, model } = resolveAnthropicConfig(locals as App.Locals);
+      const { apiKey, model } = resolveAnthropicConfig(env);
 
       if (!apiKey) {
         log.error('API key not configured', { action: 'config_error' });

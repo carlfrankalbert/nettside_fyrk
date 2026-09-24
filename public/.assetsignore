@@ -1,0 +1,2 @@
+# Files in dist/client that Workers must not serve (local manual deploys pick these up)
+.DS_Store

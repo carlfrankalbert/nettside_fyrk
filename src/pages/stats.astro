@@ -1,6 +1,7 @@
 ---
 export const prerender = false;
 
+import { env } from 'cloudflare:workers';
 import { getCollection } from 'astro:content';
 import { TRACKED_BUTTONS } from './api/track';
 import { TRACKED_PAGES } from './api/pageview';
@@ -13,8 +14,7 @@ import '@fontsource/inter/600.css';
 import '@fontsource/inter/700.css';
 
 // Get the secret token from environment
-const cloudflareEnv = Astro.locals.runtime?.env;
-const expectedToken = cloudflareEnv?.STATS_TOKEN;
+const expectedToken = env.STATS_TOKEN;
 
 const url = new URL(Astro.request.url);
 
@@ -110,7 +110,7 @@ function getDateRange(p: Period): string[] {
 
 if (hasAccess) {
   dataTimestamp = Date.now();
-  const kv = cloudflareEnv?.ANALYTICS_KV;
+  const kv = env.ANALYTICS_KV;
   if (kv) {
     const buttonEntries = Object.entries(TRACKED_BUTTONS) as [string, { key: string; label: string }][];
     const pageEntries = Object.entries(TRACKED_PAGES);
@@ -314,7 +314,7 @@ if (hasAccess) {
           </svg>
         </div>
         <h1 class="text-xl font-bold text-slate-900 mb-2">STATS_TOKEN ikke konfigurert</h1>
-        <p class="text-slate-500">Legg til STATS_TOKEN i Cloudflare Pages milj&oslash;variabler.</p>
+        <p class="text-slate-500">Legg til STATS_TOKEN som secret p&aring; Cloudflare-workeren.</p>
       </div>
     </div>
   ) : !tokenProvided ? (

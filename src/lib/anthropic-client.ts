@@ -189,21 +189,18 @@ export function createAnthropicRequestBody(
 }
 
 /**
- * Resolve API key and model from Cloudflare env or import.meta.env
+ * Resolve API key and model from the Worker environment
  */
-export function resolveAnthropicConfig(locals: App.Locals): {
+export function resolveAnthropicConfig(
+  env: Partial<Pick<Cloudflare.Env, 'ANTHROPIC_API_KEY' | 'ANTHROPIC_MODEL'>>
+): {
   apiKey: string | undefined;
   model: string;
 } {
-  const cloudflareEnv = locals.runtime?.env;
-  const apiKey =
-    cloudflareEnv?.ANTHROPIC_API_KEY || import.meta.env.ANTHROPIC_API_KEY;
-  const model =
-    cloudflareEnv?.ANTHROPIC_MODEL ||
-    import.meta.env.ANTHROPIC_MODEL ||
-    ANTHROPIC_CONFIG.DEFAULT_MODEL;
-
-  return { apiKey, model };
+  return {
+    apiKey: env.ANTHROPIC_API_KEY || undefined,
+    model: env.ANTHROPIC_MODEL || ANTHROPIC_CONFIG.DEFAULT_MODEL,
+  };
 }
 
 /**

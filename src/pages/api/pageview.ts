@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { env } from 'cloudflare:workers';
 import { getCollection } from 'astro:content';
 import { shouldExcludeRequest } from '../../utils/tracking-exclusion';
 import { verifySignedRequest } from '../../utils/request-signing';
@@ -160,7 +161,7 @@ async function storeAcquisitionData(
  *
  * Request body: { pageId: string, referrer?: string, utmSource?: string, utmMedium?: string, utmCampaign?: string }
  */
-export const POST: APIRoute = async ({ locals, request }) => {
+export const POST: APIRoute = async ({ request }) => {
   try {
     // Exclude automated browsers and test traffic
     if (shouldExcludeRequest(request)) {
@@ -170,8 +171,7 @@ export const POST: APIRoute = async ({ locals, request }) => {
       );
     }
 
-    const cloudflareEnv = (locals as App.Locals).runtime?.env;
-    const kv = cloudflareEnv?.ANALYTICS_KV;
+    const kv = env.ANALYTICS_KV;
 
     if (!kv) {
       return new Response(
@@ -327,10 +327,9 @@ export const POST: APIRoute = async ({ locals, request }) => {
  * - acquisition: (optional) if 'true', returns referrer/UTM data
  * - period: (optional) time period: '24h', 'week', 'month', 'year', 'all'
  */
-export const GET: APIRoute = async ({ locals, url }) => {
+export const GET: APIRoute = async ({ url }) => {
   try {
-    const cloudflareEnv = (locals as App.Locals).runtime?.env;
-    const kv = cloudflareEnv?.ANALYTICS_KV;
+    const kv = env.ANALYTICS_KV;
 
     if (!kv) {
       return new Response(

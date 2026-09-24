@@ -1,6 +1,6 @@
 # Fyrk Nettside
 
-Nettside for Fyrk bygget med Astro, Tailwind CSS og React. Deployet på Cloudflare Pages.
+Nettside for Fyrk bygget med Astro, Tailwind CSS og React. Deployet på Cloudflare Workers.
 
 **Live:** https://fyrk.no
 
@@ -150,32 +150,33 @@ npm run test:unit:coverage # Unit-tester med coverage-rapport
 
 ## Deployment
 
-Deployet på **Cloudflare Pages** med auto-deploy fra `main`.
+Deployet på **Cloudflare Workers** (Workers Builds) med auto-deploy fra `main`. Se `docs/routines/deploy.md`.
 
 | Innstilling | Verdi |
 |-------------|-------|
 | URL | https://fyrk.no |
-| Platform | Cloudflare Pages |
+| Platform | Cloudflare Workers (static assets + SSR-ruter) |
 | Adapter | `@astrojs/cloudflare` |
 | Build command | `npm run build` |
-| Output | `dist/` |
+| Output | `dist/client` (statisk) + `dist/server` (Worker) |
+| Konfig | `wrangler.jsonc` |
 
 ### Miljøvariabler
 
 | Variabel | Påkrevd | Beskrivelse |
 |----------|---------|-------------|
 | `ANTHROPIC_API_KEY` | Ja (prod) | API-nøkkel for Claude |
-| `ANTHROPIC_MODEL` | Nei | Override modell (default: claude-sonnet-4-20250514) |
+| `ANTHROPIC_MODEL` | Nei | Override modell (default: claude-sonnet-4-6) |
 | `KONSEPTSPEILET_MOCK` | Nei | `true` for mock-respons lokalt |
 | `PUBLIC_SENTRY_DSN` | Nei | Sentry DSN |
 | `STATS_TOKEN` | Nei | Token for /stats og /api/vitals |
 
-Se `.env.example` for komplett oversikt.
+Lokalt leses disse fra `.env`. I produksjon er de Worker-secrets. `.dev.vars.example` er den komplette listen over runtime-variabler.
 
 ## Teknologi
 
 - **[Astro](https://astro.build)** — Static site generator med hybrid SSR
-- **[Cloudflare Pages](https://pages.cloudflare.com)** — Hosting med KV storage
+- **[Cloudflare Workers](https://developers.cloudflare.com/workers/)** — Hosting med KV storage
 - **[Tailwind CSS](https://tailwindcss.com)** — Utility-first CSS
 - **[React](https://react.dev)** — Interaktive verktøy-komponenter
 - **[TypeScript](https://www.typescriptlang.org)** — Type safety

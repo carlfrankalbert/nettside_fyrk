@@ -2,47 +2,57 @@
 
 ## Trigger
 
-Automatic on push to `main` via `.github/workflows/deploy.yml`.
+Automatic on push to `main`, via Cloudflare **Workers Builds** (the Git
+integration on the `nettside-fyrk` Worker). It shows up as a commit check on
+the merge commit.
 
 ## Steps
 
 1. Push/merge to `main`
-2. GitHub Actions runs: typecheck, lint, build
-3. Cloudflare Pages deploys the build output
+2. Workers Builds runs `npm run build`, then `npx wrangler deploy`
+3. The Worker serves static pages from `dist/client` and the server routes
+   (`/api/*`, `/stats`, `/beta`, `/feature-toggles`) from `dist/server`
 4. Smoke tests run against production (`smoke-test.yml`, daily at 06:00 UTC)
 
 ## Manual deploy
 
 ```bash
-npm run build
-npx wrangler pages deploy dist/
+npm run deploy   # astro build && wrangler deploy
 ```
+
+Requires `npx wrangler login` (or `CLOUDFLARE_API_TOKEN`).
 
 ## Preview deploys
 
-PRs get preview URLs automatically via `.github/workflows/deploy-preview.yml`.
+Workers Builds uploads a preview version for non-production branches and posts
+its `*.workers.dev` URL on the commit.
 
 ## Rollback
 
-1. Go to Cloudflare Pages dashboard
-2. Select previous deployment
-3. Click "Rollback to this deploy"
+1. Cloudflare dashboard → Workers & Pages → `nettside-fyrk` → Deployments
+2. Pick the previous version → "Rollback"
 
-Or revert the commit and push to `main`.
+Or: `npx wrangler rollback`. Or revert the commit and push to `main`.
+
+## Configuration
+
+| What | Where |
+|------|-------|
+| Worker name, KV binding, compatibility date | `wrangler.jsonc` |
+| Secrets (`ANTHROPIC_API_KEY`, `STATS_TOKEN`, `FEATURE_TOGGLE_TOKEN`, `BETA_TOKEN`) | Worker → Settings → Variables and Secrets, or `npx wrangler secret put` |
+| Build-time variables (`PUBLIC_SENTRY_*`) | Worker → Settings → Build → Variables |
+| Full list of runtime names | `.dev.vars.example` (also the source for `npm run cf-typegen`) |
+
+After changing `wrangler.jsonc` or `.dev.vars.example`, run `npm run cf-typegen`
+and commit the regenerated `worker-configuration.d.ts`.
 
 ## Verification
 
 - Check production URL: https://fyrk.no
-- Check Cloudflare Pages dashboard for deploy status
+- `GET /api/health` reports API key, KV and rate limiter status
+- Check the Worker's Deployments tab for build status
 - Smoke tests run automatically and report failures
-
-## Required secrets
-
-| Secret | Where | Description |
-|--------|-------|-------------|
-| `CLOUDFLARE_API_TOKEN` | GitHub Secrets | Cloudflare Pages deploy token |
-| `ANTHROPIC_API_KEY` | Cloudflare env | AI tool API key |
 
 ## Ownership
 
-Maintained by the FYRK team. Deploy pipeline owned by CI workflows.
+Maintained by the FYRK team. Deploy pipeline owned by Cloudflare Workers Builds.

@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { env } from 'cloudflare:workers';
 
 export const prerender = false;
 
@@ -17,9 +18,8 @@ import { verifyToken, extractBearerToken } from '../../utils/verify-token';
  * Returns all feature toggles
  * Auth: Authorization: Bearer <token> (preferred) or ?token=<token> (deprecated)
  */
-export const GET: APIRoute = async ({ request, locals }) => {
-  const cloudflareEnv = (locals as App.Locals).runtime?.env;
-  const expectedToken = cloudflareEnv?.FEATURE_TOGGLE_TOKEN;
+export const GET: APIRoute = async ({ request }) => {
+  const expectedToken = env.FEATURE_TOGGLE_TOKEN;
 
   // Check authorization
   const providedToken = extractBearerToken(request);
@@ -31,7 +31,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
     });
   }
 
-  const kv = cloudflareEnv?.ANALYTICS_KV;
+  const kv = env.ANALYTICS_KV;
   if (!kv) {
     return new Response(JSON.stringify({ error: 'KV not configured' }), {
       status: 500,
@@ -53,7 +53,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
  * Auth: Authorization: Bearer <token> (preferred) or body.token (deprecated)
  * Body: { features: FeatureToggle[] }
  */
-export const POST: APIRoute = async ({ request, locals }) => {
+export const POST: APIRoute = async ({ request }) => {
   // CSRF protection - validate origin header
   if (!validateOrigin(request)) {
     return new Response(JSON.stringify({ error: 'CSRF check failed' }), {
@@ -62,8 +62,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 
-  const cloudflareEnv = (locals as App.Locals).runtime?.env;
-  const expectedToken = cloudflareEnv?.FEATURE_TOGGLE_TOKEN;
+  const expectedToken = env.FEATURE_TOGGLE_TOKEN;
 
   let body: { token?: string; features?: FeatureToggle[] };
   try {
@@ -112,7 +111,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
   }
 
-  const kv = cloudflareEnv?.ANALYTICS_KV;
+  const kv = env.ANALYTICS_KV;
   if (!kv) {
     return new Response(JSON.stringify({ error: 'KV not configured' }), {
       status: 500,

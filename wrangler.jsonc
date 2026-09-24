@@ -1,0 +1,22 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "nettside-fyrk",
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  // workers.dev URL and per-branch preview URLs, used to verify a build before
+  // it reaches fyrk.no (see docs/routines/deploy.md)
+  "workers_dev": true,
+  "preview_urls": true,
+  "kv_namespaces": [
+    {
+      "binding": "ANALYTICS_KV",
+      // The namespace the Pages project used, so analytics history carries over
+      "id": "6dd39ffbd38b407bb32b95a7c7d74b1c"
+    }
+  ],
+  // Secrets are set in the dashboard or with `wrangler secret put`, never here:
+  // ANTHROPIC_API_KEY, STATS_TOKEN, FEATURE_TOGGLE_TOKEN, BETA_TOKEN.
+  // Locally they come from .dev.vars.
+  "observability": { "enabled": true }
+}

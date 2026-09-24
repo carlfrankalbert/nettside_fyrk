@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { env } from 'cloudflare:workers';
 import { createAIToolHandler } from '../../lib/ai-tool-handler';
 import { createWrappedUserMessage } from '../../utils/input-sanitization';
 import { isValidKonseptspeilOutput } from '../../utils/output-validators';
@@ -9,11 +10,7 @@ import { KONSEPTSPEIL_SYSTEM_PROMPT } from '../../data/prompts';
 export const prerender = false;
 
 function getMockOutput(input: string): string | null {
-  const mockMode =
-    import.meta.env.KONSEPTSPEILET_MOCK === 'true' ||
-    import.meta.env.KONSEPTSPEILET_MOCK === true;
-
-  if (mockMode) {
+  if (env.KONSEPTSPEILET_MOCK === 'true') {
     return getMockResponseJson(input);
   }
   return null;

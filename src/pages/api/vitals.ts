@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { env } from 'cloudflare:workers';
 import { verifyToken, extractBearerToken } from '../../utils/verify-token';
 
 export const prerender = false;
@@ -95,7 +96,7 @@ function isVitalsRateLimited(ip: string): boolean {
  * Receives Web Vitals metrics from real users
  * Rate limited to prevent fake metric flooding
  */
-export const POST: APIRoute = async ({ request, locals }) => {
+export const POST: APIRoute = async ({ request }) => {
   try {
     // Rate limit by IP
     const ip = request.headers.get('cf-connecting-ip')
@@ -108,8 +109,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
-    const cloudflareEnv = (locals as App.Locals).runtime?.env;
-    const kv = cloudflareEnv?.ANALYTICS_KV;
+    const kv = env.ANALYTICS_KV;
 
     // Load aggregates from KV on first request
     if (kv) {
@@ -191,11 +191,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
  * GET /api/vitals
  * Returns aggregated Web Vitals statistics (protected)
  */
-export const GET: APIRoute = async ({ request, locals }) => {
+export const GET: APIRoute = async ({ request }) => {
   // Check for auth token
-  const cloudflareEnv = (locals as App.Locals).runtime?.env;
-  const statsToken = cloudflareEnv?.STATS_TOKEN;
-  const kv = cloudflareEnv?.ANALYTICS_KV;
+  const statsToken = env.STATS_TOKEN;
+  const kv = env.ANALYTICS_KV;
 
   if (statsToken) {
     const providedToken = extractBearerToken(request);
