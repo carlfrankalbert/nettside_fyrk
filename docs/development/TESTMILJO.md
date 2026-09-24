@@ -44,15 +44,12 @@ git merge develop
 git push origin main
 ```
 
-## GitHub Pages Preview
+## Preview-miljø
 
-GitHub Pages preview-miljøet vil ha en URL som:
-- `https://<brukernavn>.github.io/nettside_fyrk/` (hvis ikke custom domain)
-- Eller en preview URL fra GitHub Actions
-
-**Merk:** For å bruke custom domain (fyrk.no) i testmiljøet, må du:
-1. Opprette en egen subdomain (f.eks. `test.fyrk.no` eller `staging.fyrk.no`)
-2. Eller bruke preview URL fra GitHub Actions
+Hver branch som pushes bygges av Cloudflare Workers Builds og får en egen
+preview-URL på `*-nettside-fyrk.carlfrankalbert.workers.dev` (lenke i PR-en).
+Trafikk dit telles ikke i `/stats`. Et eget testdomene (tidligere `test.fyrk.no`)
+brukes ikke lenger.
 
 ## Lokal utvikling
 

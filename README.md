@@ -132,21 +132,19 @@ npm run test:unit:coverage # Unit-tester med coverage-rapport
 
 ## CI/CD
 
-11 GitHub workflows:
+9 GitHub workflows. Produksjons-deploy går ikke via GitHub Actions, men via Cloudflare Workers Builds ved push til `main` (se `docs/routines/deploy.md`).
 
 | Workflow | Trigger | Formål |
 |----------|---------|--------|
-| `ci.yml` | Push/PR | Typecheck, lint, unit, e2e |
-| `lighthouse-ci.yml` | Push til main | Performance-budsjett |
-| `release-notes.yml` | Push til main | Auto-genererte release notes |
+| `ci.yml` | Push/PR | Typecheck, lint, unit, e2e, a11y, security audit |
 | `docs-gate.yml` | PR | Sjekker at docs er oppdatert |
-| `nightly.yml` | Cron | Full test-suite nattlig |
-| `visual-regression.yml` | PR | Visuell diff |
-| `deploy.yml` | Push til main | Produksjons-deploy |
-| `deploy-preview.yml` | PR | Preview-deploy |
-| `deploy-test.yml` | PR | Test-deploy |
-| `smoke-test.yml` | Etter deploy | Post-deploy verifisering |
-| `contrast-test.yml` | PR | Fargekontrast-sjekk |
+| `claude-code-review.yml` | PR | Automatisk kodegjennomgang |
+| `claude.yml` | `@claude` i issues/PR | Claude-assistent |
+| `release-notes.yml` | Push til main | Auto-genererte release notes |
+| `smoke-test.yml` | Daglig 06:00 UTC | Smoke-test mot fyrk.no |
+| `nightly.yml` | Daglig 03:00 UTC | Full test-suite |
+| `lighthouse-ci.yml` | Mandager 07:00 UTC | Performance-budsjett |
+| `visual-regression.yml` | Månedlig / manuelt | Visuell diff, oppdatering av baselines |
 
 ## Deployment
 

@@ -154,9 +154,9 @@ lint-staged 16 → 17, `lucide-react` 0.563 → 1.x.
 - The `/stats` dashboard ships 416 KB of JavaScript (recharts). It is
   token-protected and internal, so this is a comfort issue, not a user-facing
   one — but it is the only heavy bundle in the project.
-- `deploy-test.yml` is the last GitHub Pages workflow. Decide whether
-  test.fyrk.no is a live environment or the workflow should go. Workers preview
-  URLs now cover the staging need.
+- ~~`deploy-test.yml` / test.fyrk.no~~ — removed 2026-09-24. No DNS record existed,
+  the workflow only ran on the deleted `develop` branch; Workers preview URLs
+  cover staging.
 - The Pixel 7 homepage visual baselines are stale since #173 (a copy change),
   so the visual workflow fails on `main`. Regenerate them.
 - The `okr-api` and `security` Playwright projects fail on `main`: `okr-api`
