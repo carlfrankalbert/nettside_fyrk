@@ -5,6 +5,7 @@
  * These tests verify that security mechanisms actually enforce limits.
  */
 import { test, expect } from '@playwright/test';
+import { ERROR_MESSAGES } from '../src/utils/constants';
 
 test.describe('Security Controls', () => {
   test.describe('Rate Limiting', () => {
@@ -30,7 +31,7 @@ test.describe('Security Controls', () => {
         // If we got a 429, we've proven the rate limiter works
         if (response.status() === 429) {
           const body = await response.json();
-          expect(body.error).toContain('Rate limit');
+          expect(body.error).toBe(ERROR_MESSAGES.RATE_LIMIT_EXCEEDED);
 
           // Verify Retry-After header is present
           const retryAfter = response.headers()['retry-after'];
@@ -96,7 +97,9 @@ test.describe('Security Controls', () => {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
 
-      expect([400, 415]).toContain(response.status());
+      // 403: Astro's security.checkOrigin rejects form-encoded POSTs without a
+      // matching Origin before the handler runs. 400/415: the handler's own check.
+      expect([400, 403, 415]).toContain(response.status());
     });
 
     test('API rejects input below minimum length', async ({ request }) => {

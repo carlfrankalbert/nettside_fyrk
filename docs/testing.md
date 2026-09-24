@@ -20,6 +20,13 @@ by its own code. Only the workflows that check the live site set
 local run where you pass it yourself. Blocks that assert host behavior (how
 unmatched routes are served) skip unless such a URL is set.
 
+Locally, Playwright **reuses** whatever already listens on port 4321. A dev
+server left running from an earlier session is tested instead of a fresh one,
+with its own Vite cache — failures like "file does not exist … in the optimize
+deps directory" come from that. Astro 7 detaches `astro dev` when an AI agent
+starts it, so such servers outlive the session. Check with `npx astro dev status`
+and stop with `npx astro dev stop`.
+
 ## Updating visual snapshots
 
 When you intentionally change the UI:
