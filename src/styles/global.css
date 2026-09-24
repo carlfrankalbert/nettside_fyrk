@@ -100,8 +100,8 @@
 }
 
 /*
-  Two more v3 preflight defaults that v4 changed: placeholder text was gray-400,
-  and buttons showed the pointer cursor.
+  v3 preflight defaults that v4 changed: gray-400 placeholder text, the pointer
+  cursor on buttons, and WebKit's own date-field padding.
 */
 @layer base {
   input::placeholder,
@@ -112,6 +112,30 @@
   button:not(:disabled),
   [role='button']:not(:disabled) {
     cursor: pointer;
+  }
+
+  /* v4's preflight strips WebKit's date-field padding; v3 left it (date inputs
+     were 2px taller than text inputs). Roll back to the browser default. */
+  ::-webkit-date-and-time-value {
+    min-height: revert;
+    text-align: revert;
+  }
+  ::-webkit-datetime-edit {
+    display: revert;
+  }
+  ::-webkit-datetime-edit-fields-wrapper {
+    padding: revert;
+  }
+  ::-webkit-datetime-edit,
+  ::-webkit-datetime-edit-year-field,
+  ::-webkit-datetime-edit-month-field,
+  ::-webkit-datetime-edit-day-field,
+  ::-webkit-datetime-edit-hour-field,
+  ::-webkit-datetime-edit-minute-field,
+  ::-webkit-datetime-edit-second-field,
+  ::-webkit-datetime-edit-millisecond-field,
+  ::-webkit-datetime-edit-meridiem-field {
+    padding-block: revert;
   }
 }
 
