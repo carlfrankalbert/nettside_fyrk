@@ -99,6 +99,22 @@
   }
 }
 
+/*
+  Two more v3 preflight defaults that v4 changed: placeholder text was gray-400,
+  and buttons showed the pointer cursor.
+*/
+@layer base {
+  input::placeholder,
+  textarea::placeholder {
+    color: #9ca3af;
+  }
+
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
 @utility btn {
   @apply inline-flex items-center justify-center font-primary font-medium rounded-lg transition-all duration-normal;
   @apply min-h-[48px] px-6;
