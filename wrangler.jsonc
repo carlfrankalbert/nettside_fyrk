@@ -7,9 +7,8 @@
   "kv_namespaces": [
     {
       "binding": "ANALYTICS_KV",
-      // The existing namespace bound to the Pages project, so analytics history
-      // carries over. Find it under Pages > nettside-fyrk > Settings > Bindings.
-      "id": "REPLACE_WITH_ANALYTICS_KV_NAMESPACE_ID"
+      // The namespace the Pages project used, so analytics history carries over
+      "id": "6dd39ffbd38b407bb32b95a7c7d74b1c"
     }
   ],
   // Secrets are set in the dashboard or with `wrangler secret put`, never here:
