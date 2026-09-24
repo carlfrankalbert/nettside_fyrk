@@ -20,10 +20,10 @@ export default defineConfig({
       // Floor to prevent regression, set to what is actually achieved and
       // raised as tracks of docs/modernization-plan.md land. Not an aspiration.
       thresholds: {
-        lines: 60,
-        functions: 65,
-        branches: 57,
-        statements: 59,
+        lines: 65,
+        functions: 73,
+        branches: 63,
+        statements: 64,
       },
     },
   },
