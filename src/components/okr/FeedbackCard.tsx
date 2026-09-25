@@ -37,7 +37,7 @@ export function FeedbackCard({
           {items.map((item, index) => (
             <li key={index} className="flex items-start gap-2 text-sm text-neutral-600">
               <span className={cn(
-                'mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0',
+                'mt-1.5 w-1.5 h-1.5 rounded-full shrink-0',
                 isStrength ? 'bg-feedback-success' : 'bg-feedback-warning'
               )} />
               {item}
@@ -46,7 +46,7 @@ export function FeedbackCard({
         </ul>
       ) : (
         <div className="h-12 flex items-center">
-          <div className="h-3 w-3/4 bg-neutral-200 rounded animate-pulse" />
+          <div className="h-3 w-3/4 bg-neutral-200 rounded-sm animate-pulse" />
         </div>
       )}
     </div>

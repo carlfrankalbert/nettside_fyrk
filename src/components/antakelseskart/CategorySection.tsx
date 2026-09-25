@@ -25,7 +25,7 @@ export function CategorySection({ category, assumptions, assignments, onAssign, 
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
-        className="w-full flex items-center justify-between p-4 bg-neutral-50 text-left focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-inset"
+        className="w-full flex items-center justify-between p-4 bg-neutral-50 text-left focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:ring-inset"
       >
         <div>
           <h3 className="text-base font-semibold text-neutral-900">{labels.name}</h3>

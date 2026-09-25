@@ -20,7 +20,7 @@ Review checklist:
 10. CTAs: Are they clear, prominent, and actionable?
 
 FYRK-specific patterns:
-- Navy + Cyan color scheme — check tailwind.config.mjs
+- Brand color scheme — check the `@theme` block in src/styles/global.css
 - Clean, minimal aesthetic — no visual clutter
 - Professional but approachable tone
 - Mobile-first approach

@@ -17,7 +17,7 @@ const { title, statement, lead, items } = Astro.props;
     <div class="w-16 h-1 bg-brand-cyan-darker mx-auto mb-8"></div>
 
     {statement && (
-      <p class="text-xl md:text-2xl text-brand-navy font-medium leading-snug mb-8 text-center max-w-2xl mx-auto text-balance">
+      <p class="text-xl md:text-2xl text-brand-navy font-medium leading-snug md:leading-8 mb-8 text-center max-w-2xl mx-auto text-balance">
         {statement}
       </p>
     )}
@@ -29,7 +29,7 @@ const { title, statement, lead, items } = Astro.props;
     <ul class="space-y-4 max-w-2xl mx-auto">
       {items.map((item) => (
         <li class="flex items-start gap-3 text-neutral-700 leading-relaxed">
-          <span class="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-brand-cyan-darker flex-shrink-0" aria-hidden="true"></span>
+          <span class="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-brand-cyan-darker shrink-0" aria-hidden="true"></span>
           <span>{item}</span>
         </li>
       ))}

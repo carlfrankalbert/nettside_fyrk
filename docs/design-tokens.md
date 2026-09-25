@@ -1,7 +1,7 @@
 # FYRK — Designsystem (fyrk.no)
 
 Visuell oversikt over designtokens. Maskinlesbar kilde: [`design-tokens.json`](./design-tokens.json) (W3C DTCG-format, importerbar i Figma via Tokens Studio).
-Sannhetskilde i kode: `tailwind.config.mjs` + `src/styles/global.css`.
+Sannhetskilde i kode: `@theme`-blokken i `src/styles/global.css` (Tailwind 4, CSS-first — det finnes ingen `tailwind.config.mjs`).
 
 ---
 

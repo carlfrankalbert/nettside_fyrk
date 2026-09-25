@@ -33,11 +33,11 @@ export function StreamingError({ message, onRetry, retryText = 'Prøv igjen' }: 
           </svg>
         </div>
         <div>
-          <p className="text-[15px] text-neutral-700 leading-[1.5] mb-4">{message}</p>
+          <p className="text-[15px] text-neutral-700 leading-normal mb-4">{message}</p>
           <button
             type="button"
             onClick={onRetry}
-            className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-brand-navy bg-white border border-neutral-300 hover:bg-neutral-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
+            className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-brand-navy bg-white border border-neutral-300 hover:bg-neutral-50 rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2"
           >
             {retryText}
           </button>

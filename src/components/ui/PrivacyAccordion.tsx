@@ -32,7 +32,7 @@ export function PrivacyAccordion({ toolName, introText, howItWorks }: PrivacyAcc
     <div className="border-t border-neutral-200 pt-6">
       <p className="text-sm text-neutral-500 mb-3">{introText}</p>
       <details onToggle={handleToggle} className="group">
-        <summary className="flex items-center gap-2 text-sm text-brand-navy hover:text-brand-cyan-darker cursor-pointer list-none focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded py-2 [&::-webkit-details-marker]:hidden">
+        <summary className="flex items-center gap-2 text-sm text-brand-navy hover:text-brand-cyan-darker cursor-pointer list-none focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded-sm py-2 [&::-webkit-details-marker]:hidden">
           <ChevronRightIcon className={cn('w-4 h-4 transition-transform group-open:rotate-90')} />
           Les mer om AI og personvern
         </summary>

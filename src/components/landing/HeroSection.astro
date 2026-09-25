@@ -18,7 +18,7 @@ const { headline, description, ctaText, ctaHref, secondaryCtaText, secondaryCtaH
 const paragraphs = Array.isArray(description) ? description : [description];
 ---
 
-<section class="py-[120px] md:py-[140px] px-6 bg-gradient-to-b from-slate-50 to-white relative overflow-hidden">
+<section class="py-[120px] md:py-[140px] px-6 bg-linear-to-b from-slate-50 to-white relative overflow-hidden">
   <svg class="absolute inset-0 w-full h-full pointer-events-none opacity-[0.03]" aria-hidden="true">
     <defs>
       <pattern id="dot-grid" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
@@ -35,7 +35,7 @@ const paragraphs = Array.isArray(description) ? description : [description];
 
     <div class="mt-5 max-w-[650px] space-y-4">
       {paragraphs.map((paragraph) => (
-        <p class="text-lg md:text-xl text-neutral-600 leading-relaxed">
+        <p class="text-lg md:text-xl text-neutral-600 leading-relaxed md:leading-7">
           {paragraph}
         </p>
       ))}

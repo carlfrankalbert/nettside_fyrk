@@ -15,8 +15,8 @@ export function CopyButton({
       onClick={onCopy}
       aria-label={ariaLabel}
       className={cn(
-        'p-1.5 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded transition-colors',
-        'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-1',
+        'p-1.5 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-sm transition-colors',
+        'focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-1',
         className
       )}
     >

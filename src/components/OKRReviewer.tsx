@@ -158,7 +158,7 @@ export default function OKRReviewer() {
               value={industry}
               onChange={(e) => setIndustry(e.target.value)}
               disabled={loading}
-              className="w-full px-3 py-2 text-sm text-neutral-700 bg-white border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker disabled:opacity-60"
+              className="w-full px-3 py-2 text-sm text-neutral-700 bg-white border border-neutral-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker disabled:opacity-60"
             >
               {OKR_CONTEXT_OPTIONS.industry.map((opt) => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -174,7 +174,7 @@ export default function OKRReviewer() {
               value={teamType}
               onChange={(e) => setTeamType(e.target.value)}
               disabled={loading}
-              className="w-full px-3 py-2 text-sm text-neutral-700 bg-white border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker disabled:opacity-60"
+              className="w-full px-3 py-2 text-sm text-neutral-700 bg-white border border-neutral-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker disabled:opacity-60"
             >
               {OKR_CONTEXT_OPTIONS.teamType.map((opt) => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -190,7 +190,7 @@ export default function OKRReviewer() {
               value={maturity}
               onChange={(e) => setMaturity(e.target.value)}
               disabled={loading}
-              className="w-full px-3 py-2 text-sm text-neutral-700 bg-white border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker disabled:opacity-60"
+              className="w-full px-3 py-2 text-sm text-neutral-700 bg-white border border-neutral-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker disabled:opacity-60"
             >
               {OKR_CONTEXT_OPTIONS.maturity.map((opt) => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -213,7 +213,7 @@ export default function OKRReviewer() {
             type="button"
             onClick={handleFillExample}
             disabled={loading}
-            className="text-sm text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 focus:bg-neutral-100 focus:px-2 focus:-mx-2 rounded transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+            className="text-sm text-brand-navy hover:text-brand-cyan-darker underline underline-offset-2 focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 focus:bg-neutral-100 focus:px-2 focus:-mx-2 rounded-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {ui.exampleButton}
           </button>
@@ -239,9 +239,9 @@ Key Results:
           className={cn(
             'w-full px-4 py-3 text-base text-neutral-700 bg-white border-2 rounded-lg',
             'resize-none min-h-[220px] overflow-hidden placeholder:text-neutral-500',
-            'focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker',
+            'focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker',
             'disabled:opacity-60 disabled:cursor-not-allowed',
-            'aria-[invalid=true]:border-feedback-error transition-all duration-300',
+            'aria-invalid:border-feedback-error transition-all duration-300',
             isExampleAnimating
               ? 'border-brand-cyan bg-brand-cyan-lightest/50 ring-2 ring-brand-cyan shadow-brand-cyan scale-[1.01]'
               : 'border-neutral-300'
@@ -263,7 +263,7 @@ Key Results:
           onClick={() => handleSubmit()}
           disabled={loading}
           aria-busy={loading}
-          className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+          className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-brand-navy rounded-lg hover:bg-brand-navy/90 focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
         >
           {loading ? (
             <>
@@ -279,7 +279,7 @@ Key Results:
           <button
             type="button"
             onClick={handleClearResult}
-            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
+            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
           >
             {ui.resetButton}
           </button>
@@ -289,7 +289,7 @@ Key Results:
       {/* Error display - visible on all viewports */}
       {error && (
         <p id="okr-error" role="alert" className="text-feedback-error text-sm flex items-center gap-2">
-          <ErrorIcon className="w-4 h-4 flex-shrink-0" />
+          <ErrorIcon className="w-4 h-4 shrink-0" />
           {error}
         </p>
       )}
@@ -321,7 +321,7 @@ Key Results:
                 <button
                   type="button"
                   onClick={handleClearResult}
-                  className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
+                  className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 transition-colors"
                 >
                   {ui.resetButton}
                 </button>

@@ -32,7 +32,7 @@ export function KPICard({ title, value, subtitle, icon, trend, variant = 'defaul
 
   if (variant === 'primary') {
     return (
-      <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg">
+      <div className="bg-linear-to-br from-indigo-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg">
         <div className="flex items-center justify-between mb-4">
           <span className="text-indigo-100 font-medium text-sm">{title}</span>
           {icon && <div className="text-indigo-200">{icon}</div>}

@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 import cloudflare from '@astrojs/cloudflare';
+import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
@@ -24,6 +25,9 @@ export default defineConfig({
   // No Astro sessions in use; otherwise the adapter adds a SESSION KV binding
   // and wrangler provisions an empty namespace for it on deploy.
   session: false,
-  site: 'https://fyrk.no'
+  site: 'https://fyrk.no',
+  vite: {
+    plugins: [tailwindcss()],
+  },
 });
 

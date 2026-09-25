@@ -109,7 +109,7 @@ function AcquisitionList({ config, data }: {
             return (
               <div key={key} className="relative overflow-hidden rounded-xl">
                 <div
-                  className={`absolute inset-0 bg-gradient-to-r ${config.barFrom} ${config.barTo} transition-all`}
+                  className={`absolute inset-0 bg-linear-to-r ${config.barFrom} ${config.barTo} transition-all`}
                   style={{ width: `${percentage}%` }}
                 />
                 <div className="relative flex items-center justify-between px-4 py-2.5">

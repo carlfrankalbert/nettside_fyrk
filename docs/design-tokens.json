@@ -1,6 +1,6 @@
 {
   "$schema": "https://tr.designtokens.org/format/",
-  "$description": "FYRK design tokens (fyrk.no). W3C DTCG format — importable into Figma via the Tokens Studio plugin. Source of truth: tailwind.config.mjs + src/styles/global.css.",
+  "$description": "FYRK design tokens (fyrk.no). W3C DTCG format — importable into Figma via the Tokens Studio plugin. Source of truth: the @theme block in src/styles/global.css (Tailwind 4).",
   "color": {
     "$type": "color",
     "brand": {

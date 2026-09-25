@@ -39,7 +39,7 @@ function formatDate(date: Date): string {
         <h1 class="text-h2 md:text-h1 font-semibold text-brand-navy mb-4 leading-tight">
           Releaselog
         </h1>
-        <p class="text-xl md:text-2xl text-neutral-600 leading-relaxed">
+        <p class="text-xl md:text-2xl text-neutral-600 leading-relaxed md:leading-8">
           Hva er nytt — oppdateringer, forbedringer og fiks.
         </p>
       </header>
@@ -69,7 +69,7 @@ function formatDate(date: Date): string {
                     {post.data.tags && (
                       <div class="flex shrink-0 gap-1.5 pt-0.5">
                         {post.data.tags.map((tag: string) => (
-                          <span class="text-xs bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded">
+                          <span class="text-xs bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded-sm">
                             {tag}
                           </span>
                         ))}

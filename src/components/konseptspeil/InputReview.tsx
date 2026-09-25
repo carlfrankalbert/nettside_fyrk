@@ -12,7 +12,7 @@ export function InputReview({ input }: { input: string }) {
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
-        className="w-full flex items-start justify-between gap-3 py-2 text-left focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded-lg"
+        className="w-full flex items-start justify-between gap-3 py-2 text-left focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded-lg"
       >
         <div className="flex-1 min-w-0">
           <span className="text-xs font-medium text-neutral-500 uppercase tracking-wide">Din tekst</span>

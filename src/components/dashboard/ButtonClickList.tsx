@@ -51,7 +51,7 @@ function ButtonRow({ button, maxCount }: { button: ButtonData; maxCount: number 
   return (
     <div className="relative overflow-hidden rounded-xl">
       <div
-        className={`absolute inset-0 bg-gradient-to-r ${BAR_COLORS[actionType]} transition-all`}
+        className={`absolute inset-0 bg-linear-to-r ${BAR_COLORS[actionType]} transition-all`}
         style={{ width: `${percentage}%` }}
       />
       <div className="relative flex items-center justify-between px-4 py-3">
@@ -61,7 +61,7 @@ function ButtonRow({ button, maxCount }: { button: ButtonData; maxCount: number 
             {button.label}
           </span>
           {actionType === 'primary' && (
-            <span className="text-[10px] font-medium text-indigo-600 bg-indigo-100 px-1.5 py-0.5 rounded">
+            <span className="text-[10px] font-medium text-indigo-600 bg-indigo-100 px-1.5 py-0.5 rounded-sm">
               Hoved
             </span>
           )}

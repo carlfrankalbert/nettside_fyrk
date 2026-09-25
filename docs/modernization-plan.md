@@ -122,17 +122,30 @@ the plan above, and why:
 - **Still open:** delete the paused Pages project after 2026-10-01 (#187). Until
   then it is the rollback: move the two domains back to it.
 
-### 5. Tailwind 3 → 4
+### 5. Tailwind 3 → 4 — DONE
 
-`@astrojs/tailwind` is already gone; Tailwind now runs through PostCSS, so this
-is decoupled from track 4 and can happen before or after it. Tailwind 4 moves
-configuration from `tailwind.config.mjs` to CSS-first `@theme`, which means
-re-declaring the brand colour tokens, and it changes several utility defaults.
+**Done 2026-09-25**, with the rendered site kept identical to v3. Migrated with
+`@tailwindcss/upgrade`: theme in the `@theme` block of `src/styles/global.css`
+(no `tailwind.config.mjs`), class-based dark mode as a `@custom-variant`,
+utilities renamed for v4's shifted scales. Tailwind runs as the
+`@tailwindcss/vite` plugin (the PostCSS plugin broke the Inter font URLs).
 
-**Do it as its own PR with visual baselines regenerated in the same PR** — that
-is what the visual regression workflow is now for.
+v4 changes that would have altered the look, and how `global.css` neutralises
+them (each is commented in place):
 
-**Risk:** medium, entirely visual. **Blocks:** nothing.
+- `text-xs/sm/base/lg` get their own line heights in v4 → cleared in `@theme`
+- an explicit `leading-*` now beats a breakpoint `text-*` size → six intro
+  paragraphs got `md:leading-7/8`
+- base-layer `@apply leading-*` sets `--tw-leading` → plain `line-height`
+- `space-y` moved the gap to `margin-bottom` → `@utility space-y-*` override with
+  v3 semantics; the default `p` margin lives in the utilities layer
+- preflight: placeholder colour, button cursor, date-field padding, default
+  border colour → restored
+- OKLCH default palette → v3 values pinned for the colour families in use
+
+Verified by comparing element geometry and computed colours on all 76 routes at
+1280px and 390px against the v3 site: identical, except a `divide-y` border that
+moved between boxes (pixel-identical on screen).
 
 ### 6. Tooling majors — DONE except TypeScript 7
 

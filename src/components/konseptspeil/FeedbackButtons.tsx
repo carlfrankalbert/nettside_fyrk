@@ -37,12 +37,12 @@ export function FeedbackButtons({ isStreaming }: { isStreaming: boolean }) {
               value={qualitativeInput}
               onChange={(e) => setQualitativeInput(e.target.value)}
               placeholder="Valgfritt"
-              className="flex-1 px-2 py-1.5 text-xs border border-neutral-200 rounded focus:outline-none focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker"
+              className="flex-1 px-2 py-1.5 text-xs border border-neutral-200 rounded-sm focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:border-brand-cyan-darker"
             />
             <button
               type="button"
               onClick={handleQualitativeSubmit}
-              className="px-3 py-1.5 text-xs font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded transition-colors"
+              className="px-3 py-1.5 text-xs font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-sm transition-colors"
             >
               Send
             </button>
@@ -75,7 +75,7 @@ export function FeedbackButtons({ isStreaming }: { isStreaming: boolean }) {
           className={cn(
             'inline-flex items-center justify-center w-8 h-8',
             'text-neutral-400 hover:text-feedback-success hover:bg-feedback-success/10',
-            'rounded transition-colors focus:outline-none',
+            'rounded-sm transition-colors focus:outline-hidden',
             'focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-1'
           )}
           aria-label="Ja, dette var nyttig"
@@ -90,7 +90,7 @@ export function FeedbackButtons({ isStreaming }: { isStreaming: boolean }) {
           className={cn(
             'inline-flex items-center justify-center w-8 h-8',
             'text-neutral-400 hover:text-feedback-error hover:bg-feedback-error/10',
-            'rounded transition-colors focus:outline-none',
+            'rounded-sm transition-colors focus:outline-hidden',
             'focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-1'
           )}
           aria-label="Nei, dette var ikke nyttig"

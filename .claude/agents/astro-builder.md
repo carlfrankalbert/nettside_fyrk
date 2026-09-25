@@ -19,7 +19,7 @@ Project structure:
 - public/ — Static assets, logos
 
 Design system:
-- Colors: Navy (#001F3F), Cyan (#5AB9D3) — defined in tailwind.config.mjs
+- Colors: brand tokens (`brand-navy`, `brand-cyan-*`, …) — defined in the `@theme` block of src/styles/global.css
 - Font: Inter font family
 - Grid: 8-point grid system
 - WCAG 2.1 AA compliance required — check WCAG_COMPLIANCE.md
@@ -38,6 +38,6 @@ When building components:
 7. Ensure good contrast ratios (previous issues with dark mode contrast)
 
 When modifying styles:
-- Check tailwind.config.mjs for custom theme values first
+- Check the `@theme` block in src/styles/global.css for custom theme values first
 - Never hardcode colors — always use theme tokens
 - Test on mobile viewports
