@@ -4,6 +4,7 @@
  * Renders a single insight text
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageView from '../../components/analytics/PageView.astro';
 import { getCollection, render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 
@@ -104,14 +105,8 @@ const articleLd = {
 
     </div>
   </article>
+  <PageView pageId="innsikt" articleSlug={insight.id} />
 </BaseLayout>
-
-<script>
-  import { initPageViewTracking } from '../../scripts/pageview-tracking';
-  // Slug comes from the URL; the server validates it against published Innsikt entries.
-  const match = location.pathname.match(/^\/innsikt\/([^/]+)\/?$/);
-  initPageViewTracking('innsikt', match?.[1]);
-</script>
 
 <style is:global>
   .innsikt-prose ul,

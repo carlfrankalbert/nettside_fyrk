@@ -44,7 +44,7 @@ export const METRIC_EXPLANATIONS = {
   cacheHit: 'Hvor ofte vi gjenbruker tidligere svar. Høyere = raskere og billigere. Over 20% er bra.',
   responseTime: 'Gjennomsnittlig ventetid. Under 3 sekunder er bra, over 10 sekunder er tregt.',
   errorRate: 'Hvor ofte noe går galt. Grønn = under 1% (bra), gul = 1-5% (ok), rød = over 5% (problem).',
-  uniqueSessions: 'Antall separate brukerøkter (en økt varer til 30 min inaktivitet).',
+  uniqueSessions: 'Unike brukere per dag, summert over perioden. Telles uten cookies, så samme person på to dager teller to ganger.',
   hourlyActivity: 'Når på døgnet brukerne er mest aktive. Tidene er i UTC (+1 time for norsk vintertid, +2 for sommertid).',
   funnel: 'Viser brukerreisen steg for steg. Grønn = over 70% går videre (bra), gul = 40-70% (ok), rød = under 40% (flaskehals).',
   acquisition: 'Hvor besøkende kommer fra. Viser eksterne henvisere og UTM-parametere fra kampanjelenker (utm_source, utm_medium, utm_campaign).',

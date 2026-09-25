@@ -91,7 +91,7 @@ if (hasAccess) {
   if (kv) {
     const buttonEntries = Object.entries(TRACKED_BUTTONS) as [string, { key: string; label: string }][];
     const pageEntries = Object.entries(TRACKED_PAGES);
-    const metricsEvents = ['check_success', 'konseptspeil_success', 'antakelseskart_success', 'premortem_success'];
+    const metricsEvents = ['okr_success', 'konseptspeil_success', 'antakelseskart_success', 'premortem_success'];
     const errorEvents = ['okr_error', 'konseptspeil_error', 'antakelseskart_error', 'premortem_error'];
     const allEvents = [...metricsEvents, ...errorEvents];
 

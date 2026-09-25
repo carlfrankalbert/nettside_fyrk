@@ -90,7 +90,7 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
       steps: [
         { id: 'okr_input_started', label: 'Startet', count: buttonCounts['okr_input_started']?.count || 0 },
         { id: 'okr_submit_attempted', label: 'Sendt inn', count: buttonCounts['okr_submit_attempted']?.count || 0 },
-        { id: 'check_success', label: 'Fullført', count: buttonCounts['check_success']?.count || 0 },
+        { id: 'okr_success', label: 'Fullført', count: buttonCounts['okr_success']?.count || 0 },
         { id: 'feedback_up', label: 'Positiv feedback', count: buttonCounts['feedback_up']?.count || 0 },
       ],
     },
@@ -131,7 +131,7 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
     (buttonCounts['antakelseskart_input_started']?.count || 0) +
     (buttonCounts['premortem_input_started']?.count || 0);
 
-  const totalSuccesses = (buttonCounts['check_success']?.count || 0) +
+  const totalSuccesses = (buttonCounts['okr_success']?.count || 0) +
     (buttonCounts['konseptspeil_success']?.count || 0) +
     (buttonCounts['antakelseskart_success']?.count || 0) +
     (buttonCounts['premortem_success']?.count || 0);

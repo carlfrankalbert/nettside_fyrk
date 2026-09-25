@@ -4,6 +4,7 @@
  * Presents FYRK's consultants and how FYRK collaborates around assignments
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageView from '../components/analytics/PageView.astro';
 import ConsultantProfile from '../components/konsulenter/ConsultantProfile.astro';
 import TestimonialsSection from '../components/konsulenter/TestimonialsSection.astro';
 import {
@@ -67,9 +68,5 @@ const personLd = {
       </div>
     </div>
   </section>
+  <PageView pageId="konsulenter" />
 </BaseLayout>
-
-<script>
-  import { initPageViewTracking } from '../scripts/pageview-tracking';
-  initPageViewTracking('konsulenter');
-</script>

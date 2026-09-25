@@ -1,0 +1,16 @@
+---
+/**
+ * Marks the page for a page-view event. The Telemetry script sends it on load.
+ * Pass articleSlug on Innsikt articles for per-article read counts.
+ */
+import type { PageId } from '../../scripts/pageview-tracking';
+
+interface Props {
+  pageId: PageId;
+  articleSlug?: string;
+}
+
+const { pageId, articleSlug } = Astro.props;
+---
+
+<span hidden data-pageview={pageId} data-article={articleSlug}></span>

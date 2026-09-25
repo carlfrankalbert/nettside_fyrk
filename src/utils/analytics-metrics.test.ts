@@ -28,7 +28,6 @@ describe('emptyMetrics', () => {
     expect(m.freshCount).toBe(0);
     expect(m.uniqueSessionCount).toBe(0);
     expect(m.errorTypes).toEqual({});
-    expect(m.sessionHashBuckets).toEqual({});
     expect(m.hourlyDistribution).toEqual({});
   });
 });
@@ -99,26 +98,22 @@ describe('aggregateEventMetrics', () => {
     expect(stored.errorTypes.timeout).toBe(1);
   });
 
-  it('tracks unique sessions via hash buckets', async () => {
-    await aggregateEventMetrics(kv, 'test', '2025-01-15', { sessionId: 'abc123' }, Date.now());
+  it('counts a unique visitor when the caller reports a new one', async () => {
+    await aggregateEventMetrics(kv, 'test', '2025-01-15', {}, Date.now(), true);
 
     const stored = JSON.parse((kv.put as ReturnType<typeof vi.fn>).mock.calls[0][1]);
     expect(stored.uniqueSessionCount).toBe(1);
-    expect(stored.sessionHashBuckets['ab']).toBe(true);
   });
 
-  it('deduplicates sessions with same hash bucket', async () => {
-    const existing = {
-      ...emptyMetrics(),
-      uniqueSessionCount: 1,
-      sessionHashBuckets: { 'ab': true },
-    };
+  it('does not count a returning visitor again', async () => {
+    const existing = { ...emptyMetrics(), uniqueSessionCount: 1 };
     kv = createMockKV({ 'metrics:test:2025-01-15': JSON.stringify(existing) });
 
-    await aggregateEventMetrics(kv, 'test', '2025-01-15', { sessionId: 'abXYZ' }, Date.now());
+    await aggregateEventMetrics(kv, 'test', '2025-01-15', {}, Date.now(), false);
 
     const stored = JSON.parse((kv.put as ReturnType<typeof vi.fn>).mock.calls[0][1]);
-    expect(stored.uniqueSessionCount).toBe(1); // Not incremented
+    expect(stored.uniqueSessionCount).toBe(1);
+    expect(stored.count).toBe(1);
   });
 
   it('tracks hourly distribution', async () => {

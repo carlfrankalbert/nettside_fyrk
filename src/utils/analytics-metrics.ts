@@ -20,7 +20,6 @@ export interface EventMetadata {
   cached?: boolean;
   inputLength?: number;
   toolVersion?: string;
-  sessionId?: string;
 }
 
 /**
@@ -33,10 +32,8 @@ export interface AggregatedMetrics {
   cachedCount: number;
   freshCount: number;
   errorTypes: Record<string, number>;
-  /** Estimated unique session count (not exact, uses hash-based deduplication) */
+  /** Unique visitors that triggered the event this day (cookieless, see visitor-hash) */
   uniqueSessionCount: number;
-  /** Hash prefixes for deduplication (limited to 256 buckets for O(1) lookup) */
-  sessionHashBuckets: Record<string, boolean>;
   /** Hourly distribution (0-23 UTC hours) */
   hourlyDistribution: Record<string, number>;
 }
@@ -53,7 +50,6 @@ export function emptyMetrics(): AggregatedMetrics {
     freshCount: 0,
     errorTypes: {},
     uniqueSessionCount: 0,
-    sessionHashBuckets: {},
     hourlyDistribution: {},
   };
 }
@@ -68,6 +64,7 @@ export async function aggregateEventMetrics(
   dateKey: string,
   metadata: EventMetadata,
   timestamp: number,
+  isNewVisitor = false,
 ): Promise<void> {
   const metricsKey = `metrics:${buttonId}:${dateKey}`;
   const existingMetricsJson = await kv.get(metricsKey);
@@ -88,7 +85,6 @@ export async function aggregateEventMetrics(
         );
       }
       // Ensure new fields exist
-      if (!metrics.sessionHashBuckets) metrics.sessionHashBuckets = {};
       if (!metrics.hourlyDistribution) metrics.hourlyDistribution = {};
       if (!metrics.errorTypes) metrics.errorTypes = {};
     }
@@ -112,13 +108,8 @@ export async function aggregateEventMetrics(
     metrics.errorTypes[metadata.errorType] = (metrics.errorTypes[metadata.errorType] || 0) + 1;
   }
 
-  // Track unique sessions using hash buckets (constant memory, ~256 entries max)
-  if (metadata.sessionId) {
-    const hashBucket = metadata.sessionId.slice(0, 2);
-    if (!metrics.sessionHashBuckets[hashBucket]) {
-      metrics.sessionHashBuckets[hashBucket] = true;
-      metrics.uniqueSessionCount += 1;
-    }
+  if (isNewVisitor) {
+    metrics.uniqueSessionCount += 1;
   }
 
   // Track hourly distribution (UTC hours 0-23)

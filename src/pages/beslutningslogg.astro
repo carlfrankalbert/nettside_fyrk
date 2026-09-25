@@ -1,5 +1,6 @@
 ---
 import ToolLayout from '../layouts/ToolLayout.astro';
+import PageView from '../components/analytics/PageView.astro';
 import BeslutningsloggForm from '../components/Beslutningslogg';
 import { beslutningsloggTool } from '../data/tools';
 
@@ -33,14 +34,11 @@ const { seo, toolName, breadcrumbLabel, showClaude, h1, badge, subtitle, tagline
   </header>
 
   <BeslutningsloggForm client:load />
+  <PageView pageId="beslutningslogg" />
 </ToolLayout>
 
 <script>
-  import { initPageViewTracking } from '../scripts/pageview-tracking';
-  import { initTrackingHelpers } from '../scripts/tracking-exclusion';
   import { initMobileCTA } from '../scripts/mobile-cta';
-  initPageViewTracking('beslutningslogg');
-  initTrackingHelpers();
   initMobileCTA({
     toolName: 'beslutningslogg',
     buttonId: 'mobile-generate-btn',

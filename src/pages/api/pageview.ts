@@ -20,15 +20,9 @@ import {
   type TimePeriod,
 } from '../../utils/analytics-helpers';
 import { ANALYTICS_CONFIG } from '../../utils/constants';
+import { getVisitorHash, addToVisitorSet } from '../../utils/visitor-hash';
 
 export const prerender = false;
-
-/**
- * Maximum unique visitors to track per day per page
- * Prevents unbounded array growth in KV storage
- * After this limit, we stop adding new hashes but still count pageviews
- */
-const MAX_UNIQUE_VISITORS_PER_DAY = 10000;
 
 /**
  * Valid page IDs for tracking
@@ -85,37 +79,11 @@ async function trackArticleView(
     expirationTtl: ANALYTICS_CONFIG.KV_EXPIRATION_TTL,
   });
 
-  const visitorsJson = await kv.get(visitorsKey);
-  let visitors: string[];
-  try {
-    visitors = visitorsJson ? JSON.parse(visitorsJson) : [];
-  } catch {
-    visitors = [];
-  }
-  if (!visitors.includes(visitorHash)) {
-    if (visitors.length < MAX_UNIQUE_VISITORS_PER_DAY) {
-      visitors.push(visitorHash);
-      await kv.put(visitorsKey, JSON.stringify(visitors), {
-        expirationTtl: ANALYTICS_CONFIG.KV_EXPIRATION_TTL,
-      });
-    }
+  if (await addToVisitorSet(kv, visitorsKey, visitorHash)) {
     const totalVisitors = await kv.get(visitorsTotalKey);
     await kv.put(visitorsTotalKey, String((parseInt(totalVisitors || '0', 10) || 0) + 1));
   }
 }
-
-/**
- * Create a SHA-256 hash of a string (for anonymous visitor tracking)
- * Uses Web Crypto API for GDPR-compliant one-way hashing
- */
-async function sha256Hash(str: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(str);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
-}
-
 
 /**
  * Store acquisition data (referrer + UTM) aggregated per page per day
@@ -157,7 +125,7 @@ async function storeAcquisitionData(
 /**
  * POST /api/pageview
  * Tracks page views and unique visitors.
- * Uses Cloudflare KV for storage - no cookies, no personal data stored.
+ * Cookieless: visitors are counted with a daily-salted hash (see utils/visitor-hash).
  *
  * Request body: { pageId: string, referrer?: string, utmSource?: string, utmMedium?: string, utmCampaign?: string }
  */
@@ -237,11 +205,7 @@ export const POST: APIRoute = async ({ request }) => {
     const dateKey = getDateKey(timestamp);
     const hourKey = getHourKey(timestamp);
 
-    // Get visitor identifier from IP (anonymized)
-    const cfConnectingIP = request.headers.get('cf-connecting-ip');
-    const xForwardedFor = request.headers.get('x-forwarded-for');
-    const ip = cfConnectingIP || xForwardedFor?.split(',')[0]?.trim() || 'unknown';
-    const visitorHash = await sha256Hash(ip + dateKey); // SHA-256, changes daily for privacy
+    const visitorHash = await getVisitorHash(request, kv, dateKey);
 
     // Update total page views (legacy counter)
     const totalKey = TRACKED_PAGES[pageId].key;
@@ -265,34 +229,12 @@ export const POST: APIRoute = async ({ request }) => {
       expirationTtl: ANALYTICS_CONFIG.KV_EXPIRATION_TTL,
     });
 
-    // Track unique visitors per day using a set stored as JSON
-    // Limited to MAX_UNIQUE_VISITORS_PER_DAY to prevent unbounded growth
-    const visitorsKey = `visitors:${pageId}:${dateKey}`;
-    const visitorsJson = await kv.get(visitorsKey);
-    let visitors: string[] = [];
-    try {
-      visitors = visitorsJson ? JSON.parse(visitorsJson) : [];
-    } catch {
-      visitors = [];
-    }
-
-    let isNewVisitor = false;
-    if (!visitors.includes(visitorHash)) {
-      isNewVisitor = true;
-
-      // Only store if under the limit (prevents unbounded array growth)
-      if (visitors.length < MAX_UNIQUE_VISITORS_PER_DAY) {
-        visitors.push(visitorHash);
-        await kv.put(visitorsKey, JSON.stringify(visitors), {
-          expirationTtl: ANALYTICS_CONFIG.KV_EXPIRATION_TTL,
-        });
-      }
-
-      // Always update total unique visitors counter (even if array is at limit)
+    // Unique visitors per day; the all-time counter keeps counting past the set cap
+    const isNewVisitor = await addToVisitorSet(kv, `visitors:${pageId}:${dateKey}`, visitorHash);
+    if (isNewVisitor) {
       const totalVisitorsKey = `visitors_total:${pageId}`;
       const currentTotalVisitors = await kv.get(totalVisitorsKey);
-      const newTotalVisitors = (parseInt(currentTotalVisitors || '0', 10) || 0) + 1;
-      await kv.put(totalVisitorsKey, String(newTotalVisitors));
+      await kv.put(totalVisitorsKey, String((parseInt(currentTotalVisitors || '0', 10) || 0) + 1));
     }
 
     // Record per-article read when a valid Innsikt slug was provided
