@@ -2,47 +2,10 @@
 
 ## Oversikt
 
-Nettsiden har nå to miljøer:
+Nettsiden har to miljøer, begge bygget av Cloudflare Workers Builds:
 
 1. **Produksjon** (`main` branch) → `https://fyrk.no`
-2. **Testmiljø** (`develop` branch) → GitHub Pages preview URL
-
-## Hvordan bruke testmiljøet
-
-### 1. Opprett develop branch (første gang)
-
-```bash
-git checkout -b develop
-git push -u origin develop
-```
-
-### 2. Utvikle i testmiljøet
-
-1. **Sjekk ut develop branch:**
-   ```bash
-   git checkout develop
-   ```
-
-2. **Gjør endringer og commit:**
-   ```bash
-   git add .
-   git commit -m "Test: min endring"
-   git push origin develop
-   ```
-
-3. **GitHub Actions deployer automatisk** til preview-miljøet
-   - Gå til GitHub → Actions
-   - Se deployment URL i workflow-run
-
-### 3. Merge til produksjon
-
-Når du er fornøyd med endringene i testmiljøet:
-
-```bash
-git checkout main
-git merge develop
-git push origin main
-```
+2. **Preview** (alle andre brancher) → egen preview-URL per branch
 
 ## Preview-miljø
 
@@ -51,46 +14,34 @@ preview-URL på `*-nettside-fyrk.carlfrankalbert.workers.dev` (lenke i PR-en).
 Trafikk dit telles ikke i `/stats`. Et eget testdomene (tidligere `test.fyrk.no`)
 brukes ikke lenger.
 
-## Lokal utvikling
-
-For lokal testing:
-
-```bash
-npm run dev
-```
-
-Åpner `http://localhost:4321`
-
 ## Workflow
 
 ```
-┌─────────────┐
-│   develop   │ → Testmiljø (automatisk deploy)
-└──────┬──────┘
-       │
-       │ (når klar)
-       ▼
-┌─────────────┐
-│    main     │ → Produksjon (fyrk.no)
-└─────────────┘
+feature-branch ──push──▶ Preview-URL (automatisk)
+      │
+      │ PR + grønn CI
+      ▼
+    main ──────────────▶ fyrk.no (automatisk)
 ```
 
-## Tips
+1. Lag en branch fra `main` og push den.
+2. Åpne en PR — Workers Builds legger preview-lenken i PR-en.
+3. Verifiser endringen på preview-URL-en.
+4. Merge til `main` når CI er grønn; Workers Builds deployer til produksjon.
 
-- **Test alltid i testmiljø først** før du merger til main
-- **Bruk beskrivende commit-meldinger** for å holde oversikt
-- **Sjekk GitHub Actions** for deployment status
-- **Preview URL** finnes i workflow-run output
+## Lokal utvikling
+
+```bash
+npm run dev        # dev-server på http://localhost:4321
+npm run build && npm run preview   # produksjonsbygg i workerd
+```
 
 ## Feilsøking
 
-### Preview deployer ikke
-- Sjekk at `develop` branch eksisterer
-- Sjekk GitHub Actions for feilmeldinger
-- Verifiser at workflow-filen er korrekt
+### Preview-lenken mangler i PR-en
+- Sjekk Workers Builds-loggen for `nettside-fyrk` i Cloudflare-dashboardet
+- Verifiser at `npm run build` er grønn lokalt
 
-### Preview URL fungerer ikke
-- Vent noen minutter etter push (deployment tar tid)
-- Sjekk GitHub Pages settings i repository
-- Verifiser at Pages er aktivert for preview environment
-
+### Preview-URL-en svarer ikke
+- Vent noen minutter etter push (bygget tar tid)
+- Sjekk at Worker-secrets finnes (se `.dev.vars.example` for listen)

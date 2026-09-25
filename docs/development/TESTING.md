@@ -258,7 +258,7 @@ Når du endrer en side, oppdater tilhørende smoke tests:
 | `mobile.ux.ts` | `/`, `/okr-sjekken` | Touch targets (48px), tekststr., `textarea` |
 | `contrast.spec.ts` | `/`, `/okr-sjekken` | `.card`, `textarea`, `.btn-primary` |
 
-\* **Merk:** API-tester i `error-pages.smoke.ts` hoppes over når testene kjøres mot produksjon (fyrk.no) siden API-rutene kun er tilgjengelige via Cloudflare Workers, ikke GitHub Pages.
+\* **Merk:** API-feilhåndtering i `error-pages.smoke.ts` testes mot lokal server og hoppes over mot deployet URL; 404-testene kjøres omvendt bare mot deployet URL (`PLAYWRIGHT_TEST_BASE_URL`), siden dev-serveren ikke serverer `404.html`.
 
 ### Kjør smoke tests lokalt før push
 

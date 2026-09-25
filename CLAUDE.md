@@ -37,22 +37,24 @@ Fyrk is a consulting website with AI-powered tools, deployed on **Cloudflare Wor
 
 ```
 src/
-├── components/     # Astro & React components
-│   ├── content/    # Content display components
+├── components/     # Astro & React components (tool root components live at top level)
+│   ├── antakelseskart/, konseptspeil/, okr/  # Per-tool subcomponents
 │   ├── dashboard/  # Analytics dashboard components
 │   ├── form/       # React form primitives (FormField, FormTextarea, etc.) - client-side
-│   ├── forms/      # Astro form components (server-rendered, progressive enhancement)
-│   ├── landing/    # Landing page sections
-│   ├── layout/     # Header, Footer, ThemeToggle
+│   ├── konsulenter/ # Consultant page sections
+│   ├── landing/    # Landing page sections incl. LandingHeader/LandingFooter
 │   ├── seo/        # SEO-related components
 │   └── ui/         # Reusable UI primitives (ValidationError, StreamingError, PrivacyAccordion)
+├── config/         # Site config
+├── content/        # Content collections (innsikt, releaselog)
 ├── hooks/          # React hooks (useStreamingForm, useCopyToClipboard, useCopyWithToast, usePreMortemForm, etc.)
 ├── pages/          # Routes and API endpoints
 │   ├── api/        # Serverless API routes
 │   └── verktoy/    # Tool subpages (pre-mortem)
-├── services/       # Business logic (API clients, data fetching)
+├── scripts/        # Client-side scripts (mobile menu, tracking, web vitals)
+├── services/       # Per-tool client services (okr-service, konseptspeil-service, …)
 ├── utils/          # Pure utility functions (constants, form-validation, input-sanitization, parsers)
-├── lib/            # Third-party integrations (Sentry)
+├── lib/            # Server infrastructure (AI tool handler, Anthropic client, KV cache/rate limit, streaming)
 ├── data/           # Static data and content
 ├── layouts/        # Page layout templates
 ├── styles/         # Global CSS
