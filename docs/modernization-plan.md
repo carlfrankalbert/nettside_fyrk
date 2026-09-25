@@ -124,13 +124,28 @@ the plan above, and why:
 
 ### 5. Tailwind 3 → 4 — DONE
 
-**Done 2026-09-24.** Migrated with `@tailwindcss/upgrade`: theme moved to the
-`@theme` block in `src/styles/global.css` (no `tailwind.config.mjs`), class-based
-dark mode is a `@custom-variant`, utilities renamed for v4's shifted scales, and a
-compatibility rule keeps v3's default border colour. Tailwind runs as the
-`@tailwindcss/vite` plugin; `postcss.config.mjs` and `autoprefixer` are gone.
-The PostCSS plugin broke the Inter font URLs (it inlines `@fontsource` imports
-without rebasing them); the Vite plugin does not.
+**Done 2026-09-25**, with the rendered site kept identical to v3. Migrated with
+`@tailwindcss/upgrade`: theme in the `@theme` block of `src/styles/global.css`
+(no `tailwind.config.mjs`), class-based dark mode as a `@custom-variant`,
+utilities renamed for v4's shifted scales. Tailwind runs as the
+`@tailwindcss/vite` plugin (the PostCSS plugin broke the Inter font URLs).
+
+v4 changes that would have altered the look, and how `global.css` neutralises
+them (each is commented in place):
+
+- `text-xs/sm/base/lg` get their own line heights in v4 → cleared in `@theme`
+- an explicit `leading-*` now beats a breakpoint `text-*` size → six intro
+  paragraphs got `md:leading-7/8`
+- base-layer `@apply leading-*` sets `--tw-leading` → plain `line-height`
+- `space-y` moved the gap to `margin-bottom` → `@utility space-y-*` override with
+  v3 semantics; the default `p` margin lives in the utilities layer
+- preflight: placeholder colour, button cursor, date-field padding, default
+  border colour → restored
+- OKLCH default palette → v3 values pinned for the colour families in use
+
+Verified by comparing element geometry and computed colours on all 76 routes at
+1280px and 390px against the v3 site: identical, except a `divide-y` border that
+moved between boxes (pixel-identical on screen).
 
 ### 6. Tooling majors — DONE except TypeScript 7
 
