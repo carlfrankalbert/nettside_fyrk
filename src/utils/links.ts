@@ -5,7 +5,7 @@
 
 export const EXTERNAL_LINKS = {
   linkedin: 'https://www.linkedin.com/company/fyrk/',
-  linkedinPersonal: 'https://www.linkedin.com/in/carlfajohnson/',
+  linkedinPersonal: 'https://www.linkedin.com/in/carlfrankalbert/',
   site: 'https://fyrk.no',
   email: 'mailto:hei@fyrk.no',
 } as const;
