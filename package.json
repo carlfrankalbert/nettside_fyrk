@@ -69,7 +69,7 @@
     "lint-staged": "^17.5.1",
     "playwright": "^1.63.0",
     "tailwindcss": "^4.3.3",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "vitest": "^4.1.8",
     "wrangler": "^4.137.0"
   },
