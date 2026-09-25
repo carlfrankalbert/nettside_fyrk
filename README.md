@@ -100,7 +100,7 @@ src/
 │   └── verktoy/                # Verktøy-undersider
 ├── services/                   # Business logic og API-klienter
 ├── utils/                      # Pure utility-funksjoner
-├── lib/                        # Tredjepartsintegrasjoner (Sentry, streaming-client)
+├── lib/                        # Server-infrastruktur (AI-handler, Anthropic-klient, KV, streaming)
 ├── data/                       # Statisk data
 ├── layouts/                    # Side-layouts (BaseLayout, MinimalLayout)
 ├── styles/                     # Globale stiler
@@ -166,7 +166,6 @@ Deployet på **Cloudflare Workers** (Workers Builds) med auto-deploy fra `main`.
 | `ANTHROPIC_API_KEY` | Ja (prod) | API-nøkkel for Claude |
 | `ANTHROPIC_MODEL` | Nei | Override modell (default: claude-sonnet-4-6) |
 | `KONSEPTSPEILET_MOCK` | Nei | `true` for mock-respons lokalt |
-| `PUBLIC_SENTRY_DSN` | Nei | Sentry DSN |
 | `STATS_TOKEN` | Nei | Token for /stats og /api/vitals |
 
 Lokalt leses disse fra `.env`. I produksjon er de Worker-secrets. `.dev.vars.example` er den komplette listen over runtime-variabler.
@@ -181,7 +180,6 @@ Lokalt leses disse fra `.env`. I produksjon er de Worker-secrets. `.dev.vars.exa
 - **[Anthropic Claude API](https://anthropic.com)** — AI for alle verktøy
 - **[Playwright](https://playwright.dev)** — E2E, a11y, visuell testing
 - **[Vitest](https://vitest.dev)** — Unit testing
-- **[Sentry](https://sentry.io)** — Error tracking
 - **[Lighthouse CI](https://github.com/GoogleChrome/lighthouse-ci)** — Performance testing
 - **[k6](https://k6.io)** — Load testing
 

@@ -63,7 +63,6 @@ Deploy skjer automatisk ved push til `main` (Cloudflare Workers Builds). Secrets
 |----------|---------|-------------|
 | `ANTHROPIC_API_KEY` | Ja | API-nøkkel for Claude |
 | `STATS_TOKEN` | Nei | Token for /stats-dashboardet |
-| `PUBLIC_SENTRY_DSN` | Nei | Sentry error tracking |
 
 Se [docs/routines/deploy.md](./docs/routines/deploy.md) for deploy, rollback og konfigurasjon.
 

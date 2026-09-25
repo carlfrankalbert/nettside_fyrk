@@ -6,7 +6,6 @@
  */
 import SEOHead from '../components/seo/SEOHead.astro';
 import Logo from '../components/ui/Logo.astro';
-import SentryMeta from '../components/analytics/SentryMeta.astro';
 import Telemetry from '../components/analytics/Telemetry.astro';
 import '../styles/global.css';
 
@@ -29,7 +28,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       type="website"
       canonicalUrl={canonicalURL}
     />
-    <SentryMeta />
   </head>
   <body class="bg-neutral-50">
     <a href="#main-content" class="skip-link">Hopp til hovedinnhold</a>

@@ -2,7 +2,6 @@
 import LandingHeader from '../components/landing/LandingHeader.astro';
 import LandingFooter from '../components/landing/LandingFooter.astro';
 import SEOHead from '../components/seo/SEOHead.astro';
-import SentryMeta from '../components/analytics/SentryMeta.astro';
 import Telemetry from '../components/analytics/Telemetry.astro';
 import '../styles/global.css';
 import { navLinks, footerContent } from '../data/landing';
@@ -34,7 +33,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       type={type}
       canonicalUrl={canonicalURL}
     />
-    <SentryMeta />
     <slot name="head" />
   </head>
   <body class="min-h-screen flex flex-col">
