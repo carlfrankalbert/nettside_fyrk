@@ -1,106 +1,27 @@
 # Monitoring Guide
 
-This document describes the monitoring infrastructure for the Fyrk website, including error tracking, performance monitoring, and load testing.
+This document describes the monitoring infrastructure for the Fyrk website: errors, analytics, performance and load testing.
 
 ## Overview
 
-The monitoring stack consists of three main components:
+The monitoring stack:
 
-1. **Error Monitoring (Sentry)** - Captures and tracks JavaScript errors
-2. **Performance Monitoring (Web Vitals + Lighthouse CI)** - Measures Core Web Vitals and page performance
-3. **Load Testing (k6)** - Validates API performance under load
+1. **Errors** — server: Cloudflare Workers Logs (`observability` in `wrangler.jsonc`).
+   AI tool failures: counted by type (timeout, rate limit, API error, network) and
+   shown under tool metrics in `/stats`.
+2. **Performance** — Web Vitals (real users, `/api/vitals`) and Lighthouse CI
+3. **Load testing** — k6
 
-## Error Monitoring with Sentry
-
-### Setup
-
-1. Create a Sentry account at [sentry.io](https://sentry.io)
-2. Create a new project for JavaScript
-3. Copy your DSN from Project Settings > Client Keys
-
-### Configuration
-
-Add the following as **build variables** on the Cloudflare Worker (Settings → Build → Variables). They are `PUBLIC_*`, so they are inlined at build time, not read at runtime:
-
-```bash
-PUBLIC_SENTRY_DSN=https://your-key@o123456.ingest.sentry.io/1234567
-PUBLIC_SENTRY_ENVIRONMENT=production
-PUBLIC_SENTRY_RELEASE=1.0.0  # Optional: for release tracking
-```
-
-For local development, create a `.env` file:
-
-```bash
-PUBLIC_SENTRY_DSN=https://your-key@o123456.ingest.sentry.io/1234567
-PUBLIC_SENTRY_ENVIRONMENT=development
-```
-
-### What's Captured
-
-The error tracking automatically captures:
-
-- **Unhandled JavaScript errors** - Any uncaught exceptions
-- **Promise rejections** - Unhandled async errors
-- **Console errors** - Logged as breadcrumbs
-- **User interactions** - Clicks, navigation (breadcrumbs)
-- **HTTP requests** - API calls with status (breadcrumbs)
-- **Context** - Browser, OS, device info
-
-### Manual Error Reporting
-
-For custom error tracking:
-
-```typescript
-import { captureException, captureMessage, addBreadcrumb } from '../lib/sentry';
-
-// Report an exception
-try {
-  riskyOperation();
-} catch (error) {
-  captureException(error, {
-    tags: { component: 'OKRReviewer' }, // or 'KonseptSpeil', 'Antakelseskart'
-    extra: { input: userInput },
-  });
-}
-
-// Report a message
-captureMessage('User completed evaluation', {
-  level: 'info',
-  tags: { feature: 'okr-sjekken' }, // or 'konseptspeilet', 'antakelseskart'
-});
-
-// Add breadcrumb for debugging
-addBreadcrumb({
-  category: 'user-action',
-  message: 'Started OKR evaluation',
-  level: 'info',
-});
-```
-
-### Server-Side Error Tracking
-
-For API routes, use the Sentry library:
-
-```typescript
-import { captureException } from '../../lib/sentry';
-
-export const POST: APIRoute = async ({ request }) => {
-  try {
-    // ... your code
-  } catch (error) {
-    await captureException(error, {
-      tags: { endpoint: 'okr-sjekken' },
-      extra: { requestId: generateRequestId() },
-    });
-    throw error;
-  }
-};
-```
+There is deliberately no third-party browser error tracker (Sentry was removed
+2026-09-25: it was never configured, would add a data processor to the privacy
+policy, and its breadcrumbs could capture text users type into the tools). If
+browser errors need a signal, add a first-party counter to `/api/track`
+(error type + page only) rather than a third-party SDK.
 
 ## Analytics (cookieless)
 
 Every public layout (BaseLayout, MinimalLayout/ToolLayout, the home page) renders
-`<Telemetry />`, which loads error tracking, Web Vitals and `scripts/analytics.ts`.
+`<Telemetry />`, which loads Web Vitals and `scripts/analytics.ts`.
 
 - **Page views:** put `<PageView pageId="…" />` on the page. The ID must exist
   in `TRACKED_PAGES` (`src/pages/api/pageview.ts`); the client type is derived from it.
@@ -314,32 +235,20 @@ Monitor these endpoints:
 
 ## Dashboard
 
-### Sentry Dashboard
+### Server errors
 
-View errors at: `https://sentry.io/organizations/YOUR-ORG/issues/`
+Cloudflare dashboard → Workers → `nettside-fyrk` → Logs.
 
-Key views:
-- **Issues** - Grouped errors
-- **Releases** - Errors by version
-- **Performance** - Transaction traces
-
-### Web Vitals Dashboard
+### Stats dashboard
 
 Access at: `https://fyrk.no/stats` (requires STATS_TOKEN)
 
 Shows:
-- Click tracking
-- Page views
+- Page views, unique visitors, acquisition and audience (Publikum)
+- Click tracking and tool funnels, incl. tool error types
 - Core Web Vitals summary
 
 ## Troubleshooting
-
-### Sentry Not Capturing Errors
-
-1. Check `PUBLIC_SENTRY_DSN` is set correctly
-2. Verify DSN in browser console: look for Sentry meta tag
-3. Check network tab for requests to `ingest.sentry.io`
-4. Ensure error isn't being caught and swallowed
 
 ### Poor Web Vitals Scores
 

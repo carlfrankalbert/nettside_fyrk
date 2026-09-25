@@ -42,4 +42,4 @@ AI-powered review tool that evaluates user-submitted OKRs against best practices
 ## Telemetry
 
 - No PII logged
-- Error tracking via Sentry (if `PUBLIC_SENTRY_DSN` set)
+- Errors counted by type in `/stats` (no third-party error tracker)
