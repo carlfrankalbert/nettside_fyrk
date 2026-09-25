@@ -5,7 +5,7 @@
  * an httpOnly cookie, and the browser is redirected to the same URL without it.
  * The secret then stops travelling in URLs, browser history and request logs.
  */
-import { verifyToken } from '../utils/verify-token';
+import { verifyToken, extractBearerToken } from '../utils/verify-token';
 
 export interface CookieConfig {
   name: string;
@@ -14,9 +14,10 @@ export interface CookieConfig {
   maxAgeSeconds: number;
 }
 
+/** Path `/` so the /stats page and the analytics GET endpoints it calls receive it. */
 export const STATS_TOKEN_COOKIE: CookieConfig = {
   name: 'stats_token',
-  path: '/stats',
+  path: '/',
   maxAgeSeconds: 60 * 60 * 8,
 };
 
@@ -105,4 +106,17 @@ export function resolveTokenGate(
   }
 
   return { status: 'granted' };
+}
+
+/**
+ * Access check for the analytics read endpoints: a Bearer header (scripts) or
+ * the stats cookie (the /stats dashboard). Fails closed when STATS_TOKEN is unset.
+ */
+export function hasStatsAccess(
+  request: Request,
+  cookieToken: string | undefined,
+  expectedToken: string | undefined
+): boolean {
+  if (!expectedToken) return false;
+  return verifyToken(extractBearerToken(request) ?? cookieToken ?? null, expectedToken);
 }

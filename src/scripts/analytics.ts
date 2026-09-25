@@ -1,7 +1,8 @@
 /**
  * Site-wide analytics, loaded once per page by the Telemetry component.
  *
- * - Page views: sent when the page renders a <PageView> marker
+ * - Page views: sent when the page renders a <PageView> marker (the 404 page
+ *   also sends the requested path, to find broken links)
  * - Clicks: any element with data-track-button, via one delegated listener,
  *   so it also covers the shared header and React-rendered elements
  * - Console helpers: fyrk.excludeFromStats() / includeInStats() / isExcluded()
@@ -27,7 +28,11 @@ function initClickTracking(): void {
 function sendPageView(): void {
   const marker = document.querySelector<HTMLElement>('[data-pageview]');
   if (!marker) return;
-  initPageViewTracking(marker.dataset.pageview as PageId, marker.dataset.article || undefined);
+  const pageId = marker.dataset.pageview as PageId;
+  initPageViewTracking(pageId, {
+    articleSlug: marker.dataset.article,
+    path: pageId === 'notfound' ? location.pathname : undefined,
+  });
 }
 
 function removeLegacySession(): void {

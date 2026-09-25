@@ -37,7 +37,7 @@ export function Tooltip({ text, children }: TooltipProps) {
 export const METRIC_EXPLANATIONS = {
   totalClicks: 'Totalt antall ganger brukere har klikket på knapper på siden.',
   pageViews: 'Antall ganger sider har blitt lastet.',
-  uniqueVisitors: 'Antall forskjellige personer som har besøkt siden (basert på nettleser-ID).',
+  uniqueVisitors: 'Antall forskjellige besøkende per dag (anonym daglig kode av IP og nettleser, uten cookies). Samme person på to dager teller to ganger.',
   todayVisitors: 'Unike besøkende som har vært innom i dag.',
   conversionRate: 'Hvor mange som fullfører verktøyet av de som starter. Grønn = over 50% (bra), gul = 25-50% (ok), rød = under 25% (bør undersøkes).',
   satisfaction: 'Andel positive tilbakemeldinger. Grønn = over 70% (bra), gul = 50-70% (ok), rød = under 50% (bør forbedres).',
@@ -47,6 +47,7 @@ export const METRIC_EXPLANATIONS = {
   uniqueSessions: 'Unike brukere per dag, summert over perioden. Telles uten cookies, så samme person på to dager teller to ganger.',
   hourlyActivity: 'Når på døgnet brukerne er mest aktive. Tidene er i UTC (+1 time for norsk vintertid, +2 for sommertid).',
   funnel: 'Viser brukerreisen steg for steg. Grønn = over 70% går videre (bra), gul = 40-70% (ok), rød = under 40% (flaskehals).',
+  audience: 'Hvem som besøker, telt én gang per unike besøkende per dag. Nettverk er eieren av IP-adressen: oftest en internettleverandør, men store virksomheter og offentlige etater har ofte egne nett. 404 viser adresser folk prøvde å åpne som ikke finnes.',
   acquisition: 'Hvor besøkende kommer fra. Viser eksterne henvisere og UTM-parametere fra kampanjelenker (utm_source, utm_medium, utm_campaign).',
 } as const;
 

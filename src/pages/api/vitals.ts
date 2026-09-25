@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
-import { verifyToken, extractBearerToken } from '../../utils/verify-token';
+import { hasStatsAccess, STATS_TOKEN_COOKIE } from '../../lib/token-cookie';
 
 export const prerender = false;
 
@@ -191,21 +191,15 @@ export const POST: APIRoute = async ({ request }) => {
  * GET /api/vitals
  * Returns aggregated Web Vitals statistics (protected)
  */
-export const GET: APIRoute = async ({ request }) => {
-  // Check for auth token
-  const statsToken = env.STATS_TOKEN;
-  const kv = env.ANALYTICS_KV;
-
-  if (statsToken) {
-    const providedToken = extractBearerToken(request);
-
-    if (!verifyToken(providedToken, statsToken)) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
+export const GET: APIRoute = async ({ request, cookies }) => {
+  if (!hasStatsAccess(request, cookies.get(STATS_TOKEN_COOKIE.name)?.value, env.STATS_TOKEN)) {
+    return new Response(
+      JSON.stringify({ error: 'Unauthorized' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
   }
+
+  const kv = env.ANALYTICS_KV;
 
   // Load aggregates from KV on first request
   if (kv) {

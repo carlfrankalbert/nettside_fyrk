@@ -1,7 +1,9 @@
-import { MousePointer, Eye, Zap, BarChart3, ExternalLink, Sparkles, ThumbsUp, Lightbulb, Map, FileText, TrendingUp, Globe, BookOpen } from 'lucide-react';
+import { MousePointer, Eye, Zap, BarChart3, ExternalLink, Sparkles, ThumbsUp, Lightbulb, Map, FileText, TrendingUp, Globe, BookOpen, Users } from 'lucide-react';
 import { KPICard } from './KPICard';
 import { TrafficChart } from './TrafficChart';
 import { AcquisitionChart } from './AcquisitionChart';
+import { AudienceSection } from './AudienceSection';
+import type { AudienceData } from '../../utils/visitor-dimensions';
 import { ButtonClickList } from './ButtonClickList';
 import { FunnelChart } from './FunnelChart';
 import { HourlyDistributionChart } from './HourlyDistributionChart';
@@ -48,14 +50,16 @@ interface AnalyticsDashboardProps {
   totalClicks: number;
   toolMetrics: Record<string, ToolMetrics>;
   articleStats?: ArticleStat[];
+  audience?: AudienceData | null;
+  notFoundPaths?: Record<string, number>;
   dataTimestamp?: number;
 }
 
-const OKR_BUTTONS = ['okr_submit', 'okr_example', 'okr_reset', 'okr_privacy_toggle', 'okr_copy_suggestion', 'okr_read_more'];
-const KONSEPTSPEIL_BUTTONS = ['konseptspeil_submit', 'konseptspeil_example', 'konseptspeil_edit', 'konseptspeil_reset', 'konseptspeil_privacy_toggle', 'konseptspeil_share_colleague', 'konseptspeil_copy_analysis'];
-const ANTAKELSESKART_BUTTONS = ['antakelseskart_submit', 'antakelseskart_example', 'antakelseskart_reset', 'antakelseskart_copy', 'antakelseskart_privacy_toggle'];
+const OKR_BUTTONS = ['okr_submit', 'okr_example', 'okr_reset', 'okr_privacy_toggle', 'okr_copy_suggestion', 'okr_read_more', 'okr_re_evaluate'];
+const KONSEPTSPEIL_BUTTONS = ['konseptspeil_submit', 'konseptspeil_example', 'konseptspeil_edit', 'konseptspeil_reset', 'konseptspeil_privacy_toggle', 'konseptspeil_share_colleague', 'konseptspeil_copy_analysis', 'konseptspeil_feedback_qualitative'];
+const ANTAKELSESKART_BUTTONS = ['antakelseskart_submit', 'antakelseskart_example', 'antakelseskart_edit', 'antakelseskart_reset', 'antakelseskart_copy', 'antakelseskart_copy_summary', 'antakelseskart_privacy_toggle'];
 const PREMORTEM_BUTTONS = ['premortem_submit', 'premortem_copy', 'premortem_reset', 'premortem_privacy_toggle'];
-const LANDING_BUTTONS = ['hero_cta', 'tools_okr_cta', 'tools_konseptspeilet_cta', 'contact_email', 'contact_linkedin', 'about_linkedin'];
+const LANDING_BUTTONS = ['hero_cta', 'hero_secondary_cta', 'nav_cta', 'nav_cta_mobile', 'tools_okr_cta', 'tools_konseptspeilet_cta', 'contact_email', 'contact_linkedin', 'about_linkedin'];
 
 const PERIOD_OPTIONS: { id: Period; label: string }[] = [
   { id: 'today', label: 'I dag' },
@@ -71,7 +75,7 @@ const PERIOD_BADGES: Record<Period, string> = {
   all: 'All tid',
 };
 
-export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClicks, toolMetrics, articleStats = [], dataTimestamp }: AnalyticsDashboardProps) {
+export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClicks, toolMetrics, articleStats = [], audience, notFoundPaths = {}, dataTimestamp }: AnalyticsDashboardProps) {
   const totalViews = Object.values(pageStats).reduce((sum, p) => sum + p.views, 0);
   const totalVisitors = Object.values(pageStats).reduce((sum, p) => sum + p.visitors, 0);
 
@@ -363,6 +367,17 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
         >
           <AcquisitionChart globalPeriod={period} />
         </CollapsibleSection>
+
+        {/* Audience */}
+        {audience && (
+          <CollapsibleSection
+            id="audience"
+            title={<Tooltip text={METRIC_EXPLANATIONS.audience}>Publikum</Tooltip>}
+            icon={<Users className="w-5 h-5" />}
+          >
+            <AudienceSection audience={audience} notFoundPaths={notFoundPaths} />
+          </CollapsibleSection>
+        )}
 
         {/* Buttons */}
         <CollapsibleSection

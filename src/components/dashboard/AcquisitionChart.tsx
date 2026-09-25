@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Globe, Share2, Megaphone, Tag } from 'lucide-react';
+import { RankedList } from './RankedList';
 
 interface AcquisitionData {
   referrers: Record<string, number>;
@@ -32,9 +33,6 @@ function mergeAcquisition(target: AcquisitionData, source: AcquisitionData): voi
     }
   }
 }
-
-/** Maximum entries to display per field */
-const MAX_DISPLAY_ENTRIES = 10;
 
 const FIELD_CONFIG = [
   {
@@ -74,58 +72,6 @@ const FIELD_CONFIG = [
     barTo: 'to-amber-50',
   },
 ];
-
-function AcquisitionList({ config, data }: {
-  config: typeof FIELD_CONFIG[number];
-  data: Record<string, number>;
-}) {
-  const entries = Object.entries(data)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, MAX_DISPLAY_ENTRIES);
-
-  const maxCount = entries.length > 0 ? entries[0][1] : 1;
-  const total = Object.values(data).reduce((sum, c) => sum + c, 0);
-
-  return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className={`p-2 ${config.iconBg} rounded-lg ${config.iconText}`}>
-            {config.icon}
-          </div>
-          <h4 className="font-semibold text-slate-900">{config.title}</h4>
-        </div>
-        {total > 0 && (
-          <span className="text-sm text-slate-400">{total.toLocaleString('no-NO')} totalt</span>
-        )}
-      </div>
-
-      {entries.length === 0 ? (
-        <p className="text-sm text-slate-400 py-2">Ingen data enn&aring;</p>
-      ) : (
-        <div className="space-y-2">
-          {entries.map(([key, count]) => {
-            const percentage = (count / maxCount) * 100;
-            return (
-              <div key={key} className="relative overflow-hidden rounded-xl">
-                <div
-                  className={`absolute inset-0 bg-linear-to-r ${config.barFrom} ${config.barTo} transition-all`}
-                  style={{ width: `${percentage}%` }}
-                />
-                <div className="relative flex items-center justify-between px-4 py-2.5">
-                  <span className="font-medium text-slate-700 truncate mr-4">{key}</span>
-                  <span className="font-bold text-slate-900 shrink-0">
-                    {count.toLocaleString('no-NO')}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
 
 export function AcquisitionChart({ globalPeriod }: AcquisitionChartProps) {
   const [data, setData] = useState<AcquisitionData>(emptyAcquisition);
@@ -183,7 +129,7 @@ export function AcquisitionChart({ globalPeriod }: AcquisitionChartProps) {
   return (
     <div className={`grid gap-6 ${activeFields.length === 1 ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'}`}>
       {activeFields.map(config => (
-        <AcquisitionList key={config.field} config={config} data={data[config.field]} />
+        <RankedList key={config.field} config={config} data={data[config.field]} />
       ))}
     </div>
   );
