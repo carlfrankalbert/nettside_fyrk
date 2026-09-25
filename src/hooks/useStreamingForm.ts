@@ -92,7 +92,7 @@ export interface UseStreamingFormReturn {
   reset: () => void;
 
   // Refs (exposed for components that need them)
-  abortControllerRef: React.MutableRefObject<AbortController | null>;
+  abortControllerRef: React.RefObject<AbortController | null>;
 }
 
 // ============================================================================

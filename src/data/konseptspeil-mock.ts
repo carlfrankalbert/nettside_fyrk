@@ -12,7 +12,7 @@ import type { KonseptspeilJsonResponse } from '../types/konseptspeil-v2';
 /**
  * Mock response for a concept about a product management tool
  */
-export const MOCK_RESPONSE_PRODUCT_TOOL: KonseptspeilJsonResponse = {
+const MOCK_RESPONSE_PRODUCT_TOOL: KonseptspeilJsonResponse = {
   refleksjon_status: {
     kommentar: "Du har beskrevet løsningen detaljert, men problemet den løser er kun antydet.",
     antagelser_funnet: 4
@@ -51,7 +51,7 @@ export const MOCK_RESPONSE_PRODUCT_TOOL: KonseptspeilJsonResponse = {
 /**
  * Mock response for an early-stage idea
  */
-export const MOCK_RESPONSE_EARLY_IDEA: KonseptspeilJsonResponse = {
+const MOCK_RESPONSE_EARLY_IDEA: KonseptspeilJsonResponse = {
   refleksjon_status: {
     kommentar: "Ideen er på et tidlig stadium der mye er antatt og lite er konkretisert.",
     antagelser_funnet: 3
@@ -89,7 +89,7 @@ export const MOCK_RESPONSE_EARLY_IDEA: KonseptspeilJsonResponse = {
 /**
  * Mock response for a more defined concept
  */
-export const MOCK_RESPONSE_DEFINED_CONCEPT: KonseptspeilJsonResponse = {
+const MOCK_RESPONSE_DEFINED_CONCEPT: KonseptspeilJsonResponse = {
   refleksjon_status: {
     kommentar: "Konseptet har flere konkrete elementer, men noen sentrale antagelser er ikke validert.",
     antagelser_funnet: 4
@@ -128,7 +128,7 @@ export const MOCK_RESPONSE_DEFINED_CONCEPT: KonseptspeilJsonResponse = {
 /**
  * Get mock response based on input content
  */
-export function getMockResponse(input: string): KonseptspeilJsonResponse {
+function getMockResponse(input: string): KonseptspeilJsonResponse {
   const lowerInput = input.toLowerCase();
 
   // Keywords that suggest a product management tool concept
