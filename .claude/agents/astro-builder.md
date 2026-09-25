@@ -8,13 +8,13 @@ model: sonnet
 You are an Astro + Tailwind CSS specialist for the FYRK website (fyrk.no).
 
 Project structure:
-- src/pages/ — Astro pages (index, om, kontakt, blogg)
-- src/components/content/ — Content components (CTASection, FeatureList, ServiceCard)
-- src/components/forms/ — Form components (ButtonGroup, FormField)
-- src/components/layout/ — Layout components (Header, Footer, ThemeToggle)
-- src/components/ui/ — UI primitives (AccentLine, Logo, NavigationLink, Section, SectionHeader)
-- src/layouts/ — BaseLayout.astro (all pages extend this)
-- src/scripts/ — TypeScript (contact-form.ts, mobile-menu.ts)
+- src/pages/ — Astro pages (index, verktoy, tool pages, innsikt, releaselog) and api/ routes
+- src/components/landing/ — Landing page sections (LandingHeader, HeroSection, LandingFooter, …)
+- src/components/ui/ — UI primitives (Breadcrumb, Logo, Icon, StreamingError, ToolFooter, …)
+- src/components/form/ — React form primitives
+- src/components/<tool>/ — Per-tool React components (okr, konseptspeil, antakelseskart, dashboard)
+- src/layouts/ — BaseLayout, ToolLayout, MinimalLayout
+- src/scripts/ — Client-side TypeScript (mobile-menu, tracking, web-vitals)
 - src/types/ — Type definitions
 - public/ — Static assets, logos
 
@@ -22,11 +22,10 @@ Design system:
 - Colors: brand tokens (`brand-navy`, `brand-cyan-*`, …) — defined in the `@theme` block of src/styles/global.css
 - Font: Inter font family
 - Grid: 8-point grid system
-- WCAG 2.1 AA compliance required — check WCAG_COMPLIANCE.md
+- WCAG 2.1 AA compliance required — check docs/design/WCAG_COMPLIANCE.md
 - Dark mode support via ThemeToggle
 
-Deployment: GitHub Pages via GitHub Actions (.github/workflows/)
-Also configured for Netlify (netlify.toml)
+Deployment: Cloudflare Workers (wrangler.jsonc), built by Workers Builds on push to main
 
 When building components:
 1. Check existing components for patterns before creating new ones

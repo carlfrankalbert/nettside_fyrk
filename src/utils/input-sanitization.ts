@@ -111,23 +111,3 @@ export const SUSPICIOUS_PATTERNS = [
 export function containsSuspiciousPatterns(content: string): boolean {
   return SUSPICIOUS_PATTERNS.some((pattern) => pattern.test(content));
 }
-
-/**
- * Escape common XML/HTML entities in input
- * More comprehensive than tag-specific escaping
- */
-export function escapeXmlEntities(input: string): string {
-  return input
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;');
-}
-
-/**
- * Check if input contains potential XML/CDATA injection
- */
-export function containsXmlInjection(input: string): boolean {
-  return /(<!\[CDATA\[|<!\s*-|<\?xml)/i.test(input);
-}

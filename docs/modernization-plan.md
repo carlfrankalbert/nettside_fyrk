@@ -72,7 +72,7 @@ body shape, input length, mock mode), `validate-origin`, `streaming-response`,
 `structured-logger`, `request-utils`, `debounce`, `useCopyToClipboard`,
 `useCopyWithToast`. Thresholds raised to match.
 
-**Still open:** `slo-monitoring.ts` (0%), `useStreamingForm.ts` (303 lines, 0%),
+**Still open:** `useStreamingForm.ts` (303 lines, 0%),
 `analytics-helpers.ts` (0%), `kv-circuit-breaker.ts` (62%), `cache.ts` (61%).
 
 **2026-09-24:** `useFormInputHandlers` and `usePreMortemForm` (+ `useMobileSync`)
