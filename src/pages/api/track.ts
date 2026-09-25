@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
 import { shouldExcludeRequest } from '../../utils/tracking-exclusion';
 import { verifySignedRequest } from '../../utils/request-signing';
+import { hasStatsAccess, STATS_TOKEN_COOKIE } from '../../lib/token-cookie';
 import { API_HEADERS, getDateKey, getHourKey, fetchCountTimeseries, type TimePeriod } from '../../utils/analytics-helpers';
 import { ANALYTICS_CONFIG } from '../../utils/constants';
 import { aggregateEventMetrics, type EventMetadata, type ErrorType } from '../../utils/analytics-metrics';
@@ -252,7 +253,11 @@ export const POST: APIRoute = async ({ request }) => {
  * - timeseries: (optional) if 'true', returns time-series data
  * - period: (optional) time period for timeseries: '24h', 'week', 'month', 'year', 'all'
  */
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async ({ url, request, cookies }) => {
+  if (!hasStatsAccess(request, cookies.get(STATS_TOKEN_COOKIE.name)?.value, env.STATS_TOKEN)) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: API_HEADERS });
+  }
+
   try {
     const kv = env.ANALYTICS_KV;
 

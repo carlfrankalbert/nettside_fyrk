@@ -33,12 +33,13 @@ export const personvernContent = {
     },
     {
       heading: 'Bruksstatistikk uten informasjonskapsler',
-      body: 'Vi måler hvordan nettsiden brukes for å gjøre den bedre: sidevisninger, klikk på knapper, hvilken nettside du kom fra og eventuelle kampanjeparametere (utm) i lenken. Vi bruker ikke informasjonskapsler (cookies) eller annen lagring i nettleseren din til dette.',
+      body: 'Vi måler hvordan nettsiden brukes for å gjøre den bedre: sidevisninger, klikk på knapper, hvilken nettside du kom fra, eventuelle kampanjeparametere (utm) i lenken og adresser på fyrk.no som ikke finnes. Vi bruker ikke informasjonskapsler (cookies) eller annen lagring i nettleseren din til dette.',
       bullets: [
         'For å telle unike besøkende lager serveren en kode (hash) av IP-adressen og nettlesertypen din sammen med en tilfeldig verdi som byttes hver dag og slettes etter to døgn. IP-adressen lagres ikke',
         'Koden kan ikke kobles til deg eller til besøk på andre dager, og statistikken deles ikke med andre',
+        'Ut fra IP-adressen registrerer vi hvilket land besøket kommer fra og hvilken organisasjon som eier nettverket (vanligvis en internettleverandør, noen ganger en større virksomhet). Ut fra nettleserens tekniske identifikasjon registrerer vi om du bruker mobil, nettbrett eller PC, og hvilken nettleser. Dette lagres bare som samlede tall, aldri knyttet til det enkelte besøket. Opplysningene kommer fra Cloudflare, som drifter nettsiden',
         'Vi måler også lastetid og tekniske feil for å kunne rette dem',
-        'Grunnlaget er vår berettigede interesse i å forstå og forbedre nettsiden (personvernforordningen art. 6 nr. 1 bokstav f)',
+        'Grunnlaget er vår berettigede interesse i å forstå og forbedre nettsiden (personvernforordningen art. 6 nr. 1 bokstav f). Du kan protestere ved å kontakte oss, men fordi opplysningene ikke kan knyttes til deg, kan vi normalt ikke finne igjen dine (art. 11)',
       ],
     },
     {

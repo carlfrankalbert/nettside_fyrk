@@ -3,6 +3,7 @@ import { env } from 'cloudflare:workers';
 import { getCollection } from 'astro:content';
 import { shouldExcludeRequest } from '../../utils/tracking-exclusion';
 import { verifySignedRequest } from '../../utils/request-signing';
+import { hasStatsAccess, STATS_TOKEN_COOKIE } from '../../lib/token-cookie';
 import {
   sanitizeReferrer,
   sanitizeUtmValue,
@@ -21,6 +22,7 @@ import {
 } from '../../utils/analytics-helpers';
 import { ANALYTICS_CONFIG } from '../../utils/constants';
 import { getVisitorHash, addToVisitorSet } from '../../utils/visitor-hash';
+import { recordAudience, recordNotFound, type RequestGeo } from '../../utils/visitor-dimensions';
 
 export const prerender = false;
 
@@ -37,6 +39,7 @@ export const TRACKED_PAGES = {
   innsikt: { key: 'pageviews_innsikt', label: 'fyrk.no/innsikt' },
   verktoy: { key: 'pageviews_verktoy', label: 'fyrk.no/verktoy' },
   konsulenter: { key: 'pageviews_konsulenter', label: 'fyrk.no/konsulenter' },
+  notfound: { key: 'pageviews_notfound', label: '404 (siden finnes ikke)' },
 } as const;
 
 export type PageId = keyof typeof TRACKED_PAGES;
@@ -127,7 +130,7 @@ async function storeAcquisitionData(
  * Tracks page views and unique visitors.
  * Cookieless: visitors are counted with a daily-salted hash (see utils/visitor-hash).
  *
- * Request body: { pageId: string, referrer?: string, utmSource?: string, utmMedium?: string, utmCampaign?: string }
+ * Request body: { pageId, articleSlug?, path? (notfound only), referrer?, utmSource?, utmMedium?, utmCampaign? }
  */
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -152,6 +155,8 @@ export const POST: APIRoute = async ({ request }) => {
     interface PageViewBody {
       pageId?: string;
       articleSlug?: string;
+      /** Requested path, only for pageId 'notfound' */
+      path?: string;
       referrer?: string;
       utmSource?: string;
       utmMedium?: string;
@@ -160,6 +165,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     let pageId: PageId = 'home';
     let articleSlug: string | null = null;
+    let notFoundPath: string | undefined;
     let acquisitionFields: Omit<PageViewBody, 'pageId' | 'articleSlug'> = {};
     try {
       const rawBody = await request.json() as {
@@ -189,6 +195,10 @@ export const POST: APIRoute = async ({ request }) => {
         if (validSlugs.has(body.articleSlug)) {
           articleSlug = body.articleSlug;
         }
+      }
+
+      if (pageId === 'notfound' && typeof body.path === 'string') {
+        notFoundPath = body.path;
       }
 
       acquisitionFields = {
@@ -237,6 +247,16 @@ export const POST: APIRoute = async ({ request }) => {
       await kv.put(totalVisitorsKey, String((parseInt(currentTotalVisitors || '0', 10) || 0) + 1));
     }
 
+    // Country, organisation, device and browser: once per site visitor per day
+    if (await addToVisitorSet(kv, `visitors_site:${dateKey}`, visitorHash)) {
+      const geo = (request as Request & { cf?: RequestGeo }).cf;
+      await recordAudience(kv, dateKey, geo, request.headers.get('user-agent') || '');
+    }
+
+    if (notFoundPath) {
+      await recordNotFound(kv, dateKey, notFoundPath);
+    }
+
     // Record per-article read when a valid Innsikt slug was provided
     if (articleSlug) {
       await trackArticleView(kv, articleSlug, dateKey, visitorHash);
@@ -269,7 +289,11 @@ export const POST: APIRoute = async ({ request }) => {
  * - acquisition: (optional) if 'true', returns referrer/UTM data
  * - period: (optional) time period: '24h', 'week', 'month', 'year', 'all'
  */
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async ({ url, request, cookies }) => {
+  if (!hasStatsAccess(request, cookies.get(STATS_TOKEN_COOKIE.name)?.value, env.STATS_TOKEN)) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: API_HEADERS });
+  }
+
   try {
     const kv = env.ANALYTICS_KV;
 

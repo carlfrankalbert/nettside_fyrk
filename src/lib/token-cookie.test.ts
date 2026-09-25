@@ -6,6 +6,8 @@ import {
   serializeCookie,
   redirectWithCookie,
   withoutToken,
+  hasStatsAccess,
+  STATS_TOKEN_COOKIE,
   type CookieConfig,
 } from './token-cookie';
 
@@ -94,5 +96,32 @@ describe('resolveTokenGate', () => {
       status: 'mismatch',
       clearCookie: false,
     });
+  });
+});
+
+describe('hasStatsAccess', () => {
+  const request = (headers: Record<string, string> = {}) =>
+    new Request('https://fyrk.no/api/pageview?all=true', { headers });
+
+  it('accepts a valid Bearer token', () => {
+    expect(hasStatsAccess(request({ Authorization: `Bearer ${EXPECTED}` }), undefined, EXPECTED)).toBe(true);
+  });
+
+  it('accepts a valid stats cookie', () => {
+    expect(hasStatsAccess(request(), EXPECTED, EXPECTED)).toBe(true);
+  });
+
+  it('rejects a missing or wrong token', () => {
+    expect(hasStatsAccess(request(), undefined, EXPECTED)).toBe(false);
+    expect(hasStatsAccess(request(), 'wrong', EXPECTED)).toBe(false);
+  });
+
+  // Regression: /api/vitals used to be open when STATS_TOKEN was unset
+  it('fails closed when STATS_TOKEN is not configured', () => {
+    expect(hasStatsAccess(request({ Authorization: 'Bearer anything' }), 'anything', undefined)).toBe(false);
+  });
+
+  it('scopes the stats cookie to the whole site so the API receives it', () => {
+    expect(STATS_TOKEN_COOKIE.path).toBe('/');
   });
 });

@@ -19,6 +19,8 @@ function sendEvent(buttonId: string, metadata?: EventMetadata): void {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(signedRequest),
+    // Clicks on links navigate away; keepalive stops the browser cancelling the request
+    keepalive: true,
   });
 }
 

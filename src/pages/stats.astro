@@ -6,7 +6,8 @@ import { getCollection } from 'astro:content';
 import { TRACKED_BUTTONS } from './api/track';
 import { TRACKED_PAGES } from './api/pageview';
 import { AnalyticsDashboard } from '../components/dashboard/AnalyticsDashboard';
-import { resolveTokenGate, STATS_TOKEN_COOKIE } from '../lib/token-cookie';
+import { resolveTokenGate, serializeCookie, STATS_TOKEN_COOKIE } from '../lib/token-cookie';
+import { readAudience, type AudienceData } from '../utils/visitor-dimensions';
 import '../styles/global.css';
 import '@fontsource/inter/400.css';
 import '@fontsource/inter/500.css';
@@ -43,6 +44,12 @@ if (gate.status === 'mismatch' && gate.clearCookie) {
   Astro.cookies.delete(STATS_TOKEN_COOKIE.name, { path: STATS_TOKEN_COOKIE.path });
 }
 
+// Re-issue the cookie so one set before the path became '/' also reaches the API
+const cookieToken = Astro.cookies.get(STATS_TOKEN_COOKIE.name)?.value;
+if (gate.status === 'granted' && cookieToken) {
+  Astro.response.headers.append('Set-Cookie', serializeCookie(cookieToken, STATS_TOKEN_COOKIE));
+}
+
 const tokenNotConfigured = gate.status === 'not-configured';
 const tokenProvided = gate.status !== 'missing';
 const tokenMismatch = gate.status === 'mismatch';
@@ -68,6 +75,8 @@ let buttonCounts: ButtonCounts | null = null;
 let pageStats: PageStats | null = null;
 let toolMetrics: AllMetrics | null = null;
 let articleStats: ArticleStat[] = [];
+let audience: AudienceData | null = null;
+let notFoundPaths: Record<string, number> = {};
 let totalClicks = 0;
 let dataTimestamp: number | null = null;
 
@@ -256,6 +265,9 @@ if (hasAccess) {
     articleStats = articleResults
       .filter(a => a.views > 0)
       .sort((a, b) => b.views - a.views);
+
+    // --- Audience (country, organisation, device, browser) and 404 paths ---
+    ({ audience, notFound: notFoundPaths } = await readAudience(kv, period === 'all' ? 'all' : dates));
   }
 }
 ---
@@ -269,11 +281,8 @@ if (hasAccess) {
   <link rel="icon" type="image/svg+xml" href="/fyrk-monogram-primary-navy.svg" />
   <title>Analytics - FYRK</title>
   <style is:global>
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    /* No `*` reset here: Tailwind's preflight already does it, and an unlayered
+       reset would override every layered spacing utility under Tailwind 4. */
     html {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       -webkit-font-smoothing: antialiased;
@@ -327,6 +336,8 @@ if (hasAccess) {
       totalClicks={totalClicks}
       toolMetrics={toolMetrics || {}}
       articleStats={articleStats}
+      audience={audience}
+      notFoundPaths={notFoundPaths}
       dataTimestamp={dataTimestamp || Date.now()}
     />
   ) : (

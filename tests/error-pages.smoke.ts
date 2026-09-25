@@ -228,9 +228,9 @@ test.describe('Error Pages Smoke Tests', () => {
         // Should return 404 or redirect
         expect([200, 301, 302, 404]).toContain(response?.status() || 404);
 
-        // 404 page uses instant meta refresh (content="0") which races with
-        // Playwright. If page.content() throws because the page is navigating,
-        // that confirms the redirect is working — which is the expected behavior.
+        // The 404 page redirects from script right after load (meta refresh is a
+        // 3s no-JS fallback), which races with Playwright. If page.content() throws
+        // because the page is navigating, the redirect works as expected.
         try {
           await page.waitForLoadState('load', { timeout: 5000 });
           const content = await page.content();

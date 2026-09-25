@@ -115,6 +115,16 @@ Every public layout (BaseLayout, MinimalLayout/ToolLayout, the home page) render
   reversed. Nothing is stored on the visitor's device, which is why no consent
   banner is needed. Keep it that way: any cookie or localStorage identifier for
   analytics requires consent under ekomloven § 3-15.
+- **Audience** (`src/utils/visitor-dimensions.ts`): once per unique site visitor
+  per day, `/api/pageview` counts country and network organisation (from
+  Cloudflare's `request.cf`) and device class and browser family (from the
+  User-Agent). Stored only as counts in `audience:{date}` and `audience_total`.
+- **404s:** the 404 page sends the requested path (`pageId: 'notfound'`), then
+  redirects from script. Counts live in `notfound:{date}` and `notfound_total`.
+- **Reading stats:** `/stats` reads audience data server-side. The analytics
+  GET endpoints (`/api/pageview`, `/api/track`, `/api/vitals`) need
+  `Authorization: Bearer <STATS_TOKEN>` or the `stats_token` cookie, and return
+  401 when `STATS_TOKEN` is unset.
 
 ## What counts in `/stats`
 

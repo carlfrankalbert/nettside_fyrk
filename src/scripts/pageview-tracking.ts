@@ -15,6 +15,8 @@ interface PageViewPayload {
   pageId: PageId;
   /** Innsikt article slug — enables per-article view counts. Validated server-side. */
   articleSlug?: string;
+  /** Requested path — only sent from the 404 page, to find broken links */
+  path?: string;
   referrer?: string;
   utmSource?: string;
   utmMedium?: string;
@@ -63,35 +65,28 @@ function getUtmParams(): Pick<PageViewPayload, 'utmSource' | 'utmMedium' | 'utmC
 }
 
 /**
- * Track a page view (fire and forget with retry)
- * Includes referrer and UTM data when available
+ * Send a page view (fire and forget with retry), with referrer and UTM data.
+ * keepalive lets it finish even if the page navigates away (the 404 page redirects).
  */
-function trackPageView(pageId: PageId, articleSlug?: string): void {
+export function initPageViewTracking(
+  pageId: PageId,
+  extra: Pick<PageViewPayload, 'articleSlug' | 'path'> = {},
+): void {
   if (shouldExcludeFromTracking()) return;
 
   const payload: PageViewPayload = { pageId };
-  if (articleSlug) payload.articleSlug = articleSlug;
+  if (extra.articleSlug) payload.articleSlug = extra.articleSlug;
+  if (extra.path) payload.path = extra.path;
 
   const referrer = getReferrerDomain();
   if (referrer) payload.referrer = referrer;
 
-  const utm = getUtmParams();
-  Object.assign(payload, utm);
-
-  const signedRequest = signRequest(payload);
+  Object.assign(payload, getUtmParams());
 
   fetchWithRetryFireAndForget('/api/pageview', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(signedRequest),
+    body: JSON.stringify(signRequest(payload)),
+    keepalive: true,
   });
-}
-
-/**
- * Initialize page view tracking
- * Call this on page load with the appropriate page ID.
- * Pass articleSlug on Innsikt article pages to record per-article reads.
- */
-export function initPageViewTracking(pageId: PageId, articleSlug?: string): void {
-  trackPageView(pageId, articleSlug);
 }
