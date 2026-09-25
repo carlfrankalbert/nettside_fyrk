@@ -3,7 +3,7 @@
  * Single source of truth for personvern and vilkår pages
  */
 
-export const lastUpdated = 'Februar 2026' as const;
+export const lastUpdated = 'September 2026' as const;
 
 export const personvernContent = {
   seo: {
@@ -22,7 +22,7 @@ export const personvernContent = {
       body: 'Når du bruker OKR-sjekken, Konseptspeilet eller andre AI-verktøy:',
       bullets: [
         'Teksten du skriver inn sendes kryptert til Anthropic (Claude API) for analyse',
-        'Ingen data lagres på våre servere – teksten slettes umiddelbart etter at svaret er generert',
+        'Teksten du skriver inn lagres ikke. Svaret fra AI-en mellomlagres i inntil 24 timer, knyttet til en anonym kode (hash) av teksten, slik at samme tekst gir raskt svar. Deretter slettes det automatisk',
         'Teksten brukes ikke til å trene AI-modeller (vi bruker Anthropic API med zero data retention)',
         'Du trenger ikke logge inn for å bruke verktøyene',
       ],
@@ -32,8 +32,14 @@ export const personvernContent = {
       },
     },
     {
-      heading: 'Anonymisert analyse',
-      body: 'Vi samler inn anonymisert bruksstatistikk (sidevisninger, knappeklikk) for å forbedre nettsiden. Denne informasjonen kan ikke spores tilbake til enkeltpersoner.',
+      heading: 'Bruksstatistikk uten informasjonskapsler',
+      body: 'Vi måler hvordan nettsiden brukes for å gjøre den bedre: sidevisninger, klikk på knapper, hvilken nettside du kom fra og eventuelle kampanjeparametere (utm) i lenken. Vi bruker ikke informasjonskapsler (cookies) eller annen lagring i nettleseren din til dette.',
+      bullets: [
+        'For å telle unike besøkende lager serveren en kode (hash) av IP-adressen og nettlesertypen din sammen med en tilfeldig verdi som byttes hver dag og slettes etter to døgn. IP-adressen lagres ikke',
+        'Koden kan ikke kobles til deg eller til besøk på andre dager, og statistikken deles ikke med andre',
+        'Vi måler også lastetid og tekniske feil for å kunne rette dem',
+        'Grunnlaget er vår berettigede interesse i å forstå og forbedre nettsiden (personvernforordningen art. 6 nr. 1 bokstav f)',
+      ],
     },
     {
       heading: 'Kontakt',

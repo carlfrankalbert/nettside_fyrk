@@ -5,6 +5,7 @@ import { verifySignedRequest } from '../../utils/request-signing';
 import { API_HEADERS, getDateKey, getHourKey, fetchCountTimeseries, type TimePeriod } from '../../utils/analytics-helpers';
 import { ANALYTICS_CONFIG } from '../../utils/constants';
 import { aggregateEventMetrics, type EventMetadata, type ErrorType } from '../../utils/analytics-metrics';
+import { getVisitorHash, addToVisitorSet } from '../../utils/visitor-hash';
 
 export const prerender = false;
 
@@ -20,11 +21,12 @@ export const TRACKED_BUTTONS = {
   okr_privacy_toggle: { key: 'okr_privacy_toggle_clicks', label: 'Les mer om AI og personvern' },
   okr_copy_suggestion: { key: 'okr_copy_suggestion_clicks', label: 'Kopier til utklippstavle' },
   okr_read_more: { key: 'okr_read_more_clicks', label: 'Les mer (vurdering)' },
+  okr_re_evaluate: { key: 'okr_re_evaluate_clicks', label: 'Vurder forslaget på nytt' },
   okr_input_started: { key: 'okr_input_started', label: 'OKR startet å skrive' },
 
   // OKR-sjekken funnel events
   okr_submit_attempted: { key: 'okr_submit_attempted', label: 'OKR innsending forsøkt' },
-  check_success: { key: 'okr_check_success', label: 'OKR-sjekk fullført' },
+  okr_success: { key: 'okr_check_success', label: 'OKR-sjekk fullført' },
   okr_error: { key: 'okr_error', label: 'OKR-sjekk feil' },
   feedback_up: { key: 'okr_feedback_up', label: 'Tilbakemelding: Nyttig' },
   feedback_down: { key: 'okr_feedback_down', label: 'Tilbakemelding: Ikke nyttig' },
@@ -45,12 +47,16 @@ export const TRACKED_BUTTONS = {
   konseptspeil_error: { key: 'konseptspeil_error', label: 'Konseptspeil feil' },
   konseptspeil_feedback_up: { key: 'konseptspeil_feedback_up', label: 'Tilbakemelding: Nyttig' },
   konseptspeil_feedback_down: { key: 'konseptspeil_feedback_down', label: 'Tilbakemelding: Ikke nyttig' },
+  konseptspeil_feedback_qualitative: { key: 'konseptspeil_feedback_qualitative', label: 'Tilbakemelding: Utdypet' },
+  konseptspeil_retry: { key: 'konseptspeil_retry', label: 'Konseptspeil nytt forsøk' },
 
   // Antakelseskart page buttons
   antakelseskart_submit: { key: 'antakelseskart_submit_clicks', label: 'Generer antakelseskart' },
   antakelseskart_example: { key: 'antakelseskart_example_clicks', label: 'Prøv med eksempel' },
   antakelseskart_reset: { key: 'antakelseskart_reset_clicks', label: 'Nullstill' },
   antakelseskart_copy: { key: 'antakelseskart_copy_clicks', label: 'Kopier' },
+  antakelseskart_copy_summary: { key: 'antakelseskart_copy_summary_clicks', label: 'Kopier oppsummering' },
+  antakelseskart_edit: { key: 'antakelseskart_edit_clicks', label: 'Rediger' },
   antakelseskart_input_started: { key: 'antakelseskart_input_started', label: 'Startet å skrive' },
   antakelseskart_privacy_toggle: { key: 'antakelseskart_privacy_toggle_clicks', label: 'Les mer om AI og personvern' },
 
@@ -58,6 +64,7 @@ export const TRACKED_BUTTONS = {
   antakelseskart_submit_attempted: { key: 'antakelseskart_submit_attempted', label: 'Antakelseskart innsending forsøkt' },
   antakelseskart_success: { key: 'antakelseskart_success', label: 'Antakelseskart fullført' },
   antakelseskart_error: { key: 'antakelseskart_error', label: 'Antakelseskart feil' },
+  antakelseskart_retry: { key: 'antakelseskart_retry', label: 'Antakelseskart nytt forsøk' },
 
   // Beslutningslogg page buttons
   beslutningslogg_generate: { key: 'beslutningslogg_generate_clicks', label: 'Lag Markdown' },
@@ -75,6 +82,7 @@ export const TRACKED_BUTTONS = {
   premortem_submit_attempted: { key: 'premortem_submit_attempted', label: 'Pre-Mortem innsending forsøkt' },
   premortem_success: { key: 'premortem_success', label: 'Pre-Mortem fullført' },
   premortem_error: { key: 'premortem_error', label: 'Pre-Mortem feil' },
+  premortem_retry: { key: 'premortem_retry', label: 'Pre-Mortem nytt forsøk' },
 
   // Security / operational events
   rate_limit_hit: { key: 'rate_limit_hits', label: 'Rate limit truffet' },
@@ -85,6 +93,9 @@ export const TRACKED_BUTTONS = {
 
   // Landing page buttons
   hero_cta: { key: 'hero_cta_clicks', label: 'Kontakt FYRK (hero)' },
+  hero_secondary_cta: { key: 'hero_secondary_cta_clicks', label: 'Sekundær CTA (hero)' },
+  nav_cta: { key: 'nav_cta_clicks', label: 'Kontakt (meny)' },
+  nav_cta_mobile: { key: 'nav_cta_mobile_clicks', label: 'Kontakt (mobilmeny)' },
   tools_okr_cta: { key: 'tools_okr_cta_clicks', label: 'Prøv OKR-sjekken' },
   tools_konseptspeilet_cta: { key: 'tools_konseptspeilet_cta_clicks', label: 'Prøv konseptspeilet' },
   contact_email: { key: 'contact_email_clicks', label: 'E-post (kontakt)' },
@@ -99,10 +110,10 @@ export type ButtonId = keyof typeof TRACKED_BUTTONS;
 /**
  * POST /api/track
  * Increments the click counter for a specific button and stores timestamp.
- * Uses Cloudflare KV for storage - no cookies, no personal data.
+ * Cookieless: unique visitors per event are counted with a daily-salted hash.
  *
  * Request body: { buttonId: string, metadata?: { charCount?: number, processingTimeMs?: number } }
- * If no buttonId provided, defaults to 'okr_submit' for backwards compatibility
+ * Unknown or missing buttonId → 400, so a new event can never be miscounted as another.
  */
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -125,7 +136,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Parse and verify signed request
-    let buttonId: ButtonId = 'okr_submit'; // default for backwards compatibility
+    let buttonId: ButtonId | undefined;
     let metadata: EventMetadata | undefined;
     try {
       const rawBody = await request.json() as {
@@ -163,11 +174,17 @@ export const POST: APIRoute = async ({ request }) => {
           cached: typeof body.metadata.cached === 'boolean' ? body.metadata.cached : undefined,
           inputLength: typeof body.metadata.inputLength === 'number' ? Math.round(body.metadata.inputLength) : undefined,
           toolVersion: typeof body.metadata.toolVersion === 'string' ? body.metadata.toolVersion.slice(0, 20) : undefined,
-          sessionId: typeof body.metadata.sessionId === 'string' ? body.metadata.sessionId.slice(0, 30) : undefined,
         };
       }
     } catch {
-      // No body or invalid JSON - use default
+      // No body or invalid JSON - rejected below
+    }
+
+    if (!buttonId) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Unknown event' }),
+        { status: 400, headers: API_HEADERS }
+      );
     }
 
     const kvKey = TRACKED_BUTTONS[buttonId].key;
@@ -202,12 +219,12 @@ export const POST: APIRoute = async ({ request }) => {
       }),
     ];
 
-    // Store aggregated metadata for events with metadata
-    if (metadata) {
-      writePromises.push(
-        aggregateEventMetrics(kv, buttonId, dateKey, metadata, timestamp)
-      );
-    }
+    // Aggregated per-event metrics, including unique visitors per day
+    const visitorHash = await getVisitorHash(request, kv, dateKey);
+    const isNewVisitor = await addToVisitorSet(kv, `event_visitors:${buttonId}:${dateKey}`, visitorHash);
+    writePromises.push(
+      aggregateEventMetrics(kv, buttonId, dateKey, metadata ?? {}, timestamp, isNewVisitor)
+    );
 
     await Promise.all(writePromises);
 

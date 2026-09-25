@@ -1,5 +1,6 @@
 ---
 import ToolLayout from '../layouts/ToolLayout.astro';
+import PageView from '../components/analytics/PageView.astro';
 import OKRPageContent from '../components/OKRPageContent';
 import { okrTool } from '../data/tools';
 
@@ -84,14 +85,11 @@ const faqItems = [
       </div>
     </details>
   </section>
+  <PageView pageId="okr" />
 </ToolLayout>
 
 <script>
-  import { initPageViewTracking } from '../scripts/pageview-tracking';
-  import { initTrackingHelpers } from '../scripts/tracking-exclusion';
   import { initMobileCTA } from '../scripts/mobile-cta';
-  initPageViewTracking('okr');
-  initTrackingHelpers();
   initMobileCTA({
     toolName: 'okr',
     isDisabled: (d) => !!d.isLoading,

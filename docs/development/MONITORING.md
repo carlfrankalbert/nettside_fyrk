@@ -97,6 +97,25 @@ export const POST: APIRoute = async ({ request }) => {
 };
 ```
 
+## Analytics (cookieless)
+
+Every public layout (BaseLayout, MinimalLayout/ToolLayout, the home page) renders
+`<Telemetry />`, which loads error tracking, Web Vitals and `scripts/analytics.ts`.
+
+- **Page views:** put `<PageView pageId="…" />` on the page. The ID must exist
+  in `TRACKED_PAGES` (`src/pages/api/pageview.ts`); the client type is derived from it.
+- **Clicks:** add `data-track-button="<id>"` to any element, or call
+  `trackClick` / `logEvent` from `src/utils/tracking.ts` in React.
+- **New event IDs** must be added to `TRACKED_BUTTONS` (`src/pages/api/track.ts`).
+  Unknown IDs get a 400; `src/utils/tracked-events.test.ts` fails if the source
+  sends an ID the server doesn't know.
+- **Unique visitors** are counted server-side with
+  `hash(daily random salt + IP + user agent)` (`src/utils/visitor-hash.ts`). The
+  salt lives in KV for two days, so hashes can't be linked across days or
+  reversed. Nothing is stored on the visitor's device, which is why no consent
+  banner is needed. Keep it that way: any cookie or localStorage identifier for
+  analytics requires consent under ekomloven § 3-15.
+
 ## What counts in `/stats`
 
 `/api/pageview` and `/api/track` ignore (see `src/utils/tracking-exclusion.ts` and

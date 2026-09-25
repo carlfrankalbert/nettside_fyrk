@@ -4,6 +4,7 @@
  * Short, substantive texts on product leadership and prioritisation
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageView from '../../components/analytics/PageView.astro';
 import { getCollection } from 'astro:content';
 
 const insights = (await getCollection('innsikt', ({ data }) => !data.draft))
@@ -58,9 +59,5 @@ const insights = (await getCollection('innsikt', ({ data }) => !data.draft))
 
     </div>
   </article>
+  <PageView pageId="innsikt" />
 </BaseLayout>
-
-<script>
-  import { initPageViewTracking } from '../../scripts/pageview-tracking';
-  initPageViewTracking('innsikt');
-</script>

@@ -1,5 +1,6 @@
 ---
 import ToolLayout from '../../layouts/ToolLayout.astro';
+import PageView from '../../components/analytics/PageView.astro';
 import PreMortemBrief from '../../components/PreMortemBrief';
 import { preMortemTool } from '../../data/tools';
 
@@ -31,14 +32,11 @@ const { seo, toolName, breadcrumbLabel, h1, badge, subtitle, tagline, whenToUse,
   </header>
 
   <PreMortemBrief client:load />
+  <PageView pageId="premortem" />
 </ToolLayout>
 
 <script>
-  import { initPageViewTracking } from '../../scripts/pageview-tracking';
-  import { initTrackingHelpers } from '../../scripts/tracking-exclusion';
   import { initMobileCTA } from '../../scripts/mobile-cta';
-  initPageViewTracking('premortem');
-  initTrackingHelpers();
   initMobileCTA({
     toolName: 'premortem',
     isDisabled: (d) => !!d.isLoading || !d.isValid,

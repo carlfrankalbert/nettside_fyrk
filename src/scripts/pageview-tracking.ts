@@ -6,8 +6,10 @@
 import { shouldExcludeFromTracking } from './tracking-exclusion';
 import { signRequest } from '../utils/request-signing';
 import { fetchWithRetryFireAndForget } from '../utils/fetch-retry';
+// Single source of truth: the server's list of tracked pages
+import type { PageId } from '../pages/api/pageview';
 
-type PageId = 'home' | 'okr' | 'konseptspeil' | 'antakelseskart' | 'beslutningslogg' | 'premortem' | 'innsikt' | 'verktoy' | 'konsulenter';
+export type { PageId };
 
 interface PageViewPayload {
   pageId: PageId;

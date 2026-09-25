@@ -2,6 +2,8 @@
 import LandingHeader from '../components/landing/LandingHeader.astro';
 import LandingFooter from '../components/landing/LandingFooter.astro';
 import SEOHead from '../components/seo/SEOHead.astro';
+import SentryMeta from '../components/analytics/SentryMeta.astro';
+import Telemetry from '../components/analytics/Telemetry.astro';
 import '../styles/global.css';
 import { navLinks, footerContent } from '../data/landing';
 
@@ -20,11 +22,6 @@ const {
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-
-// Get Sentry config from environment
-const sentryDsn = import.meta.env.PUBLIC_SENTRY_DSN;
-const sentryEnvironment = import.meta.env.PUBLIC_SENTRY_ENVIRONMENT || 'production';
-const sentryRelease = import.meta.env.PUBLIC_SENTRY_RELEASE;
 ---
 
 <!doctype html>
@@ -37,10 +34,7 @@ const sentryRelease = import.meta.env.PUBLIC_SENTRY_RELEASE;
       type={type}
       canonicalUrl={canonicalURL}
     />
-    {/* Sentry configuration meta tags */}
-    {sentryDsn && <meta name="sentry-dsn" content={sentryDsn} />}
-    <meta name="sentry-environment" content={sentryEnvironment} />
-    {sentryRelease && <meta name="sentry-release" content={sentryRelease} />}
+    <SentryMeta />
     <slot name="head" />
   </head>
   <body class="min-h-screen flex flex-col">
@@ -51,9 +45,7 @@ const sentryRelease = import.meta.env.PUBLIC_SENTRY_RELEASE;
     </main>
     <LandingFooter {...footerContent} />
 
-    {/* Error tracking and Web Vitals monitoring */}
-    <script src="../scripts/error-tracking.ts"></script>
-    <script src="../scripts/web-vitals.ts"></script>
+    <Telemetry />
   </body>
 </html>
 

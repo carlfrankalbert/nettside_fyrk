@@ -4,6 +4,7 @@
  * Groups all FYRK tools by intent with disclaimers and service bridge
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageView from '../components/analytics/PageView.astro';
 import { verktoyPageContent } from '../data/verktoy';
 
 const { seo, title, subtitle, tagline, sections, disclaimerHtml } = verktoyPageContent;
@@ -56,9 +57,5 @@ const { seo, title, subtitle, tagline, sections, disclaimerHtml } = verktoyPageC
 
     </div>
   </article>
+  <PageView pageId="verktoy" />
 </BaseLayout>
-
-<script>
-  import { initPageViewTracking } from '../scripts/pageview-tracking';
-  initPageViewTracking('verktoy');
-</script>

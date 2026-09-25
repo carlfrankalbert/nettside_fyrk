@@ -43,42 +43,27 @@ describe('trackClick', () => {
     expect(body.buttonId).toBe('test_button');
   });
 
-  it('includes sessionId in metadata', () => {
+  it('sends no metadata and stores nothing on the device', () => {
     trackClick('test_button');
 
     const body = JSON.parse(
       (fetchWithRetryFireAndForget as ReturnType<typeof vi.fn>).mock.calls[0][1].body
     );
-    expect(body.metadata.sessionId).toBeDefined();
-    expect(typeof body.metadata.sessionId).toBe('string');
-    expect(body.metadata.sessionId.length).toBeGreaterThan(0);
-  });
-
-  it('uses same sessionId across calls', () => {
-    trackClick('button1');
-    trackClick('button2');
-
-    const body1 = JSON.parse(
-      (fetchWithRetryFireAndForget as ReturnType<typeof vi.fn>).mock.calls[0][1].body
-    );
-    const body2 = JSON.parse(
-      (fetchWithRetryFireAndForget as ReturnType<typeof vi.fn>).mock.calls[1][1].body
-    );
-    expect(body1.metadata.sessionId).toBe(body2.metadata.sessionId);
+    expect(body.metadata).toBeUndefined();
+    expect(localStorage.length).toBe(0);
   });
 });
 
 describe('logEvent', () => {
   it('sends event with metadata', () => {
-    logEvent('check_success', { processingTimeMs: 1500, charCount: 200 });
+    logEvent('okr_success', { processingTimeMs: 1500, charCount: 200 });
 
     const body = JSON.parse(
       (fetchWithRetryFireAndForget as ReturnType<typeof vi.fn>).mock.calls[0][1].body
     );
-    expect(body.buttonId).toBe('check_success');
+    expect(body.buttonId).toBe('okr_success');
     expect(body.metadata.processingTimeMs).toBe(1500);
     expect(body.metadata.charCount).toBe(200);
-    expect(body.metadata.sessionId).toBeDefined();
   });
 
   it('works without metadata', () => {
@@ -88,6 +73,6 @@ describe('logEvent', () => {
       (fetchWithRetryFireAndForget as ReturnType<typeof vi.fn>).mock.calls[0][1].body
     );
     expect(body.buttonId).toBe('simple_event');
-    expect(body.metadata.sessionId).toBeDefined();
+    expect(body.metadata).toBeUndefined();
   });
 });

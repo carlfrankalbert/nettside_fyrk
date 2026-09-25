@@ -48,7 +48,7 @@ export function MetricsSummary({ title, metrics, icon }: MetricsSummaryProps) {
         <div className="p-3 bg-slate-50 rounded-xl">
           <div className="flex items-center gap-2 mb-1">
             <Users className="w-3.5 h-3.5 text-slate-400" />
-            <span className="text-xs text-slate-500">Unike sesjoner</span>
+            <span className="text-xs text-slate-500">Unike brukere</span>
           </div>
           <div className="text-xl font-bold text-slate-900">
             {metrics.uniqueSessionCount.toLocaleString('no-NO')}

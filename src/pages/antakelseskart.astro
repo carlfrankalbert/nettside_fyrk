@@ -1,5 +1,6 @@
 ---
 import ToolLayout from '../layouts/ToolLayout.astro';
+import PageView from '../components/analytics/PageView.astro';
 import AntakelseskartComponent from '../components/Antakelseskart';
 import { antakelseskartTool } from '../data/tools';
 
@@ -31,14 +32,11 @@ const { seo, toolName, breadcrumbLabel, h1, badge, subtitle, tagline, whenToUse,
   </header>
 
   <AntakelseskartComponent client:load />
+  <PageView pageId="antakelseskart" />
 </ToolLayout>
 
 <script>
-  import { initPageViewTracking } from '../scripts/pageview-tracking';
-  import { initTrackingHelpers } from '../scripts/tracking-exclusion';
   import { initMobileCTA } from '../scripts/mobile-cta';
-  initPageViewTracking('antakelseskart');
-  initTrackingHelpers();
   initMobileCTA({
     toolName: 'antakelseskart',
     isDisabled: (d) => !!d.isLoading || (d.length as number) < 50,

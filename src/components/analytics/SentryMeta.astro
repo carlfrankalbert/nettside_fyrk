@@ -1,0 +1,13 @@
+---
+/**
+ * Sentry config for scripts/error-tracking.ts. Place inside <head>.
+ * Error tracking stays off until PUBLIC_SENTRY_DSN is set at build time.
+ */
+const sentryDsn = import.meta.env.PUBLIC_SENTRY_DSN;
+const sentryEnvironment = import.meta.env.PUBLIC_SENTRY_ENVIRONMENT || 'production';
+const sentryRelease = import.meta.env.PUBLIC_SENTRY_RELEASE;
+---
+
+{sentryDsn && <meta name="sentry-dsn" content={sentryDsn} />}
+<meta name="sentry-environment" content={sentryEnvironment} />
+{sentryRelease && <meta name="sentry-release" content={sentryRelease} />}

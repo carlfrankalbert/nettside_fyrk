@@ -6,6 +6,9 @@
 
 import '../styles/global.css';
 import SEOHead from '../components/seo/SEOHead.astro';
+import SentryMeta from '../components/analytics/SentryMeta.astro';
+import Telemetry from '../components/analytics/Telemetry.astro';
+import PageView from '../components/analytics/PageView.astro';
 import { ELEMENT_IDS } from '../utils/constants';
 
 // Landing page components
@@ -55,6 +58,7 @@ const faqLd = {
       type="website"
     />
     <script type="application/ld+json" set:html={JSON.stringify(faqLd)} />
+    <SentryMeta />
   </head>
   <body class="min-h-screen flex flex-col bg-neutral-50 text-neutral-700">
     <!-- Skip link for accessibility -->
@@ -106,13 +110,9 @@ const faqLd = {
 
     <script>
       import { initMobileMenu } from '../scripts/mobile-menu';
-      import { initButtonTracking } from '../scripts/button-tracking';
-      import { initPageViewTracking } from '../scripts/pageview-tracking';
-      import { initTrackingHelpers } from '../scripts/tracking-exclusion';
       initMobileMenu();
-      initButtonTracking();
-      initPageViewTracking('home');
-      initTrackingHelpers();
     </script>
+    <PageView pageId="home" />
+    <Telemetry />
   </body>
 </html>
