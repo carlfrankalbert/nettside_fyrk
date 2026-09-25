@@ -145,7 +145,7 @@ export const footerNavLinks = [
   { href: '/konsulenter', label: 'Konsulenter' },
   { href: '/innsikt', label: 'Innsikt' },
   { href: '/verktoy', label: 'Verktøy' },
-  { href: EXTERNAL_LINKS.linkedinPersonal, label: 'LinkedIn', external: true },
+  { href: EXTERNAL_LINKS.linkedin, label: 'LinkedIn', external: true },
   { href: '/personvern', label: 'Personvern' },
   { href: '/vilkar', label: 'Vilkår' },
 ] as const;

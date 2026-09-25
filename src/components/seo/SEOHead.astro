@@ -1,5 +1,6 @@
 ---
 import { BRAND } from '../../utils/brand';
+import { EXTERNAL_LINKS } from '../../utils/links';
 
 interface Props {
   /** Page-specific title. The site name is appended automatically unless appendSiteName=false. */
@@ -44,6 +45,7 @@ const baseStructuredData = {
       },
       identifier: BRAND.orgNumber,
       areaServed: { '@type': 'Country', name: 'NO' },
+      sameAs: [EXTERNAL_LINKS.linkedin],
     },
     {
       '@type': 'WebSite',

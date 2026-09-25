@@ -17,8 +17,8 @@ test.describe('Contact Smoke Tests', () => {
     const linkedinLink = page.getByTestId('footer-link-linkedin');
     await expect(linkedinLink).toBeVisible();
     await expect(linkedinLink).toHaveAttribute('target', '_blank');
-    const href = await linkedinLink.getAttribute('href');
-    expect(href).toContain('linkedin.com');
+    // Footer is the company's presence; personal profile lives in the contact section
+    await expect(linkedinLink).toHaveAttribute('href', 'https://www.linkedin.com/company/fyrk/');
   });
 
   test('header contact CTA targets the contact section', async ({ page, viewport }) => {
