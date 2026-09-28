@@ -16,10 +16,12 @@ interface RankedListProps {
   maxEntries?: number;
   /** Optional display label for a key (e.g. country code → name) */
   formatKey?: (key: string) => string;
+  /** Optional extra detail shown after the label (badges, links) */
+  renderMeta?: (key: string) => ReactNode;
 }
 
 /** A card with the top entries of a count map, drawn as horizontal bars */
-export function RankedList({ config, data, maxEntries = 10, formatKey = (k) => k }: RankedListProps) {
+export function RankedList({ config, data, maxEntries = 10, formatKey = (k) => k, renderMeta }: RankedListProps) {
   const entries = Object.entries(data)
     .sort(([, a], [, b]) => b - a)
     .slice(0, maxEntries);
@@ -54,7 +56,10 @@ export function RankedList({ config, data, maxEntries = 10, formatKey = (k) => k
                   style={{ width: `${percentage}%` }}
                 />
                 <div className="relative flex items-center justify-between px-4 py-2.5">
-                  <span className="font-medium text-slate-700 truncate mr-4">{formatKey(key)}</span>
+                  <span className="flex items-center gap-2 min-w-0 mr-4">
+                    <span className="font-medium text-slate-700 truncate">{formatKey(key)}</span>
+                    {renderMeta?.(key)}
+                  </span>
                   <span className="font-bold text-slate-900 shrink-0">
                     {count.toLocaleString('no-NO')}
                   </span>

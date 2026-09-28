@@ -39,7 +39,12 @@ Every public layout (BaseLayout, MinimalLayout/ToolLayout, the home page) render
 - **Audience** (`src/utils/visitor-dimensions.ts`): once per unique site visitor
   per day, `/api/pageview` counts country and network organisation (from
   Cloudflare's `request.cf`) and device class and browser family (from the
-  User-Agent). Stored only as counts in `audience:{date}` and `audience_total`.
+  User-Agent). Stored only as counts in `audience:{date}` and `audience_total`,
+  plus each network's AS number (`networkAsns`, one per network name, never per
+  visitor). `/stats` links the AS number to bgp.tools and marks cloud/hosting
+  networks as "datasenter" from the name at render time. Don't add city or pages
+  per network: combined with a small company's network name, that identifies
+  individuals.
 - **404s:** the 404 page sends the requested path (`pageId: 'notfound'`), then
   redirects from script. Counts live in `notfound:{date}` and `notfound_total`.
 - **Reading stats:** `/stats` reads audience data server-side. The analytics

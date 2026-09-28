@@ -47,7 +47,7 @@ export const METRIC_EXPLANATIONS = {
   uniqueSessions: 'Unike brukere per dag, summert over perioden. Telles uten cookies, så samme person på to dager teller to ganger.',
   hourlyActivity: 'Når på døgnet brukerne er mest aktive. Tidene er i UTC (+1 time for norsk vintertid, +2 for sommertid).',
   funnel: 'Viser brukerreisen steg for steg. Grønn = over 70% går videre (bra), gul = 40-70% (ok), rød = under 40% (flaskehals).',
-  audience: 'Hvem som besøker, telt én gang per unike besøkende per dag. Nettverk er eieren av IP-adressen: oftest en internettleverandør, men store virksomheter og offentlige etater har ofte egne nett. 404 viser adresser folk prøvde å åpne som ikke finnes.',
+  audience: 'Hvem som besøker, telt én gang per unike besøkende per dag. Nettverk er eieren av IP-adressen: oftest en internettleverandør, men store virksomheter og offentlige etater har ofte egne nett. AS-nummeret lenker til en oppslagstjeneste om nettverket; «datasenter» betyr nesten alltid roboter. 404 viser adresser folk prøvde å åpne som ikke finnes.',
   acquisition: 'Hvor besøkende kommer fra. Viser eksterne henvisere og UTM-parametere fra kampanjelenker (utm_source, utm_medium, utm_campaign).',
 } as const;
 
