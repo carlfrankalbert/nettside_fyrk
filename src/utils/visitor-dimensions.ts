@@ -18,16 +18,19 @@ export interface AudienceData {
   organizations: Record<string, number>;
   devices: Record<string, number>;
   browsers: Record<string, number>;
+  /** Network name → its AS number. A property of the network, not the visitor */
+  networkAsns: Record<string, number>;
 }
 
 /** The subset of Cloudflare's request.cf we use */
 export interface RequestGeo {
   country?: string;
   asOrganization?: string;
+  asn?: number;
 }
 
 export function emptyAudienceData(): AudienceData {
-  return { countries: {}, organizations: {}, devices: {}, browsers: {} };
+  return { countries: {}, organizations: {}, devices: {}, browsers: {}, networkAsns: {} };
 }
 
 export function mergeCounts(target: Record<string, number>, source: Record<string, number>): void {
@@ -40,6 +43,7 @@ export function mergeAudienceData(target: AudienceData, source: Partial<Audience
   for (const field of ['countries', 'organizations', 'devices', 'browsers'] as const) {
     mergeCounts(target[field], source[field] ?? {});
   }
+  Object.assign(target.networkAsns, source.networkAsns);
 }
 
 export function classifyDevice(userAgent: string): string {
@@ -70,6 +74,18 @@ export function sanitizeOrganization(value: string | undefined): string | undefi
   return cleaned || undefined;
 }
 
+export function sanitizeAsn(value: unknown): number | undefined {
+  return typeof value === 'number' && Number.isInteger(value) && value > 0 && value < 2 ** 32 ? value : undefined;
+}
+
+/** Cloud and hosting networks: visits from these are almost always bots, crawlers or link previews */
+const DATACENTER_PATTERN =
+  /\b(amazon|aws|google|microsoft|azure|digitalocean|hetzner|ovh|linode|akamai|oracle|alibaba|tencent|huawei cloud|contabo|scaleway|vultr|constant company|leaseweb|m247|cloudflare|datacamp|choopa|hostinger|ionos|upcloud)\b/i;
+
+export function isDatacenterNetwork(organization: string): boolean {
+  return DATACENTER_PATTERN.test(organization);
+}
+
 /** Path only (no query or fragment), limited to URL-safe characters */
 export function sanitizeNotFoundPath(value: string | undefined): string | undefined {
   if (!value || !value.startsWith('/')) return undefined;
@@ -87,16 +103,22 @@ export async function recordAudience(
   geo: RequestGeo | undefined,
   userAgent: string,
 ): Promise<void> {
+  const organization = sanitizeOrganization(geo?.asOrganization);
+  const asn = sanitizeAsn(geo?.asn);
   const values = {
     countries: sanitizeCountry(geo?.country),
-    organizations: sanitizeOrganization(geo?.asOrganization),
+    organizations: organization,
     devices: classifyDevice(userAgent),
     browsers: classifyBrowser(userAgent),
   };
 
   const bump = (data: AudienceData) => {
     for (const [field, value] of Object.entries(values)) {
-      incrementField(data[field as keyof AudienceData], value, MAX_DIMENSION_ENTRIES);
+      incrementField(data[field as keyof typeof values], value, MAX_DIMENSION_ENTRIES);
+    }
+    // Only for networks that made it into the capped count map
+    if (organization && asn && organization in data.organizations) {
+      data.networkAsns[organization] = asn;
     }
   };
   await Promise.all([

@@ -5,6 +5,8 @@ import {
   sanitizeCountry,
   sanitizeOrganization,
   sanitizeNotFoundPath,
+  sanitizeAsn,
+  isDatacenterNetwork,
   recordAudience,
   recordNotFound,
   readAudience,
@@ -86,6 +88,33 @@ describe('sanitizers', () => {
   });
 });
 
+describe('sanitizeAsn', () => {
+  it('accepts positive 32-bit integers only', () => {
+    expect(sanitizeAsn(2119)).toBe(2119);
+    expect(sanitizeAsn(0)).toBeUndefined();
+    expect(sanitizeAsn(-1)).toBeUndefined();
+    expect(sanitizeAsn(1.5)).toBeUndefined();
+    expect(sanitizeAsn(2 ** 32)).toBeUndefined();
+    expect(sanitizeAsn('2119')).toBeUndefined();
+    expect(sanitizeAsn(undefined)).toBeUndefined();
+  });
+});
+
+describe('isDatacenterNetwork', () => {
+  it('flags cloud and hosting providers', () => {
+    expect(isDatacenterNetwork('Amazon.com, Inc.')).toBe(true);
+    expect(isDatacenterNetwork('Hetzner Online GmbH')).toBe(true);
+    expect(isDatacenterNetwork('DigitalOcean, LLC')).toBe(true);
+  });
+
+  it('does not flag ISPs or companies', () => {
+    expect(isDatacenterNetwork('Telenor Norge AS')).toBe(false);
+    expect(isDatacenterNetwork('Private Customer')).toBe(false);
+    expect(isDatacenterNetwork('Equinor ASA')).toBe(false);
+    expect(isDatacenterNetwork('Awsome AS')).toBe(false);
+  });
+});
+
 describe('recordAudience', () => {
   it('counts one visitor per field for the day and all-time', async () => {
     const store: Record<string, string> = {};
@@ -102,6 +131,31 @@ describe('recordAudience', () => {
     expect(JSON.parse(store.audience_total)).toEqual(day);
   });
 
+  it('stores the AS number per network, not per visitor', async () => {
+    const store: Record<string, string> = {};
+    const kv = createMockKV(store);
+
+    await recordAudience(kv, '2026-09-25', { asOrganization: 'Telenor Norge AS', asn: 2119 }, UA.iphone);
+    await recordAudience(kv, '2026-09-25', { asOrganization: 'Telenor Norge AS', asn: 2119 }, UA.macChrome);
+    await recordAudience(kv, '2026-09-25', { asn: 15169 }, UA.macChrome); // no name: nothing to attach it to
+
+    const day = JSON.parse(store['audience:2026-09-25']);
+    expect(day.organizations).toEqual({ 'Telenor Norge AS': 2 });
+    expect(day.networkAsns).toEqual({ 'Telenor Norge AS': 2119 });
+  });
+
+  it('reads days stored before AS numbers were recorded', async () => {
+    const store: Record<string, string> = {
+      'audience:2026-09-24': JSON.stringify({ countries: {}, organizations: { goodline: 1 }, devices: {}, browsers: {} }),
+    };
+    const kv = createMockKV(store);
+    await recordAudience(kv, '2026-09-25', { asOrganization: 'goodline', asn: 39435 }, UA.macChrome);
+
+    const { audience } = await readAudience(kv, ['2026-09-24', '2026-09-25']);
+    expect(audience.organizations).toEqual({ goodline: 2 });
+    expect(audience.networkAsns).toEqual({ goodline: 39435 });
+  });
+
   it('caps the number of distinct values per field', async () => {
     const organizations = Object.fromEntries(
       Array.from({ length: MAX_DIMENSION_ENTRIES }, (_, i) => [`Org ${i}`, 1]),
@@ -111,9 +165,11 @@ describe('recordAudience', () => {
     };
     const kv = createMockKV(store);
 
-    await recordAudience(kv, '2026-09-25', { asOrganization: 'New Org' }, UA.macChrome);
+    await recordAudience(kv, '2026-09-25', { asOrganization: 'New Org', asn: 64500 }, UA.macChrome);
 
-    expect(JSON.parse(store['audience:2026-09-25']).organizations['New Org']).toBeUndefined();
+    const day = JSON.parse(store['audience:2026-09-25']);
+    expect(day.organizations['New Org']).toBeUndefined();
+    expect(day.networkAsns['New Org']).toBeUndefined();
   });
 });
 

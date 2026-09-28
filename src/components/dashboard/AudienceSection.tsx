@@ -1,13 +1,13 @@
 import { MapPin, Building2, Smartphone, AppWindow, Unlink } from 'lucide-react';
 import { RankedList, type RankedListStyle } from './RankedList';
-import type { AudienceData } from '../../utils/visitor-dimensions';
+import { isDatacenterNetwork, type AudienceData } from '../../utils/visitor-dimensions';
 
 interface AudienceSectionProps {
   audience: AudienceData;
   notFoundPaths: Record<string, number>;
 }
 
-const STYLES: Record<keyof AudienceData | 'notFound', RankedListStyle> = {
+const STYLES: Record<Exclude<keyof AudienceData, 'networkAsns'> | 'notFound', RankedListStyle> = {
   countries: {
     title: 'Land',
     icon: <MapPin className="w-4 h-4" />,
@@ -45,12 +45,44 @@ function countryName(code: string): string {
   }
 }
 
+/** AS number (links to bgp.tools, which shows the network's type and owner) and a data-centre badge */
+function NetworkMeta({ name, asn }: { name: string; asn?: number }) {
+  return (
+    <>
+      {isDatacenterNetwork(name) && (
+        <span
+          className="shrink-0 rounded-md bg-slate-100 px-1.5 py-0.5 text-xs text-slate-500"
+          title="Sky-/hostingnettverk: nesten alltid roboter, crawlere eller lenkeforhåndsvisning"
+        >
+          datasenter
+        </span>
+      )}
+      {asn && (
+        <a
+          href={`https://bgp.tools/as/${asn}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="shrink-0 text-xs text-slate-400 hover:text-blue-600 hover:underline"
+          title="Slå opp nettverket (type, eier, land)"
+        >
+          AS{asn}
+        </a>
+      )}
+    </>
+  );
+}
+
 /** Who visits (per unique visitor per day) and which broken links people hit */
 export function AudienceSection({ audience, notFoundPaths }: AudienceSectionProps) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <RankedList config={STYLES.organizations} data={audience.organizations} maxEntries={15} />
+        <RankedList
+          config={STYLES.organizations}
+          data={audience.organizations}
+          maxEntries={15}
+          renderMeta={(name) => <NetworkMeta name={name} asn={audience.networkAsns[name]} />}
+        />
         <RankedList config={STYLES.countries} data={audience.countries} formatKey={countryName} />
         <RankedList config={STYLES.devices} data={audience.devices} />
         <RankedList config={STYLES.browsers} data={audience.browsers} />
