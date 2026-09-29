@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { fetchCountTimeseries, getAcquisitionData, getDateKey } from './analytics-helpers';
+import { fetchCountTimeseries, getDateKey } from './analytics-helpers';
 import { createMockKV } from '../test/mock-kv';
 
 const NOW = Date.UTC(2026, 8, 29, 12, 0);
@@ -39,22 +39,5 @@ describe('fetchCountTimeseries', () => {
     expect(series[22].value).toBe(0);
     // ~730 day keys: was one operation each, over the 1,000 limit with the visitor series
     expect(stats.operations).toBeLessThanOrEqual(8);
-  });
-});
-
-describe('getAcquisitionData', () => {
-  it('merges days and skips corrupt or partial entries', async () => {
-    vi.useFakeTimers({ now: NOW });
-    const { kv } = createMockKV({
-      [`acquisition:home:${getDateKey(NOW)}`]: JSON.stringify({
-        referrers: { 'linkedin.com': 2 }, sources: {}, mediums: {}, campaigns: {},
-      }),
-      [`acquisition:home:${getDateKey(NOW - DAY)}`]: JSON.stringify({ referrers: { 'linkedin.com': 1 } }),
-      [`acquisition:home:${getDateKey(NOW - 2 * DAY)}`]: '{broken',
-    });
-
-    const data = await getAcquisitionData(kv, 'home', 'week');
-
-    expect(data.referrers).toEqual({ 'linkedin.com': 3 });
   });
 });

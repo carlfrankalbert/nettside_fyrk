@@ -2,16 +2,10 @@
  * Shared analytics utilities for API routes
  *
  * Extracts common patterns from track.ts and pageview.ts:
- * date/time key generation, time periods, KV timeseries fetching
- * and acquisition data aggregation.
+ * date/time key generation, time periods and KV timeseries fetching.
  */
 
-import {
-  mergeAcquisitionData,
-  emptyAcquisitionData,
-  type AcquisitionData,
-} from './acquisition';
-import { getMany, parseCount, parseJson } from '../lib/kv-batch';
+import { getMany, parseCount } from '../lib/kv-batch';
 
 /** Standard headers for API responses — prevents CDN caching of dynamic data */
 export const API_HEADERS = {
@@ -133,31 +127,4 @@ export async function fetchCountTimeseries(
     label,
     value: monthTotals[i],
   }));
-}
-
-/**
- * Fetch acquisition data (referrer + UTM) aggregated across a time period.
- */
-export async function getAcquisitionData(
-  kv: KVNamespace,
-  pageId: string,
-  period: TimePeriod,
-): Promise<AcquisitionData> {
-  const now = Date.now();
-  const result: AcquisitionData = emptyAcquisitionData();
-
-  const days = period === '24h' ? 1
-    : period === 'week' ? 7
-    : period === 'month' ? 30
-    : period === 'year' ? 365
-    : 730;
-
-  const keys = Array.from({ length: days }, (_, i) => `acquisition:${pageId}:${getDateKey(now - i * 24 * 60 * 60 * 1000)}`);
-  const values = await getMany(kv, keys);
-  for (const key of keys) {
-    const day = parseJson<AcquisitionData | null>(values.get(key), null);
-    if (day && typeof day === 'object') mergeAcquisitionData(result, { ...emptyAcquisitionData(), ...day });
-  }
-
-  return result;
 }
