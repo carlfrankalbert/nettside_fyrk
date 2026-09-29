@@ -4,6 +4,7 @@ import { shouldExcludeRequest } from '../../utils/tracking-exclusion';
 import { verifySignedRequest } from '../../utils/request-signing';
 import { hasStatsAccess, STATS_TOKEN_COOKIE } from '../../lib/token-cookie';
 import { getMany, parseCount } from '../../lib/kv-batch';
+import { recordClick } from '../../lib/stats-db';
 import { API_HEADERS, getDateKey, getHourKey, fetchCountTimeseries, type TimePeriod } from '../../utils/analytics-helpers';
 import { ANALYTICS_CONFIG } from '../../utils/constants';
 import { aggregateEventMetrics, type EventMetadata, type ErrorType } from '../../utils/analytics-metrics';
@@ -229,6 +230,16 @@ export const POST: APIRoute = async ({ request }) => {
     );
 
     await Promise.all(writePromises);
+
+    // D1 migration, phase 1: write to D1 as well; /stats still reads KV.
+    // A D1 failure must not fail tracking while KV is the source of truth.
+    if (env.STATS_DB) {
+      try {
+        await recordClick(env.STATS_DB, { timestamp, buttonId, visitorHash, metadata: metadata ?? {} });
+      } catch (error) {
+        console.error('Stats D1 write failed (click):', error);
+      }
+    }
 
     return new Response(
       JSON.stringify({ success: true, buttonId, count: newCount }),
