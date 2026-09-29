@@ -1,6 +1,10 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
+import type { DatabaseSync, SQLInputValue } from 'node:sqlite';
+
+// Loaded at runtime: Vite doesn't know node:sqlite as a built-in on Node 22 and
+// fails trying to bundle a static import of it
+const { DatabaseSync: Database } = process.getBuiltinModule('node:sqlite') as typeof import('node:sqlite');
 
 /** Vitest runs from the project root */
 const MIGRATIONS_DIR = join(process.cwd(), 'migrations');
@@ -11,7 +15,7 @@ const MIGRATIONS_DIR = join(process.cwd(), 'migrations');
  * upsert behaviour matches D1 (which is SQLite).
  */
 export function createTestD1(): { db: D1Database; sqlite: DatabaseSync } {
-  const sqlite = new DatabaseSync(':memory:');
+  const sqlite = new Database(':memory:');
   for (const file of readdirSync(MIGRATIONS_DIR).filter((f) => f.endsWith('.sql')).sort()) {
     sqlite.exec(readFileSync(join(MIGRATIONS_DIR, file), 'utf8'));
   }
