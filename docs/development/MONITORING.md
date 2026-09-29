@@ -57,6 +57,9 @@ Every public layout (BaseLayout, MinimalLayout/ToolLayout, the home page) render
   gets of 100 keys, each counting as one operation. Don't add per-key
   `kv.get` loops over days. `/stats` loads via `src/lib/stats-data.ts` and shows
   an error card (not a 500) if KV fails.
+- **Site visitors ("Besøkende"):** the union of every page's daily
+  `visitors:{page}:{date}` set, so a person counts once per day however many
+  pages they saw. Don't sum per-page visitor counts.
 
 ## What counts in `/stats`
 
