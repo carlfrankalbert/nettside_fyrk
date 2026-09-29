@@ -68,8 +68,13 @@ const PERIOD_OPTIONS: { id: Period; label: string }[] = [
   { id: 'all', label: 'Alt' },
 ];
 
-const PERIOD_BADGES: Record<Period, string> = {
-  today: new Date().toLocaleDateString('no-NO'),
+/**
+ * Dates render on the server (UTC) and again in the browser: pin the time zone so
+ * both produce the same text, or React's hydration fails (#418).
+ */
+const DISPLAY_TIME_ZONE = 'Europe/Oslo';
+
+const PERIOD_BADGES: Record<Exclude<Period, 'today'>, string> = {
   '7d': 'Siste 7 dager',
   '30d': 'Siste 30 dager',
   all: 'All tid',
@@ -187,7 +192,7 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
               {dataTimestamp && (
                 <span className="text-xs text-slate-400 hidden sm:block">
                   {new Date(dataTimestamp).toLocaleString('no-NO', {
-                    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+                    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: DISPLAY_TIME_ZONE,
                   })}
                 </span>
               )}
@@ -226,7 +231,9 @@ export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClick
         <section>
           <h2 className="text-lg font-semibold text-slate-900 mb-4">
             Oversikt
-            <span className="ml-2 text-sm font-normal text-slate-400">{PERIOD_BADGES[period]}</span>
+            <span className="ml-2 text-sm font-normal text-slate-400">{period === 'today'
+                ? new Date(dataTimestamp ?? Date.now()).toLocaleDateString('no-NO', { timeZone: DISPLAY_TIME_ZONE })
+                : PERIOD_BADGES[period]}</span>
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             <KPICard
