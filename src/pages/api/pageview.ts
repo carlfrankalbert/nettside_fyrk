@@ -16,11 +16,11 @@ import {
   getDateKey,
   getHourKey,
   fetchCountTimeseries,
-  getVisitorsTimeseriesData,
   getAcquisitionData,
   type TimePeriod,
 } from '../../utils/analytics-helpers';
 import { ANALYTICS_CONFIG } from '../../utils/constants';
+import { getMany, parseCount, parseHashes } from '../../lib/kv-batch';
 import { getVisitorHash, addToVisitorSet } from '../../utils/visitor-hash';
 import { recordAudience, recordNotFound, type RequestGeo } from '../../utils/visitor-dimensions';
 
@@ -322,9 +322,8 @@ export const GET: APIRoute = async ({ url, request, cookies }) => {
     // Get time-series data for a specific page
     if (getTimeseries && pageId && pageId in TRACKED_PAGES) {
       const timeseries = await fetchCountTimeseries(kv, 'pageviews', 'pageviews_daily', pageId, period);
-      const visitorsTimeseries = await getVisitorsTimeseriesData(kv, pageId, period);
       return new Response(
-        JSON.stringify({ pageId, timeseries, visitorsTimeseries, period }),
+        JSON.stringify({ pageId, timeseries, period }),
         { status: 200, headers: API_HEADERS }
       );
     }
@@ -367,26 +366,17 @@ export const GET: APIRoute = async ({ url, request, cookies }) => {
         todayVisitors: number;
       }> = {};
 
-      for (const [id, config] of Object.entries(TRACKED_PAGES)) {
-        const totalVisitorsKey = `visitors_total:${id}`;
-        const todayKey = `visitors:${id}:${getDateKey(Date.now())}`;
-
-        const totalViews = await kv.get(config.key);
-        const totalVisitors = await kv.get(totalVisitorsKey);
-        const todayVisitorsJson = await kv.get(todayKey);
-        let todayVisitors = 0;
-        try {
-          const visitors = todayVisitorsJson ? JSON.parse(todayVisitorsJson) : [];
-          todayVisitors = visitors.length;
-        } catch {
-          todayVisitors = 0;
-        }
-
+      const todayKey = getDateKey(Date.now());
+      const pages = Object.entries(TRACKED_PAGES);
+      const values = await getMany(kv, pages.flatMap(([id, config]) => [
+        config.key, `visitors_total:${id}`, `visitors:${id}:${todayKey}`,
+      ]));
+      for (const [id, config] of pages) {
         stats[id] = {
           label: config.label,
-          totalViews: parseInt(totalViews || '0', 10) || 0,
-          totalVisitors: parseInt(totalVisitors || '0', 10) || 0,
-          todayVisitors,
+          totalViews: parseCount(values.get(config.key)),
+          totalVisitors: parseCount(values.get(`visitors_total:${id}`)),
+          todayVisitors: parseHashes(values.get(`visitors:${id}:${todayKey}`)).length,
         };
       }
 

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   classifyDevice,
   classifyBrowser,
@@ -12,15 +12,8 @@ import {
   readAudience,
   MAX_DIMENSION_ENTRIES,
 } from './visitor-dimensions';
+import { createMockKV } from '../test/mock-kv';
 
-function createMockKV(store: Record<string, string> = {}) {
-  return {
-    get: vi.fn(async (key: string) => store[key] ?? null),
-    put: vi.fn(async (key: string, value: string) => {
-      store[key] = value;
-    }),
-  } as unknown as KVNamespace;
-}
 
 const UA = {
   macChrome: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
@@ -118,7 +111,7 @@ describe('isDatacenterNetwork', () => {
 describe('recordAudience', () => {
   it('counts one visitor per field for the day and all-time', async () => {
     const store: Record<string, string> = {};
-    const kv = createMockKV(store);
+    const kv = createMockKV(store).kv;
 
     await recordAudience(kv, '2026-09-25', { country: 'NO', asOrganization: 'Equinor ASA' }, UA.iphone);
     await recordAudience(kv, '2026-09-25', { country: 'SE' }, UA.macChrome);
@@ -133,7 +126,7 @@ describe('recordAudience', () => {
 
   it('stores the AS number per network, not per visitor', async () => {
     const store: Record<string, string> = {};
-    const kv = createMockKV(store);
+    const kv = createMockKV(store).kv;
 
     await recordAudience(kv, '2026-09-25', { asOrganization: 'Telenor Norge AS', asn: 2119 }, UA.iphone);
     await recordAudience(kv, '2026-09-25', { asOrganization: 'Telenor Norge AS', asn: 2119 }, UA.macChrome);
@@ -148,7 +141,7 @@ describe('recordAudience', () => {
     const store: Record<string, string> = {
       'audience:2026-09-24': JSON.stringify({ countries: {}, organizations: { goodline: 1 }, devices: {}, browsers: {} }),
     };
-    const kv = createMockKV(store);
+    const kv = createMockKV(store).kv;
     await recordAudience(kv, '2026-09-25', { asOrganization: 'goodline', asn: 39435 }, UA.macChrome);
 
     const { audience } = await readAudience(kv, ['2026-09-24', '2026-09-25']);
@@ -163,7 +156,7 @@ describe('recordAudience', () => {
     const store: Record<string, string> = {
       'audience:2026-09-25': JSON.stringify({ countries: {}, organizations, devices: {}, browsers: {} }),
     };
-    const kv = createMockKV(store);
+    const kv = createMockKV(store).kv;
 
     await recordAudience(kv, '2026-09-25', { asOrganization: 'New Org', asn: 64500 }, UA.macChrome);
 
@@ -176,7 +169,7 @@ describe('recordAudience', () => {
 describe('recordNotFound + readAudience', () => {
   it('aggregates 404 paths and audience across days', async () => {
     const store: Record<string, string> = {};
-    const kv = createMockKV(store);
+    const kv = createMockKV(store).kv;
 
     await recordNotFound(kv, '2026-09-24', '/gammel');
     await recordNotFound(kv, '2026-09-25', '/gammel?x=1');
@@ -194,7 +187,7 @@ describe('recordNotFound + readAudience', () => {
   });
 
   it('returns empty data when nothing is stored', async () => {
-    const result = await readAudience(createMockKV(), ['2026-09-25']);
+    const result = await readAudience(createMockKV().kv, ['2026-09-25']);
     expect(result.notFound).toEqual({});
     expect(result.audience.countries).toEqual({});
   });

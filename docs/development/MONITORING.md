@@ -51,6 +51,12 @@ Every public layout (BaseLayout, MinimalLayout/ToolLayout, the home page) render
   GET endpoints (`/api/pageview`, `/api/track`, `/api/vitals`) need
   `Authorization: Bearer <STATS_TOKEN>` or the `stats_token` cookie, and return
   401 when `STATS_TOKEN` is unset.
+- **KV read budget:** a Worker request may make at most 1,000 KV operations.
+  Stats keys are per item per day (66 buttons × 30 days alone is ~2,000 keys),
+  so all dashboard reads go through `getMany` in `src/lib/kv-batch.ts`: bulk
+  gets of 100 keys, each counting as one operation. Don't add per-key
+  `kv.get` loops over days. `/stats` loads via `src/lib/stats-data.ts` and shows
+  an error card (not a 500) if KV fails.
 
 ## What counts in `/stats`
 

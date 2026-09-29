@@ -7,7 +7,7 @@ import { TRACKED_BUTTONS } from './api/track';
 import { TRACKED_PAGES } from './api/pageview';
 import { AnalyticsDashboard } from '../components/dashboard/AnalyticsDashboard';
 import { resolveTokenGate, serializeCookie, STATS_TOKEN_COOKIE } from '../lib/token-cookie';
-import { readAudience, type AudienceData } from '../utils/visitor-dimensions';
+import { loadStats, parsePeriod, type StatsData } from '../lib/stats-data';
 import '../styles/global.css';
 import '@fontsource/inter/400.css';
 import '@fontsource/inter/500.css';
@@ -19,12 +19,7 @@ const expectedToken = env.STATS_TOKEN;
 
 const url = new URL(Astro.request.url);
 
-const validPeriods = ['today', '7d', '30d', 'all'] as const;
-type Period = typeof validPeriods[number];
-const rawPeriod = url.searchParams.get('period');
-const period: Period = rawPeriod && (validPeriods as readonly string[]).includes(rawPeriod)
-  ? rawPeriod as Period
-  : 'today';
+const period = parsePeriod(url.searchParams.get('period'));
 
 // Prevent CDN caching — always serve fresh data
 Astro.response.headers.set('Cache-Control', 'no-store');
@@ -55,219 +50,22 @@ const tokenProvided = gate.status !== 'missing';
 const tokenMismatch = gate.status === 'mismatch';
 const hasAccess = gate.status === 'granted';
 
-// Data types
-type ButtonCounts = Record<string, { count: number; label: string }>;
-type PageStats = Record<string, { label: string; views: number; visitors: number }>;
-type ToolMetrics = {
-  count: number;
-  totalCharCount: number;
-  totalProcessingTimeMs: number;
-  cachedCount: number;
-  freshCount: number;
-  errorTypes: Record<string, number>;
-  uniqueSessionCount: number;
-  hourlyDistribution: Record<string, number>;
-};
-type AllMetrics = Record<string, ToolMetrics>;
-type ArticleStat = { slug: string; title: string; views: number; visitors: number };
-
-let buttonCounts: ButtonCounts | null = null;
-let pageStats: PageStats | null = null;
-let toolMetrics: AllMetrics | null = null;
-let articleStats: ArticleStat[] = [];
-let audience: AudienceData | null = null;
-let notFoundPaths: Record<string, number> = {};
-let totalClicks = 0;
+let stats: StatsData | null = null;
+let loadFailed = false;
 let dataTimestamp: number | null = null;
 
-/**
- * Get YYYY-MM-DD date strings for a period (most recent first)
- */
-function getDateRange(p: Period): string[] {
-  const days = p === 'today' ? 1 : p === '7d' ? 7 : p === '30d' ? 30 : 0;
-  const dates: string[] = [];
-  for (let i = 0; i < days; i++) {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
-    dates.push(date.toISOString().split('T')[0]);
-  }
-  return dates;
-}
-
-if (hasAccess) {
+if (hasAccess && env.ANALYTICS_KV) {
   dataTimestamp = Date.now();
-  const kv = env.ANALYTICS_KV;
-  if (kv) {
-    const buttonEntries = Object.entries(TRACKED_BUTTONS) as [string, { key: string; label: string }][];
-    const pageEntries = Object.entries(TRACKED_PAGES);
-    const metricsEvents = ['okr_success', 'konseptspeil_success', 'antakelseskart_success', 'premortem_success'];
-    const errorEvents = ['okr_error', 'konseptspeil_error', 'antakelseskart_error', 'premortem_error'];
-    const allEvents = [...metricsEvents, ...errorEvents];
-
-    if (period === 'all') {
-      // --- All-time: use existing total counters ---
-
-      // Button counts from total keys
-      buttonCounts = {};
-      const buttonResults = await Promise.all(buttonEntries.map(([, config]) => kv.get(config.key)));
-      buttonEntries.forEach(([id, config], i) => {
-        const count = parseInt(buttonResults[i] || '0', 10) || 0;
-        buttonCounts![id] = { count, label: config.label };
-        totalClicks += count;
-      });
-
-      // Page stats from total keys
-      pageStats = {};
-      const [viewResults, visitorResults] = await Promise.all([
-        Promise.all(pageEntries.map(([, config]) => kv.get(config.key))),
-        Promise.all(pageEntries.map(([id]) => kv.get(`visitors_total:${id}`))),
-      ]);
-      pageEntries.forEach(([id, config], i) => {
-        pageStats![id] = {
-          label: config.label,
-          views: parseInt(viewResults[i] || '0', 10) || 0,
-          visitors: parseInt(visitorResults[i] || '0', 10) || 0,
-        };
-      });
-
-      // No meaningful metrics aggregation for all-time
-      toolMetrics = {};
-
-    } else {
-      // --- Daily aggregation for today/7d/30d ---
-      const dates = getDateRange(period);
-
-      // Button counts: clicks_daily:{buttonId}:{date}
-      buttonCounts = {};
-      const dailyButtonKeys: { id: string; key: string }[] = [];
-      for (const [id] of buttonEntries) {
-        for (const date of dates) {
-          dailyButtonKeys.push({ id, key: `clicks_daily:${id}:${date}` });
-        }
-      }
-      const dailyButtonResults = await Promise.all(dailyButtonKeys.map(k => kv.get(k.key)));
-      for (let i = 0; i < dailyButtonKeys.length; i++) {
-        const { id } = dailyButtonKeys[i];
-        if (!buttonCounts[id]) {
-          const entry = buttonEntries.find(([eid]) => eid === id);
-          buttonCounts[id] = { count: 0, label: entry?.[1].label || id };
-        }
-        buttonCounts[id].count += parseInt(dailyButtonResults[i] || '0', 10) || 0;
-      }
-      totalClicks = Object.values(buttonCounts).reduce((sum, b) => sum + b.count, 0);
-
-      // Page stats: pageviews_daily + visitors arrays
-      pageStats = {};
-      const allPageViewKeys: string[] = [];
-      const allVisitorKeys: string[] = [];
-      for (const [id] of pageEntries) {
-        for (const date of dates) {
-          allPageViewKeys.push(`pageviews_daily:${id}:${date}`);
-          allVisitorKeys.push(`visitors:${id}:${date}`);
-        }
-      }
-      const [pageViewResults, visitorJsonResults] = await Promise.all([
-        Promise.all(allPageViewKeys.map(key => kv.get(key))),
-        Promise.all(allVisitorKeys.map(key => kv.get(key))),
-      ]);
-      let idx = 0;
-      for (const [id, config] of pageEntries) {
-        let views = 0;
-        const uniqueHashes = new Set<string>();
-        for (let d = 0; d < dates.length; d++) {
-          views += parseInt(pageViewResults[idx] || '0', 10) || 0;
-          try {
-            const visitors: string[] = visitorJsonResults[idx] ? JSON.parse(visitorJsonResults[idx]!) : [];
-            visitors.forEach(v => uniqueHashes.add(v));
-          } catch { /* skip invalid JSON */ }
-          idx++;
-        }
-        pageStats[id] = { label: config.label, views, visitors: uniqueHashes.size };
-      }
-
-      // Tool metrics: metrics:{eventId}:{date}
-      toolMetrics = {};
-      const metricsKeys: { eventId: string; key: string }[] = [];
-      for (const eventId of allEvents) {
-        for (const date of dates) {
-          metricsKeys.push({ eventId, key: `metrics:${eventId}:${date}` });
-        }
-      }
-      const metricsResults = await Promise.all(metricsKeys.map(k => kv.get(k.key)));
-      for (let i = 0; i < metricsKeys.length; i++) {
-        const { eventId } = metricsKeys[i];
-        const json = metricsResults[i];
-        if (!json) continue;
-        try {
-          const parsed = JSON.parse(json);
-          if (!toolMetrics[eventId]) {
-            toolMetrics[eventId] = {
-              count: 0,
-              totalCharCount: 0,
-              totalProcessingTimeMs: 0,
-              cachedCount: 0,
-              freshCount: 0,
-              errorTypes: {},
-              uniqueSessionCount: 0,
-              hourlyDistribution: {},
-            };
-          }
-          const m = toolMetrics[eventId];
-          m.count += parsed.count || 0;
-          m.totalCharCount += parsed.totalCharCount || 0;
-          m.totalProcessingTimeMs += parsed.totalProcessingTimeMs || 0;
-          m.cachedCount += parsed.cachedCount || 0;
-          m.freshCount += parsed.freshCount || 0;
-          for (const [type, count] of Object.entries(parsed.errorTypes || {})) {
-            m.errorTypes[type] = (m.errorTypes[type] || 0) + (count as number);
-          }
-          for (const [hour, count] of Object.entries(parsed.hourlyDistribution || {})) {
-            m.hourlyDistribution[hour] = (m.hourlyDistribution[hour] || 0) + (count as number);
-          }
-          m.uniqueSessionCount += parsed.uniqueSessionCount || (parsed.uniqueSessions?.length || 0);
-        } catch {
-          // Skip invalid metrics
-        }
-      }
-    }
-
-    // --- Per-article Innsikt reads (which texts actually get read) ---
+  try {
     const insights = await getCollection('innsikt', ({ data }) => !data.draft);
-    const dates = period === 'all' ? [] : getDateRange(period);
-    const articleResults = await Promise.all(insights.map(async (entry): Promise<ArticleStat> => {
-      const slug = entry.id;
-      if (period === 'all') {
-        const [v, vis] = await Promise.all([
-          kv.get(`article_views_total:innsikt:${slug}`),
-          kv.get(`article_visitors_total:innsikt:${slug}`),
-        ]);
-        return {
-          slug,
-          title: entry.data.title,
-          views: parseInt(v || '0', 10) || 0,
-          visitors: parseInt(vis || '0', 10) || 0,
-        };
-      }
-      const [viewResults, visitorResults] = await Promise.all([
-        Promise.all(dates.map(d => kv.get(`article_views_daily:innsikt:${slug}:${d}`))),
-        Promise.all(dates.map(d => kv.get(`article_visitors:innsikt:${slug}:${d}`))),
-      ]);
-      const views = viewResults.reduce((sum, x) => sum + (parseInt(x || '0', 10) || 0), 0);
-      const uniqueHashes = new Set<string>();
-      for (const json of visitorResults) {
-        try {
-          const hashes: string[] = json ? JSON.parse(json) : [];
-          hashes.forEach(h => uniqueHashes.add(h));
-        } catch { /* skip invalid JSON */ }
-      }
-      return { slug, title: entry.data.title, views, visitors: uniqueHashes.size };
-    }));
-    articleStats = articleResults
-      .filter(a => a.views > 0)
-      .sort((a, b) => b.views - a.views);
-
-    // --- Audience (country, organisation, device, browser) and 404 paths ---
-    ({ audience, notFound: notFoundPaths } = await readAudience(kv, period === 'all' ? 'all' : dates));
+    stats = await loadStats(env.ANALYTICS_KV, period, {
+      buttons: TRACKED_BUTTONS,
+      pages: TRACKED_PAGES,
+      articles: insights.map((entry) => ({ slug: entry.id, title: entry.data.title })),
+    }, dataTimestamp);
+  } catch (error) {
+    console.error('Stats loading failed:', error);
+    loadFailed = true;
   }
 }
 ---
@@ -327,19 +125,27 @@ if (hasAccess) {
         <p class="text-slate-500">Token matcher ikke STATS_TOKEN.</p>
       </div>
     </div>
-  ) : buttonCounts !== null && pageStats !== null ? (
+  ) : stats ? (
     <AnalyticsDashboard
       client:visible
       period={period}
-      buttonCounts={buttonCounts}
-      pageStats={pageStats}
-      totalClicks={totalClicks}
-      toolMetrics={toolMetrics || {}}
-      articleStats={articleStats}
-      audience={audience}
-      notFoundPaths={notFoundPaths}
-      dataTimestamp={dataTimestamp || Date.now()}
+      buttonCounts={stats.buttonCounts}
+      pageStats={stats.pageStats}
+      totalClicks={stats.totalClicks}
+      toolMetrics={stats.toolMetrics}
+      articleStats={stats.articleStats}
+      audience={stats.audience}
+      notFoundPaths={stats.notFoundPaths}
+      dataTimestamp={dataTimestamp ?? Date.now()}
     />
+  ) : loadFailed ? (
+    <div class="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+      <div class="bg-white border border-red-200 rounded-2xl p-8 text-center max-w-md shadow-lg" data-testid="stats-load-error">
+        <h1 class="text-xl font-bold text-slate-900 mb-2">Kunne ikke laste statistikk</h1>
+        <p class="text-slate-500 mb-4">Lagringen svarte ikke. Prøv igjen om litt.</p>
+        <a href={`/stats?period=${period}`} class="inline-flex px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium">Prøv igjen</a>
+      </div>
+    </div>
   ) : (
     <div class="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div class="bg-white border border-amber-200 rounded-2xl p-8 text-center max-w-md shadow-lg">
