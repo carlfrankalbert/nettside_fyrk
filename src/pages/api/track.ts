@@ -3,6 +3,7 @@ import { env } from 'cloudflare:workers';
 import { shouldExcludeRequest } from '../../utils/tracking-exclusion';
 import { verifySignedRequest } from '../../utils/request-signing';
 import { hasStatsAccess, STATS_TOKEN_COOKIE } from '../../lib/token-cookie';
+import { getMany, parseCount } from '../../lib/kv-batch';
 import { API_HEADERS, getDateKey, getHourKey, fetchCountTimeseries, type TimePeriod } from '../../utils/analytics-helpers';
 import { ANALYTICS_CONFIG } from '../../utils/constants';
 import { aggregateEventMetrics, type EventMetadata, type ErrorType } from '../../utils/analytics-metrics';
@@ -297,16 +298,12 @@ export const GET: APIRoute = async ({ url, request, cookies }) => {
     // Get all button counts (in parallel for better performance)
     if (getAll) {
       const buttonEntries = Object.entries(TRACKED_BUTTONS);
-      const countPromises = buttonEntries.map(([, config]) => kv.get(config.key));
-      const countResults = await Promise.all(countPromises);
+      const values = await getMany(kv, buttonEntries.map(([, config]) => config.key));
 
       const counts: Record<string, { count: number; label: string }> = {};
-      buttonEntries.forEach(([id, config], index) => {
-        counts[id] = {
-          count: parseInt(countResults[index] || '0', 10) || 0,
-          label: config.label,
-        };
-      });
+      for (const [id, config] of buttonEntries) {
+        counts[id] = { count: parseCount(values.get(config.key)), label: config.label };
+      }
 
       return new Response(
         JSON.stringify({ counts }),

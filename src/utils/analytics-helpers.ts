@@ -2,8 +2,8 @@
  * Shared analytics utilities for API routes
  *
  * Extracts common patterns from track.ts and pageview.ts:
- * date/time key generation, time periods, KV timeseries fetching,
- * visitor timeseries, and acquisition data aggregation.
+ * date/time key generation, time periods, KV timeseries fetching
+ * and acquisition data aggregation.
  */
 
 import {
@@ -11,6 +11,7 @@ import {
   emptyAcquisitionData,
   type AcquisitionData,
 } from './acquisition';
+import { getMany, parseCount, parseJson } from '../lib/kv-batch';
 
 /** Standard headers for API responses — prevents CDN caching of dynamic data */
 export const API_HEADERS = {
@@ -73,10 +74,10 @@ export async function fetchCountTimeseries(
         label: `${String(date.getHours()).padStart(2, '0')}:00`,
       });
     }
-    const counts = await Promise.all(entries.map(e => kv.get(e.key)));
-    return entries.map((entry, i) => ({
+    const counts = await getMany(kv, entries.map(e => e.key));
+    return entries.map((entry) => ({
       label: entry.label,
-      value: parseInt(counts[i] || '0', 10) || 0,
+      value: parseCount(counts.get(entry.key)),
     }));
   }
 
@@ -92,10 +93,10 @@ export async function fetchCountTimeseries(
         label: `${date.getDate()}/${date.getMonth() + 1}`,
       });
     }
-    const counts = await Promise.all(entries.map(e => kv.get(e.key)));
-    return entries.map((entry, i) => ({
+    const counts = await getMany(kv, entries.map(e => e.key));
+    return entries.map((entry) => ({
       label: entry.label,
-      value: parseInt(counts[i] || '0', 10) || 0,
+      value: parseCount(counts.get(entry.key)),
     }));
   }
 
@@ -122,100 +123,16 @@ export async function fetchCountTimeseries(
     }
   }
 
-  const dailyCounts = await Promise.all(allDayKeys.map(d => kv.get(d.key)));
+  const dailyCounts = await getMany(kv, allDayKeys.map(d => d.key));
   const monthTotals = new Array(months).fill(0);
-  dailyCounts.forEach((count, i) => {
-    monthTotals[allDayKeys[i].monthIndex] += parseInt(count || '0', 10) || 0;
-  });
+  for (const { monthIndex, key } of allDayKeys) {
+    monthTotals[monthIndex] += parseCount(dailyCounts.get(key));
+  }
 
   return monthLabels.map((label, i) => ({
     label,
     value: monthTotals[i],
   }));
-}
-
-/**
- * Fetch unique visitors time-series data.
- * Handles hourly (today only), daily, and monthly granularity.
- */
-export async function getVisitorsTimeseriesData(
-  kv: KVNamespace,
-  pageId: string,
-  period: TimePeriod,
-): Promise<TimeseriesEntry[]> {
-  const config = TIME_PERIODS[period];
-  const now = Date.now();
-  const data: TimeseriesEntry[] = [];
-
-  if (config.granularity === 'hourly') {
-    const todayKey = `visitors:${pageId}:${getDateKey(now)}`;
-    const todayVisitorsJson = await kv.get(todayKey);
-    let count: number;
-    try {
-      const visitors = todayVisitorsJson ? JSON.parse(todayVisitorsJson) : [];
-      count = visitors.length;
-    } catch {
-      count = 0;
-    }
-
-    for (let i = 0; i < 24; i++) {
-      const time = now - (23 - i) * 60 * 60 * 1000;
-      const date = new Date(time);
-      data.push({
-        label: `${String(date.getHours()).padStart(2, '0')}:00`,
-        value: i === 23 ? count : 0,
-      });
-    }
-  } else if (config.granularity === 'daily') {
-    const days = period === 'week' ? 7 : 30;
-    for (let i = 0; i < days; i++) {
-      const time = now - (days - 1 - i) * 24 * 60 * 60 * 1000;
-      const dateKey = getDateKey(time);
-      const key = `visitors:${pageId}:${dateKey}`;
-      const visitorsJson = await kv.get(key);
-      let count: number;
-      try {
-        const visitors = visitorsJson ? JSON.parse(visitorsJson) : [];
-        count = visitors.length;
-      } catch {
-        count = 0;
-      }
-      const date = new Date(time);
-      data.push({
-        label: `${date.getDate()}/${date.getMonth() + 1}`,
-        value: count,
-      });
-    }
-  } else if (config.granularity === 'monthly') {
-    const months = period === 'year' ? 12 : 24;
-    for (let i = 0; i < months; i++) {
-      const monthDate = new Date(now);
-      monthDate.setMonth(monthDate.getMonth() - (months - 1 - i));
-      const year = monthDate.getFullYear();
-      const month = monthDate.getMonth();
-
-      const uniqueVisitors = new Set<string>();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const key = `visitors:${pageId}:${dateKey}`;
-        const visitorsJson = await kv.get(key);
-        try {
-          const visitors = visitorsJson ? JSON.parse(visitorsJson) : [];
-          visitors.forEach((v: string) => uniqueVisitors.add(v));
-        } catch {
-          // Skip
-        }
-      }
-
-      data.push({
-        label: `${MONTH_NAMES[month]} ${year.toString().slice(2)}`,
-        value: uniqueVisitors.size,
-      });
-    }
-  }
-
-  return data;
 }
 
 /**
@@ -235,19 +152,11 @@ export async function getAcquisitionData(
     : period === 'year' ? 365
     : 730;
 
-  for (let i = 0; i < days; i++) {
-    const time = now - i * 24 * 60 * 60 * 1000;
-    const dateKey = getDateKey(time);
-    const key = `acquisition:${pageId}:${dateKey}`;
-    const data = await kv.get(key);
-
-    if (data) {
-      try {
-        mergeAcquisitionData(result, JSON.parse(data));
-      } catch {
-        // Skip corrupt entries
-      }
-    }
+  const keys = Array.from({ length: days }, (_, i) => `acquisition:${pageId}:${getDateKey(now - i * 24 * 60 * 60 * 1000)}`);
+  const values = await getMany(kv, keys);
+  for (const key of keys) {
+    const day = parseJson<AcquisitionData | null>(values.get(key), null);
+    if (day && typeof day === 'object') mergeAcquisitionData(result, { ...emptyAcquisitionData(), ...day });
   }
 
   return result;

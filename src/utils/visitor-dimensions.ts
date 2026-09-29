@@ -9,6 +9,7 @@
 
 import { incrementField } from './acquisition';
 import { ANALYTICS_CONFIG } from './constants';
+import { getMany, parseJson } from '../lib/kv-batch';
 
 /** Cap per field so spoofed or long-tail values can't grow a KV value unbounded */
 export const MAX_DIMENSION_ENTRIES = 300;
@@ -165,22 +166,15 @@ export async function readAudience(
   const audienceKeys = dates === 'all' ? ['audience_total'] : dates.map((d) => `audience:${d}`);
   const notFoundKeys = dates === 'all' ? ['notfound_total'] : dates.map((d) => `notfound:${d}`);
 
-  const [audienceJson, notFoundJson] = await Promise.all([
-    Promise.all(audienceKeys.map((k) => kv.get(k))),
-    Promise.all(notFoundKeys.map((k) => kv.get(k))),
-  ]);
+  const values = await getMany(kv, [...audienceKeys, ...notFoundKeys]);
 
   const audience = emptyAudienceData();
-  for (const json of audienceJson) {
-    try {
-      if (json) mergeAudienceData(audience, JSON.parse(json));
-    } catch { /* skip corrupt day */ }
+  for (const key of audienceKeys) {
+    mergeAudienceData(audience, parseJson<Partial<AudienceData> | null>(values.get(key), null) ?? {});
   }
   const notFound: Record<string, number> = {};
-  for (const json of notFoundJson) {
-    try {
-      if (json) mergeCounts(notFound, JSON.parse(json));
-    } catch { /* skip corrupt day */ }
+  for (const key of notFoundKeys) {
+    mergeCounts(notFound, parseJson<Record<string, number> | null>(values.get(key), null) ?? {});
   }
   return { audience, notFound };
 }
