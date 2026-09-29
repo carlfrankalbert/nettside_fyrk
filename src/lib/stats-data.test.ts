@@ -11,6 +11,7 @@ const sources: StatsSources = {
   },
   pages: {
     home: { key: 'pageviews:home', label: 'Forside' },
+    okr: { key: 'pageviews:okr', label: 'OKR' },
   },
   articles: [
     { slug: 'read', title: 'Lest' },
@@ -100,19 +101,50 @@ describe('loadStats', () => {
     expect(stats.toolMetrics).toEqual({});
   });
 
+  // Regression: "Besøkende" summed per-page visitors, so one person reading
+  // four pages counted as four (production 2026-09-29: 6 shown, 3 real).
+  it('counts site visitors once per day, however many pages they saw', async () => {
+    const { kv } = createMockKV({
+      'visitors:home:2026-09-29': '["a","b","c"]',
+      'visitors:okr:2026-09-29': '["a"]',
+      'visitors:home:2026-09-28': '["x"]', // new daily salt: a new hash for the same person
+    });
+
+    const stats = await loadStats(kv, '7d', sources, NOW);
+
+    expect(stats.pageStats.home.visitors).toBe(4);
+    expect(stats.pageStats.okr.visitors).toBe(1);
+    expect(stats.siteVisitors).toBe(4);
+  });
+
+  it('counts site visitors for "all" from the retained daily sets', async () => {
+    const { kv, stats: ops } = createMockKV({
+      'visitors_total:home': '50', // per-page counters can't be de-duplicated
+      'visitors:home:2026-09-29': '["a","b"]',
+      'visitors:okr:2026-09-29': '["a"]',
+      'visitors:okr:2026-04-01': '["z"]',
+    });
+
+    const stats = await loadStats(kv, 'all', sources, NOW);
+
+    expect(stats.pageStats.home.visitors).toBe(50);
+    expect(stats.siteVisitors).toBe(3);
+    expect(ops.operations).toBeLessThan(20);
+  });
+
   // Regression: one KV get per key made "30 dager" need ~3,200 operations,
   // over the Workers limit of 1,000 per request, so the page failed.
-  it('stays far below the 1,000 KV operation limit for 30 days at current size', async () => {
+  it.each(['30d', 'all'] as const)('stays far below the 1,000 KV operation limit (%s, current size)', async (period) => {
     const many = (n: number, prefix: string) =>
       Object.fromEntries(Array.from({ length: n }, (_, i) => [`${prefix}${i}`, { key: `${prefix}${i}:total`, label: `${prefix}${i}` }]));
     const { kv, stats } = createMockKV();
 
-    await loadStats(kv, '30d', {
+    await loadStats(kv, period, {
       buttons: many(66, 'button'),
       pages: many(10, 'page'),
       articles: Array.from({ length: 6 }, (_, i) => ({ slug: `a${i}`, title: `A${i}` })),
     }, NOW);
 
-    expect(stats.operations).toBeLessThan(50);
+    expect(stats.operations).toBeLessThan(60);
   });
 });

@@ -52,6 +52,8 @@ interface AnalyticsDashboardProps {
   articleStats?: ArticleStat[];
   audience?: AudienceData | null;
   notFoundPaths?: Record<string, number>;
+  /** Unique visitors across the site (each person once per day) */
+  siteVisitors?: number;
   dataTimestamp?: number;
 }
 
@@ -80,9 +82,10 @@ const PERIOD_BADGES: Record<Exclude<Period, 'today'>, string> = {
   all: 'All tid',
 };
 
-export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClicks, toolMetrics, articleStats = [], audience, notFoundPaths = {}, dataTimestamp }: AnalyticsDashboardProps) {
+export function AnalyticsDashboard({ period, buttonCounts, pageStats, totalClicks, toolMetrics, articleStats = [], audience, notFoundPaths = {}, siteVisitors, dataTimestamp }: AnalyticsDashboardProps) {
   const totalViews = Object.values(pageStats).reduce((sum, p) => sum + p.views, 0);
-  const totalVisitors = Object.values(pageStats).reduce((sum, p) => sum + p.visitors, 0);
+  // Summing per-page visitors would count a person once per page they saw
+  const totalVisitors = siteVisitors ?? Object.values(pageStats).reduce((sum, p) => sum + p.visitors, 0);
 
   // Button data per tool
   const okrButtonData = OKR_BUTTONS.map(id => ({ id, label: buttonCounts[id]?.label || id, count: buttonCounts[id]?.count || 0 }));

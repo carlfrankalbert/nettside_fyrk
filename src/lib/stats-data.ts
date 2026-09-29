@@ -2,11 +2,13 @@
  * Server-side data for the /stats dashboard.
  *
  * All keys a period needs are collected first and read with bulk gets
- * (see kv-batch.ts), so a 30-day view costs ~35 KV operations instead of ~3,200.
+ * (see kv-batch.ts), so a 30-day view costs ~35 KV operations instead of ~3,200
+ * ("all" reads every retained day of visitor sets: ~45).
  */
 
 import { getMany, parseCount, parseHashes, parseJson } from './kv-batch';
 import { getDateKey } from '../utils/analytics-helpers';
+import { ANALYTICS_CONFIG } from '../utils/constants';
 import { readAudience, type AudienceData } from '../utils/visitor-dimensions';
 
 export const STATS_PERIODS = ['today', '7d', '30d', 'all'] as const;
@@ -31,6 +33,8 @@ export interface StatsData {
   buttonCounts: ButtonCounts;
   pageStats: PageStats;
   totalClicks: number;
+  /** Unique visitors across the whole site: each person once per day, however many pages they saw */
+  siteVisitors: number;
   toolMetrics: AllMetrics;
   articleStats: ArticleStat[];
   audience: AudienceData;
@@ -50,6 +54,9 @@ const TOOL_EVENTS = [
 ];
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** Daily visitor sets expire with the rest of the daily data */
+const RETAINED_DAYS = Math.floor(ANALYTICS_CONFIG.KV_EXPIRATION_TTL / (24 * 60 * 60));
 
 export function parsePeriod(value: string | null): StatsPeriod {
   return (STATS_PERIODS as readonly string[]).includes(value ?? '') ? value as StatsPeriod : 'today';
@@ -133,8 +140,16 @@ export async function loadStats(
     ...articles.flatMap((a) => [...a.viewKeys, ...a.visitorKeys]),
     ...metrics.flatMap((m) => m.keys),
   ];
+  // Site-wide visitors: the union of every page's daily sets. The visitor hash
+  // is the same on every page within a day, so a person counts once per day.
+  // "All" has only per-page counters, so it reads every retained day instead.
+  const siteDates = all
+    ? Array.from({ length: RETAINED_DAYS }, (_, i) => getDateKey(now - i * DAY_MS))
+    : dates;
+  const siteVisitorKeys = Object.keys(sources.pages).flatMap((id) => siteDates.map((d) => `visitors:${id}:${d}`));
+
   const [values, { audience, notFound }] = await Promise.all([
-    getMany(kv, keys),
+    getMany(kv, [...keys, ...(all ? siteVisitorKeys : [])]),
     readAudience(kv, all ? 'all' : dates),
   ]);
 
@@ -171,6 +186,7 @@ export async function loadStats(
     buttonCounts,
     pageStats,
     totalClicks: Object.values(buttonCounts).reduce((sum, b) => sum + b.count, 0),
+    siteVisitors: countUnique(values, siteVisitorKeys),
     toolMetrics,
     articleStats,
     audience,
