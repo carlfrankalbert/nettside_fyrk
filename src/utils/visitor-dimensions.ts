@@ -94,6 +94,17 @@ export function sanitizeNotFoundPath(value: string | undefined): string | undefi
   return path.length > 1 ? path : undefined;
 }
 
+/** The sanitized audience dimensions of one request */
+export function audienceValues(geo: RequestGeo | undefined, userAgent: string) {
+  return {
+    country: sanitizeCountry(geo?.country),
+    organization: sanitizeOrganization(geo?.asOrganization),
+    asn: sanitizeAsn(geo?.asn),
+    device: classifyDevice(userAgent),
+    browser: classifyBrowser(userAgent),
+  };
+}
+
 /**
  * Count one visitor's dimensions for the day and in the all-time total.
  * Call once per unique visitor per day.
@@ -104,14 +115,8 @@ export async function recordAudience(
   geo: RequestGeo | undefined,
   userAgent: string,
 ): Promise<void> {
-  const organization = sanitizeOrganization(geo?.asOrganization);
-  const asn = sanitizeAsn(geo?.asn);
-  const values = {
-    countries: sanitizeCountry(geo?.country),
-    organizations: organization,
-    devices: classifyDevice(userAgent),
-    browsers: classifyBrowser(userAgent),
-  };
+  const { country, organization, asn, device, browser } = audienceValues(geo, userAgent);
+  const values = { countries: country, organizations: organization, devices: device, browsers: browser };
 
   const bump = (data: AudienceData) => {
     for (const [field, value] of Object.entries(values)) {

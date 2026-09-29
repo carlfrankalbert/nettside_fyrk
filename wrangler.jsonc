@@ -20,6 +20,17 @@
       "id": "6dd39ffbd38b407bb32b95a7c7d74b1c"
     }
   ],
+  // Analytics counters and daily visitor sets (atomic writes; KV lost updates).
+  // Schema in migrations/; apply with `npx wrangler d1 migrations apply fyrk-stats --remote`
+  // before deploying code that needs a new migration.
+  "d1_databases": [
+    {
+      "binding": "STATS_DB",
+      "database_name": "fyrk-stats",
+      "database_id": "12972cb3-f381-403f-9308-8b18a8073d68",
+      "migrations_dir": "migrations"
+    }
+  ],
   // Secrets are set in the dashboard or with `wrangler secret put`, never here:
   // ANTHROPIC_API_KEY, STATS_TOKEN, FEATURE_TOGGLE_TOKEN, BETA_TOKEN.
   // Locally they come from .dev.vars.

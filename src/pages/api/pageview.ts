@@ -22,7 +22,8 @@ import {
 import { ANALYTICS_CONFIG } from '../../utils/constants';
 import { getMany, parseCount, parseHashes } from '../../lib/kv-batch';
 import { getVisitorHash, addToVisitorSet } from '../../utils/visitor-hash';
-import { recordAudience, recordNotFound, type RequestGeo } from '../../utils/visitor-dimensions';
+import { recordAudience, recordNotFound, audienceValues, sanitizeNotFoundPath, type RequestGeo } from '../../utils/visitor-dimensions';
+import { recordPageview } from '../../lib/stats-db';
 
 export const prerender = false;
 
@@ -264,6 +265,32 @@ export const POST: APIRoute = async ({ request }) => {
 
     // Store acquisition data (referrer + UTM) - non-blocking for the response
     await storeAcquisitionData(kv, pageId, dateKey, acquisitionFields);
+
+    // D1 migration, phase 1: write to D1 as well; /stats still reads KV.
+    // A D1 failure must not fail tracking while KV is the source of truth.
+    if (env.STATS_DB) {
+      try {
+        await recordPageview(env.STATS_DB, {
+          timestamp,
+          pageId,
+          visitorHash,
+          articleSlug,
+          notFoundPath: sanitizeNotFoundPath(notFoundPath),
+          acquisition: {
+            referrer: sanitizeReferrer(acquisitionFields.referrer),
+            source: sanitizeUtmValue(acquisitionFields.utmSource),
+            medium: sanitizeUtmValue(acquisitionFields.utmMedium),
+            campaign: sanitizeUtmValue(acquisitionFields.utmCampaign),
+          },
+          audience: audienceValues(
+            (request as Request & { cf?: RequestGeo }).cf,
+            request.headers.get('user-agent') || '',
+          ),
+        });
+      } catch (error) {
+        console.error('Stats D1 write failed (pageview):', error);
+      }
+    }
 
     return new Response(
       JSON.stringify({ success: true, pageId, views: newTotal, isNewVisitor }),
