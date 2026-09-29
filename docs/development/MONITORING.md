@@ -57,6 +57,14 @@ Every public layout (BaseLayout, MinimalLayout/ToolLayout, the home page) render
   gets of 100 keys, each counting as one operation. Don't add per-key
   `kv.get` loops over days. `/stats` loads via `src/lib/stats-data.ts` and shows
   an error card (not a 500) if KV fails.
+- **D1 migration (in progress):** KV's read-modify-write loses updates when
+  requests land close together, so analytics is moving to the `STATS_DB` D1
+  database (`src/lib/stats-db.ts`, schema in `migrations/`). Phase 1:
+  `/api/pageview` and `/api/track` write to both KV and D1; `/stats` still
+  reads KV. Phase 2 copies KV history into D1, phase 3 switches reads to D1
+  and removes the KV writes. Apply migrations to production with
+  `npx wrangler d1 migrations apply fyrk-stats --remote` before deploying code
+  that needs them.
 - **Site visitors ("Besøkende"):** the union of every page's daily
   `visitors:{page}:{date}` set, so a person counts once per day however many
   pages they saw. Don't sum per-page visitor counts.
