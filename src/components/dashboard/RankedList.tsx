@@ -36,7 +36,7 @@ export function RankedList({ config, data, maxEntries = 10, formatKey = (k) => k
           <div className={`p-2 ${config.iconBg} rounded-lg ${config.iconText}`}>
             {config.icon}
           </div>
-          <h4 className="font-semibold text-slate-900">{config.title}</h4>
+          <h4 className="text-base font-semibold text-slate-900">{config.title}</h4>
         </div>
         {total > 0 && (
           <span className="text-sm text-slate-400">{total.toLocaleString('no-NO')} totalt</span>

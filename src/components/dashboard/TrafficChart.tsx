@@ -66,7 +66,7 @@ export function TrafficChart({ pageId, stats, globalPeriod }: TrafficChartProps)
         <div className="p-2 bg-blue-50 rounded-lg">
           <Globe className="w-5 h-5 text-blue-600" />
         </div>
-        <h3 className="font-semibold text-slate-900">{stats.label}</h3>
+        <h3 className="text-base font-semibold text-slate-900">{stats.label}</h3>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-6">

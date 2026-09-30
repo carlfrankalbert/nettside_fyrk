@@ -42,7 +42,7 @@ export function FunnelChart({ title, steps, icon }: FunnelChartProps) {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           {icon && <div className="p-2 bg-emerald-50 rounded-lg text-emerald-600">{icon}</div>}
-          <h3 className="font-semibold text-slate-900">{title}</h3>
+          <h3 className="text-base font-semibold text-slate-900">{title}</h3>
         </div>
         {overallConversion && (
           <div className="text-sm">

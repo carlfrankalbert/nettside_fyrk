@@ -6,7 +6,8 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  Cell,
+  Rectangle,
+  type BarShapeProps,
 } from 'recharts';
 
 interface HourlyDistributionProps {
@@ -52,7 +53,7 @@ export function HourlyDistributionChart({ title, distribution, icon }: HourlyDis
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           {icon || <div className="p-2 bg-purple-50 rounded-lg"><Clock className="w-5 h-5 text-purple-600" /></div>}
-          <h3 className="font-semibold text-slate-900">{title}</h3>
+          <h3 className="text-base font-semibold text-slate-900">{title}</h3>
         </div>
         {peakHours.length > 0 && (
           <div className="text-xs text-slate-500">
@@ -78,14 +79,14 @@ export function HourlyDistributionChart({ title, distribution, icon }: HourlyDis
               />
               <YAxis hide />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="count" radius={[2, 2, 0, 0]}>
-                {data.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={entry.count === maxCount ? '#8b5cf6' : '#c4b5fd'}
-                  />
-                ))}
-              </Bar>
+              <Bar
+                dataKey="count"
+                radius={[2, 2, 0, 0]}
+                // The busiest hour is darker (shape replaces the deprecated Cell)
+                shape={(props: BarShapeProps) => (
+                  <Rectangle {...props} fill={data[props.index]?.count === maxCount ? '#8b5cf6' : '#c4b5fd'} />
+                )}
+              />
             </BarChart>
           </ResponsiveContainer>
         )}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { Info } from 'lucide-react';
 
 interface TooltipProps {
@@ -6,27 +6,79 @@ interface TooltipProps {
   children?: React.ReactNode;
 }
 
+/**
+ * An ⓘ that explains a metric. Opens on hover (mouse), tap (touch) or keyboard
+ * focus; closes when the pointer leaves, on a tap elsewhere, or on Escape.
+ */
 export function Tooltip({ text, children }: TooltipProps) {
   const [isVisible, setIsVisible] = useState(false);
+  const tooltipId = useId();
+  const rootRef = useRef<HTMLSpanElement>(null);
+  const tipRef = useRef<HTMLSpanElement>(null);
+  const [shift, setShift] = useState(0);
+
+  // Keep the bubble on screen: centred over the ⓘ, nudged in from the viewport edges
+  useLayoutEffect(() => {
+    if (!isVisible || !tipRef.current) return;
+    const margin = 8;
+    const { left, right } = tipRef.current.getBoundingClientRect();
+    const width = document.documentElement.clientWidth;
+    setShift((current) => {
+      const centredLeft = left - current;
+      const centredRight = right - current;
+      if (centredLeft < margin) return margin - centredLeft;
+      if (centredRight > width - margin) return width - margin - centredRight;
+      return 0;
+    });
+  }, [isVisible]);
+
+  useEffect(() => {
+    if (!isVisible) return;
+    const closeOnOutsidePointer = (event: PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) setIsVisible(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsVisible(false);
+    };
+    document.addEventListener('pointerdown', closeOnOutsidePointer);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsidePointer);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [isVisible]);
 
   return (
-    <span className="relative inline-flex items-center group">
+    <span ref={rootRef} className="relative inline-flex items-center group">
       {children}
-      <span
-        className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-500 text-[10px] font-medium cursor-help transition-colors group-hover:bg-slate-300"
-        onMouseEnter={() => setIsVisible(true)}
-        onMouseLeave={() => setIsVisible(false)}
-        aria-label="Hover for mer informasjon"
+      <button
+        type="button"
+        className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-slate-200 text-slate-500 text-[10px] font-medium cursor-help transition-colors group-hover:bg-slate-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+        // Hover only for a mouse: on touch, mouse emulation would open and close it around the tap
+        onPointerEnter={(event) => event.pointerType === 'mouse' && setIsVisible(true)}
+        onPointerLeave={(event) => event.pointerType === 'mouse' && setIsVisible(false)}
+        onClick={() => setIsVisible(true)}
+        onFocus={() => setIsVisible(true)}
+        onBlur={() => setIsVisible(false)}
+        aria-label="Mer informasjon"
+        aria-describedby={isVisible ? tooltipId : undefined}
       >
-        <Info className="w-2.5 h-2.5" />
-      </span>
+        <Info className="w-2.5 h-2.5" aria-hidden="true" />
+      </button>
       {isVisible && (
         <span
+          ref={tipRef}
+          id={tooltipId}
           role="tooltip"
-          className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 text-xs text-white bg-slate-800 rounded-lg shadow-lg max-w-xs whitespace-normal text-center pointer-events-none"
+          // transform, not translate: Tailwind's -translate-x-1/2 centring uses the translate property
+          style={{ transform: `translateX(${shift}px)` }}
+          className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 w-64 max-w-[calc(100vw-2rem)] text-xs font-normal text-white bg-slate-800 rounded-lg shadow-lg whitespace-normal text-center pointer-events-none"
         >
           {text}
-          <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800" />
+          <span
+            className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"
+            style={{ transform: `translateX(${-shift}px)` }}
+          />
         </span>
       )}
     </span>

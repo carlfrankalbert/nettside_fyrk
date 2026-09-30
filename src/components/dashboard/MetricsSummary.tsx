@@ -41,7 +41,7 @@ export function MetricsSummary({ title, metrics, icon }: MetricsSummaryProps) {
     <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
       <div className="flex items-center gap-3 mb-6">
         {icon || <div className="p-2 bg-cyan-50 rounded-lg"><Zap className="w-5 h-5 text-cyan-600" /></div>}
-        <h3 className="font-semibold text-slate-900">{title}</h3>
+        <h3 className="text-base font-semibold text-slate-900">{title}</h3>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-6">

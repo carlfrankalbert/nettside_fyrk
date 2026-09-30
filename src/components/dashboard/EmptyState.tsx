@@ -35,7 +35,7 @@ export function EmptyState({ type, toolName }: EmptyStateProps) {
       <div className="p-3 bg-slate-100 rounded-full mb-4">
         <Icon className="w-6 h-6 text-slate-400" />
       </div>
-      <h4 className="font-medium text-slate-700 mb-1">
+      <h4 className="text-sm font-medium text-slate-700 mb-1">
         {config.title}
         {toolName && ` for ${toolName}`}
       </h4>
