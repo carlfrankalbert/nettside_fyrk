@@ -36,41 +36,38 @@ Every public layout (BaseLayout, MinimalLayout/ToolLayout, the home page) render
   reversed. Nothing is stored on the visitor's device, which is why no consent
   banner is needed. Keep it that way: any cookie or localStorage identifier for
   analytics requires consent under ekomloven § 3-15.
-- **Audience** (`src/utils/visitor-dimensions.ts`): once per unique site visitor
-  per day, `/api/pageview` counts country and network organisation (from
-  Cloudflare's `request.cf`) and device class and browser family (from the
-  User-Agent). Stored only as counts in `audience:{date}` and `audience_total`,
-  plus each network's AS number (`networkAsns`, one per network name, never per
-  visitor). `/stats` links the AS number to bgp.tools and marks cloud/hosting
-  networks as "datasenter" from the name at render time. Don't add city or pages
-  per network: combined with a small company's network name, that identifies
-  individuals.
-- **404s:** the 404 page sends the requested path (`pageId: 'notfound'`), then
-  redirects from script. Counts live in `notfound:{date}` and `notfound_total`.
-- **Reading stats:** `/stats` reads audience data server-side. The analytics
-  GET endpoints (`/api/pageview`, `/api/track`, `/api/vitals`) need
-  `Authorization: Bearer <STATS_TOKEN>` or the `stats_token` cookie, and return
-  401 when `STATS_TOKEN` is unset.
-- **KV read budget:** a Worker request may make at most 1,000 KV operations.
-  Stats keys are per item per day (66 buttons × 30 days alone is ~2,000 keys),
-  so all dashboard reads go through `getMany` in `src/lib/kv-batch.ts`: bulk
-  gets of 100 keys, each counting as one operation. Don't add per-key
-  `kv.get` loops over days. `/stats` loads via `src/lib/stats-data.ts` and shows
-  an error card (not a 500) if KV fails.
-- **D1 migration (in progress):** KV's read-modify-write loses updates when
-  requests land close together, so analytics moved to the `STATS_DB` D1
-  database (writes: `src/lib/stats-db.ts`, reads: `src/lib/stats-data.ts`,
-  schema in `migrations/`). `/stats` and its charts read D1. History up to
-  2026-09-29 was imported from KV; all-time counts older than the daily data
-  sit on day `1970-01-01`, and visitor counts imported without hashes are
-  `legacy_visitors` counters. `/api/pageview` and `/api/track` still write KV
-  too, until D1 has run clean for about a week; then the KV writes go. Apply
-  migrations to production with
+- **Storage:** the D1 database `fyrk-stats` (binding `STATS_DB`, schema in
+  `migrations/`). Writes: `src/lib/stats-db.ts`, one batch (transaction) per
+  event, every change an atomic upsert. Reads: `src/lib/stats-data.ts`, grouped
+  queries over a day range. `counters` holds every count per UTC day and hour
+  (metric, scope, dimension); `visitors` holds the daily hashes per scope
+  (`site`, `page:{id}`, `article:{slug}`, `event:{id}`), deleted after 400 days.
+  Only the daily salt stays in KV. New metrics go in these two modules, never in
+  new KV keys: KV's read-modify-write lost updates when requests landed close
+  together (why it moved, 2026-09).
+- **History before 2026-09-30** was imported from KV. All-time counts older
+  than the daily data sit on day `1970-01-01` (part of "Alt", no dated period),
+  and visitor counts imported without hashes are `legacy_visitors` counters.
+  Apply migrations to production with
   `npx wrangler d1 migrations apply fyrk-stats --remote` before deploying code
   that needs them.
 - **Site visitors ("Besøkende"):** rows in `visitors` with scope `site`: a
   person counts once per day however many pages they saw. Don't sum per-page
   visitor counts.
+- **Audience** (`src/utils/visitor-dimensions.ts`): once per unique site visitor
+  per day, `/api/pageview` counts country and network organisation (from
+  Cloudflare's `request.cf`) and device class and browser family (from the
+  User-Agent), plus each network's AS number (per network name, never per
+  visitor). `/stats` links the AS number to bgp.tools and marks cloud/hosting
+  networks as "datasenter" from the name at render time. Don't add city or pages
+  per network: combined with a small company's network name, that identifies
+  individuals.
+- **404s:** the 404 page sends the requested path (`pageId: 'notfound'`), then
+  redirects from script; paths are counted as metric `notfound`.
+- **Reading stats:** `/stats` loads its data server-side and shows an error card
+  (not a 500) if D1 fails. The chart endpoint (`GET /api/pageview?timeseries|acquisition`)
+  and `/api/vitals` need `Authorization: Bearer <STATS_TOKEN>` or the
+  `stats_token` cookie, and return 401 when `STATS_TOKEN` is unset.
 
 ## What counts in `/stats`
 
@@ -78,7 +75,7 @@ Every public layout (BaseLayout, MinimalLayout/ToolLayout, the home page) render
 `src/scripts/tracking-exclusion.ts`):
 
 - Requests to `*.workers.dev` — the Worker's own URL and branch previews share
-  the production `ANALYTICS_KV` namespace, so only fyrk.no traffic counts
+  the production `STATS_DB` database, so only fyrk.no traffic counts
 - Automated browsers (Playwright, Puppeteer, headless Chrome, `navigator.webdriver`)
   and known bots
 - Requests with the header `x-exclude-from-stats: true`
@@ -86,7 +83,7 @@ Every public layout (BaseLayout, MinimalLayout/ToolLayout, the home page) render
   https://fyrk.no (undo with `fyrk.includeInStats()`). The flag lives in
   localStorage, so it applies per browser and per domain.
 
-Local dev writes to its own local KV and never touches production numbers.
+Local dev writes to its own local D1 and never touches production numbers.
 
 
 ### Real User Monitoring (RUM)

@@ -1,9 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   getVisitorHash,
-  addToVisitorSet,
   resetVisitorSaltCache,
-  MAX_VISITORS_PER_SET,
 } from './visitor-hash';
 
 function createMockKV(store: Record<string, string> = {}) {
@@ -67,28 +65,6 @@ describe('getVisitorHash', () => {
     resetVisitorSaltCache();
     const second = await getVisitorHash(requestFrom('203.0.113.7'), kv, '2026-09-25');
     expect(second).toBe(first);
-    expect(kv.put).not.toHaveBeenCalled();
-  });
-});
-
-describe('addToVisitorSet', () => {
-  it('reports a new visitor once and stores it', async () => {
-    const store: Record<string, string> = {};
-    const kv = createMockKV(store);
-    expect(await addToVisitorSet(kv, 'visitors:okr:2026-09-25', 'abc')).toBe(true);
-    expect(await addToVisitorSet(kv, 'visitors:okr:2026-09-25', 'abc')).toBe(false);
-    expect(JSON.parse(store['visitors:okr:2026-09-25'])).toEqual(['abc']);
-  });
-
-  it('recovers from a corrupt set', async () => {
-    const kv = createMockKV({ key: 'not json' });
-    expect(await addToVisitorSet(kv, 'key', 'abc')).toBe(true);
-  });
-
-  it('stops storing once the set is full but still reports new visitors', async () => {
-    const full = Array.from({ length: MAX_VISITORS_PER_SET }, (_, i) => `h${i}`);
-    const kv = createMockKV({ key: JSON.stringify(full) });
-    expect(await addToVisitorSet(kv, 'key', 'new')).toBe(true);
     expect(kv.put).not.toHaveBeenCalled();
   });
 });
