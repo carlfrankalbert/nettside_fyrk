@@ -4,23 +4,10 @@ import { getCollection } from 'astro:content';
 import { shouldExcludeRequest } from '../../utils/tracking-exclusion';
 import { verifySignedRequest } from '../../utils/request-signing';
 import { hasStatsAccess, STATS_TOKEN_COOKIE } from '../../lib/token-cookie';
-import {
-  sanitizeReferrer,
-  sanitizeUtmValue,
-  incrementField,
-  emptyAcquisitionData,
-  type AcquisitionData,
-} from '../../utils/acquisition';
-import {
-  API_HEADERS,
-  getDateKey,
-  getHourKey,
-  type TimePeriod,
-} from '../../utils/analytics-helpers';
-import { ANALYTICS_CONFIG } from '../../utils/constants';
-import { getMany, parseCount, parseHashes } from '../../lib/kv-batch';
-import { getVisitorHash, addToVisitorSet } from '../../utils/visitor-hash';
-import { recordAudience, recordNotFound, audienceValues, sanitizeNotFoundPath, type RequestGeo } from '../../utils/visitor-dimensions';
+import { sanitizeReferrer, sanitizeUtmValue } from '../../utils/acquisition';
+import { API_HEADERS, getDateKey, TIME_PERIODS, type TimePeriod } from '../../utils/analytics-helpers';
+import { getVisitorHash } from '../../utils/visitor-hash';
+import { audienceValues, sanitizeNotFoundPath, type RequestGeo } from '../../utils/visitor-dimensions';
 import { recordPageview } from '../../lib/stats-db';
 import { loadAcquisition, loadPageviewTimeseries } from '../../lib/stats-data';
 
@@ -30,23 +17,23 @@ export const prerender = false;
  * Valid page IDs for tracking
  */
 export const TRACKED_PAGES = {
-  home: { key: 'pageviews_home', label: 'fyrk.no' },
-  okr: { key: 'pageviews_okr', label: 'fyrk.no/okr-sjekken' },
-  konseptspeil: { key: 'pageviews_konseptspeil', label: 'fyrk.no/konseptspeilet' },
-  antakelseskart: { key: 'pageviews_antakelseskart', label: 'fyrk.no/antakelseskart' },
-  beslutningslogg: { key: 'pageviews_beslutningslogg', label: 'fyrk.no/beslutningslogg' },
-  premortem: { key: 'pageviews_premortem', label: 'fyrk.no/verktoy/pre-mortem' },
-  innsikt: { key: 'pageviews_innsikt', label: 'fyrk.no/innsikt' },
-  verktoy: { key: 'pageviews_verktoy', label: 'fyrk.no/verktoy' },
-  konsulenter: { key: 'pageviews_konsulenter', label: 'fyrk.no/konsulenter' },
-  notfound: { key: 'pageviews_notfound', label: '404 (siden finnes ikke)' },
+  home: { label: 'fyrk.no' },
+  okr: { label: 'fyrk.no/okr-sjekken' },
+  konseptspeil: { label: 'fyrk.no/konseptspeilet' },
+  antakelseskart: { label: 'fyrk.no/antakelseskart' },
+  beslutningslogg: { label: 'fyrk.no/beslutningslogg' },
+  premortem: { label: 'fyrk.no/verktoy/pre-mortem' },
+  innsikt: { label: 'fyrk.no/innsikt' },
+  verktoy: { label: 'fyrk.no/verktoy' },
+  konsulenter: { label: 'fyrk.no/konsulenter' },
+  notfound: { label: '404 (siden finnes ikke)' },
 } as const;
 
 export type PageId = keyof typeof TRACKED_PAGES;
 
 /**
  * Cache of published Innsikt slugs, used to validate article-level tracking so
- * arbitrary slugs can't create unbounded KV keys. Lives for the worker's lifetime.
+ * arbitrary slugs can't create unbounded rows. Lives for the worker's lifetime.
  */
 let innsiktSlugCache: Set<string> | null = null;
 async function getInnsiktSlugs(): Promise<Set<string>> {
@@ -54,75 +41,6 @@ async function getInnsiktSlugs(): Promise<Set<string>> {
   const entries = await getCollection('innsikt', ({ data }) => !data.draft);
   innsiktSlugCache = new Set(entries.map(e => e.id));
   return innsiktSlugCache;
-}
-
-/** KV key prefix for per-article Innsikt metrics. */
-const ARTICLE_NS = 'innsikt';
-
-/**
- * Record a single Innsikt article read: total + daily views, and unique visitors
- * (daily set + all-time counter). Mirrors the per-page scheme, namespaced by slug.
- */
-async function trackArticleView(
-  kv: KVNamespace,
-  slug: string,
-  dateKey: string,
-  visitorHash: string,
-): Promise<void> {
-  const totalKey = `article_views_total:${ARTICLE_NS}:${slug}`;
-  const dailyKey = `article_views_daily:${ARTICLE_NS}:${slug}:${dateKey}`;
-  const visitorsKey = `article_visitors:${ARTICLE_NS}:${slug}:${dateKey}`;
-  const visitorsTotalKey = `article_visitors_total:${ARTICLE_NS}:${slug}`;
-
-  const total = await kv.get(totalKey);
-  await kv.put(totalKey, String((parseInt(total || '0', 10) || 0) + 1));
-
-  const daily = await kv.get(dailyKey);
-  await kv.put(dailyKey, String((parseInt(daily || '0', 10) || 0) + 1), {
-    expirationTtl: ANALYTICS_CONFIG.KV_EXPIRATION_TTL,
-  });
-
-  if (await addToVisitorSet(kv, visitorsKey, visitorHash)) {
-    const totalVisitors = await kv.get(visitorsTotalKey);
-    await kv.put(visitorsTotalKey, String((parseInt(totalVisitors || '0', 10) || 0) + 1));
-  }
-}
-
-/**
- * Store acquisition data (referrer + UTM) aggregated per page per day
- */
-async function storeAcquisitionData(
-  kv: KVNamespace,
-  pageId: PageId,
-  dateKey: string,
-  data: { referrer?: string; utmSource?: string; utmMedium?: string; utmCampaign?: string },
-): Promise<void> {
-  const referrer = sanitizeReferrer(data.referrer);
-  const source = sanitizeUtmValue(data.utmSource);
-  const medium = sanitizeUtmValue(data.utmMedium);
-  const campaign = sanitizeUtmValue(data.utmCampaign);
-
-  // Skip if nothing to store
-  if (!referrer && !source && !medium && !campaign) return;
-
-  const key = `acquisition:${pageId}:${dateKey}`;
-  const existing = await kv.get(key);
-
-  let acquisition: AcquisitionData;
-  try {
-    acquisition = existing ? JSON.parse(existing) : emptyAcquisitionData();
-  } catch {
-    acquisition = emptyAcquisitionData();
-  }
-
-  incrementField(acquisition.referrers, referrer);
-  incrementField(acquisition.sources, source);
-  incrementField(acquisition.mediums, medium);
-  incrementField(acquisition.campaigns, campaign);
-
-  await kv.put(key, JSON.stringify(acquisition), {
-    expirationTtl: ANALYTICS_CONFIG.KV_EXPIRATION_TTL,
-  });
 }
 
 /**
@@ -142,9 +60,11 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
+    // The visitor hash's daily salt lives in KV; the stats themselves in D1
     const kv = env.ANALYTICS_KV;
+    const db = env.STATS_DB;
 
-    if (!kv) {
+    if (!kv || !db) {
       return new Response(
         JSON.stringify({ success: true, message: 'Tracking not configured' }),
         { status: 200, headers: API_HEADERS }
@@ -212,87 +132,28 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const timestamp = Date.now();
-    const dateKey = getDateKey(timestamp);
-    const hourKey = getHourKey(timestamp);
+    const visitorHash = await getVisitorHash(request, kv, getDateKey(timestamp));
 
-    const visitorHash = await getVisitorHash(request, kv, dateKey);
-
-    // Update total page views (legacy counter)
-    const totalKey = TRACKED_PAGES[pageId].key;
-    const currentTotal = await kv.get(totalKey);
-    const newTotal = (parseInt(currentTotal || '0', 10) || 0) + 1;
-    await kv.put(totalKey, String(newTotal));
-
-    // Store hourly page view data
-    const hourlyKey = `pageviews:${pageId}:${hourKey}`;
-    const hourlyCount = await kv.get(hourlyKey);
-    const newHourlyCount = (parseInt(hourlyCount || '0', 10) || 0) + 1;
-    await kv.put(hourlyKey, String(newHourlyCount), {
-      expirationTtl: ANALYTICS_CONFIG.KV_EXPIRATION_TTL,
+    const { isNewVisitor } = await recordPageview(db, {
+      timestamp,
+      pageId,
+      visitorHash,
+      articleSlug,
+      notFoundPath: sanitizeNotFoundPath(notFoundPath),
+      acquisition: {
+        referrer: sanitizeReferrer(acquisitionFields.referrer),
+        source: sanitizeUtmValue(acquisitionFields.utmSource),
+        medium: sanitizeUtmValue(acquisitionFields.utmMedium),
+        campaign: sanitizeUtmValue(acquisitionFields.utmCampaign),
+      },
+      audience: audienceValues(
+        (request as Request & { cf?: RequestGeo }).cf,
+        request.headers.get('user-agent') || '',
+      ),
     });
-
-    // Store daily page view data
-    const dailyKey = `pageviews_daily:${pageId}:${dateKey}`;
-    const dailyCount = await kv.get(dailyKey);
-    const newDailyCount = (parseInt(dailyCount || '0', 10) || 0) + 1;
-    await kv.put(dailyKey, String(newDailyCount), {
-      expirationTtl: ANALYTICS_CONFIG.KV_EXPIRATION_TTL,
-    });
-
-    // Unique visitors per day; the all-time counter keeps counting past the set cap
-    const isNewVisitor = await addToVisitorSet(kv, `visitors:${pageId}:${dateKey}`, visitorHash);
-    if (isNewVisitor) {
-      const totalVisitorsKey = `visitors_total:${pageId}`;
-      const currentTotalVisitors = await kv.get(totalVisitorsKey);
-      await kv.put(totalVisitorsKey, String((parseInt(currentTotalVisitors || '0', 10) || 0) + 1));
-    }
-
-    // Country, organisation, device and browser: once per site visitor per day
-    if (await addToVisitorSet(kv, `visitors_site:${dateKey}`, visitorHash)) {
-      const geo = (request as Request & { cf?: RequestGeo }).cf;
-      await recordAudience(kv, dateKey, geo, request.headers.get('user-agent') || '');
-    }
-
-    if (notFoundPath) {
-      await recordNotFound(kv, dateKey, notFoundPath);
-    }
-
-    // Record per-article read when a valid Innsikt slug was provided
-    if (articleSlug) {
-      await trackArticleView(kv, articleSlug, dateKey, visitorHash);
-    }
-
-    // Store acquisition data (referrer + UTM) - non-blocking for the response
-    await storeAcquisitionData(kv, pageId, dateKey, acquisitionFields);
-
-    // D1 migration, phase 1: write to D1 as well; /stats still reads KV.
-    // A D1 failure must not fail tracking while KV is the source of truth.
-    if (env.STATS_DB) {
-      try {
-        await recordPageview(env.STATS_DB, {
-          timestamp,
-          pageId,
-          visitorHash,
-          articleSlug,
-          notFoundPath: sanitizeNotFoundPath(notFoundPath),
-          acquisition: {
-            referrer: sanitizeReferrer(acquisitionFields.referrer),
-            source: sanitizeUtmValue(acquisitionFields.utmSource),
-            medium: sanitizeUtmValue(acquisitionFields.utmMedium),
-            campaign: sanitizeUtmValue(acquisitionFields.utmCampaign),
-          },
-          audience: audienceValues(
-            (request as Request & { cf?: RequestGeo }).cf,
-            request.headers.get('user-agent') || '',
-          ),
-        });
-      } catch (error) {
-        console.error('Stats D1 write failed (pageview):', error);
-      }
-    }
 
     return new Response(
-      JSON.stringify({ success: true, pageId, views: newTotal, isNewVisitor }),
+      JSON.stringify({ success: true, pageId, isNewVisitor }),
       { status: 200, headers: API_HEADERS }
     );
   } catch (error) {
@@ -306,123 +167,38 @@ export const POST: APIRoute = async ({ request }) => {
 
 /**
  * GET /api/pageview
- * Returns page view and visitor statistics.
+ * Chart data for the /stats dashboard (needs the stats token).
  *
  * Query params:
- * - pageId: (optional) specific page to get stats for
- * - all: (optional) if 'true', returns stats for all pages
- * - timeseries: (optional) if 'true', returns time-series data
- * - acquisition: (optional) if 'true', returns referrer/UTM data
- * - period: (optional) time period: '24h', 'week', 'month', 'year', 'all'
+ * - pageId: page to get data for
+ * - timeseries=true: page views over time
+ * - acquisition=true: referrer/UTM counts
+ * - period: '24h', 'week', 'month', 'year' or 'all' (default '24h')
  */
 export const GET: APIRoute = async ({ url, request, cookies }) => {
   if (!hasStatsAccess(request, cookies.get(STATS_TOKEN_COOKIE.name)?.value, env.STATS_TOKEN)) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: API_HEADERS });
   }
 
+  const pageId = url.searchParams.get('pageId');
+  const rawPeriod = url.searchParams.get('period') || '24h';
+  if (!pageId || !(pageId in TRACKED_PAGES) || !(rawPeriod in TIME_PERIODS)) {
+    return new Response(JSON.stringify({ error: 'Unknown pageId or period' }), { status: 400, headers: API_HEADERS });
+  }
+  const period = rawPeriod as TimePeriod;
+
   try {
-    const kv = env.ANALYTICS_KV;
-
-    if (!kv) {
-      return new Response(
-        JSON.stringify({ stats: null, message: 'Tracking not configured' }),
-        { status: 200, headers: API_HEADERS }
-      );
-    }
-
-    const pageId = url.searchParams.get('pageId') as PageId | null;
-    const getAll = url.searchParams.get('all') === 'true';
-    const getTimeseries = url.searchParams.get('timeseries') === 'true';
-    const getAcquisition = url.searchParams.get('acquisition') === 'true';
-    const period = (url.searchParams.get('period') || '24h') as TimePeriod;
-
-    // Get acquisition data (referrer + UTM) for a specific page
-    if (getAcquisition && pageId && pageId in TRACKED_PAGES) {
+    if (url.searchParams.get('acquisition') === 'true') {
       const acquisition = await loadAcquisition(env.STATS_DB, pageId, period);
-      return new Response(
-        JSON.stringify({ pageId, acquisition, period }),
-        { status: 200, headers: API_HEADERS }
-      );
+      return new Response(JSON.stringify({ pageId, acquisition, period }), { status: 200, headers: API_HEADERS });
     }
-
-    // Get time-series data for a specific page
-    if (getTimeseries && pageId && pageId in TRACKED_PAGES) {
+    if (url.searchParams.get('timeseries') === 'true') {
       const timeseries = await loadPageviewTimeseries(env.STATS_DB, pageId, period);
-      return new Response(
-        JSON.stringify({ pageId, timeseries, period }),
-        { status: 200, headers: API_HEADERS }
-      );
+      return new Response(JSON.stringify({ pageId, timeseries, period }), { status: 200, headers: API_HEADERS });
     }
-
-    // Get stats for a specific page
-    if (pageId && pageId in TRACKED_PAGES) {
-      const totalKey = TRACKED_PAGES[pageId].key;
-      const totalVisitorsKey = `visitors_total:${pageId}`;
-      const todayKey = `visitors:${pageId}:${getDateKey(Date.now())}`;
-
-      const totalViews = await kv.get(totalKey);
-      const totalVisitors = await kv.get(totalVisitorsKey);
-      const todayVisitorsJson = await kv.get(todayKey);
-      let todayVisitors = 0;
-      try {
-        const visitors = todayVisitorsJson ? JSON.parse(todayVisitorsJson) : [];
-        todayVisitors = visitors.length;
-      } catch {
-        todayVisitors = 0;
-      }
-
-      return new Response(
-        JSON.stringify({
-          pageId,
-          label: TRACKED_PAGES[pageId].label,
-          totalViews: parseInt(totalViews || '0', 10) || 0,
-          totalVisitors: parseInt(totalVisitors || '0', 10) || 0,
-          todayVisitors,
-        }),
-        { status: 200, headers: API_HEADERS }
-      );
-    }
-
-    // Get stats for all pages
-    if (getAll) {
-      const stats: Record<string, {
-        label: string;
-        totalViews: number;
-        totalVisitors: number;
-        todayVisitors: number;
-      }> = {};
-
-      const todayKey = getDateKey(Date.now());
-      const pages = Object.entries(TRACKED_PAGES);
-      const values = await getMany(kv, pages.flatMap(([id, config]) => [
-        config.key, `visitors_total:${id}`, `visitors:${id}:${todayKey}`,
-      ]));
-      for (const [id, config] of pages) {
-        stats[id] = {
-          label: config.label,
-          totalViews: parseCount(values.get(config.key)),
-          totalVisitors: parseCount(values.get(`visitors_total:${id}`)),
-          todayVisitors: parseHashes(values.get(`visitors:${id}:${todayKey}`)).length,
-        };
-      }
-
-      return new Response(
-        JSON.stringify({ stats }),
-        { status: 200, headers: API_HEADERS }
-      );
-    }
-
-    // Default: return all stats
-    return new Response(
-      JSON.stringify({ message: 'Use ?all=true or ?pageId=home|okr|konseptspeil' }),
-      { status: 200, headers: API_HEADERS }
-    );
+    return new Response(JSON.stringify({ error: 'Use timeseries=true or acquisition=true' }), { status: 400, headers: API_HEADERS });
   } catch (error) {
     console.error('Error fetching page view stats:', error);
-    return new Response(
-      JSON.stringify({ stats: null, error: 'Failed to fetch stats' }),
-      { status: 500, headers: API_HEADERS }
-    );
+    return new Response(JSON.stringify({ error: 'Failed to fetch stats' }), { status: 500, headers: API_HEADERS });
   }
 };
-

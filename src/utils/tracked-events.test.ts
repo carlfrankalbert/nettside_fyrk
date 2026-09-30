@@ -40,9 +40,4 @@ describe('TRACKED_BUTTONS', () => {
     const unknown = [...eventIdsInSource()].filter((id) => !(id in TRACKED_BUTTONS));
     expect(unknown).toEqual([]);
   });
-
-  it('uses a distinct KV key per event', () => {
-    const keys = Object.values(TRACKED_BUTTONS).map((b) => b.key);
-    expect(new Set(keys).size).toBe(keys.length);
-  });
 });

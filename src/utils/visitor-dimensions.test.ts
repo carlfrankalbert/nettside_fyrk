@@ -7,12 +7,7 @@ import {
   sanitizeNotFoundPath,
   sanitizeAsn,
   isDatacenterNetwork,
-  recordAudience,
-  recordNotFound,
-  readAudience,
-  MAX_DIMENSION_ENTRIES,
 } from './visitor-dimensions';
-import { createMockKV } from '../test/mock-kv';
 
 
 const UA = {
@@ -105,90 +100,5 @@ describe('isDatacenterNetwork', () => {
     expect(isDatacenterNetwork('Private Customer')).toBe(false);
     expect(isDatacenterNetwork('Equinor ASA')).toBe(false);
     expect(isDatacenterNetwork('Awsome AS')).toBe(false);
-  });
-});
-
-describe('recordAudience', () => {
-  it('counts one visitor per field for the day and all-time', async () => {
-    const store: Record<string, string> = {};
-    const kv = createMockKV(store).kv;
-
-    await recordAudience(kv, '2026-09-25', { country: 'NO', asOrganization: 'Equinor ASA' }, UA.iphone);
-    await recordAudience(kv, '2026-09-25', { country: 'SE' }, UA.macChrome);
-
-    const day = JSON.parse(store['audience:2026-09-25']);
-    expect(day.countries).toEqual({ NO: 1, SE: 1 });
-    expect(day.organizations).toEqual({ 'Equinor ASA': 1 });
-    expect(day.devices).toEqual({ Mobil: 1, Desktop: 1 });
-    expect(day.browsers).toEqual({ Safari: 1, Chrome: 1 });
-    expect(JSON.parse(store.audience_total)).toEqual(day);
-  });
-
-  it('stores the AS number per network, not per visitor', async () => {
-    const store: Record<string, string> = {};
-    const kv = createMockKV(store).kv;
-
-    await recordAudience(kv, '2026-09-25', { asOrganization: 'Telenor Norge AS', asn: 2119 }, UA.iphone);
-    await recordAudience(kv, '2026-09-25', { asOrganization: 'Telenor Norge AS', asn: 2119 }, UA.macChrome);
-    await recordAudience(kv, '2026-09-25', { asn: 15169 }, UA.macChrome); // no name: nothing to attach it to
-
-    const day = JSON.parse(store['audience:2026-09-25']);
-    expect(day.organizations).toEqual({ 'Telenor Norge AS': 2 });
-    expect(day.networkAsns).toEqual({ 'Telenor Norge AS': 2119 });
-  });
-
-  it('reads days stored before AS numbers were recorded', async () => {
-    const store: Record<string, string> = {
-      'audience:2026-09-24': JSON.stringify({ countries: {}, organizations: { goodline: 1 }, devices: {}, browsers: {} }),
-    };
-    const kv = createMockKV(store).kv;
-    await recordAudience(kv, '2026-09-25', { asOrganization: 'goodline', asn: 39435 }, UA.macChrome);
-
-    const { audience } = await readAudience(kv, ['2026-09-24', '2026-09-25']);
-    expect(audience.organizations).toEqual({ goodline: 2 });
-    expect(audience.networkAsns).toEqual({ goodline: 39435 });
-  });
-
-  it('caps the number of distinct values per field', async () => {
-    const organizations = Object.fromEntries(
-      Array.from({ length: MAX_DIMENSION_ENTRIES }, (_, i) => [`Org ${i}`, 1]),
-    );
-    const store: Record<string, string> = {
-      'audience:2026-09-25': JSON.stringify({ countries: {}, organizations, devices: {}, browsers: {} }),
-    };
-    const kv = createMockKV(store).kv;
-
-    await recordAudience(kv, '2026-09-25', { asOrganization: 'New Org', asn: 64500 }, UA.macChrome);
-
-    const day = JSON.parse(store['audience:2026-09-25']);
-    expect(day.organizations['New Org']).toBeUndefined();
-    expect(day.networkAsns['New Org']).toBeUndefined();
-  });
-});
-
-describe('recordNotFound + readAudience', () => {
-  it('aggregates 404 paths and audience across days', async () => {
-    const store: Record<string, string> = {};
-    const kv = createMockKV(store).kv;
-
-    await recordNotFound(kv, '2026-09-24', '/gammel');
-    await recordNotFound(kv, '2026-09-25', '/gammel?x=1');
-    await recordNotFound(kv, '2026-09-25', '/'); // ignored
-    await recordAudience(kv, '2026-09-24', { country: 'NO' }, UA.macChrome);
-    await recordAudience(kv, '2026-09-25', { country: 'NO' }, UA.iphone);
-
-    const twoDays = await readAudience(kv, ['2026-09-24', '2026-09-25']);
-    expect(twoDays.notFound).toEqual({ '/gammel': 2 });
-    expect(twoDays.audience.countries).toEqual({ NO: 2 });
-
-    const allTime = await readAudience(kv, 'all');
-    expect(allTime.notFound).toEqual({ '/gammel': 2 });
-    expect(allTime.audience.devices).toEqual({ Desktop: 1, Mobil: 1 });
-  });
-
-  it('returns empty data when nothing is stored', async () => {
-    const result = await readAudience(createMockKV().kv, ['2026-09-25']);
-    expect(result.notFound).toEqual({});
-    expect(result.audience.countries).toEqual({});
   });
 });

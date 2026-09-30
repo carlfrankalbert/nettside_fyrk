@@ -7,13 +7,6 @@
  * Nothing is read from or stored on the visitor's device.
  */
 
-import { incrementField } from './acquisition';
-import { ANALYTICS_CONFIG } from './constants';
-import { getMany, parseJson } from '../lib/kv-batch';
-
-/** Cap per field so spoofed or long-tail values can't grow a KV value unbounded */
-export const MAX_DIMENSION_ENTRIES = 300;
-
 export interface AudienceData {
   countries: Record<string, number>;
   organizations: Record<string, number>;
@@ -32,19 +25,6 @@ export interface RequestGeo {
 
 export function emptyAudienceData(): AudienceData {
   return { countries: {}, organizations: {}, devices: {}, browsers: {}, networkAsns: {} };
-}
-
-export function mergeCounts(target: Record<string, number>, source: Record<string, number>): void {
-  for (const [key, count] of Object.entries(source)) {
-    target[key] = (target[key] || 0) + count;
-  }
-}
-
-export function mergeAudienceData(target: AudienceData, source: Partial<AudienceData>): void {
-  for (const field of ['countries', 'organizations', 'devices', 'browsers'] as const) {
-    mergeCounts(target[field], source[field] ?? {});
-  }
-  Object.assign(target.networkAsns, source.networkAsns);
 }
 
 export function classifyDevice(userAgent: string): string {
@@ -103,83 +83,4 @@ export function audienceValues(geo: RequestGeo | undefined, userAgent: string) {
     device: classifyDevice(userAgent),
     browser: classifyBrowser(userAgent),
   };
-}
-
-/**
- * Count one visitor's dimensions for the day and in the all-time total.
- * Call once per unique visitor per day.
- */
-export async function recordAudience(
-  kv: KVNamespace,
-  dateKey: string,
-  geo: RequestGeo | undefined,
-  userAgent: string,
-): Promise<void> {
-  const { country, organization, asn, device, browser } = audienceValues(geo, userAgent);
-  const values = { countries: country, organizations: organization, devices: device, browsers: browser };
-
-  const bump = (data: AudienceData) => {
-    for (const [field, value] of Object.entries(values)) {
-      incrementField(data[field as keyof typeof values], value, MAX_DIMENSION_ENTRIES);
-    }
-    // Only for networks that made it into the capped count map
-    if (organization && asn && organization in data.organizations) {
-      data.networkAsns[organization] = asn;
-    }
-  };
-  await Promise.all([
-    updateJson(kv, `audience:${dateKey}`, emptyAudienceData, bump, ANALYTICS_CONFIG.KV_EXPIRATION_TTL),
-    updateJson(kv, 'audience_total', emptyAudienceData, bump),
-  ]);
-}
-
-/** Count a hit on the 404 page for the day and in the all-time total */
-export async function recordNotFound(kv: KVNamespace, dateKey: string, rawPath: string | undefined): Promise<void> {
-  const path = sanitizeNotFoundPath(rawPath);
-  if (!path) return;
-
-  const bump = (data: Record<string, number>) => incrementField(data, path, MAX_DIMENSION_ENTRIES);
-  await Promise.all([
-    updateJson(kv, `notfound:${dateKey}`, () => ({}), bump, ANALYTICS_CONFIG.KV_EXPIRATION_TTL),
-    updateJson(kv, 'notfound_total', () => ({}), bump),
-  ]);
-}
-
-async function updateJson<T extends object>(
-  kv: KVNamespace,
-  key: string,
-  empty: () => T,
-  mutate: (data: T) => void,
-  expirationTtl?: number,
-): Promise<void> {
-  let data = empty();
-  try {
-    const json = await kv.get(key);
-    if (json) data = { ...data, ...JSON.parse(json) };
-  } catch {
-    // Corrupt value: start over
-  }
-  mutate(data);
-  await kv.put(key, JSON.stringify(data), expirationTtl ? { expirationTtl } : undefined);
-}
-
-/** Read and merge audience + 404 data for a set of days, or the all-time totals */
-export async function readAudience(
-  kv: KVNamespace,
-  dates: string[] | 'all',
-): Promise<{ audience: AudienceData; notFound: Record<string, number> }> {
-  const audienceKeys = dates === 'all' ? ['audience_total'] : dates.map((d) => `audience:${d}`);
-  const notFoundKeys = dates === 'all' ? ['notfound_total'] : dates.map((d) => `notfound:${d}`);
-
-  const values = await getMany(kv, [...audienceKeys, ...notFoundKeys]);
-
-  const audience = emptyAudienceData();
-  for (const key of audienceKeys) {
-    mergeAudienceData(audience, parseJson<Partial<AudienceData> | null>(values.get(key), null) ?? {});
-  }
-  const notFound: Record<string, number> = {};
-  for (const key of notFoundKeys) {
-    mergeCounts(notFound, parseJson<Record<string, number> | null>(values.get(key), null) ?? {});
-  }
-  return { audience, notFound };
 }
