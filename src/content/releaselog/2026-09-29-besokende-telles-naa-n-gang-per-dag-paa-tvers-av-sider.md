@@ -1,7 +1,7 @@
 ---
 title: "Besøkende telles nå én gang per dag på tvers av sider"
 date: 2026-09-29
-summary: "Telleren for daglige besøkende på statistikksiden viser nå korrekt antall unike personer, ikke summen av sidevisninger per besøkende."
+summary: "Telleren for besøkende på statistikksiden viser nå antall unike personer per dag, ikke summen av besøkende per side."
 tags: [fix, internal]
 audience: "internal"
 draft: false
@@ -9,7 +9,7 @@ draft: false
 
 ### Hva var problemet?
 
-Kolonnen «Besøkende» i statistikkdashbordet skulle alltid telle hver person én gang per dag – slik verktøytipset beskriver. I stedet ble besøkende summert per side, slik at én person som leste fire sider ble telt som fire. På en konkret dag i produksjon viste telleren 6, mens det reelle tallet var 3.
+Nøkkeltallet «Besøkende» i statistikkdashbordet skulle alltid telle hver person én gang per dag – slik verktøytipset beskriver. I stedet ble besøkende summert per side, slik at én person som leste fire sider ble telt som fire. På en konkret dag i produksjon viste telleren 6, mens det reelle tallet var 3.
 
 ### Hva er rettet?
 
