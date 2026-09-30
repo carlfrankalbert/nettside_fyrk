@@ -9,7 +9,7 @@ draft: false
 
 ### Hva ble endret
 
-En intern SLO-monitor (`slo-monitoring.ts`) som kjørte i bakgrunnen av alle AI-verktøy – OKR-sjekken, Konseptspeilet, Antakelseskart, Pre-Mortem Brief og Beslutningslogg – er fjernet. Monitoren skrev aggregerte nøkkeltall til lagring hver time, men ingen del av systemet leste dem.
+En intern SLO-monitor (`slo-monitoring.ts`) som kjørte i bakgrunnen av alle AI-verktøy – OKR-sjekken, Konseptspeilet, Antakelseskart og Pre-Mortem Brief – er fjernet. Monitoren skrev aggregerte nøkkeltall til lagring hver time, men ingen del av systemet leste dem.
 
 ### Hvorfor det ikke hadde noen effekt på brukerne
 
