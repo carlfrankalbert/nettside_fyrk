@@ -89,7 +89,7 @@ export function ButtonClickList({ title, buttons, icon }: ButtonClickListProps) 
     <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
       <div className="flex items-center gap-3 mb-6">
         {icon && <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">{icon}</div>}
-        <h3 className="font-semibold text-slate-900">{title}</h3>
+        <h3 className="text-base font-semibold text-slate-900">{title}</h3>
       </div>
       <div className="space-y-2">
         {sortedButtons.map((button) => (

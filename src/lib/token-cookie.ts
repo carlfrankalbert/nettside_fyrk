@@ -14,11 +14,15 @@ export interface CookieConfig {
   maxAgeSeconds: number;
 }
 
-/** Path `/` so the /stats page and the analytics GET endpoints it calls receive it. */
+/**
+ * Path `/` so the /stats page and the analytics GET endpoints it calls receive it.
+ * 30 days: read-only access, and a shorter life logged people out of an open tab
+ * (the next period switch showed "Token mangler").
+ */
 export const STATS_TOKEN_COOKIE: CookieConfig = {
   name: 'stats_token',
   path: '/',
-  maxAgeSeconds: 60 * 60 * 8,
+  maxAgeSeconds: 60 * 60 * 24 * 30,
 };
 
 /** Path `/` so both the page and /api/feature-toggles receive it. */
