@@ -13,11 +13,11 @@ Dashbordet på `/stats`, trafikk-grafene og anskaffelsesdata henter nå alle tal
 
 ### Nøyaktige tall igjen
 
-Tellerne skrives nå atomisk, slik at tapte oppdateringer fra KV ikke lenger kan oppstå. OKR-fullføringer som har vist 0 siden 25. september 2026 vises nå korrekt igjen – feilen skyldtes at hendelsesnavnet ble omdøpt etter at historikken ble importert.
+Tellerne skrives nå atomisk, slik at tapte oppdateringer fra KV ikke lenger kan oppstå. OKR-fullføringer har vist 0 i alle datoperioder siden hendelsen ble omdøpt 25. september 2026 (`check_success` → `okr_success`), fordi den daglige historikken lå under det gamle navnet. Ved importen til D1 ble den gamle historikken ført over på det nye navnet, så tallene vises igjen.
 
 ### Grafer og perioder
 
-Alle perioder (i dag, 7 dager, 30 dager, alle tider) rendres korrekt. Timer og dager i grafene er nå eksplisitt merket som UTC, men siden tjenesten allerede kjørte i UTC vil ingen se en synlig endring.
+Alle perioder (i dag, 7 dager, 30 dager, alle tider) rendres korrekt. Timer og dager i grafene beregnes nå eksplisitt i UTC. Tjenesten kjørte allerede i UTC, så ingen vil se en synlig endring.
 
 ### Tilbakerulle ved feil
 
