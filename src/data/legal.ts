@@ -109,7 +109,7 @@ export const vilkarContent = {
       richBullets: [
         {
           html: '<strong>Anthropic (Claude)</strong> - AI-analyse av tekst.',
-          link: { href: 'https://www.anthropic.com/legal/consumer-terms', label: 'Se deres vilkår' },
+          link: { href: 'https://www.anthropic.com/legal/commercial-terms', label: 'Se deres vilkår' },
         },
         {
           html: '<strong>Cloudflare</strong> - Infrastruktur og hosting.',

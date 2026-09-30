@@ -11,6 +11,8 @@ interface Props {
   canonicalUrl?: URL;
   /** Set to false when title already contains the brand name (rare). Default: true. */
   appendSiteName?: boolean;
+  /** Error pages: keep out of search results and emit no canonical (their URL isn't a real page) */
+  noindex?: boolean;
 }
 
 const {
@@ -20,6 +22,7 @@ const {
   type = 'website',
   canonicalUrl,
   appendSiteName = true,
+  noindex = false,
 } = Astro.props;
 
 const site = Astro.site || new URL(BRAND.url);
@@ -85,10 +88,16 @@ const baseStructuredData = {
 <meta name="twitter:description" content={metaDescription} />
 {type === 'article' && <meta name="twitter:image" content={ogImage} />}
 
-<!-- Canonical & hreflang -->
-<link rel="canonical" href={canonical} />
-<link rel="alternate" hreflang="nb" href={canonical} />
-<link rel="alternate" hreflang="x-default" href={canonical} />
+<!-- Canonical & hreflang (none for error pages) -->
+{noindex ? (
+  <meta name="robots" content="noindex" />
+) : (
+  <>
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="nb" href={canonical} />
+    <link rel="alternate" hreflang="x-default" href={canonical} />
+  </>
+)}
 
 <!-- Organization + WebSite JSON-LD on every page -->
 <script type="application/ld+json" set:html={JSON.stringify(baseStructuredData)} />
