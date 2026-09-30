@@ -58,16 +58,19 @@ Every public layout (BaseLayout, MinimalLayout/ToolLayout, the home page) render
   `kv.get` loops over days. `/stats` loads via `src/lib/stats-data.ts` and shows
   an error card (not a 500) if KV fails.
 - **D1 migration (in progress):** KV's read-modify-write loses updates when
-  requests land close together, so analytics is moving to the `STATS_DB` D1
-  database (`src/lib/stats-db.ts`, schema in `migrations/`). Phase 1:
-  `/api/pageview` and `/api/track` write to both KV and D1; `/stats` still
-  reads KV. Phase 2 copies KV history into D1, phase 3 switches reads to D1
-  and removes the KV writes. Apply migrations to production with
+  requests land close together, so analytics moved to the `STATS_DB` D1
+  database (writes: `src/lib/stats-db.ts`, reads: `src/lib/stats-data.ts`,
+  schema in `migrations/`). `/stats` and its charts read D1. History up to
+  2026-09-29 was imported from KV; all-time counts older than the daily data
+  sit on day `1970-01-01`, and visitor counts imported without hashes are
+  `legacy_visitors` counters. `/api/pageview` and `/api/track` still write KV
+  too, until D1 has run clean for about a week; then the KV writes go. Apply
+  migrations to production with
   `npx wrangler d1 migrations apply fyrk-stats --remote` before deploying code
   that needs them.
-- **Site visitors ("Besøkende"):** the union of every page's daily
-  `visitors:{page}:{date}` set, so a person counts once per day however many
-  pages they saw. Don't sum per-page visitor counts.
+- **Site visitors ("Besøkende"):** rows in `visitors` with scope `site`: a
+  person counts once per day however many pages they saw. Don't sum per-page
+  visitor counts.
 
 ## What counts in `/stats`
 

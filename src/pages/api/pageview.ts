@@ -15,8 +15,6 @@ import {
   API_HEADERS,
   getDateKey,
   getHourKey,
-  fetchCountTimeseries,
-  getAcquisitionData,
   type TimePeriod,
 } from '../../utils/analytics-helpers';
 import { ANALYTICS_CONFIG } from '../../utils/constants';
@@ -24,6 +22,7 @@ import { getMany, parseCount, parseHashes } from '../../lib/kv-batch';
 import { getVisitorHash, addToVisitorSet } from '../../utils/visitor-hash';
 import { recordAudience, recordNotFound, audienceValues, sanitizeNotFoundPath, type RequestGeo } from '../../utils/visitor-dimensions';
 import { recordPageview } from '../../lib/stats-db';
+import { loadAcquisition, loadPageviewTimeseries } from '../../lib/stats-data';
 
 export const prerender = false;
 
@@ -339,7 +338,7 @@ export const GET: APIRoute = async ({ url, request, cookies }) => {
 
     // Get acquisition data (referrer + UTM) for a specific page
     if (getAcquisition && pageId && pageId in TRACKED_PAGES) {
-      const acquisition = await getAcquisitionData(kv, pageId, period);
+      const acquisition = await loadAcquisition(env.STATS_DB, pageId, period);
       return new Response(
         JSON.stringify({ pageId, acquisition, period }),
         { status: 200, headers: API_HEADERS }
@@ -348,7 +347,7 @@ export const GET: APIRoute = async ({ url, request, cookies }) => {
 
     // Get time-series data for a specific page
     if (getTimeseries && pageId && pageId in TRACKED_PAGES) {
-      const timeseries = await fetchCountTimeseries(kv, 'pageviews', 'pageviews_daily', pageId, period);
+      const timeseries = await loadPageviewTimeseries(env.STATS_DB, pageId, period);
       return new Response(
         JSON.stringify({ pageId, timeseries, period }),
         { status: 200, headers: API_HEADERS }
