@@ -17,7 +17,7 @@ Dette er det siste steget i migreringen fra KV til D1 som analysedatabase. KV-ko
 
 ### Hva dette betyr i praksis
 
-Ingen endring for brukere av verktøyene eller statistikksidene. Internt er systemet enklere: én datakilde, ingen synkronisering mellom lagre. En feil mot D1 vil nå gi en tydelig feilmelding (500) i stedet for å stilne bli logget.
+Ingen endring for brukere av verktøyene eller statistikksidene. Internt er systemet enklere: én datakilde, ingen synkronisering mellom lagre. En feil mot D1 vil nå gi en tydelig feilmelding (500) i stedet for bare å bli logget.
 
 ### Tilbakestilling
 
