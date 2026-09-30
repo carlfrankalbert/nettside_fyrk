@@ -17,7 +17,7 @@ Tailwind 4 innfører nye standardverdier for farger, linjehøyder og andre visue
 
 ### Teknisk grunnlag
 
-Oppgraderingen er del av den planlagte moderniseringen av kodebasen (modernization-plan.md, spor 5). Et oppdatert byggverktøy og færre avhengigheter gjør fremtidig vedlikehold enklere og reduserer risikoen for utdaterte pakker.
+Oppgraderingen er del av den planlagte moderniseringen av kodebasen (modernization-plan.md, spor 5). Tailwind kobles nå direkte inn i byggverktøyet (Vite), og `autoprefixer` trengs ikke lenger. Det holder stilsystemet på en versjon som får oppdateringer.
 
 ### Berørte verktøy
 
