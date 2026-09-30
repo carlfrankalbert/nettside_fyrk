@@ -17,7 +17,7 @@ Statistikkendepunktene `/api/pageview` og `/api/track` skriver nå til en ny D1-
 
 ### Hva brukerne merker
 
-Ingenting. `/stats`-siden leser fortsatt fra KV som før. D1-skriving skjer i bakgrunnen, og en eventuell feil der stopper ikke registreringen.
+Ingenting. `/stats`-siden leser fortsatt fra KV som før. D1-skrivingen skjer i samme forespørsel, og en eventuell feil der stopper ikke registreringen i KV.
 
 ### Neste steg
 
