@@ -95,10 +95,20 @@ describe('isDatacenterNetwork', () => {
     expect(isDatacenterNetwork('DigitalOcean, LLC')).toBe(true);
   });
 
+  it('flags the hosting and VPN networks seen in bot traffic on 2026-10-05', () => {
+    expect(isDatacenterNetwork('LogicWeb Inc.')).toBe(true);
+    expect(isDatacenterNetwork('RapidSeedbox Ltd')).toBe(true);
+    expect(isDatacenterNetwork('Microsoft Limited')).toBe(true);
+    expect(isDatacenterNetwork('Example Hosting LLC')).toBe(true);
+    expect(isDatacenterNetwork('Some Data Center Ltd')).toBe(true);
+  });
+
   it('does not flag ISPs or companies', () => {
     expect(isDatacenterNetwork('Telenor Norge AS')).toBe(false);
     expect(isDatacenterNetwork('Private Customer')).toBe(false);
     expect(isDatacenterNetwork('Equinor ASA')).toBe(false);
     expect(isDatacenterNetwork('Awsome AS')).toBe(false);
+    expect(isDatacenterNetwork('Google Fiber Inc.')).toBe(false);
+    expect(isDatacenterNetwork('Telia Company AB')).toBe(false);
   });
 });

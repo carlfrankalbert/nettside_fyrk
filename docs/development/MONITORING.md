@@ -25,6 +25,9 @@ Every public layout (BaseLayout, MinimalLayout/ToolLayout, the home page) render
 
 - **Page views:** put `<PageView pageId="…" />` on the page. The ID must exist
   in `TRACKED_PAGES` (`src/pages/api/pageview.ts`); the client type is derived from it.
+  The view is sent once the page has been visible for 5 seconds in total
+  (`src/scripts/visible-dwell.ts`), so crawlers that load a page and leave
+  aren't counted; bounces under 5 seconds aren't either. The 404 page sends at once.
 - **Clicks:** add `data-track-button="<id>"` to any element, or call
   `trackClick` / `logEvent` from `src/utils/tracking.ts` in React.
 - **New event IDs** must be added to `TRACKED_BUTTONS` (`src/pages/api/track.ts`).
@@ -59,7 +62,8 @@ Every public layout (BaseLayout, MinimalLayout/ToolLayout, the home page) render
   Cloudflare's `request.cf`) and device class and browser family (from the
   User-Agent), plus each network's AS number (per network name, never per
   visitor). `/stats` links the AS number to bgp.tools and marks cloud/hosting
-  networks as "datasenter" from the name at render time. Don't add city or pages
+  networks as "datasenter" from the name at render time (only data from before
+  2026-10-06; such requests are now excluded). Don't add city or pages
   per network: combined with a small company's network name, that identifies
   individuals.
 - **404s:** the 404 page sends the requested path (`pageId: 'notfound'`), then
@@ -78,6 +82,9 @@ Every public layout (BaseLayout, MinimalLayout/ToolLayout, the home page) render
   the production `STATS_DB` database, so only fyrk.no traffic counts
 - Automated browsers (Playwright, Puppeteer, headless Chrome, `navigator.webdriver`)
   and known bots
+- Cloud, hosting and VPN networks (`isDatacenterNetwork`, matched on Cloudflare's
+  `request.cf.asOrganization`). On 2026-10-05 these, plus one crawler rotating
+  residential IPs and user agents, made up 17 of 18 "visitors"
 - Requests with the header `x-exclude-from-stats: true`
 - Browsers that opted out: run `fyrk.excludeFromStats()` in the console on
   https://fyrk.no (undo with `fyrk.includeInStats()`). The flag lives in

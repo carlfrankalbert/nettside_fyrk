@@ -59,9 +59,12 @@ export function sanitizeAsn(value: unknown): number | undefined {
   return typeof value === 'number' && Number.isInteger(value) && value > 0 && value < 2 ** 32 ? value : undefined;
 }
 
-/** Cloud and hosting networks: visits from these are almost always bots, crawlers or link previews */
+/**
+ * Cloud, hosting, VPN and proxy networks: visits from these are almost always bots,
+ * crawlers or link previews. Google Fiber is a residential ISP, so it is let through.
+ */
 const DATACENTER_PATTERN =
-  /\b(amazon|aws|google|microsoft|azure|digitalocean|hetzner|ovh|linode|akamai|oracle|alibaba|tencent|huawei cloud|contabo|scaleway|vultr|constant company|leaseweb|m247|cloudflare|datacamp|choopa|hostinger|ionos|upcloud)\b/i;
+  /\b(amazon|aws|google(?! fiber)|microsoft|azure|digitalocean|hetzner|ovh|linode|akamai|oracle|alibaba|tencent|huawei cloud|contabo|scaleway|vultr|constant company|leaseweb|m247|cloudflare|datacamp|choopa|hostinger|ionos|upcloud|logicweb|hostwinds|colocrossing|psychz|quadranet|hosting|vps|data ?cent(er|re))\b|seedbox/i;
 
 export function isDatacenterNetwork(organization: string): boolean {
   return DATACENTER_PATTERN.test(organization);
