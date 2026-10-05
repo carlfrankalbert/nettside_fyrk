@@ -51,4 +51,20 @@ describe('shouldExcludeRequest', () => {
       )
     ).toBe(true);
   });
+
+  it('excludes requests from hosting and VPN networks', () => {
+    const req = withNetwork(request('https://fyrk.no/api/pageview'), 'RapidSeedbox Ltd');
+    expect(shouldExcludeRequest(req)).toBe(true);
+  });
+
+  it('counts requests from residential ISPs', () => {
+    const req = withNetwork(request('https://fyrk.no/api/pageview'), 'Telenor Norge AS');
+    expect(shouldExcludeRequest(req)).toBe(false);
+  });
 });
+
+/** Attach Cloudflare's request.cf network name, which plain Request objects lack */
+function withNetwork(req: Request, asOrganization: string): Request {
+  Object.defineProperty(req, 'cf', { value: { asOrganization } });
+  return req;
+}

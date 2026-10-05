@@ -4,6 +4,7 @@
  */
 
 import { isBot, isAutomatedBrowser } from './bot-patterns';
+import { isDatacenterNetwork, type RequestGeo } from './visitor-dimensions';
 
 /**
  * Check if a request should be excluded from tracking
@@ -33,6 +34,11 @@ export function shouldExcludeRequest(request: Request): boolean {
     return true;
   }
 
+  // Exclude cloud, hosting and VPN networks: real visitors rarely browse from these
+  if (isDatacenterRequest(request)) {
+    return true;
+  }
+
   // Check for custom header that tests can set
   const excludeHeader = request.headers.get('x-exclude-from-stats');
   if (excludeHeader === 'true') {
@@ -48,4 +54,9 @@ function isNonProductionHost(request: Request): boolean {
   } catch {
     return false;
   }
+}
+
+function isDatacenterRequest(request: Request): boolean {
+  const organization = (request as Request & { cf?: RequestGeo }).cf?.asOrganization;
+  return typeof organization === 'string' && isDatacenterNetwork(organization);
 }
