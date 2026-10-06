@@ -10,7 +10,7 @@ import { EXTERNAL_LINKS } from '../utils/links';
  */
 export const konsulenterHeader = {
   title: 'Konsulenter',
-  lead: 'FYRK tilbyr senior kompetanse innen produktledelse og operativ rådgivning i komplekse og regulerte produktmiljøer.',
+  lead: 'FYRK tilbyr interim produktledere og leveranseledere til produktområder i bank, betaling og andre regulerte virksomheter.',
 } as const;
 
 /**
@@ -20,7 +20,7 @@ export const consultantContent = {
   title: 'Carl Johnson',
   consultant: {
     heading: 'Carl Johnson',
-    role: 'Senior produktleder og operativ rådgiver',
+    role: 'Interim produktleder og leveranseleder',
     paragraphs: [
       'Carl har erfaring fra bank, fintech, retail og offentlig sektor, blant annet fra SpareBank 1, Vipps, Varner og Domstoladministrasjonen.',
       'Han arbeider særlig med produktområder der mange team, avhengigheter og hensyn gjør prioritering og gjennomføring krevende.',

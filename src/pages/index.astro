@@ -1,7 +1,7 @@
 ---
 /**
  * Landing page for FYRK
- * Senior produktleder og operativ rådgiver
+ * Produkt- og leveranseledelse for komplekse og regulerte miljøer
  */
 
 import '../styles/global.css';
@@ -52,8 +52,8 @@ const faqLd = {
 <html lang="no" class="scroll-smooth">
   <head>
     <SEOHead
-      title="Senior produktleder og operativ rådgiver"
-      description="FYRK bistår komplekse og regulerte produktmiljøer med prioritering, roadmap, avhengigheter og fremdrift."
+      title="Produkt- og leveranseledelse"
+      description="FYRK bistår produktområder i bank, betaling og andre regulerte virksomheter som interim produktleder eller leveranseleder."
       type="website"
     />
     <script type="application/ld+json" set:html={JSON.stringify(faqLd)} />
@@ -67,7 +67,7 @@ const faqLd = {
     <main id={ELEMENT_IDS.MAIN} class="flex-1">
       <HeroSection {...heroContent} />
 
-      <IntroSection paragraphs={introContent.paragraphs} />
+      <IntroSection title={introContent.title} paragraphs={introContent.paragraphs} />
 
       <ContributionsSection
         id="bidrag"

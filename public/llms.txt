@@ -1,6 +1,6 @@
 # FYRK
 
-FYRK er et norsk konsulentselskap som tilbyr senior produktledelse, interim produktledelse og operativ rådgivning for komplekse og regulerte produktmiljøer.
+FYRK er et norsk konsulentselskap som tilbyr produkt- og leveranseledelse, som interim produktleder eller leveranseleder, for komplekse og regulerte miljøer. Bank og betaling er det tydeligste området.
 
 ## Relevante sider
 
@@ -13,14 +13,13 @@ FYRK er et norsk konsulentselskap som tilbyr senior produktledelse, interim prod
 
 - Produktledelse
 - Interim produktleder
-- Senior produktleder
-- Operativ rådgivning
+- Leveranseleder
 - Prioritering
 - Roadmap
 - Avhengigheter mellom team
 - Fremdrift i komplekse produktmiljøer
 - Regulerte miljøer
-- Bank, finans, fintech og offentlig sektor
+- Bank og betaling, forsikring og offentlig sektor
 
 ## Kort beskrivelse
 

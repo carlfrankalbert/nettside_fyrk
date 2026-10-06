@@ -7,6 +7,8 @@
 interface ExperienceEntry {
   company: string;
   role: string;
+  /** Years in the role, e.g. "2022–2023" */
+  period?: string;
   description: string;
 }
 
@@ -36,7 +38,9 @@ const { title, lead, entries } = Astro.props;
       {entries.map((entry) => (
         <div class="bg-white rounded-xl border border-neutral-200 p-6 shadow-sm">
           <p class="font-bold text-lg text-brand-navy">{entry.company}</p>
-          <p class="text-sm text-neutral-500 mt-0.5">{entry.role}</p>
+          <p class="text-sm text-neutral-500 mt-0.5">
+            {entry.role}{entry.period && ` · ${entry.period}`}
+          </p>
           <p class="text-neutral-600 text-sm mt-3">{entry.description}</p>
         </div>
       ))}

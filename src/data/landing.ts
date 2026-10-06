@@ -19,23 +19,24 @@ export const navLinks = [
  * Hero section content
  */
 export const heroContent = {
-  headline: 'Senior produktledelse for komplekse og regulerte produktmiljøer.',
+  headline: 'Produkt- og leveranseledelse for komplekse og regulerte miljøer',
   description: [
-    'FYRK hjelper produktområder med å få mer struktur, tydeligere prioriteringer og bedre fremdrift.',
-    'Når mange hensyn, avhengigheter og team er involvert, kan arbeidet lett stoppe opp mellom produkt, teknologi og forretning. Da trengs det noen som kan skape oversikt, få frem hva som må avklares og hjelpe arbeidet videre.',
+    'FYRK hjelper produktområder i bank, betaling og andre regulerte virksomheter når mange team, avhengigheter og krav gjør prioritering og gjennomføring krevende.',
+    'Bistår som interim produktleder eller leveranseleder.',
   ],
   ctaText: 'Ta kontakt',
   ctaHref: EXTERNAL_LINKS.email,
 } as const;
 
 /**
- * Short introduction under hero
+ * Why FYRK: short section under hero
  */
 export const introContent = {
+  title: 'Hvorfor FYRK',
   paragraphs: [
-    'FYRK jobber med produktledelse og rådgivning i komplekse produktmiljøer.',
-    'Typiske situasjoner er uklare prioriteringer, mange avhengigheter, flere team er involvert eller arbeid som stopper opp mellom produkt, teknologi og forretning.',
-    'Bidraget handler ofte om å skape bedre oversikt over hva som må avklares, hva som bør prioriteres, hvem som må involveres og hvordan arbeidet kan komme videre.',
+    'Erfaring fra produktledelse, leveranse, teamledelse og kvalitet gjør det mulig å se både hva som bør prioriteres og hva som hindrer organisasjonen i å få det gjennomført.',
+    'I bank og betaling henger dette tett sammen. Krav, risiko og avhengigheter mellom team avgjør hva som faktisk kan leveres, og når.',
+    'Som interim produktleder tar FYRK ansvar for retning og prioritering i et produktområde. Som leveranseleder tar FYRK ansvar for at teamene får levert det som er bestemt. Begge rollene er operative.',
   ],
 } as const;
 
@@ -44,14 +45,14 @@ export const introContent = {
  */
 export const contributionsContent = {
   title: 'Hva FYRK bidrar med',
-  intro: 'FYRK hjelper produktområder med å få bedre oversikt, tydeligere prioriteringer og mer fremdrift når mange team, avhengigheter og beslutninger påvirker arbeidet.',
+  intro: 'FYRK tar oppdrag som interim produktleder eller leveranseleder.',
   items: [
     'Produktledelse i komplekse miljøer',
     'Strukturering av roadmap og prioriteringer',
     'Bedre flyt mellom produkt, teknologi og forretning',
-    'Støtte til produktledere, team og ledelse',
+    'Leveranseplan, kapasitet og oppfølging på tvers av team',
     'Fremdrift i arbeid med mange avhengigheter',
-    'Tydeligere beslutningsgrunnlag og gjennomføring',
+    'Kvalitet og risiko som del av leveransen',
   ],
 } as const;
 
@@ -61,13 +62,13 @@ export const contributionsContent = {
 export const whenFitsContent = {
   title: 'Når FYRK passer',
   statement: 'FYRK passer best når produktmiljøet har mange flinke folk, men for lav fremdrift.',
-  lead: 'Typiske situasjoner:',
+  lead: 'FYRK er særlig relevant når:',
   items: [
-    'Prioriteringer er uklare eller endres ofte',
-    'Viktige avklaringer blir liggende for lenge',
-    'Produkt, teknologi og forretning trekker ikke tydelig nok i samme retning',
-    'Et område trenger mer struktur i roadmap, ansvar og beslutninger',
-    'Ledelsen trenger bedre oversikt over hva som faktisk stopper arbeidet',
+    'flere team og avhengigheter gjør prioritering vanskelig',
+    'mye er i gang, men for lite blir ferdig',
+    'ansvar og beslutninger er uklare',
+    'kvalitet, risiko eller regulatoriske krav gjør leveransene mer krevende',
+    'et produktområde trenger en erfaren produktleder eller leveranseleder som raskt kan gå inn operativt',
   ],
 } as const;
 
@@ -75,28 +76,50 @@ export const whenFitsContent = {
  * Experience section content
  */
 export const experienceContent = {
-  title: 'Erfaring fra komplekse produktmiljøer',
-  lead: 'FYRK kombinerer erfaring fra bank, fintech, retail og offentlig sektor, blant annet fra SpareBank 1, Vipps, Varner og Domstoladministrasjonen.',
+  title: 'Carls bakgrunn',
+  lead: 'FYRK drives av Carl Johnson. Erfaringen under er fra hans tidligere roller, hovedsakelig i bank og betaling.',
   entries: [
     {
       company: 'SpareBank 1 Utvikling',
-      role: 'Produktleder, mobilbank bedrift',
-      description: 'Produktleder for mobilbank og betaling i bedriftsmarkedet. Ledet tre tverrfaglige team med ansvar for strategi, prioritering og leveranser.',
+      role: 'Produktleder – Mobilbank Bedrift',
+      period: '2024–2025',
+      description: 'Ansvar for prioritering, retning og leveranser i teamet, i tett samarbeid med teknologi, design og andre fagmiljøer. Fra januar 2025 ble produktlederansvaret utvidet til tre team: Mobilbank Bedrift, Betaling og Transaksjoner. I perioden ble betalingsplattformen for over 100 000 bedriftskunder migrert, og bruken av Mobilbank Bedrift økte med om lag 40 prosent på halvannet år. SpareBank 1 lanserte biometrisk signering av betaling som første bank i Norge.',
+    },
+    {
+      company: 'SpareBank 1 Utvikling',
+      role: 'Områdeleder – Kundedialog',
+      period: '2022–2023',
+      description: 'Ansvar for to tverrfaglige team, bemanning, leveranser og budsjett på om lag 18–20 MNOK. Fulgte opp flere prosjekter og initiativer innenfor området som del av budsjett- og leveranseansvaret, blant annet som prosjektleder for et møtebookingprosjekt på om lag 3 MNOK. Overtok i perioden også produktlederansvaret for begge teamene.',
+    },
+    {
+      company: 'SpareBank 1 Utvikling',
+      role: 'Testleder og releaseleder – Nettsider',
+      period: '2019–2021',
+      description: 'Ansvar for test og release i teamet som utviklet bankens nettsider og CMS. Ryddet en backlog på 200–300 saker til et håndterbart nivå, samlet flere backlogs til én og bidro til hyppigere releaser.',
+    },
+    {
+      company: 'Varner',
+      role: 'Testleder',
+      period: '2019',
+      description: 'Testleder i utviklingen av ny e-handelsplattform. Koordinerte testing på tvers av fire team.',
     },
     {
       company: 'Vipps',
-      role: 'Kvalitet og teststrategi',
+      role: 'Testleder',
+      period: '2018–2019',
       description: 'Ansvar for kvalitet og teststrategi for mobile plattformer i iOS og Android.',
     },
     {
       company: 'Domstoladministrasjonen',
       role: 'Testleder, digitalisering',
+      period: '2018',
       description: 'Testleder i digitaliseringsprosjekt for norske domstoler med koordinering mot politiet og kriminalomsorgen.',
     },
     {
-      company: 'Varner',
-      role: 'Testleder',
-      description: 'Testleder i utviklingen av ny e-handelsplattform. Koordinerte testing på tvers av fire team.',
+      company: 'SpareBank 1',
+      role: 'Testleder – Mobilbank',
+      period: '2014–2018',
+      description: 'Var med på å endre leveransetakten fra rundt fire releaser i året til ukentlige releaser, blant annet ved å flytte testing tidligere i utviklingsløpet og tettere på utviklingen, helt ned på pull requests. Testgjennomløpet gikk fra rundt én uke til noen timer.',
     },
   ],
 } as const;
@@ -129,11 +152,11 @@ export const faqContent = {
     },
     {
       question: 'Jobber FYRK som interim produktleder?',
-      answer: 'Ja. FYRK tar oppdrag som interim produktleder og operativ rådgiver, særlig i regulerte og komplekse produktmiljøer.',
+      answer: 'Ja. FYRK tar oppdrag som interim produktleder eller leveranseleder, særlig i bank, betaling og andre regulerte miljøer.',
     },
     {
       question: 'Hvilke bransjer er mest relevante?',
-      answer: 'FYRK er særlig relevant for bank, finans, fintech, offentlig sektor og andre miljøer med komplekse digitale produkter, mange interessenter og høye krav til gjennomføring.',
+      answer: 'Bank og betaling er det tydeligste området. FYRK er også relevant for forsikring, offentlig sektor og andre regulerte miljøer med komplekse digitale produkter, mange team og høye krav til gjennomføring.',
     },
   ],
 } as const;
