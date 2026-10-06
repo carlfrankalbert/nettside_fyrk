@@ -73,55 +73,18 @@ export const whenFitsContent = {
 } as const;
 
 /**
- * Experience section content
+ * Short summary of the experience FYRK builds on (full background on /konsulenter)
  */
-export const experienceContent = {
-  title: 'Carls bakgrunn',
-  lead: 'FYRK drives av Carl Johnson. Erfaringen under er fra hans tidligere roller, hovedsakelig i bank og betaling.',
-  entries: [
-    {
-      company: 'SpareBank 1 Utvikling',
-      role: 'Produktleder – Mobilbank Bedrift',
-      period: '2024–2025',
-      description: 'Ansvar for prioritering, retning og leveranser i teamet, i tett samarbeid med teknologi, design og andre fagmiljøer. Fra januar 2025 ble produktlederansvaret utvidet til tre team: Mobilbank Bedrift, Betaling og Transaksjoner. I perioden ble betalingsplattformen for over 100 000 bedriftskunder migrert, og bruken av Mobilbank Bedrift økte med om lag 40 prosent på halvannet år. SpareBank 1 lanserte biometrisk signering av betaling som første bank i Norge.',
-    },
-    {
-      company: 'SpareBank 1 Utvikling',
-      role: 'Områdeleder – Kundedialog',
-      period: '2022–2023',
-      description: 'Ansvar for to tverrfaglige team, bemanning, leveranser og budsjett på om lag 18–20 MNOK. Fulgte opp flere prosjekter og initiativer innenfor området som del av budsjett- og leveranseansvaret, blant annet som prosjektleder for et møtebookingprosjekt på om lag 3 MNOK. Overtok i perioden også produktlederansvaret for begge teamene.',
-    },
-    {
-      company: 'SpareBank 1 Utvikling',
-      role: 'Testleder og releaseleder – Nettsider',
-      period: '2019–2021',
-      description: 'Ansvar for test og release i teamet som utviklet bankens nettsider og CMS. Ryddet en backlog på 200–300 saker til et håndterbart nivå, samlet flere backlogs til én og bidro til hyppigere releaser.',
-    },
-    {
-      company: 'Varner',
-      role: 'Testleder',
-      period: '2019',
-      description: 'Testleder i utviklingen av ny e-handelsplattform. Koordinerte testing på tvers av fire team.',
-    },
-    {
-      company: 'Vipps',
-      role: 'Testleder',
-      period: '2018–2019',
-      description: 'Ansvar for kvalitet og teststrategi for mobile plattformer i iOS og Android.',
-    },
-    {
-      company: 'Domstoladministrasjonen',
-      role: 'Testleder, digitalisering',
-      period: '2018',
-      description: 'Testleder i digitaliseringsprosjekt for norske domstoler med koordinering mot politiet og kriminalomsorgen.',
-    },
-    {
-      company: 'SpareBank 1',
-      role: 'Testleder – Mobilbank',
-      period: '2014–2018',
-      description: 'Var med på å endre leveransetakten fra rundt fire releaser i året til ukentlige releaser, blant annet ved å flytte testing tidligere i utviklingsløpet og tettere på utviklingen, helt ned på pull requests. Testgjennomløpet gikk fra rundt én uke til noen timer.',
-    },
+export const experienceSummaryContent = {
+  title: 'Erfaringen bak FYRK',
+  lead: 'FYRK bygger på erfaring fra produktledelse, leveranse og kvalitet i bank, betaling og andre regulerte miljøer.',
+  items: [
+    'Produktledelse for tre team i SpareBank 1 bedriftsmarked, blant annet gjennom migrering av betalingsplattformen for over 100 000 bedriftskunder.',
+    'Områdeledelse i SpareBank 1 med ansvar for to tverrfaglige team, leveranser, bemanning og budsjett på om lag 18–20 MNOK.',
+    'Test- og kvalitetsledelse i SpareBank 1s mobilbank, i en periode der leveransetakten gikk fra rundt fire releaser i året til ukentlige releaser.',
   ],
+  linkText: 'Se konsulentprofilen',
+  linkHref: '/konsulenter/',
 } as const;
 
 /**
