@@ -140,7 +140,6 @@ export const footerNavLinks = [
  * Footer content
  */
 export const footerContent = {
-  address: 'c/o Mesh Youngstorget, Møllergata 6, 0179 Oslo',
   orgNumber: '936 630 898',
   registration: 'Godkjent bemanningsforetak',
 } as const;

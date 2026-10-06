@@ -15,8 +15,6 @@ export const BRAND = {
   phone: '+47 929 11 929',
   orgNumber: '936 630 898',
   address: {
-    streetAddress: 'c/o Mesh Youngstorget, Møllergata 6',
-    postalCode: '0179',
     addressLocality: 'Oslo',
     addressCountry: 'NO',
   },
