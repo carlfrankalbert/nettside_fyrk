@@ -1,13 +1,20 @@
 ---
 interface Props {
+  title?: string;
   paragraphs: readonly string[];
 }
 
-const { paragraphs } = Astro.props;
+const { title, paragraphs } = Astro.props;
 ---
 
 <section class="py-16 md:py-20 px-6 bg-white">
   <div class="max-w-3xl mx-auto space-y-5">
+    {title && (
+      <>
+        <h2 class="text-h2 font-semibold text-brand-navy mb-3 text-center">{title}</h2>
+        <div class="w-16 h-1 bg-brand-cyan-darker mx-auto mb-8"></div>
+      </>
+    )}
     {paragraphs.map((paragraph) => (
       <p class="text-lg text-neutral-700 leading-relaxed">{paragraph}</p>
     ))}

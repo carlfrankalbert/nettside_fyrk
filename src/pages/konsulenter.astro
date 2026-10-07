@@ -6,10 +6,12 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageView from '../components/analytics/PageView.astro';
 import ConsultantProfile from '../components/konsulenter/ConsultantProfile.astro';
+import ExperienceSection from '../components/konsulenter/ExperienceSection.astro';
 import TestimonialsSection from '../components/konsulenter/TestimonialsSection.astro';
 import {
   konsulenterHeader,
   consultantContent,
+  backgroundContent,
   testimonialsContent,
   collaborationContent,
 } from '../data/konsulenter';
@@ -48,6 +50,12 @@ const personLd = {
   <ConsultantProfile
     title={consultantContent.title}
     consultant={consultantContent.consultant}
+  />
+
+  <ExperienceSection
+    title={backgroundContent.title}
+    lead={backgroundContent.lead}
+    entries={backgroundContent.entries}
   />
 
   <TestimonialsSection
