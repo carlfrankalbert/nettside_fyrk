@@ -73,16 +73,6 @@ export const whenFitsContent = {
 } as const;
 
 /**
- * Short summary of the experience FYRK builds on (full background on /konsulenter)
- */
-export const experienceSummaryContent = {
-  title: 'Erfaringen bak FYRK',
-  lead: 'FYRK bygger på erfaring fra produktledelse, leveranse og kvalitet i komplekse teknologimiljøer, fra bank og fintech til retail og offentlig sektor.',
-  linkText: 'Se konsulentprofilen',
-  linkHref: '/konsulenter/',
-} as const;
-
-/**
  * Contact section content
  */
 export const contactContent = {
