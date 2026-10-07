@@ -6,12 +6,11 @@
 interface Props {
   title: string;
   lead: string;
-  items: readonly string[];
   linkText: string;
   linkHref: string;
 }
 
-const { title, lead, items, linkText, linkHref } = Astro.props;
+const { title, lead, linkText, linkHref } = Astro.props;
 ---
 
 <section class="py-20 md:py-28 px-6 bg-white">
@@ -23,14 +22,6 @@ const { title, lead, items, linkText, linkHref } = Astro.props;
     <p class="text-lg text-neutral-700 leading-relaxed mb-8 text-center max-w-2xl mx-auto">
       {lead}
     </p>
-    <ul class="space-y-4 max-w-2xl mx-auto">
-      {items.map((item) => (
-        <li class="flex items-start gap-3 text-neutral-700 leading-relaxed">
-          <span class="mt-2 inline-block w-1.5 h-1.5 rounded-full bg-brand-cyan-darker shrink-0" aria-hidden="true"></span>
-          <span>{item}</span>
-        </li>
-      ))}
-    </ul>
     <p class="mt-10 text-center">
       <a href={linkHref} class="font-medium text-brand-cyan-darker hover:text-brand-navy transition-colors underline underline-offset-4">
         {linkText}

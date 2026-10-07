@@ -21,7 +21,7 @@ export const navLinks = [
 export const heroContent = {
   headline: 'Produkt- og leveranseledelse for komplekse og regulerte miljøer',
   description: [
-    'FYRK hjelper produktområder i bank, betaling og andre regulerte virksomheter når mange team, avhengigheter og krav gjør prioritering og gjennomføring krevende.',
+    'FYRK hjelper produktområder i komplekse virksomheter når mange team, avhengigheter og krav gjør prioritering og gjennomføring krevende.',
     'Bistår som interim produktleder eller leveranseleder.',
   ],
   ctaText: 'Ta kontakt',
@@ -35,7 +35,7 @@ export const introContent = {
   title: 'Hvorfor FYRK',
   paragraphs: [
     'Erfaring fra produktledelse, leveranse, teamledelse og kvalitet gjør det mulig å se både hva som bør prioriteres og hva som hindrer organisasjonen i å få det gjennomført.',
-    'I bank og betaling henger dette tett sammen. Krav, risiko og avhengigheter mellom team avgjør hva som faktisk kan leveres, og når.',
+    'I regulerte miljøer henger dette tett sammen. Krav, risiko og avhengigheter mellom team avgjør hva som faktisk kan leveres, og når.',
     'Som interim produktleder tar FYRK ansvar for retning og prioritering i et produktområde. Som leveranseleder tar FYRK ansvar for at teamene får levert det som er bestemt. Begge rollene er operative.',
   ],
 } as const;
@@ -77,12 +77,7 @@ export const whenFitsContent = {
  */
 export const experienceSummaryContent = {
   title: 'Erfaringen bak FYRK',
-  lead: 'FYRK bygger på erfaring fra produktledelse, leveranse og kvalitet i bank, betaling og andre regulerte miljøer.',
-  items: [
-    'Produktledelse for tre team i SpareBank 1 bedriftsmarked, blant annet gjennom migrering av betalingsplattformen for over 100 000 bedriftskunder.',
-    'Områdeledelse i SpareBank 1 med ansvar for to tverrfaglige team, leveranser, bemanning og budsjett på om lag 18–20 MNOK.',
-    'Test- og kvalitetsledelse i SpareBank 1s mobilbank, i en periode der leveransetakten gikk fra rundt fire releaser i året til ukentlige releaser.',
-  ],
+  lead: 'FYRK bygger på erfaring fra produktledelse, leveranse og kvalitet i komplekse teknologimiljøer, fra bank og fintech til retail og offentlig sektor.',
   linkText: 'Se konsulentprofilen',
   linkHref: '/konsulenter/',
 } as const;
@@ -115,7 +110,7 @@ export const faqContent = {
     },
     {
       question: 'Jobber FYRK som interim produktleder?',
-      answer: 'Ja. FYRK tar oppdrag som interim produktleder eller leveranseleder, særlig i bank, betaling og andre regulerte miljøer.',
+      answer: 'Ja. FYRK tar oppdrag som interim produktleder eller leveranseleder.',
     },
     {
       question: 'Hvilke bransjer er mest relevante?',
