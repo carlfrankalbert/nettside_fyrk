@@ -10,7 +10,7 @@ import { EXTERNAL_LINKS } from '../utils/links';
  */
 export const konsulenterHeader = {
   title: 'Konsulenter',
-  lead: 'FYRK tilbyr interim produktledere og leveranseledere til produktområder i bank, betaling og andre regulerte virksomheter.',
+  lead: 'FYRK tilbyr interim produktledere og leveranseledere til produktområder i komplekse virksomheter.',
 } as const;
 
 /**
