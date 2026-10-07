@@ -103,8 +103,8 @@ export const faqContent = {
       answer: 'Ja. FYRK tar oppdrag som interim produktleder eller leveranseleder.',
     },
     {
-      question: 'Hvilke bransjer er mest relevante?',
-      answer: 'Bank og betaling er det tydeligste området. FYRK er også relevant for forsikring, offentlig sektor og andre regulerte miljøer med komplekse digitale produkter, mange team og høye krav til gjennomføring.',
+      question: 'Hvilke virksomheter passer FYRK for?',
+      answer: 'Komplekse og regulerte virksomheter med digitale produkter, flere team og høye krav til kvalitet og gjennomføring, for eksempel innen bank og finans, forsikring og offentlig sektor.',
     },
   ],
 } as const;
