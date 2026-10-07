@@ -16,7 +16,6 @@ import HeroSection from '../components/landing/HeroSection.astro';
 import IntroSection from '../components/landing/IntroSection.astro';
 import ContributionsSection from '../components/landing/ContributionsSection.astro';
 import WhenFitsSection from '../components/landing/WhenFitsSection.astro';
-import ExperienceSummarySection from '../components/landing/ExperienceSummarySection.astro';
 import FaqSection from '../components/landing/FaqSection.astro';
 import ContactSection from '../components/landing/ContactSection.astro';
 import LandingFooter from '../components/landing/LandingFooter.astro';
@@ -28,7 +27,6 @@ import {
   introContent,
   contributionsContent,
   whenFitsContent,
-  experienceSummaryContent,
   faqContent,
   contactContent,
   footerContent,
@@ -82,8 +80,6 @@ const faqLd = {
         lead={whenFitsContent.lead}
         items={whenFitsContent.items}
       />
-
-      <ExperienceSummarySection {...experienceSummaryContent} />
 
       <FaqSection title={faqContent.title} items={faqContent.items} />
 
