@@ -5,6 +5,7 @@
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageView from '../../components/analytics/PageView.astro';
+import InsightCard from '../../components/ui/InsightCard.astro';
 import { getCollection } from 'astro:content';
 
 const insights = (await getCollection('innsikt', ({ data }) => !data.draft))
@@ -33,22 +34,12 @@ const insights = (await getCollection('innsikt', ({ data }) => !data.draft))
       <ul class="space-y-4">
         {insights.map((insight) => (
           <li>
-            <a
+            <InsightCard
               href={`/innsikt/${insight.id}`}
-              class="block rounded-lg border border-neutral-200 bg-white shadow-sm p-6 md:p-7 no-underline hover:border-brand-cyan-darker hover:shadow-md transition-all"
-            >
-              {insight.data.category && (
-                <span class="inline-block text-xs font-medium uppercase tracking-wide text-brand-cyan-darker mb-3">
-                  {insight.data.category}
-                </span>
-              )}
-              <h2 class="text-h4 font-semibold text-brand-navy mb-2 leading-snug">
-                {insight.data.title}
-              </h2>
-              <p class="text-neutral-600 leading-relaxed">
-                {insight.data.excerpt}
-              </p>
-            </a>
+              title={insight.data.title}
+              excerpt={insight.data.excerpt}
+              category={insight.data.category}
+            />
           </li>
         ))}
       </ul>

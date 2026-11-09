@@ -17,13 +17,20 @@ test.describe('All Pages Smoke Tests', () => {
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   });
 
-  test('Konsulenter page loads correctly', async ({ page }) => {
-    await page.goto('/konsulenter');
-    await expect(page).toHaveTitle(/Konsulenter/);
-    await expect(page.getByRole('heading', { level: 1, name: 'Konsulenter' })).toBeVisible();
-    await expect(page.getByRole('heading', { level: 2, name: 'Carl Johnson' })).toBeVisible();
-    await expect(page.getByRole('heading', { level: 2, name: 'Samarbeid med FYRK' })).toBeVisible();
-    await expect(page.getByRole('contentinfo')).toBeVisible();
+  test('homepage presents tools, insight and about sections', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('heading', { level: 2, name: 'Verktøyene' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2, name: 'Innsikt' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2, name: 'Om FYRK' })).toBeVisible();
+    // Hero CTA jumps to the tool list on the same page
+    await expect(page.locator('#verktoy')).toBeAttached();
+  });
+
+  test('homepage has no consultancy sales content', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('a[href*="/konsulenter"]')).toHaveCount(0);
+    await expect(page.locator('#kontakt')).toHaveCount(0);
+    await expect(page.getByText(/interim produktleder|bemanningsforetak/i)).toHaveCount(0);
   });
 
   test('homepage has accessible navigation', async ({ page }) => {

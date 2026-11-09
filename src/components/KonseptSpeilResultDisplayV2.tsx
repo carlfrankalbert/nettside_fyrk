@@ -10,7 +10,6 @@ const { loaderMessages } = konseptspeilTool.ui;
 import { cn } from '../utils/classes';
 import { trackClick } from '../utils/tracking';
 import { useCopyWithToast } from '../hooks/useCopyWithToast';
-import { CONTACT_LABEL } from '../utils/links';
 import { NEXT_STEP_SUGGESTIONS, getMostUnclearDimensions, generateFullAnalysisMarkdown } from '../utils/konseptspeil-result-helpers';
 
 import { FeedbackButtons } from './konseptspeil/FeedbackButtons';
@@ -251,21 +250,6 @@ export default function KonseptSpeilResultDisplayV2({
             )}
           </div>
         </div>
-      )}
-
-      {/* Human follow-up CTA */}
-      {!isStreaming && parsed.isComplete && (
-        <section className="p-4 bg-neutral-50 border border-neutral-200 rounded-lg flex items-center justify-between gap-4">
-          <p className="text-sm text-neutral-600">
-            Vil du snakke med et menneske? 20 min sparring.
-          </p>
-          <a
-            href="mailto:hei@fyrk.no?subject=Oppfølging fra Konseptspeilet"
-            className="shrink-0 inline-flex items-center px-4 py-2 text-sm font-medium text-brand-navy hover:text-brand-cyan-darker transition-colors focus:outline-hidden focus:ring-2 focus:ring-brand-cyan-darker focus:ring-offset-2 rounded-sm"
-          >
-            {CONTACT_LABEL}
-          </a>
-        </section>
       )}
 
       {/* Navigation back */}

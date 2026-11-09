@@ -242,7 +242,7 @@ Når du endrer en side, oppdater tilhørende smoke tests:
 
 #### Ved endring av navigasjon:
 - [ ] **Oppdater lenketester** - Sjekk at alle lenker i navigasjonen peker til riktige sider
-- [ ] **Verifiser ankerpunkter** - Sjekk at `#kontakt`, `#tjenester` osv. fortsatt eksisterer
+- [ ] **Verifiser ankerpunkter** - Sjekk at `#verktoy`, `#om` osv. fortsatt eksisterer
 
 #### Ved endring av skjema/input:
 - [ ] **Oppdater input-selektorer** - Tester bruker `textarea, .input` for å finne skjemaelementer
@@ -252,8 +252,8 @@ Når du endrer en side, oppdater tilhørende smoke tests:
 
 | Testfil | Tester disse sidene | Nøkkelelementer |
 |---------|---------------------|-----------------|
-| `pages.smoke.ts` | `/`, `/okr-sjekken` | `main`, `nav`, `h1`, skip-link |
-| `contact.smoke.ts` | `/#kontakt` | `h2`, e-postlenke, LinkedIn-lenke |
+| `pages.smoke.ts` | `/`, `/okr-sjekken` | `main`, `nav`, `h1`, skip-link, forsidens seksjoner |
+| `contact.smoke.ts` | `/` (footer) | E-postlenke, LinkedIn-lenke |
 | `error-pages.smoke.ts` | 404/500-sider | `lang="no"`, dark mode, redirect, API* |
 | `mobile.ux.ts` | `/`, `/okr-sjekken` | Touch targets (48px), tekststr., `textarea` |
 | `contrast.spec.ts` | `/`, `/okr-sjekken` | `.card`, `textarea`, `.btn-primary` |

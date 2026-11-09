@@ -1,0 +1,41 @@
+---
+/**
+ * Front page tool overview — renders every tool from data/verktoy.ts
+ */
+import ToolCard from '../ui/ToolCard.astro';
+import { verktoyPageContent } from '../../data/verktoy';
+
+interface Props {
+  id: string;
+  title: string;
+}
+
+interface ToolEntry {
+  name: string;
+  description: string;
+  href: string;
+  cta: string;
+  badge?: string;
+}
+
+const { id, title } = Astro.props;
+const tools = verktoyPageContent.sections.flatMap<ToolEntry>((section) => section.tools);
+---
+
+<section id={id} class="py-16 md:py-20 px-6 bg-neutral-50 scroll-mt-20">
+  <div class="max-w-3xl mx-auto">
+    <h2 class="text-h2 font-semibold text-brand-navy mb-3 text-center">{title}</h2>
+    <div class="w-16 h-1 bg-brand-cyan-darker mx-auto mb-10"></div>
+    <div class="space-y-4">
+      {tools.map((tool) => (
+        <ToolCard
+          name={tool.name}
+          description={tool.description}
+          href={tool.href}
+          cta={tool.cta}
+          badge={tool.badge}
+        />
+      ))}
+    </div>
+  </div>
+</section>

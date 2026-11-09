@@ -1,0 +1,28 @@
+---
+/**
+ * Card linking to a single tool — shared by the front page and /verktoy
+ */
+
+interface Props {
+  name: string;
+  description: string;
+  href: string;
+  cta: string;
+  badge?: string;
+}
+
+const { name, description, href, cta, badge } = Astro.props;
+---
+
+<div class="bg-white rounded-lg p-6 md:p-8 border border-neutral-200 shadow-sm hover:border-neutral-300 transition-colors">
+  <h3 class="text-h4 font-semibold text-brand-navy mb-2">
+    {name}
+    {badge && (
+      <span class="text-xs font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full align-middle ml-2">{badge}</span>
+    )}
+  </h3>
+  <p class="text-neutral-600 mb-4">{description}</p>
+  <a href={href} class="btn btn-primary no-underline inline-flex">
+    {cta}
+  </a>
+</div>

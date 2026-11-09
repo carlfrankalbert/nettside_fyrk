@@ -17,24 +17,6 @@ test.describe('Contact Smoke Tests', () => {
     const linkedinLink = page.getByTestId('footer-link-linkedin');
     await expect(linkedinLink).toBeVisible();
     await expect(linkedinLink).toHaveAttribute('target', '_blank');
-    // Footer is the company's presence; personal profile lives in the contact section
     await expect(linkedinLink).toHaveAttribute('href', 'https://www.linkedin.com/company/fyrk/');
-  });
-
-  test('header contact CTA targets the contact section', async ({ page, viewport }) => {
-    await page.goto('/');
-
-    // On mobile the CTA lives inside the hamburger menu
-    const isMobile = !!(viewport && viewport.width < 768);
-    if (isMobile) {
-      await page.getByLabel('Åpne meny').click();
-    }
-
-    const ctaTestId = isMobile ? 'header-contact-cta-mobile' : 'header-contact-cta';
-    const ctaLink = page.getByTestId(ctaTestId);
-    await expect(ctaLink).toBeVisible();
-
-    const href = await ctaLink.getAttribute('href');
-    expect(href).toContain('#kontakt');
   });
 });

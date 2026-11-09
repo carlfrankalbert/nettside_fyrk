@@ -9,10 +9,9 @@ import { EXTERNAL_LINKS } from '../../utils/links';
 
 interface Props {
   orgNumber: string;
-  registration?: string;
 }
 
-const { orgNumber, registration } = Astro.props;
+const { orgNumber } = Astro.props;
 const emailAddress = EXTERNAL_LINKS.email.replace('mailto:', '');
 ---
 
@@ -22,7 +21,7 @@ const emailAddress = EXTERNAL_LINKS.email.replace('mailto:', '');
       <div class="flex flex-col items-center md:items-start gap-3">
         <LandingLogo variant="white" />
         <div class="text-xs text-neutral-300 text-center md:text-left flex flex-col gap-0.5 [&>p]:mb-0">
-          <p>Org.nr: {orgNumber}{registration && ` · ${registration}`}</p>
+          <p>Org.nr: {orgNumber}</p>
           <p class="pt-2">
             <a href={EXTERNAL_LINKS.email} class="text-neutral-300 hover:text-white transition-colors no-underline" data-testid="footer-email">{emailAddress}</a>
           </p>

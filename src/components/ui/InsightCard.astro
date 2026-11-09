@@ -1,0 +1,33 @@
+---
+/**
+ * Clickable card for a single insight text — shared by the front page and /innsikt
+ */
+
+interface Props {
+  href: string;
+  title: string;
+  excerpt: string;
+  category?: string;
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { href, title, excerpt, category, headingLevel = 'h2' } = Astro.props;
+const Heading = headingLevel;
+---
+
+<a
+  href={href}
+  class="block rounded-lg border border-neutral-200 bg-white shadow-sm p-6 md:p-7 no-underline hover:border-brand-cyan-darker hover:shadow-md transition-all"
+>
+  {category && (
+    <span class="inline-block text-xs font-medium uppercase tracking-wide text-brand-cyan-darker mb-3">
+      {category}
+    </span>
+  )}
+  <Heading class="text-h4 font-semibold text-brand-navy mb-2 leading-snug">
+    {title}
+  </Heading>
+  <p class="text-neutral-600 leading-relaxed">
+    {excerpt}
+  </p>
+</a>
