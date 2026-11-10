@@ -10,7 +10,7 @@ export const BRAND = {
   name: 'FYRK',
   url: 'https://fyrk.no',
   description:
-    'FYRK bistår komplekse og regulerte produktmiljøer med prioritering, roadmap, avhengigheter og fremdrift.',
+    'FYRK lager verktøy og korte tekster for bedre produktbeslutninger.',
   email: 'hei@fyrk.no',
   phone: '+47 929 11 929',
   orgNumber: '936 630 898',

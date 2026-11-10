@@ -1,0 +1,43 @@
+---
+/**
+ * Front page teaser for the newest insight texts
+ */
+import InsightCard from '../ui/InsightCard.astro';
+import { getCollection } from 'astro:content';
+
+interface Props {
+  title: string;
+  intro: string;
+  limit: number;
+}
+
+const { title, intro, limit } = Astro.props;
+const insights = (await getCollection('innsikt', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.order - a.data.order)
+  .slice(0, limit);
+---
+
+{insights.length > 0 && (
+  <section class="py-16 md:py-20 px-6 bg-white">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-h2 font-semibold text-brand-navy mb-3 text-center">{title}</h2>
+      <div class="w-16 h-1 bg-brand-cyan-darker mx-auto mb-6"></div>
+      <p class="text-lg text-neutral-600 text-center mb-10">
+        {intro} Se <a href="/innsikt/" class="text-brand-navy underline hover:text-brand-cyan-darker">alle tekstene</a>.
+      </p>
+      <ul class="space-y-4">
+        {insights.map((insight) => (
+          <li>
+            <InsightCard
+              href={`/innsikt/${insight.id}`}
+              title={insight.data.title}
+              excerpt={insight.data.excerpt}
+              category={insight.data.category}
+              headingLevel="h3"
+            />
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+)}

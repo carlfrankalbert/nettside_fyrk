@@ -17,13 +17,13 @@ Optimized for an analytical, systems-thinking user (INTP) with low tolerance for
 
 ## Project overview
 
-Fyrk is a high-performance consulting site built with Astro and TypeScript. Minimal JavaScript shipping, strict type safety, clean component architecture.
+Fyrk is a hobby project — tools and short texts for better product decisions — built with Astro and TypeScript. It is no longer a consultancy: no sales pages or contact CTAs. Minimal JavaScript shipping, strict type safety, clean component architecture.
 
 ## 📋 Project Overview
 
-Fyrk is a consulting website with AI-powered tools, deployed on **Cloudflare Workers** (static assets + SSR routes, config in `wrangler.jsonc`). Key features:
+Fyrk is a tool site with AI-powered tools, deployed on **Cloudflare Workers** (static assets + SSR routes, config in `wrangler.jsonc`). Key features:
 
-- **Landing page** (`/`) - Main marketing site
+- **Landing page** (`/`) - Tool overview, latest insight texts, about
 - **OKR-sjekken** (`/okr-sjekken`) - AI-powered OKR review tool using Anthropic SDK
 - **Konseptspeilet** (`/konseptspeilet`) - Concept reflection tool for product ideas
 - **Antakelseskart** (`/antakelseskart`) - Assumption mapping tool for decisions
@@ -41,10 +41,9 @@ src/
 │   ├── antakelseskart/, konseptspeil/, okr/  # Per-tool subcomponents
 │   ├── dashboard/  # Analytics dashboard components
 │   ├── form/       # React form primitives (FormField, FormTextarea, etc.) - client-side
-│   ├── konsulenter/ # Consultant page sections
 │   ├── landing/    # Landing page sections incl. LandingHeader/LandingFooter
 │   ├── seo/        # SEO-related components
-│   └── ui/         # Reusable UI primitives (ValidationError, StreamingError, PrivacyAccordion)
+│   └── ui/         # Reusable UI primitives (ToolCard, InsightCard, ValidationError, StreamingError, PrivacyAccordion)
 ├── config/         # Site config
 ├── content/        # Content collections (innsikt, releaselog)
 ├── hooks/          # React hooks (useStreamingForm, useCopyToClipboard, useCopyWithToast, usePreMortemForm, etc.)

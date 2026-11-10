@@ -1,33 +1,26 @@
 # FYRK
 
-FYRK er et norsk konsulentselskap som tilbyr produkt- og leveranseledelse, som interim produktleder eller leveranseleder, for komplekse og regulerte miljøer. Bank og betaling er det tydeligste området.
+FYRK er et hobbyprosjekt med små verktøy og korte tekster for bedre produktbeslutninger. Verktøyene hjelper produktledere og team å teste OKR-er, produktideer og beslutninger før de bruker tid på dem.
 
 ## Relevante sider
 
 - Forside: https://fyrk.no/
-- Konsulenter: https://fyrk.no/konsulenter/
-- Innsikt: https://fyrk.no/innsikt/
 - Verktøy: https://fyrk.no/verktoy/
+- Innsikt: https://fyrk.no/innsikt/
 
-## Kjerneområder
+## Verktøy
+
+- OKR-sjekken: tilbakemelding på målbarhet, ambisjonsnivå og kobling til Objective
+- Konseptspeilet: avdekker blindsoner og implisitte antakelser i en produktidé
+- Pre-Mortem Brief: failure modes, tidlige varselsignaler og stopp-kriterier for en beslutning
+
+## Temaer
 
 - Produktledelse
-- Interim produktleder
-- Leveranseleder
 - Prioritering
 - Roadmap
-- Avhengigheter mellom team
-- Fremdrift i komplekse produktmiljøer
-- Regulerte miljøer
-- Bank og betaling, forsikring og offentlig sektor
-
-## Kort beskrivelse
-
-FYRK hjelper produktområder med å skape bedre oversikt, tydeligere prioriteringer og mer fremdrift når mange team, avhengigheter og beslutninger påvirker arbeidet.
-
-FYRK passer særlig godt i situasjoner der flinke folk har lav fremdrift fordi prioriteringer, avhengigheter eller beslutninger er uklare.
-
-FYRK jobber situasjonsbasert, ikke med ferdige metodepakker.
+- OKR
+- Beslutninger og risiko
 
 ## Kontakt
 

@@ -1,10 +1,11 @@
 ---
 /**
  * Dedicated tools page
- * Groups all FYRK tools by intent with disclaimers and service bridge
+ * Groups all FYRK tools by intent
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageView from '../components/analytics/PageView.astro';
+import ToolCard from '../components/ui/ToolCard.astro';
 import { verktoyPageContent } from '../data/verktoy';
 
 const { seo, title, subtitle, tagline, sections, disclaimerHtml } = verktoyPageContent;
@@ -35,18 +36,13 @@ const { seo, title, subtitle, tagline, sections, disclaimerHtml } = verktoyPageC
           <h2 class="text-h3 font-semibold text-brand-navy mb-6">{section.heading}</h2>
           <div class="space-y-4">
             {section.tools.map((tool) => (
-              <div class="bg-white rounded-lg p-6 md:p-8 border border-neutral-200 shadow-sm hover:border-neutral-300 transition-colors">
-                <h3 class="text-h4 font-semibold text-brand-navy mb-2">
-                  {tool.name}
-                  {'badge' in tool && tool.badge && (
-                    <span class="text-xs font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full align-middle ml-2">{tool.badge}</span>
-                  )}
-                </h3>
-                <p class="text-neutral-600 mb-4">{tool.description}</p>
-                <a href={tool.href} class="btn btn-primary no-underline inline-flex">
-                  {tool.cta}
-                </a>
-              </div>
+              <ToolCard
+                name={tool.name}
+                description={tool.description}
+                href={tool.href}
+                cta={tool.cta}
+                badge={'badge' in tool ? tool.badge : undefined}
+              />
             ))}
           </div>
         </section>

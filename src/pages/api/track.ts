@@ -92,7 +92,7 @@ export const TRACKED_BUTTONS = {
   rate_limit_hit_premortem: { label: 'Rate limit Pre-Mortem' },
 
   // Landing page buttons
-  hero_cta: { label: 'Kontakt FYRK (hero)' },
+  hero_cta: { label: 'Hero-CTA' },
   hero_secondary_cta: { label: 'Sekundær CTA (hero)' },
   nav_cta: { label: 'Kontakt (meny)' },
   nav_cta_mobile: { label: 'Kontakt (mobilmeny)' },

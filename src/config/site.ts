@@ -4,7 +4,7 @@
 export const SITE_CONFIG = {
   name: 'Fyrk',
   url: 'https://fyrk.no',
-  description: 'Fyrk leverer produktledelse der kvalitet møter forretningsverdi.',
+  description: 'Fyrk lager verktøy og korte tekster for bedre produktbeslutninger.',
   locale: 'nb_NO',
   defaultImage: '/og-image.png',
   favicon: '/fyrk-monogram-primary-navy.svg',

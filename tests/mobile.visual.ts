@@ -27,11 +27,11 @@ test.describe('Mobile Visual Regression - UX Designer Perspective', () => {
     });
   });
 
-  test('services section mobile layout', async ({ page }) => {
+  test('tools section mobile layout', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    const servicesSection = page.locator('#bidrag');
-    await expect(servicesSection).toHaveScreenshot('services-mobile.png', {
+    const toolsSection = page.locator('#verktoy');
+    await expect(toolsSection).toHaveScreenshot('tools-mobile.png', {
       maxDiffPixelRatio: 0.01,
     });
   });

@@ -6,8 +6,8 @@ Binding rules for all UI/UX changes on fyrk.no. Updated only by explicit decisio
 
 ## 1) Contract Summary
 
-- All contact CTAs **MUST** use label "Ta kontakt" and href `mailto:hei@fyrk.no`, except the header CTA, which points to `/#kontakt` (the contact section on the front page).
-- All contact CTAs **MUST NOT** use icons (no email icon, no arrow icon).
+- FYRK is a hobby project, not a consultancy: no sales or "hire us" CTAs. Contact happens via `hei@fyrk.no` in body text and the footer only.
+- Mailto links **MUST NOT** use icons (no email icon, no arrow icon).
 - Same action **MUST** have same visual treatment in the same context type.
 - Primary CTA (`btn btn-primary`) **MUST NOT** appear more than once per visual section.
 - Inline links **MUST** only be used inside body text paragraphs.
@@ -24,7 +24,7 @@ Binding rules for all UI/UX changes on fyrk.no. Updated only by explicit decisio
 ## 2) Allowed Actions & Link Types
 
 ### Internal route
-- `href`: Absolute path (e.g. `/konsulenter`, `/verktoy`)
+- `href`: Absolute path (e.g. `/verktoy`, `/innsikt`)
 - `target`: None (same tab)
 - `aria-label`: Not required (label text is sufficient)
 - Icon: None
@@ -35,7 +35,7 @@ Binding rules for all UI/UX changes on fyrk.no. Updated only by explicit decisio
 - `target`: `_blank`
 - `rel`: `noopener noreferrer`
 - `aria-label`: Not required if label includes destination (e.g. "LinkedIn")
-- Icon: Allowed only for LinkedIn in the consultant profile inline context (not in buttons)
+- Icon: None
 - Tracking: `data-track-button` where applicable
 
 ### Mailto
@@ -46,9 +46,9 @@ Binding rules for all UI/UX changes on fyrk.no. Updated only by explicit decisio
 - Tracking: `data-track-button` on primary instances
 
 ### Anchor link
-- Usage: **Restricted.** Allowed for skip-links (`#main-content`), within-page anchors on tool pages (e.g. `#skriv`), and the single header contact CTA (`/#kontakt`), which takes the visitor to the contact section on the front page.
+- Usage: **Restricted.** Allowed for skip-links (`#main-content`), within-page anchors on tool pages (e.g. `#skriv`), and the front-page hero CTA (`#verktoy`), which jumps to the tool list on the same page.
 - **MUST NOT** be used for footer navigation or for regular header nav items.
-- **MUST NOT** cross pages, apart from the header contact CTA above.
+- **MUST NOT** cross pages.
 
 ---
 
@@ -56,13 +56,13 @@ Binding rules for all UI/UX changes on fyrk.no. Updated only by explicit decisio
 
 ### Primary CTA
 - Class: `btn btn-primary no-underline`
-- When: Main action per section — contact CTA, hero CTA, service page bottom CTA
+- When: Main action per section — hero CTA, tool card CTA
 - Max: One per visual section
 - Forbidden: Multiple primary CTAs side by side (use primary + outline)
 
 ### Secondary CTA (outline)
 - Class: `btn btn-outline no-underline`
-- When: Alternative action next to a primary CTA (e.g. "LinkedIn" next to "Ta kontakt")
+- When: Alternative action next to a primary CTA
 - Forbidden: Standalone without a primary CTA nearby
 
 ### Inline link
@@ -83,25 +83,21 @@ Binding rules for all UI/UX changes on fyrk.no. Updated only by explicit decisio
 
 | Label | Action | Context |
 |-------|--------|---------|
-| Ta kontakt | `/#kontakt` in the header, `mailto:hei@fyrk.no` elsewhere | Contact CTAs (header, sections, pages) |
-| Send e-post | `mailto:hei@fyrk.no` | Contact section primary button only |
-| LinkedIn | Company LinkedIn (external) | Contact section, footer |
-| Se profil på LinkedIn | Personal LinkedIn (external) | Consultant profile inline only |
+| Utforsk verktøyene | `#verktoy` (same page) | Front-page hero CTA only |
+| LinkedIn | Company LinkedIn (external) | Footer |
 | Prøv [verktøynavn] | Tool page (internal) | Verktøy page cards |
 | Lag [verktøynavn] | Tool page (internal) | Verktøy page cards (beslutningslogg, pre-mortem) |
 | Les mer om personvern | `/personvern` | Fine print inline links |
 | Personvern | `/personvern` | Footer, tool footers |
 | Vilkår | `/vilkar` | Footer, tool footers |
-| Konsulenter | `/konsulenter` | Header nav, footer |
 | Verktøy | `/verktoy` | Header nav, footer |
+| Innsikt | `/innsikt` | Header nav, footer |
 
 ### Forbidden synonyms
 
 | Forbidden | Use instead |
 |-----------|------------|
-| Avklar behov | Ta kontakt |
-| Start en uforpliktende samtale | Ta kontakt |
-| Kontakt | Ta kontakt |
+| Ta kontakt / Avklar behov / Start en uforpliktende samtale | No sales CTA — FYRK is a hobby project |
 | Les mer → (as CTA button) | Make card clickable instead |
 
 ---
@@ -110,7 +106,6 @@ Binding rules for all UI/UX changes on fyrk.no. Updated only by explicit decisio
 
 - **Mailto actions: No icons.** The pattern is learned after one interaction.
 - **External links: No icons.** B2B audience, no external-link indicator needed.
-- **Exception:** LinkedIn SVG icon allowed in the consultant profile inline link ("Se profil på LinkedIn") to differentiate it from surrounding text.
 - **Rule: No mixed states.** If one instance of an action has an icon, all instances must. If one doesn't, none should.
 
 ---
@@ -125,9 +120,8 @@ Binding rules for all UI/UX changes on fyrk.no. Updated only by explicit decisio
 | Footer (marketing pages) | `LandingFooter.astro` | `src/components/landing/LandingFooter.astro` |
 | Footer (tool pages) | `ToolFooter.astro` | `src/components/ui/ToolFooter.astro` |
 | Breadcrumb | `Breadcrumb.astro` | `src/components/ui/Breadcrumb.astro` |
-| Contact section | `ContactSection.astro` | `src/components/landing/ContactSection.astro` |
-| Consultant profile | `ConsultantProfile.astro` | `src/components/konsulenter/ConsultantProfile.astro` |
-| Testimonials | `TestimonialsSection.astro` | `src/components/konsulenter/TestimonialsSection.astro` |
+| Tool card | `ToolCard.astro` | `src/components/ui/ToolCard.astro` |
+| Insight card | `InsightCard.astro` | `src/components/ui/InsightCard.astro` |
 
 ### Rules
 - **Do not create new header, footer, or CTA components** without updating this contract.
@@ -155,7 +149,7 @@ These are non-negotiable:
 
 ### PR Checklist (must pass before merge)
 
-1. [ ] All "Ta kontakt" CTAs use `mailto:hei@fyrk.no`, except the header CTA, which uses `/#kontakt` — no other variants
+1. [ ] No sales or contact CTAs — contact only via `hei@fyrk.no` in body text and footer
 2. [ ] No new CTA labels introduced outside approved list (section 4)
 3. [ ] No icons on mailto or contact buttons
 4. [ ] Primary CTA appears max once per visual section
@@ -169,9 +163,8 @@ These are non-negotiable:
 
 When reviewing for consistency, check these locations in order:
 
-1. **Header** — same on all pages? CTA label and href correct?
-2. **Footer** — Konsulenter, Innsikt, Verktøy, LinkedIn, Personvern, Vilkår present?
-3. **Konsulenter** — profile and collaboration section intact? LinkedIn label matches contract?
-4. **Tool pages** — footer uses `ToolFooter`? Breadcrumb present on sub-pages?
-5. **Contact section** (landing) — no icons on buttons? Label matches contract?
-6. **`src/data/landing.ts`** — navLinks and contactContent labels match contract?
+1. **Header** — same on all pages? Verktøy and Innsikt present, no CTA?
+2. **Footer** — Verktøy, Innsikt, LinkedIn, Personvern, Vilkår present?
+3. **Tool pages** — footer uses `ToolFooter`? Breadcrumb present on sub-pages?
+4. **Front page** — hero CTA jumps to `#verktoy`? Tool cards match `/verktoy`?
+5. **`src/data/landing.ts`** — navLinks and labels match contract?
