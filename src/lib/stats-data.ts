@@ -11,7 +11,7 @@ import { getDateKey, MONTH_NAMES, type TimePeriod, type TimeseriesEntry } from '
 import { emptyAcquisitionData, type AcquisitionData } from '../utils/acquisition';
 import { emptyAudienceData, type AudienceData } from '../utils/visitor-dimensions';
 
-export const STATS_PERIODS = ['today', '7d', '30d', 'all'] as const;
+const STATS_PERIODS = ['today', '7d', '30d', 'all'] as const;
 export type StatsPeriod = typeof STATS_PERIODS[number];
 
 export type ButtonCounts = Record<string, { count: number; label: string }>;

@@ -79,7 +79,7 @@ export type StrokeIconName = keyof typeof STROKE_ICON_PATHS;
 /**
  * Generic Icon component for filled icons
  */
-export function Icon({ name, className }: IconProps & { name: IconName }) {
+function Icon({ name, className }: IconProps & { name: IconName }) {
   const icon = ICON_PATHS[name];
   const isStrokeIcon = 'stroke' in icon;
 
@@ -106,7 +106,7 @@ export function Icon({ name, className }: IconProps & { name: IconName }) {
 /**
  * Stroke-based Icon component
  */
-export function StrokeIcon({ name, className }: IconProps & { name: StrokeIconName }) {
+function StrokeIcon({ name, className }: IconProps & { name: StrokeIconName }) {
   const icon = STROKE_ICON_PATHS[name];
 
   return (

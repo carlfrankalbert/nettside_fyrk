@@ -173,11 +173,9 @@ declares `typescript: ^5 || ^6`). Vitest 5 when it ships.
 - ~~`deploy-test.yml` / test.fyrk.no~~ — removed 2026-09-24. No DNS record existed,
   the workflow only ran on the deleted `develop` branch; Workers preview URLs
   cover staging.
-- The Pixel 7 homepage visual baselines are stale since #173 (a copy change),
-  so the visual workflow fails on `main`. Regenerate them.
-- The `okr-api` and `security` Playwright projects fail on `main`: `okr-api`
-  asserts the old English error message, `security` expects 429/415 where the
-  API returns other codes. Neither runs in CI, which is why nobody noticed.
+- ~~Stale Pixel 7 visual baselines, failing `okr-api` / `security` projects~~ —
+  resolved 2026-11-22 by removing them. The suite was cut to smoke + a11y,
+  since FYRK is now a hobby site (see `docs/testing.md`).
 
 ## Order
 

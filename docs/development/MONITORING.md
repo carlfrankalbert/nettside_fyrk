@@ -1,6 +1,6 @@
 # Monitoring Guide
 
-This document describes the monitoring infrastructure for the Fyrk website: errors, analytics, performance and load testing.
+This document describes the monitoring infrastructure for the Fyrk website: errors, analytics and performance.
 
 ## Overview
 
@@ -9,8 +9,7 @@ The monitoring stack:
 1. **Errors** — server: Cloudflare Workers Logs (`observability` in `wrangler.jsonc`).
    AI tool failures: counted by type (timeout, rate limit, API error, network) and
    shown under tool metrics in `/stats`.
-2. **Performance** — Web Vitals (real users, `/api/vitals`) and Lighthouse CI
-3. **Load testing** — k6
+2. **Performance** — Web Vitals (real users, `/api/vitals`)
 
 There is deliberately no third-party browser error tracker (Sentry was removed
 2026-09-25: it was never configured, would add a data processor to the privacy
@@ -132,112 +131,6 @@ Response:
 }
 ```
 
-### Lighthouse CI
-
-Automated performance testing runs on every PR and weekly.
-
-#### Running Locally
-
-```bash
-# Install Lighthouse CI
-npm install -g @lhci/cli
-
-# Run against production
-lhci autorun --collect.url=https://fyrk.no --collect.url=https://fyrk.no/okr-sjekken
-
-# Run against local server
-npm run build && npm run preview &
-lhci autorun --collect.url=http://localhost:4321
-```
-
-#### Performance Budgets
-
-See `lighthouse-budget.json` for current thresholds:
-
-| Metric | Budget |
-|--------|--------|
-| Time to Interactive | 3.5s |
-| First Contentful Paint | 1.8s |
-| Largest Contentful Paint | 2.5s |
-| Cumulative Layout Shift | 0.1 |
-| Total Blocking Time | 300ms |
-| Total JS Size | 200KB |
-| Total Page Size | 500KB |
-
-#### CI Integration
-
-The Lighthouse CI workflow (`.github/workflows/lighthouse-ci.yml`):
-
-- Runs on every PR to `main`
-- Runs weekly on Mondays
-- Posts results as PR comments
-- Fails if performance score < 80
-
-## Load Testing
-
-### Prerequisites
-
-Install k6:
-
-```bash
-# macOS
-brew install k6
-
-# Linux
-sudo apt-get install k6
-
-# Docker
-docker pull grafana/k6
-```
-
-### Running Load Tests
-
-```bash
-# Smoke test (quick validation)
-npm run test:load
-
-# Sustained load (10 concurrent users)
-npm run test:load:sustained
-
-# Stress test (find breaking point)
-npm run test:load:stress
-
-# Spike test (sudden traffic)
-npm run test:load:spike
-```
-
-### Test Against Local Server
-
-```bash
-# Start server
-npm run preview
-
-# Run load test against localhost
-k6 run --env BASE_URL=http://localhost:4321 load-tests/okr-api.js
-```
-
-### Understanding Results
-
-Key metrics to watch:
-
-| Metric | Healthy | Warning | Critical |
-|--------|---------|---------|----------|
-| Error Rate | < 1% | < 5% | > 10% |
-| p95 Response Time | < 10s | < 15s | > 20s |
-| Rate Limited | 0 | < 5 | > 10 |
-
-**Note:** The OKR endpoint calls Claude API, which has 3-10s latency. This is expected.
-
-### Capacity Planning
-
-Based on load testing:
-
-| Scenario | Concurrent Users | Expected Throughput |
-|----------|-----------------|---------------------|
-| Normal | 10 | ~2 req/sec |
-| Peak | 30 | ~5 req/sec |
-| Maximum | 50 | Rate limiting active |
-
 ## Alerting
 
 ### Recommended Alerts
@@ -296,22 +189,8 @@ Shows:
    - Defer non-critical scripts
    - Break up long tasks
 
-### Load Test Failures
-
-1. **High Error Rate**
-   - Check Anthropic API key is valid
-   - Verify rate limits aren't exceeded
-   - Check for network issues
-
-2. **Rate Limiting**
-   - Expected during stress tests
-   - Check `Retry-After` header
-   - Consider increasing rate limits for testing
-
 ## Best Practices
 
 1. **Review errors weekly** - Don't let issues accumulate
 2. **Monitor trends** - Watch for gradual degradation
-3. **Test before releases** - Run Lighthouse CI on PRs
-4. **Load test changes** - Especially API modifications
-5. **Set up alerts** - Don't wait for users to report issues
+3. **Set up alerts** - Don't wait for users to report issues

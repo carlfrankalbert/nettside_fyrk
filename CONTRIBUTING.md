@@ -37,23 +37,9 @@ See `QUICKSTART.md` for full setup.
 
 See `docs/README.md` for file naming and required sections.
 
-### Hard vs soft impact paths
-
-The CI docs gate distinguishes between:
-
-**HARD paths** (docs required) — `src/`, `apps/`, `pages/`, `components/`, `lib/`, `api/`, `functions/`, `workers/`, `server/`, `packages/`
-Changes here fail CI unless docs are updated or an exemption token is present.
-
-**SOFT paths** (docs recommended) — `.github/`, `scripts/`, `tooling/`, `config/`
-Changes here print a notice but never fail CI.
-
 ### Definition of done
 
-A PR is not done unless at least one is true:
-- Docs updated (with linked files in PR description), OR
-- Docs explicitly exempt: `DOCS-IMPACT: none — <reason>`
-
-Reviewers should request docs if the Doc Impact checklist indicates impact.
+A PR is not done unless docs are updated, or the PR body says why none were needed.
 
 ### Templates
 

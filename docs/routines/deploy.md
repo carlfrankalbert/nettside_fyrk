@@ -12,7 +12,6 @@ the merge commit.
 2. Workers Builds runs `npm run build`, then `npx wrangler deploy`
 3. The Worker serves static pages from `dist/client` and the server routes
    (`/api/*`, `/stats`, `/beta`, `/feature-toggles`) from `dist/server`
-4. Smoke tests run against production (`smoke-test.yml`, daily at 06:00 UTC)
 
 ## Manual deploy
 
@@ -52,7 +51,7 @@ and commit the regenerated `worker-configuration.d.ts`.
 - Check production URL: https://fyrk.no
 - `GET /api/health` reports API key, KV and rate limiter status
 - Check the Worker's Deployments tab for build status
-- Smoke tests run automatically and report failures
+- Optional: `PLAYWRIGHT_TEST_BASE_URL=https://fyrk.no npm run test:smoke`
 
 ## Ownership
 

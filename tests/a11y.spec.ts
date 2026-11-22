@@ -16,6 +16,9 @@ const PAGES_TO_TEST = [
   { path: '/verktoy', name: 'Verktøy' },
   { path: '/okr-sjekken', name: 'OKR-sjekken' },
   { path: '/konseptspeilet', name: 'Konseptspeilet' },
+  { path: '/antakelseskart', name: 'Antakelseskart' },
+  { path: '/beslutningslogg', name: 'Beslutningslogg' },
+  { path: '/verktoy/pre-mortem', name: 'Pre-Mortem' },
   { path: '/personvern', name: 'Personvern' },
 ];
 
@@ -55,32 +58,6 @@ for (const page of PAGES_TO_TEST) {
     ).toHaveLength(0);
   });
 }
-
-// Test color contrast specifically (already covered by wcag2aa, but explicit check)
-test('Landing page has sufficient color contrast', async ({ page }) => {
-  await page.goto('/');
-  await page.waitForLoadState('networkidle');
-
-  const results = await new AxeBuilder({ page })
-    .withRules(['color-contrast'])
-    .analyze();
-
-  const seriousContrastIssues = results.violations.filter(
-    (v: Result) => v.impact === 'critical' || v.impact === 'serious'
-  );
-
-  if (seriousContrastIssues.length > 0) {
-    console.log('\nSerious color contrast issues found:');
-    for (const issue of seriousContrastIssues) {
-      for (const node of issue.nodes) {
-        console.log(`  Element: ${node.target.join(' ')}`);
-        console.log(`  HTML: ${node.html.substring(0, 100)}...`);
-      }
-    }
-  }
-
-  expect(seriousContrastIssues).toHaveLength(0);
-});
 
 // Test keyboard navigation on interactive pages
 test('OKR-sjekken form is keyboard accessible', async ({ page }) => {

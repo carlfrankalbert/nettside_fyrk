@@ -44,7 +44,7 @@ export interface AnthropicErrorResponse {
 /**
  * Type guard to validate Anthropic text block structure
  */
-export function isAnthropicTextBlock(block: unknown): block is AnthropicTextBlock {
+function isAnthropicTextBlock(block: unknown): block is AnthropicTextBlock {
   return (
     typeof block === 'object' &&
     block !== null &&

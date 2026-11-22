@@ -102,11 +102,3 @@ export const METRIC_EXPLANATIONS = {
   audience: 'Hvem som besøker, telt én gang per unike besøkende per dag. Nettverk er eieren av IP-adressen: oftest en internettleverandør, men store virksomheter og offentlige etater har ofte egne nett. AS-nummeret lenker til en oppslagstjeneste om nettverket; «datasenter» betyr nesten alltid roboter. 404 viser adresser folk prøvde å åpne som ikke finnes.',
   acquisition: 'Hvor besøkende kommer fra. Viser eksterne henvisere og UTM-parametere fra kampanjelenker (utm_source, utm_medium, utm_campaign).',
 } as const;
-
-/** Threshold definitions for KPI cards */
-export const THRESHOLDS = {
-  conversionRate: { good: 50, warning: 25 },
-  satisfaction: { good: 70, warning: 50 },
-  errorRate: { good: 1, warning: 5 },
-  funnelStep: { good: 70, warning: 40 },
-} as const;

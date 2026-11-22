@@ -55,31 +55,6 @@ export default [
     },
   },
 
-  // k6 load test files - different environment
-  {
-    files: ['load-tests/**/*.js'],
-    languageOptions: {
-      globals: {
-        __ENV: 'readonly',
-        console: 'readonly',
-      },
-    },
-    rules: {
-      'no-unused-vars': 'off', // k6 exports are used by the runtime
-    },
-  },
-
-  // Node scripts
-  {
-    files: ['scripts/**/*.mjs'],
-    languageOptions: {
-      globals: {
-        process: 'readonly',
-        console: 'readonly',
-      },
-    },
-  },
-
   // Ignore patterns
   {
     ignores: [

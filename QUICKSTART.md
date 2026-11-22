@@ -47,10 +47,7 @@ npm run test           # Full kvalitetssuite (typecheck + lint + unit + e2e)
 npm run test:unit      # Unit-tester (Vitest)
 npm run test:e2e       # Smoke-tester (Playwright)
 npm run test:a11y      # Tilgjengelighetstester
-npm run test:visual    # Visuell regresjon
-npm run test:mobile    # Mobil UX-tester
 npm run test:ui        # Playwright interaktiv UI
-npm run test:load      # k6 load-tester
 ```
 
 ## Deployment

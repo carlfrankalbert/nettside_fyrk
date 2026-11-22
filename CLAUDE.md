@@ -105,8 +105,9 @@ When asked to "check" or "refactor" the code:
 
 - **Static Analysis:** TypeScript (`astro check`) and ESLint catch errors before runtime.
 - **Unit Testing:** Use **Vitest** for all logic in `src/services` or `src/utils`.
-- **E2E Testing:** Use **Playwright** for critical user flows. API calls are mocked for stability.
-- **A11y Testing:** Use `axe-core` to check for serious accessibility violations.
+- **E2E Testing:** Lean **Playwright** smoke suite (pages load, one mocked AI tool flow). API calls are always mocked.
+- **A11y Testing:** `axe-core` on key pages, serious/critical violations only.
+- **Scope:** Hobby site — deliberately no visual regression, load, contrast or scheduled test runs. Don't reintroduce without asking.
 - **Pre-commit:** Husky runs typecheck and lint-staged on every commit.
 - **Rule:** Every new bug fix should include a regression test. New utilities should have good test coverage.
 
@@ -119,11 +120,10 @@ When asked to "check" or "refactor" the code:
 | `npm run lint` | ESLint |
 | `npm run test:unit` | Run Vitest unit tests |
 | `npm run test:unit:coverage` | Unit tests with coverage report |
-| `npm run test:e2e` | E2E smoke tests |
+| `npm run test:e2e` | All Playwright projects (smoke + a11y) |
+| `npm run test:smoke` | Smoke tests, desktop + mobile |
 | `npm run test:a11y` | Accessibility tests |
-| `npm run test:visual` | Visual regression tests |
 | `npm run test:ui` | Open Playwright interactive UI |
-| `npm run test:load` | Run k6 load tests |
 
 ## 🔐 Environment Variables
 
@@ -285,39 +285,23 @@ Use Conventional Commits prefixes:
 - `chore:` — tooling, deps, config
 
 ### Label Conventions
-Apply labels to PRs for automated release note categorization:
+Apply labels to PRs for categorization:
 - `user-facing` — visible to end users
 - `security` — security-related
 - `performance` — performance improvement
 - `internal` — tooling/infra, not user-visible
 - `breaking` — breaking change requiring attention
 
-### Automated Release Notes
-On merge to `main`, the `release-notes.yml` workflow generates a draft release note PR via Claude. The generated content is scanned for PII/secrets before writing. Review before merging.
-
 ---
 
 ## 🧪 Test Hygiene Contract
 
 ### Definition of Done for UI PRs
-If a PR changes UI (routes, components, styles), it must:
-- Update or confirm visual snapshots are unchanged
-- Update or add Playwright tests for new behavior
-- Add `data-testid` for newly tested interactive elements
-- Keep smoke tests green
-
-### Commit messages for test changes
-- If UI changes visually: `feat(ui): adjust hero spacing (updates snapshots)`
-- If tests updated: `test(visual): update snapshots for new pricing section`
-- If test infrastructure: `chore(test): add coverage for url-decoding utils`
-
-### Visual snapshot rules
-- Baselines use project-name paths (no OS suffix) so macOS and Linux CI share baselines
-- Update snapshots via: `npx playwright test --update-snapshots --project=visual`
-- Or from CI: `gh workflow run "Monthly Visual Regression" -f update_snapshots=true`
-- Always commit updated `.png` files in the same PR as the UI change
+- Smoke + a11y green (`npm run test:e2e`)
+- New page/tool → add its path to `tests/pages.smoke.ts` and `tests/a11y.spec.ts`
+- No visual snapshots: verify visual changes manually in the browser
 
 ### Coverage
-- Minimum thresholds: 35% lines/statements/functions/branches
-- New utility files in `src/utils/`, `src/services/`, `src/lib/` must include tests
-- See `docs/testing.md` for the full testing playbook
+- Thresholds in `vitest.config.ts` are a regression floor
+- New logic in `src/utils/`, `src/services/`, `src/lib/` gets tests
+- See `docs/testing.md` for the testing playbook
