@@ -187,7 +187,7 @@ export default function Beslutningslogg() {
             </span>
             <span className={cn(
               'text-xs',
-              charCount >= BESLUTNINGSLOGG_VALIDATION.MIN_BESLUTNING_LENGTH ? 'text-neutral-500' : 'text-neutral-400'
+              charCount >= BESLUTNINGSLOGG_VALIDATION.MIN_BESLUTNING_LENGTH ? 'text-neutral-600' : 'text-neutral-500'
             )}>
               {charCount} / {BESLUTNINGSLOGG_VALIDATION.MAX_BESLUTNING_LENGTH}
             </span>
