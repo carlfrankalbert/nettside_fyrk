@@ -9,12 +9,7 @@
 
 ## Docs
 
-<!-- You MUST do one of the following: -->
-<!-- Option A: link updated doc files -->
-<!-- Option B: write the exemption token (exactly as shown) -->
-
-**Docs updated:** <!-- docs/features/x.md, docs/routines/y.md -->
-**OR** `DOCS-IMPACT: none — <reason why no docs needed>`
+**Docs updated:** <!-- docs/features/x.md, or "none — <reason>" -->
 
 ### Doc Impact checklist
 
@@ -27,10 +22,8 @@
 
 ## Checklist
 
-- [ ] Updated/added Playwright tests for new/changed behavior
-- [ ] Updated visual snapshots if UI changed (`npx playwright test --update-snapshots`)
-- [ ] Added `data-testid` for any new interactive elements used in tests
-- [ ] Verified tests locally: `npm run test:unit` + smoke/visual as needed
+- [ ] New page/tool added to `tests/pages.smoke.ts` and `tests/a11y.spec.ts`
+- [ ] Verified locally: `npm test`
 - [ ] No new TypeScript errors (`npm run typecheck`)
 - [ ] No new lint warnings (`npm run lint`)
 

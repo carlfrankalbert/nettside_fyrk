@@ -2,7 +2,7 @@
  * Common bot/crawler user agent patterns
  * Shared between server-side and client-side tracking exclusion
  */
-export const BOT_PATTERNS = [
+const BOT_PATTERNS = [
   // Search engine bots
   'googlebot', 'bingbot', 'slurp', 'duckduckbot', 'baiduspider', 'yandexbot',
   'sogou', 'exabot', 'facebot', 'ia_archiver',
@@ -23,7 +23,7 @@ export const BOT_PATTERNS = [
 ] as const;
 
 /** Automated browser user agent patterns */
-export const AUTOMATED_BROWSER_PATTERNS = [
+const AUTOMATED_BROWSER_PATTERNS = [
   'playwright', 'puppeteer', 'headlesschrome', 'cypress', 'selenium',
   'github-actions',
 ] as const;

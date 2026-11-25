@@ -5,7 +5,6 @@
 1. **Before coding:** check if your change requires a doc update (see `CONTRIBUTING.md`)
 2. **While coding:** update docs in the same PR as code changes
 3. **In the PR:** fill out the Doc Impact checklist in the PR template
-4. **CI enforces:** the docs-gate workflow fails if product code changed (hard paths) but no docs updated — exempt with `DOCS-IMPACT: none — <reason>` in PR body. Infra/tooling changes (soft paths) only print a notice.
 
 ---
 
@@ -50,7 +49,7 @@ One file per operational procedure. Required sections:
 
 - Lowercase, kebab-case: `okr-sjekken.md`, `deploy.md`
 - Feature files match the route/tool name
-- Routine files match the action: `deploy.md`, `rollback.md`, `visual-regression.md`
+- Routine files match the action: `deploy.md`, `rollback.md`
 
 ### Single source of truth
 
@@ -70,7 +69,6 @@ One file per operational procedure. Required sections:
 | Deploy | `docs/routines/deploy.md` |
 | Testing | `docs/testing.md` |
 | Design principles | `docs/DESIGN_PRINCIPLES.md` |
-| Security tests | `docs/security/SECURITY_TESTS.md` |
 | Modernization plan | `docs/modernization-plan.md` |
 | Dependency audit & accepted advisories | `docs/security/dependency-audit.md` |
 
@@ -87,7 +85,7 @@ One file per operational procedure. Required sections:
 ### Development
 
 - [Branch guide](development/BRANCH_GUIDE.md)
-- [Testing](development/TESTING.md)
+- [Testing](testing.md)
 - [Test environment](development/TESTMILJO.md)
 - [Monitoring](development/MONITORING.md)
 

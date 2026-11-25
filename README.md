@@ -116,35 +116,26 @@ npm run test              # Full kvalitetssuite (typecheck + lint + unit + e2e)
 npm run test:unit         # Vitest unit-tester
 npm run test:e2e          # Playwright smoke-tester
 npm run test:a11y         # Tilgjengelighetstester (axe-core)
-npm run test:visual       # Visuell regresjon
-npm run test:mobile       # Mobil-spesifikke tester
-npm run test:load         # k6 load-tester
 npm run test:unit:coverage # Unit-tester med coverage-rapport
 ```
 
 | Nivå | Verktøy | Beskytter |
 |------|---------|-----------|
 | Statisk analyse | TypeScript (`astro check`), ESLint | Typefeil, kodestil |
-| Unit/Integration | Vitest (374 tester, ~40% coverage) | Forretningslogikk, parsere, validering |
-| E2E | Playwright | Kritiske brukerflyter, smoke, a11y |
-| Visuell regresjon | Playwright snapshots | UI-endringer |
-| Load testing | k6 | API-ytelse under last |
+| Unit/Integration | Vitest | Forretningslogikk, parsere, validering |
+| E2E | Playwright (Chromium, desktop + mobil) | Sidene laster, ett verktøyflyt med mocket API, a11y |
+
+Bevisst slankt — se `docs/testing.md`.
 
 ## CI/CD
 
-9 GitHub workflows. Produksjons-deploy går ikke via GitHub Actions, men via Cloudflare Workers Builds ved push til `main` (se `docs/routines/deploy.md`).
+3 GitHub workflows. Produksjons-deploy går ikke via GitHub Actions, men via Cloudflare Workers Builds ved push til `main` (se `docs/routines/deploy.md`).
 
 | Workflow | Trigger | Formål |
 |----------|---------|--------|
-| `ci.yml` | Push/PR | Typecheck, lint, unit, e2e, a11y, security audit |
-| `docs-gate.yml` | PR | Sjekker at docs er oppdatert |
+| `ci.yml` | Push/PR | Typecheck, lint, unit, build, e2e + a11y, security audit |
 | `claude-code-review.yml` | PR | Automatisk kodegjennomgang |
 | `claude.yml` | `@claude` i issues/PR | Claude-assistent |
-| `release-notes.yml` | Push til main | Auto-genererte release notes |
-| `smoke-test.yml` | Daglig 06:00 UTC | Smoke-test mot fyrk.no |
-| `nightly.yml` | Daglig 03:00 UTC | Full test-suite |
-| `lighthouse-ci.yml` | Mandager 07:00 UTC | Performance-budsjett |
-| `visual-regression.yml` | Månedlig / manuelt | Visuell diff, oppdatering av baselines |
 
 ## Deployment
 
@@ -180,8 +171,6 @@ Lokalt leses disse fra `.env`. I produksjon er de Worker-secrets. `.dev.vars.exa
 - **[Anthropic Claude API](https://anthropic.com)** — AI for alle verktøy
 - **[Playwright](https://playwright.dev)** — E2E, a11y, visuell testing
 - **[Vitest](https://vitest.dev)** — Unit testing
-- **[Lighthouse CI](https://github.com/GoogleChrome/lighthouse-ci)** — Performance testing
-- **[k6](https://k6.io)** — Load testing
 
 ## Sikkerhet
 

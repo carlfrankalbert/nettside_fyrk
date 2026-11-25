@@ -13,7 +13,7 @@ import { INPUT_VALIDATION, PRE_MORTEM_VALIDATION } from './constants';
  * Generic text input validation
  * Returns error message if invalid, null if valid
  */
-export function validateTextInput(
+function validateTextInput(
   input: string,
   options: {
     minLength?: number;

@@ -41,7 +41,7 @@ export function shouldExcludeFromTracking(): boolean {
  * Enable tracking exclusion for this browser
  * Call this from the console: fyrk.excludeFromStats()
  */
-export function excludeFromStats(): void {
+function excludeFromStats(): void {
   if (typeof localStorage !== 'undefined') {
     localStorage.setItem(EXCLUSION_KEY, 'true');
     console.log('✓ You are now excluded from Fyrk statistics');
@@ -52,7 +52,7 @@ export function excludeFromStats(): void {
  * Disable tracking exclusion for this browser
  * Call this from the console: fyrk.includeInStats()
  */
-export function includeInStats(): void {
+function includeInStats(): void {
   if (typeof localStorage !== 'undefined') {
     localStorage.removeItem(EXCLUSION_KEY);
     console.log('✓ You are now included in Fyrk statistics');
@@ -63,7 +63,7 @@ export function includeInStats(): void {
  * Check current exclusion status
  * Call this from the console: fyrk.isExcluded()
  */
-export function isExcluded(): boolean {
+function isExcluded(): boolean {
   const excluded = shouldExcludeFromTracking();
   console.log(excluded ? '✗ You are excluded from stats' : '✓ You are included in stats');
   return excluded;

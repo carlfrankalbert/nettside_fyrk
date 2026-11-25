@@ -37,8 +37,6 @@ playwright/.cache/
 .wrangler/
 
 # Load testing results
-load-tests/results/*.json
-!load-tests/results/.gitkeep
 
 # Lighthouse CI
 .lighthouseci/

@@ -63,7 +63,7 @@ interface StreamEvent {
  * Perform a streaming request to the API
  * Parses SSE events and calls onChunk for each text chunk
  */
-export async function performStreamingRequest(
+async function performStreamingRequest(
   endpoint: string,
   input: string,
   onChunk: (chunk: string) => void,
@@ -145,7 +145,7 @@ export async function performStreamingRequest(
 /**
  * Simulate streaming for cached results (better UX than instant display)
  */
-export async function streamCachedResult(
+async function streamCachedResult(
   cachedResult: string,
   onChunk: (chunk: string) => void,
   signal?: AbortSignal,
